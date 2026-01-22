@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\InventoryTransaction;
 use App\Models\Product;
+use App\Services\BusinessIntelligence;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Title;
@@ -62,16 +63,22 @@ class Dashboard extends Component
                 'day' => $date->format('D'),
                 'count' => $count,
                 'height' => $count > 0 ? ($count * 10) + 20 : 5 // Height in px/percentage logic
-            ];
-        }
-
-        return view('livewire.dashboard', [
-            'totalProducts' => $totalProducts,
-            'lowStockCount' => $lowStockCount,
-            'totalValue' => $totalValue,
-            'monthlySales' => $monthlySales,
-            'recentTransactions' => $recentTransactions,
-            'chartData' => $chartData,
-        ]);
-    }
-}
+                        ];
+                    }
+            
+                    // 7. AI Insights
+                    $bi = new BusinessIntelligence();
+                    $insights = $bi->getInsights();
+            
+                    return view('livewire.dashboard', [
+                        'totalProducts' => $totalProducts,
+                        'lowStockCount' => $lowStockCount,
+                        'totalValue' => $totalValue,
+                        'monthlySales' => $monthlySales,
+                        'recentTransactions' => $recentTransactions,
+                        'chartData' => $chartData,
+                        'insights' => $insights,
+                    ]);
+                }
+            }
+            
