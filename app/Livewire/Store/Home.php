@@ -247,6 +247,11 @@ class Home extends Component
         $this->showCompareModal = false;
     }
 
+    public function getCompareProductsProperty()
+    {
+        return Product::with('category')->whereIn('id', $this->compareList)->get();
+    }
+
     public function render()
     {
         $products = Product::query()
