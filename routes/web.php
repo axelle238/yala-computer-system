@@ -56,6 +56,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/purchase-orders/create', \App\Livewire\PurchaseOrders\Form::class)->name('purchase-orders.create');
     Route::get('/purchase-orders/{id}/edit', \App\Livewire\PurchaseOrders\Form::class)->name('purchase-orders.edit');
 
+    // Warehouse
+    Route::get('/warehouses/transfer', \App\Livewire\Warehouses\Transfer::class)->name('warehouses.transfer');
+
     // Printing Routes
     Route::get('/print/transaction/{id}', [\App\Http\Controllers\PrintController::class, 'transaction'])->name('print.transaction');
     Route::get('/print/service/{id}', [\App\Http\Controllers\PrintController::class, 'service'])->name('print.service');
