@@ -219,13 +219,35 @@
             @endif
 
             <!-- Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative">
+                
+                <!-- Loading Skeleton Overlay -->
+                <div wire:loading.flex class="absolute inset-0 z-50 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 bg-white/80 backdrop-blur-sm transition-all duration-300">
+                    @for($i=0; $i<6; $i++)
+                        <div class="bg-white rounded-3xl border border-slate-100 p-4 animate-pulse">
+                            <div class="h-56 bg-slate-200 rounded-2xl mb-4"></div>
+                            <div class="px-2">
+                                <div class="flex justify-between mb-2">
+                                    <div class="h-4 bg-slate-200 rounded w-16"></div>
+                                    <div class="h-4 bg-slate-200 rounded w-8"></div>
+                                </div>
+                                <div class="h-6 bg-slate-200 rounded w-full mb-2"></div>
+                                <div class="h-6 bg-slate-200 rounded w-2/3"></div>
+                                <div class="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center">
+                                    <div class="h-8 bg-slate-200 rounded w-24"></div>
+                                    <div class="h-8 w-8 bg-slate-200 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    @endfor
+                </div>
+
                 @forelse($products as $product)
                     <div wire:key="{{ $product->id }}" 
                          wire:click="openProduct({{ $product->id }})"
-                         class="group relative bg-white rounded-3xl border border-slate-100 p-4 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-2 cursor-pointer overflow-hidden">
+                         class="reveal group relative bg-white rounded-3xl border border-slate-100 p-4 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-2 cursor-pointer overflow-hidden">
                         
-                        <!-- Image -->
+                        <!-- Hover Glow Effect -->
                         <div class="relative h-56 bg-slate-50 rounded-2xl overflow-hidden mb-4 flex items-center justify-center group-hover:bg-white transition-colors">
                             @if($product->image_path)
                                 <img src="{{ asset('storage/' . $product->image_path) }}" class="max-h-[80%] max-w-[80%] object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-110 group-hover:rotate-2">
@@ -241,7 +263,7 @@
                         </div>
 
                         <!-- Floating Action Button (Add to Cart) -->
-                        <button wire:click.stop="addToCart({{ $product->id }})" class="absolute bottom-4 right-4 w-12 h-12 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg transform translate-y-20 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-cyan-600 z-20">
+                        <button wire:click.stop="addToCart({{ $product->id }})" class="ripple absolute bottom-4 right-4 w-12 h-12 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg transform translate-y-20 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-cyan-600 z-20">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                         </button>
 

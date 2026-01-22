@@ -70,14 +70,33 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        /* Scroll Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
-<body class="text-slate-800 antialiased selection:bg-cyan-500 selection:text-white">
+<body class="text-slate-800 antialiased selection:bg-cyan-500 selection:text-white"
+      x-data="{
+          init() {
+              const observer = new IntersectionObserver((entries) => {
+                  entries.forEach(entry => {
+                      if (entry.isIntersecting) {
+                          entry.target.classList.add('active');
+                      }
+                  });
+              }, { threshold: 0.1 });
+              
+              document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+          }
+      }"
+>
     
     <!-- Background Animation -->
     <div class="mesh-bg">
@@ -190,5 +209,42 @@
     </a>
 
     @livewireScripts
+
+    <script>
+        // Ripple Effect
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('.ripple')) {
+                const button = e.target.closest('.ripple');
+                const circle = document.createElement('span');
+                const diameter = Math.max(button.clientWidth, button.clientHeight);
+                const radius = diameter / 2;
+
+                circle.style.width = circle.style.height = `${diameter}px`;
+                circle.style.left = `${e.clientX - button.getBoundingClientRect().left - radius}px`;
+                circle.style.top = `${e.clientY - button.getBoundingClientRect().top - radius}px`;
+                circle.classList.add('ripple-circle');
+
+                const ripple = button.getElementsByClassName('ripple-circle')[0];
+                if (ripple) {
+                    ripple.remove();
+                }
+
+                button.appendChild(circle);
+            }
+        });
+    </script>
+    <style>
+        .ripple { position: relative; overflow: hidden; }
+        .ripple-circle {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        @keyframes ripple-animation {
+            to { transform: scale(4); opacity: 0; }
+        }
+    </style>
 </body>
 </html>
