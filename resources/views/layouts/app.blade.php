@@ -23,6 +23,8 @@
 
     <div class="min-h-screen flex flex-col md:flex-row">
         
+        <livewire:components.spotlight />
+
         <!-- Sidebar Desktop (Glassmorphism Light) -->
         <aside class="hidden md:flex flex-col w-72 bg-white/80 backdrop-blur-xl border-r border-slate-200 h-screen sticky top-0 shadow-sm z-20">
             <div class="p-6 flex items-center gap-3">

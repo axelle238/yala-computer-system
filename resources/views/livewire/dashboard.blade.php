@@ -1,4 +1,22 @@
 <div class="space-y-8">
+    <!-- Live Status Bar -->
+    <div class="flex items-center justify-between bg-slate-900 text-white px-4 py-2 rounded-lg shadow-sm mb-4 text-xs font-mono" x-data="{ time: new Date().toLocaleTimeString() }" x-init="setInterval(() => time = new Date().toLocaleTimeString(), 1000)">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span class="text-emerald-400 font-bold">SYSTEM ONLINE</span>
+            </div>
+            <div class="hidden md:block text-slate-400">|</div>
+            <div class="hidden md:block text-slate-300">Database: <span class="text-white">Connected ({{ DB::connection()->getDatabaseName() }})</span></div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-slate-300">Server Time: <span class="text-white font-bold" x-text="time"></span></div>
+        </div>
+    </div>
+
     <!-- Header: Sambutan & Ringkasan -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
