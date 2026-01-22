@@ -26,6 +26,15 @@ class Home extends Component
     #[Url(history: true)]
     public $category = '';
 
+    #[Url(history: true)]
+    public $minPrice = 0;
+
+    #[Url(history: true)]
+    public $maxPrice = 50000000; // Default max 50jt
+
+    #[Url(history: true)]
+    public $sort = 'latest'; // latest, price_asc, price_desc
+
     // Modal State
     public $selectedProduct = null;
     public $showModal = false;
@@ -255,7 +264,16 @@ class Home extends Component
             ->when($this->category, function ($query) {
                 $query->where('category_id', $this->category);
             })
-            ->latest()
+            ->whereBetween('sell_price', [$this->minPrice, $this->maxPrice])
+            ->when($this->sort === 'price_asc', function ($q) {
+                $q->orderBy('sell_price', 'asc');
+            })
+            ->when($this->sort === 'price_desc', function ($q) {
+                $q->orderBy('sell_price', 'desc');
+            })
+            ->when($this->sort === 'latest', function ($q) {
+                $q->latest();
+            })
             ->paginate(12);
 
         $categories = Category::has('products')->get();
