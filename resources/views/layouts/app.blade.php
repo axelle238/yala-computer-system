@@ -119,13 +119,51 @@
             
             
             
-                            @if(auth()->user()->isAdmin())
-            
-                            <div class="pt-4 pb-2 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Administrator</div>
+                                @if(auth()->user()->isAdmin())
             
             
             
-                            <a href="{{ route('employees.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group {{ request()->routeIs('employees.*') ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm ring-1 ring-blue-100' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
+                                            <div class="pt-4 pb-2 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Administrator</div>
+            
+            
+            
+                            
+            
+            
+            
+                                            <a href="{{ route('banners.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group {{ request()->routeIs('banners.*') ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm ring-1 ring-blue-100' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
+            
+            
+            
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors {{ request()->routeIs('banners.*') ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            
+            
+            
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            
+            
+            
+                                                </svg>
+            
+            
+            
+                                                <span>Banner Promo</span>
+            
+            
+            
+                                            </a>
+            
+            
+            
+                            
+            
+            
+            
+                                            <a href="{{ route('employees.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group {{ request()->routeIs('employees.*') ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm ring-1 ring-blue-100' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
+            
+            
+            
+                            
             
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors {{ request()->routeIs('employees.*') ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             

@@ -35,4 +35,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     
     // Audit Log
     Route::get('/activity-logs', \App\Livewire\ActivityLogs\Index::class)->name('activity-logs.index');
+
+    // Banners (Admin Only)
+    Route::get('/banners', \App\Livewire\Banners\Index::class)->name('banners.index');
+    Route::get('/banners/create', \App\Livewire\Banners\Form::class)->name('banners.create');
+    Route::get('/banners/{id}/edit', \App\Livewire\Banners\Form::class)->name('banners.edit');
 });

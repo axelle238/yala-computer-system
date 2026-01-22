@@ -137,36 +137,72 @@
         </div>
     @endif
 
-    <!-- Hero Section -->
-    <div class="relative bg-slate-900 overflow-hidden">
-        <div class="absolute inset-0">
-            <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-blue-900/40 z-10"></div>
-            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop" alt="Background" class="w-full h-full object-cover opacity-30 mix-blend-overlay">
-        </div>
+    <!-- Hero Section (Dynamic Slider) -->
+    <div class="relative bg-slate-900 overflow-hidden" x-data="{ activeSlide: 0, slides: {{ $banners->count() }}, timer: null }" x-init="timer = setInterval(() => { activeSlide = activeSlide === slides - 1 ? 0 : activeSlide + 1 }, 5000); $watch('activeSlide', () => { clearInterval(timer); timer = setInterval(() => { activeSlide = activeSlide === slides - 1 ? 0 : activeSlide + 1 }, 5000) })">
         
-        <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-            <div class="max-w-2xl">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider mb-6">
-                    <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                    Official Store
+        <!-- Slides -->
+        <div class="relative h-[500px] md:h-[600px]">
+            @forelse($banners as $index => $banner)
+                <div x-show="activeSlide === {{ $index }}" 
+                     x-transition:enter="transition transform duration-700 ease-out"
+                     x-transition:enter-start="opacity-0 translate-x-10"
+                     x-transition:enter-end="opacity-100 translate-x-0"
+                     x-transition:leave="transition transform duration-700 ease-in"
+                     x-transition:leave-start="opacity-100 translate-x-0"
+                     x-transition:leave-end="opacity-0 -translate-x-10"
+                     class="absolute inset-0 w-full h-full">
+                    
+                    <!-- Background Image -->
+                    <div class="absolute inset-0">
+                        <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent z-10"></div>
+                        <img src="{{ asset('storage/' . $banner->image_path) }}" class="w-full h-full object-cover">
+                    </div>
+
+                    <!-- Content -->
+                    <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+                        <div class="max-w-2xl">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-400 text-xs font-bold uppercase tracking-wider mb-6 backdrop-blur-sm">
+                                <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                Promo Spesial
+                            </div>
+                            <h1 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight mb-6 drop-shadow-lg">
+                                {{ $banner->title }}
+                            </h1>
+                            @if($banner->link_url)
+                                <a href="{{ $banner->link_url }}" class="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold shadow-lg shadow-blue-600/30 transition-all transform hover:-translate-y-1">
+                                    Lihat Penawaran
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
                 </div>
-                <h1 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight mb-6">
-                    Masa Depan Teknologi <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Ada Di Sini.</span>
-                </h1>
-                <p class="text-lg text-slate-300 mb-8 leading-relaxed">
-                    Temukan komponen PC performa tinggi, laptop terbaru, dan aksesoris gaming terbaik dengan harga kompetitif dan garansi resmi.
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <a href="#katalog" class="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold shadow-lg shadow-blue-600/30 transition-all transform hover:-translate-y-1 text-center">
-                        Belanja Sekarang
-                    </a>
-                    <a href="#services" class="px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-full font-bold backdrop-blur-sm transition-all text-center">
-                        Konsultasi Rakit PC
-                    </a>
+            @empty
+                <!-- Fallback Static Banner if no banners -->
+                <div class="absolute inset-0 w-full h-full">
+                    <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-blue-900/40 z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover opacity-30">
+                    <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+                        <div class="max-w-2xl">
+                            <h1 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight mb-6">
+                                Masa Depan Teknologi <br>
+                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Ada Di Sini.</span>
+                            </h1>
+                            <a href="#katalog" class="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold shadow-lg shadow-blue-600/30 transition-all">Belanja Sekarang</a>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            @endforelse
         </div>
+
+        <!-- Dots Indicators -->
+        @if($banners->count() > 1)
+            <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex space-x-3">
+                @foreach($banners as $index => $banner)
+                    <button @click="activeSlide = {{ $index }}" :class="{ 'bg-blue-500 w-8': activeSlide === {{ $index }}, 'bg-white/30 w-3 hover:bg-white': activeSlide !== {{ $index }} }" class="h-3 rounded-full transition-all duration-300"></button>
+                @endforeach
+            </div>
+        @endif
     </div>
 
     <!-- Main Content Area -->

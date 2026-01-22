@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Store;
 
+use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Setting;
@@ -199,10 +200,12 @@ class Home extends Component
             ->paginate(12);
 
         $categories = Category::has('products')->get();
+        $banners = Banner::where('is_active', true)->orderBy('order')->get();
 
         return view('livewire.store.home', [
             'products' => $products,
-            'categories' => $categories
+            'categories' => $categories,
+            'banners' => $banners
         ]);
     }
 }
