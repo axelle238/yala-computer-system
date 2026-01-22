@@ -18,7 +18,8 @@ class Create extends Component
     public $quantity = 1;
     public $notes = '';
     public $reference_number = '';
-    public $customer_phone = ''; // New Field for Member
+    public $customer_phone = ''; 
+    public $serial_numbers = ''; // New
 
     // Searchable Product Dropdown
     public $productSearch = '';
@@ -72,9 +73,10 @@ class Create extends Component
             // 2. Create Transaction Record
             InventoryTransaction::create([
                 'product_id' => $product->id,
-                'user_id' => Auth::id() ?? 1, // Fallback to ID 1 if no auth (dev mode)
+                'user_id' => Auth::id() ?? 1,
                 'type' => $this->type,
                 'quantity' => $this->quantity,
+                'serial_numbers' => $this->serial_numbers, // Save SN
                 'remaining_stock' => $newStock,
                 'reference_number' => $this->reference_number,
                 'notes' => $this->notes . ($this->customer_phone ? " (Member: {$this->customer_phone})" : ''),

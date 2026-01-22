@@ -4,6 +4,7 @@ namespace App\Livewire\Store;
 
 use App\Models\Banner;
 use App\Models\Category;
+use App\Models\FlashSale;
 use App\Models\Product;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Session;
@@ -219,11 +220,21 @@ class Home extends Component
 
         $categories = Category::has('products')->get();
         $banners = Banner::where('is_active', true)->orderBy('order')->get();
+        
+        // Ambil Flash Sale yang sedang aktif
+        $flashSales = FlashSale::with('product')
+            ->where('is_active', true)
+            ->where('start_time', '<=', now())
+            ->where('end_time', '>=', now())
+            ->where('quota', '>', 0)
+            ->take(4)
+            ->get();
 
         return view('livewire.store.home', [
             'products' => $products,
             'categories' => $categories,
-            'banners' => $banners
+            'banners' => $banners,
+            'flashSales' => $flashSales
         ]);
     }
 }

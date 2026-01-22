@@ -28,6 +28,7 @@ class InventoryTransaction extends Model
         'user_id',
         'type',
         'quantity',
+        'serial_numbers', // New
         'remaining_stock',
         'reference_number',
         'notes',

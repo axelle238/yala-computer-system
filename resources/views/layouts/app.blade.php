@@ -179,17 +179,37 @@
             
                                                                                         <a href="{{ route('warehouses.transfer') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group {{ request()->routeIs('warehouses.transfer') ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm ring-1 ring-blue-100' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
             
-                                                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors {{ request()->routeIs('warehouses.transfer') ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors {{ request()->routeIs('warehouses.transfer') ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             
-                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             
-                                                                                            </svg>
+                                                                                                                </svg>
             
-                                                                                            <span>Mutasi Gudang</span>
+                                                                                                                <span>Mutasi Gudang</span>
             
-                                                                                        </a>
+                                                                                                            </a>
             
-                                                                                        @endif
+                                                                                                            @endif
+            
+                                                                                            
+            
+                                                                                                            @if(auth()->user()->isAdmin())
+            
+                                                                                                            <a href="{{ route('marketing.flash-sale.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group {{ request()->routeIs('marketing.flash-sale.*') ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm ring-1 ring-blue-100' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
+            
+                                                                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors {{ request()->routeIs('marketing.flash-sale.*') ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            
+                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            
+                                                                                                                </svg>
+            
+                                                                                                                <span>Flash Sale</span>
+            
+                                                                                                            </a>
+            
+                                                                                                            @endif
+            
+                                                                                            
             
                                                                         
             

@@ -86,6 +86,14 @@
                 <input type="text" wire:model="customer_phone" class="block w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" placeholder="08... (Poin otomatis masuk)">
             </div>
 
+            @if($type === 'out')
+            <div class="space-y-2">
+                <label class="text-sm font-bold text-slate-700">Serial Number Barang</label>
+                <textarea wire:model="serial_numbers" rows="2" class="block w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" placeholder="Masukkan SN dipisah koma (Contoh: SN123, SN124)"></textarea>
+                <p class="text-[10px] text-slate-400">Penting untuk klaim garansi.</p>
+            </div>
+            @endif
+
             <!-- Notes -->
             <div class="space-y-2">
                 <label class="text-sm font-bold text-slate-700">Catatan</label>

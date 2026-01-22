@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 // Public Storefront
 Route::get('/', StoreHome::class)->name('home');
 Route::get('/rakit-pc', \App\Livewire\Store\PcBuilder::class)->name('pc-builder');
+Route::get('/garansi', \App\Livewire\Store\WarrantyCheck::class)->name('warranty-check');
 Route::get('/login', Login::class)->name('login')->middleware('guest');
 Route::post('/logout', function () {
     auth()->logout();
@@ -58,6 +59,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // Warehouse
     Route::get('/warehouses/transfer', \App\Livewire\Warehouses\Transfer::class)->name('warehouses.transfer');
+
+    // Marketing
+    Route::get('/marketing/flash-sale', \App\Livewire\Marketing\FlashSale\Index::class)->name('marketing.flash-sale.index');
+    Route::get('/marketing/flash-sale/create', \App\Livewire\Marketing\FlashSale\Form::class)->name('marketing.flash-sale.create');
 
     // Printing Routes
     Route::get('/print/transaction/{id}', [\App\Http\Controllers\PrintController::class, 'transaction'])->name('print.transaction');

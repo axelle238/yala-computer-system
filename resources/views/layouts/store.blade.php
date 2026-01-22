@@ -34,6 +34,7 @@
                 <nav class="hidden md:flex gap-8">
                     <a href="{{ route('home') }}" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">Katalog</a>
                     <a href="{{ route('pc-builder') }}" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">Rakit PC</a>
+                    <a href="{{ route('warranty-check') }}" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">Cek Garansi</a>
                     <a href="#services" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">Layanan</a>
                     <a href="#footer" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">Kontak</a>
                 </nav>

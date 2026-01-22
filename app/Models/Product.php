@@ -33,6 +33,7 @@ class Product extends Model
         'barcode',
         'description',
         'specifications',
+        'warranty_duration', // New
         'buy_price',
         'sell_price',
         'stock_quantity',
@@ -82,6 +83,11 @@ class Product extends Model
     public function transactions(): HasMany
     {
         return $this->hasMany(InventoryTransaction::class);
+    }
+
+    public function flashSales()
+    {
+        return $this->hasMany(FlashSale::class);
     }
 
     /**
