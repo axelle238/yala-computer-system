@@ -278,7 +278,40 @@
         </main>
     </div>
 
-    <!-- Mobile Bottom Navigation (Modern Floating Bar) -->
+    <!-- Global Notification Toast -->
+    <div x-data="{ show: false, message: '', type: 'success' }" 
+         x-init="@if(session()->has('success')) show = true; message = '{{ session('success') }}'; type = 'success'; setTimeout(() => show = false, 3000); @endif
+                 @if(session()->has('error')) show = true; message = '{{ session('error') }}'; type = 'error'; setTimeout(() => show = false, 3000); @endif"
+         x-on:notify.window="show = true; message = $event.detail.message; type = $event.detail.type || 'success'; setTimeout(() => show = false, 3000)"
+         x-show="show" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform translate-x-8"
+         x-transition:enter-end="opacity-100 transform translate-x-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform translate-x-0"
+         x-transition:leave-end="opacity-0 transform translate-x-8"
+         class="fixed top-4 right-4 z-[999] flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl border transition-colors cursor-pointer"
+         :class="type === 'success' ? 'bg-white border-emerald-100 text-emerald-700' : 'bg-white border-rose-100 text-rose-700'"
+         @click="show = false"
+         style="display: none;">
+        
+        <div :class="type === 'success' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
+            <template x-if="type === 'success'">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+            </template>
+            <template x-if="type === 'error'">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </template>
+        </div>
+        
+        <div>
+            <h4 class="font-bold text-sm" x-text="type === 'success' ? 'Berhasil' : 'Gagal'"></h4>
+            <p class="text-xs opacity-90" x-text="message"></p>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation (Glassmorphism) -->
+
     <div class="md:hidden fixed bottom-4 left-4 right-4 bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl shadow-slate-300/50 rounded-2xl flex justify-around py-4 z-50">
         <a href="{{ route('dashboard') }}" class="flex flex-col items-center gap-1 {{ request()->routeIs('dashboard') ? 'text-blue-600' : 'text-slate-400' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 {{ request()->routeIs('dashboard') ? 'fill-blue-100' : 'fill-none' }}" viewBox="0 0 24 24" stroke="currentColor">

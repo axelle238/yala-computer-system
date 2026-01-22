@@ -29,7 +29,7 @@
          x-transition:leave-start="opacity-100 scale-100"
          x-transition:leave-end="opacity-0 scale-95"
          @click.away="close()"
-         class="fixed inset-0 z-[101] flex items-start justify-center pt-24 px-4 pointer-events-none"
+         class="fixed inset-0 z-[200] flex items-start justify-center pt-24 px-4 pointer-events-none"
          style="display: none;">
         
         <div class="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden border border-slate-200 pointer-events-auto">
