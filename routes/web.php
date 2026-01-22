@@ -39,6 +39,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // Employee Management (Admin Only)
     Route::get('/employees', \App\Livewire\Employees\Index::class)->name('employees.index');
+    Route::get('/employees/roles', \App\Livewire\Employees\Roles::class)->name('employees.roles');
     Route::get('/employees/create', \App\Livewire\Employees\Form::class)->name('employees.create');
     Route::get('/employees/{id}/edit', \App\Livewire\Employees\Form::class)->name('employees.edit');
     Route::get('/payroll', \App\Livewire\Employees\Payroll::class)->name('employees.payroll');
@@ -52,6 +53,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // Audit Log
     Route::get('/activity-logs', \App\Livewire\ActivityLogs\Index::class)->name('activity-logs.index');
+    Route::get('/activity-logs/{id}', \App\Livewire\ActivityLogs\Show::class)->name('activity-logs.show');
 
     // Banners (Admin Only)
     Route::get('/banners', \App\Livewire\Banners\Index::class)->name('banners.index');

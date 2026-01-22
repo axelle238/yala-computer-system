@@ -57,7 +57,7 @@ class Form extends Component
         $this->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($this->user->id ?? null)],
-            'role' => 'required|in:admin,owner,employee',
+            'role' => 'required',
             'password' => $this->user ? 'nullable|min:6' : 'required|min:6',
             'base_salary' => 'numeric|min:0',
             'join_date' => 'nullable|date',
@@ -89,6 +89,8 @@ class Form extends Component
 
     public function render()
     {
-        return view('livewire.employees.form');
+        return view('livewire.employees.form', [
+            'roles' => \App\Models\Role::all()
+        ]);
     }
 }

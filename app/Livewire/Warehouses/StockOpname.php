@@ -61,6 +61,45 @@ class StockOpname extends Component
         unset($this->adjustments[$productId]);
     }
 
+    public function deleteAdjustment($transactionId)
+    {
+        $transaction = InventoryTransaction::find($transactionId);
+        
+        if (!$transaction || $transaction->type !== 'adjustment') {
+            $this->dispatch('notify', message: 'Transaksi tidak valid.', type: 'error');
+            return;
+        }
+
+        $product = Product::find($transaction->product_id);
+        
+        if ($product) {
+            // Revert stock
+            // If notes say "Surplus +X", it means we added stock. To revert, we subtract.
+            // If notes say "Defisit -X", it means we removed stock. To revert, we add.
+            // Actually, we stored absolute quantity. We need to know direction.
+            // But simpler: we stored the diff description. 
+            // Better logic: Compare 'remaining_stock' with previous state? No.
+            // Let's rely on the notes or just infer from context? 
+            // Standard approach: store signed quantity or create a reversal transaction.
+            // But here I'm deleting the log. So I should revert the effect.
+            
+            // "Surplus +5" -> Stock increased by 5. Revert: Decrease by 5.
+            // "Defisit -5" -> Stock decreased by 5. Revert: Increase by 5.
+            
+            $isSurplus = str_contains($transaction->notes, 'Surplus');
+            $qty = $transaction->quantity;
+
+            if ($isSurplus) {
+                $product->decrement('stock_quantity', $qty);
+            } else {
+                $product->increment('stock_quantity', $qty);
+            }
+            
+            $transaction->delete();
+            $this->dispatch('notify', message: 'Penyesuaian dibatalkan.', type: 'success');
+        }
+    }
+
     public function render()
     {
         $products = Product::with('category')
@@ -74,9 +113,16 @@ class StockOpname extends Component
             ->orderBy('name')
             ->paginate(20);
 
+        $history = InventoryTransaction::with('product', 'user')
+            ->where('type', 'adjustment')
+            ->latest()
+            ->take(10)
+            ->get();
+
         return view('livewire.warehouses.stock-opname', [
             'products' => $products,
-            'categories' => Category::all()
+            'categories' => Category::all(),
+            'history' => $history
         ]);
     }
 }

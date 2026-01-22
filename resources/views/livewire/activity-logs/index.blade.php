@@ -113,7 +113,7 @@
                                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
                                                 {{ $log->ip_address }}
                                             </div>
-                                            <button wire:click="openDetail({{ $log->id }})" class="text-violet-600 hover:text-violet-800 font-bold hover:underline">Lihat Detail</button>
+                                            <a href="{{ route('activity-logs.show', $log->id) }}" class="text-violet-600 hover:text-violet-800 font-bold hover:underline">Lihat Detail</a>
                                         </div>
                                     </div>
                                 </div>
@@ -134,98 +134,6 @@
         
         <div class="bg-slate-50 dark:bg-slate-900/50 p-6 border-t border-slate-200 dark:border-slate-700">
             {{ $logs->links() }}
-        </div>
-    </div>
-
-    <!-- Detail Modal -->
-    <div x-show="$wire.isModalOpen" class="fixed inset-0 z-[100] overflow-y-auto" style="display: none;">
-        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity" aria-hidden="true" @click="$wire.closeModal()">
-                <div class="absolute inset-0 bg-slate-900/75 backdrop-blur-sm"></div>
-            </div>
-
-            <div class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full border border-slate-200 dark:border-slate-700"
-                 x-show="$wire.isModalOpen" 
-                 x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
-                 x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-                
-                @if($selectedLog)
-                    <div class="bg-white dark:bg-slate-800 px-4 pt-5 pb-4 sm:p-6">
-                        <div class="flex justify-between items-start mb-4">
-                            <h3 class="text-xl font-bold text-slate-900 dark:text-white">Detail Aktivitas #{{ $selectedLog->id }}</h3>
-                            <button wire:click="closeModal" class="text-slate-400 hover:text-slate-500">
-                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <span class="block text-xs font-bold text-slate-500 uppercase tracking-wider">User</span>
-                                    <span class="font-bold text-slate-900 dark:text-white">{{ $selectedLog->user->name ?? 'System' }}</span>
-                                </div>
-                                <div>
-                                    <span class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Waktu</span>
-                                    <span class="font-mono text-slate-700 dark:text-slate-300">{{ $selectedLog->created_at->format('d M Y H:i:s') }}</span>
-                                </div>
-                                <div>
-                                    <span class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Tipe Aksi</span>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 capitalize">
-                                        {{ $selectedLog->action }}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span class="block text-xs font-bold text-slate-500 uppercase tracking-wider">IP Address</span>
-                                    <span class="font-mono text-slate-700 dark:text-slate-300">{{ $selectedLog->ip_address }}</span>
-                                </div>
-                            </div>
-
-                            <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
-                                <span class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Deskripsi</span>
-                                <p class="text-sm text-slate-700 dark:text-slate-300">{{ $selectedLog->description }}</p>
-                            </div>
-
-                            @if(isset($selectedLog->properties['old']) || isset($selectedLog->properties['new']))
-                                <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
-                                    <span class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Perubahan Data</span>
-                                    <div class="bg-slate-50 dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
-                                        <table class="w-full text-left text-xs font-mono">
-                                            <thead>
-                                                <tr class="bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold border-b border-slate-200 dark:border-slate-700">
-                                                    <th class="px-4 py-2 w-1/3">Field</th>
-                                                    <th class="px-4 py-2 w-1/3 text-rose-600">Sebelum</th>
-                                                    <th class="px-4 py-2 w-1/3 text-emerald-600">Sesudah</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                                                @php 
-                                                    $old = $selectedLog->properties['old'] ?? [];
-                                                    $new = $selectedLog->properties['new'] ?? [];
-                                                    $keys = array_unique(array_merge(array_keys($old), array_keys($new)));
-                                                @endphp
-                                                @foreach($keys as $key)
-                                                    @if(isset($old[$key]) || isset($new[$key]))
-                                                        <tr class="{{ (isset($old[$key]) && isset($new[$key]) && $old[$key] != $new[$key]) ? 'bg-amber-50/50 dark:bg-amber-900/10' : '' }}">
-                                                            <td class="px-4 py-2 font-bold text-slate-700 dark:text-slate-300">{{ $key }}</td>
-                                                            <td class="px-4 py-2 text-rose-600 dark:text-rose-400 break-all">{{ is_array($old[$key] ?? null) ? json_encode($old[$key]) : ($old[$key] ?? '-') }}</td>
-                                                            <td class="px-4 py-2 text-emerald-600 dark:text-emerald-400 break-all">{{ is_array($new[$key] ?? null) ? json_encode($new[$key]) : ($new[$key] ?? '-') }}</td>
-                                                        </tr>
-                                                    @endif
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-slate-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button wire:click="closeModal" type="button" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-violet-600 text-base font-medium text-white hover:bg-violet-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
-                            Tutup
-                        </button>
-                    </div>
-                @endif
-            </div>
         </div>
     </div>
 </div>

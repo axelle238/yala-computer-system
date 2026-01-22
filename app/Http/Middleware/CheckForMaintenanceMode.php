@@ -20,8 +20,8 @@ class CheckForMaintenanceMode
         $isMaintenance = (bool) Setting::get('maintenance_mode', false);
 
         if ($isMaintenance && !Auth::check()) {
-            // Allow login route
-            if ($request->routeIs('login') || $request->routeIs('logout')) {
+            // Allow login route and Livewire internal routes
+            if ($request->routeIs('login') || $request->routeIs('logout') || $request->is('livewire/*')) {
                 return $next($request);
             }
             

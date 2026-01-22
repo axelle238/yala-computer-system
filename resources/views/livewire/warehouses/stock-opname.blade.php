@@ -91,4 +91,53 @@
             {{ $products->links() }}
         </div>
     </div>
+
+    <!-- History Section -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+            <h3 class="font-bold text-lg text-slate-900 dark:text-white">Riwayat Penyesuaian Terakhir</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 font-bold uppercase text-xs">
+                    <tr>
+                        <th class="px-6 py-4">Waktu</th>
+                        <th class="px-6 py-4">Produk</th>
+                        <th class="px-6 py-4">User</th>
+                        <th class="px-6 py-4">Catatan</th>
+                        <th class="px-6 py-4 text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                    @forelse($history as $log)
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                            <td class="px-6 py-4 text-slate-500 text-xs">
+                                {{ $log->created_at->format('d M Y H:i') }}
+                            </td>
+                            <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">
+                                {{ $log->product->name }}
+                            </td>
+                            <td class="px-6 py-4 text-slate-600 dark:text-slate-300">
+                                {{ $log->user->name ?? 'System' }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 rounded text-xs font-bold {{ str_contains($log->notes, 'Surplus') ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600' }}">
+                                    {{ $log->notes }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <button wire:click="deleteAdjustment({{ $log->id }})" class="text-rose-500 hover:text-rose-700 font-bold text-xs underline">
+                                    Batalkan
+                                </button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-slate-400">Belum ada riwayat penyesuaian.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>

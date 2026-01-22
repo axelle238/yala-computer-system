@@ -66,7 +66,7 @@ class User extends Authenticatable
 
     public function isEmployee()
     {
-        return $this->role === 'employee';
+        return !in_array($this->role, ['admin', 'owner']);
     }
 
     /**

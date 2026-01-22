@@ -12,17 +12,25 @@ class PrintController extends Controller
 {
     public function transaction($id)
     {
-        // Ambil transaksi (kita asumsikan transaksi penjualan adalah 'out')
-        // Karena sistem saat ini menyimpan per-item, kita bisa cetak per-item 
-        // ATAU idealnya group by Reference Number jika ada.
-        // Untuk tahap ini, kita cetak detail transaksi tunggal dulu sebagai "Bukti Transaksi".
+        // Ambil transaksi utama untuk mendapatkan referensi
+        $mainTransaction = InventoryTransaction::with(['product', 'user'])->findOrFail($id);
         
-        $transaction = InventoryTransaction::with(['product', 'user'])->findOrFail($id);
+        // Jika ada referensi, ambil semua item dalam satu struk/invoice
+        if ($mainTransaction->reference_number && $mainTransaction->reference_number !== '-') {
+            $transactions = InventoryTransaction::with(['product'])
+                ->where('reference_number', $mainTransaction->reference_number)
+                ->get();
+        } else {
+            // Jika tidak ada referensi (transaksi tunggal/manual), jadikan array tunggal
+            $transactions = collect([$mainTransaction]);
+        }
+
         $shopName = Setting::get('shop_name', 'Yala Computer');
         $shopAddress = Setting::get('shop_address', 'Jakarta');
         $shopPhone = Setting::get('whatsapp_number', '-');
 
-        return view('print.transaction', compact('transaction', 'shopName', 'shopAddress', 'shopPhone'));
+        // Pass collection 'transactions' instead of single 'transaction'
+        return view('print.transaction', compact('transactions', 'mainTransaction', 'shopName', 'shopAddress', 'shopPhone'));
     }
 
     public function service($id)
