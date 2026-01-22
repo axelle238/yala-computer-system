@@ -16,12 +16,26 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+    public $selectedLog = null;
+    public $isModalOpen = false;
 
     public function mount()
     {
         if (!Auth::user()->isAdmin()) {
             abort(403);
         }
+    }
+
+    public function openDetail($id)
+    {
+        $this->selectedLog = ActivityLog::with('user')->find($id);
+        $this->isModalOpen = true;
+    }
+
+    public function closeModal()
+    {
+        $this->isModalOpen = false;
+        $this->selectedLog = null;
     }
 
     public function render()

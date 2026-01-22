@@ -16,40 +16,6 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
-    public $isModalOpen = false;
-    
-    // Form
-    public $name, $phone, $email;
-
-    public function openModal()
-    {
-        $this->isModalOpen = true;
-    }
-
-    public function closeModal()
-    {
-        $this->isModalOpen = false;
-        $this->reset(['name', 'phone', 'email']);
-    }
-
-    public function save()
-    {
-        $this->validate([
-            'name' => 'required',
-            'phone' => 'required|unique:customers,phone',
-            'email' => 'nullable|email',
-        ]);
-
-        Customer::create([
-            'name' => $this->name,
-            'phone' => $this->phone,
-            'email' => $this->email,
-            'join_date' => now(),
-        ]);
-
-        $this->dispatch('notify', message: 'Member baru berhasil didaftarkan!', type: 'success');
-        $this->closeModal();
-    }
 
     public function render()
     {

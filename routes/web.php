@@ -47,6 +47,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     
     // CRM
     Route::get('/customers', \App\Livewire\Customers\Index::class)->name('customers.index');
+    Route::get('/customers/create', \App\Livewire\Customers\Form::class)->name('customers.create');
+    Route::get('/customers/{id}/edit', \App\Livewire\Customers\Form::class)->name('customers.edit');
 
     // Audit Log
     Route::get('/activity-logs', \App\Livewire\ActivityLogs\Index::class)->name('activity-logs.index');
