@@ -82,7 +82,7 @@
                     </div>
                 </div>
                 <div>
-                    <h1 class="font-tech font-bold text-xl text-slate-900 dark:text-white leading-none tracking-tight">YALA <span class="text-cyan-600">SYSTEM</span></h1>
+                    <h1 class="font-tech font-bold text-xl text-slate-900 dark:text-white leading-none tracking-tight">{{ \App\Models\Setting::get('admin_title', 'YALA SYSTEM') }}</h1>
                     <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Management Core</p>
                 </div>
                 <button @click="sidebarOpen = false" class="md:hidden ml-auto text-slate-500">
