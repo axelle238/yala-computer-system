@@ -6,12 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
-    protected $fillable = ['key', 'value', 'type', 'label'];
+    protected $fillable = ['key', 'value'];
 
-    // Helper untuk mengambil value dengan cepat
-    public static function get(string $key, $default = null)
+    public static function get($key, $default = null)
     {
         $setting = self::where('key', $key)->first();
         return $setting ? $setting->value : $default;
+    }
+
+    public static function set($key, $value)
+    {
+        self::updateOrCreate(
+            ['key' => $key],
+            ['value' => $value]
+        );
     }
 }

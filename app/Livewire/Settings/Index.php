@@ -11,25 +11,27 @@ use Livewire\Attributes\Title;
 #[Title('Pengaturan Sistem - Yala Computer')]
 class Index extends Component
 {
-    public $settings;
-    public $form = [];
+    public $store_name;
+    public $whatsapp_number;
+    public $address;
+    public $maintenance_mode = false;
 
     public function mount()
     {
-        $this->settings = Setting::all();
-        foreach ($this->settings as $setting) {
-            $this->form[$setting->key] = $setting->value;
-        }
+        $this->store_name = Setting::get('store_name', 'Yala Computer');
+        $this->whatsapp_number = Setting::get('whatsapp_number', '6281234567890');
+        $this->address = Setting::get('address', 'Jl. Teknologi No. 1');
+        $this->maintenance_mode = (bool) Setting::get('maintenance_mode', false);
     }
 
     public function save()
     {
-        foreach ($this->form as $key => $value) {
-            Setting::where('key', $key)->update(['value' => $value]);
-        }
+        Setting::set('store_name', $this->store_name);
+        Setting::set('whatsapp_number', $this->whatsapp_number);
+        Setting::set('address', $this->address);
+        Setting::set('maintenance_mode', $this->maintenance_mode);
 
-        session()->flash('success', 'Pengaturan sistem berhasil diperbarui!');
-        $this->dispatch('settings-updated'); // Optional: jika ada komponen lain yang perlu refresh
+        $this->dispatch('notify', message: 'Pengaturan disimpan!', type: 'success');
     }
 
     public function render()

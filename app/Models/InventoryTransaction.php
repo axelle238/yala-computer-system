@@ -28,7 +28,9 @@ class InventoryTransaction extends Model
         'user_id',
         'type',
         'quantity',
-        'serial_numbers', // New
+        'unit_price', // New: Snapshot of Sell Price
+        'cogs',       // New: Snapshot of Buy Price (HPP)
+        'serial_numbers',
         'remaining_stock',
         'reference_number',
         'notes',

@@ -74,6 +74,8 @@ class Spotlight extends Component
 
     public function render()
     {
-        return view('livewire.components.spotlight');
+        return view('livewire.components.spotlight', [
+            'results' => $this->results
+        ]);
     }
 }

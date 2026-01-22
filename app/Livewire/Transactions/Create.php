@@ -160,8 +160,11 @@ class Create extends Component
                     'user_id' => Auth::id() ?? 1,
                     'type' => $this->type,
                     'quantity' => $item['quantity'],
+                    'unit_price' => $product->sell_price, // Snapshot Sell Price
+                    'cogs' => $product->buy_price,        // Snapshot Buy Price
                     'remaining_stock' => $newStock,
                     'reference_number' => $this->reference_number,
+                    'serial_numbers' => $this->type === 'out' ? ($item['serial_numbers'] ?? null) : null, // Add serial numbers logic if needed in cart but for now keeping compatible
                     'notes' => $this->notes . ($this->customer_phone ? " (Member: {$this->customer_phone})" : ''),
                 ]);
 

@@ -4,7 +4,6 @@ namespace App\Livewire\Finance;
 
 use App\Models\Expense;
 use App\Models\InventoryTransaction;
-use App\Models\User;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -19,66 +18,67 @@ class ProfitLoss extends Component
 
     public function mount()
     {
-        $this->month = date('m');
-        $this->year = date('Y');
+        $this->month = now()->month;
+        $this->year = now()->year;
     }
 
     public function render()
     {
-        // 1. Revenue (Omzet Penjualan)
-        // Ambil semua transaksi 'out' bulan ini
-        $salesTransactions = InventoryTransaction::where('type', 'out')
-            ->whereMonth('created_at', $this->month)
-            ->whereYear('created_at', $this->year)
-            ->with('product')
-            ->get();
+        $startDate = Carbon::createFromDate($this->year, $this->month, 1)->startOfMonth();
+        $endDate = Carbon::createFromDate($this->year, $this->month, 1)->endOfMonth();
 
-        $revenue = 0;
-        $cogs = 0; // HPP (Harga Pokok Penjualan)
+        // 1. Revenue (Pendapatan Penjualan)
+        // Note: Using snapshot 'unit_price' from transactions for accuracy
+        $revenue = InventoryTransaction::where('type', 'out')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->sum(InventoryTransaction::raw('quantity * unit_price'));
 
-        foreach ($salesTransactions as $trx) {
-            $revenue += $trx->quantity * $trx->product->sell_price;
-            $cogs += $trx->quantity * $trx->product->buy_price;
-        }
+        // 2. COGS (HPP)
+        // Using snapshot 'cogs' from transactions
+        $cogs = InventoryTransaction::where('type', 'out')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->sum(InventoryTransaction::raw('quantity * cogs'));
 
+        // 3. Gross Profit
         $grossProfit = $revenue - $cogs;
 
-        // 2. Operational Expenses (Biaya Operasional)
-        $operationalExpenses = Expense::whereMonth('expense_date', $this->month)
-            ->whereYear('expense_date', $this->year)
-            ->sum('amount');
+        // 4. Expenses (Beban Operasional)
+        $expenses = Expense::whereBetween('expense_date', [$startDate, $endDate])->get();
+        $totalExpenses = $expenses->sum('amount');
 
-        // 3. Payroll Expenses (Gaji Pegawai)
-        // Hitung estimasi gaji + komisi
-        $employees = User::where('role', 'employee')->get();
-        $payrollExpenses = 0;
-
-        foreach ($employees as $user) {
-            // Hitung sales pribadi untuk komisi
-            $personalSales = InventoryTransaction::where('user_id', $user->id)
-                ->where('type', 'out')
-                ->whereMonth('created_at', $this->month)
-                ->whereYear('created_at', $this->year)
-                ->with('product')
-                ->get()
-                ->sum(function($t) { return $t->quantity * $t->product->sell_price; });
-            
-            $commission = $personalSales * 0.01;
-            $payrollExpenses += ($user->base_salary + $commission);
-        }
-
-        // 4. Net Profit
-        $totalExpenses = $operationalExpenses + $payrollExpenses;
+        // 5. Net Profit (Laba Bersih)
         $netProfit = $grossProfit - $totalExpenses;
+
+        // 6. Trend Data (Daily Net Profit for Chart)
+        $trendData = [];
+        $daysInMonth = $startDate->daysInMonth;
+        for ($i = 1; $i <= $daysInMonth; $i++) {
+            $dayDate = Carbon::createFromDate($this->year, $this->month, $i);
+            
+            $dayRevenue = InventoryTransaction::where('type', 'out')
+                ->whereDate('created_at', $dayDate)
+                ->sum(InventoryTransaction::raw('quantity * unit_price'));
+                
+            $dayCOGS = InventoryTransaction::where('type', 'out')
+                ->whereDate('created_at', $dayDate)
+                ->sum(InventoryTransaction::raw('quantity * cogs'));
+                
+            $dayExpense = Expense::whereDate('expense_date', $dayDate)->sum('amount');
+            
+            $trendData[] = [
+                'day' => $i,
+                'profit' => ($dayRevenue - $dayCOGS) - $dayExpense
+            ];
+        }
 
         return view('livewire.finance.profit-loss', [
             'revenue' => $revenue,
             'cogs' => $cogs,
             'grossProfit' => $grossProfit,
-            'operationalExpenses' => $operationalExpenses,
-            'payrollExpenses' => $payrollExpenses,
+            'expenses' => $expenses,
             'totalExpenses' => $totalExpenses,
-            'netProfit' => $netProfit
+            'netProfit' => $netProfit,
+            'trendData' => $trendData
         ]);
     }
 }

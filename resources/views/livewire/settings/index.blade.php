@@ -1,53 +1,56 @@
-<div class="max-w-4xl mx-auto space-y-6">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-        <div>
-            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">System Control Center</h2>
-            <p class="text-slate-500 mt-1 text-sm font-medium">Konfigurasi global toko dan gateway komunikasi.</p>
-        </div>
+<div class="max-w-4xl mx-auto space-y-8 animate-fade-in-up">
+    <div>
+        <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
+            System <span class="text-transparent bg-clip-text bg-gradient-to-r from-slate-600 to-slate-400">Settings</span>
+        </h2>
+        <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Konfigurasi global aplikasi toko.</p>
     </div>
 
-    <form wire:submit="save" class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
         <div class="p-8 space-y-8">
-            
-            <!-- Notification Success -->
-            @if (session()->has('success'))
-                <div class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-4 py-3 rounded-xl flex items-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    <span class="font-bold text-sm">{{ session('success') }}</span>
-                </div>
-            @endif
-
-            <div class="grid grid-cols-1 gap-6">
-                @foreach($settings as $setting)
-                    <div wire:key="{{ $setting->id }}">
-                        <label class="block text-sm font-bold text-slate-700 mb-2">{{ $setting->label }}</label>
-                        
-                        @if($setting->type === 'textarea')
-                            <textarea wire:model="form.{{ $setting->key }}" rows="3" class="block w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800"></textarea>
-                        @elseif($setting->type === 'number')
-                            <input wire:model="form.{{ $setting->key }}" type="number" class="block w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-mono">
-                            @if($setting->key === 'whatsapp_number')
-                                <p class="mt-1 text-xs text-slate-400">Gunakan kode negara tanpa tanda tambah (+). Contoh: 628123456789</p>
-                            @endif
-                        @else
-                            <input wire:model="form.{{ $setting->key }}" type="text" class="block w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-bold">
-                        @endif
+            <!-- General Settings -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-700 pb-2">Identitas Toko</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nama Toko</label>
+                        <input wire:model="store_name" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-cyan-500 font-bold">
                     </div>
-                @endforeach
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">WhatsApp Admin (Format: 628...)</label>
+                        <input wire:model="whatsapp_number" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-cyan-500 font-mono">
+                        <p class="text-[10px] text-slate-400 mt-1">Digunakan untuk fitur checkout & notifikasi.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Alamat Fisik</label>
+                    <textarea wire:model="address" rows="3" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-cyan-500"></textarea>
+                </div>
             </div>
 
-            <!-- Submit Button -->
-            <div class="pt-6 border-t border-slate-100 flex justify-end">
-                <button type="submit" class="px-8 py-3 bg-slate-900 hover:bg-blue-600 text-white rounded-xl shadow-lg shadow-slate-900/20 hover:shadow-blue-600/30 font-bold transition-all transform active:scale-95 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                    </svg>
-                    Simpan Konfigurasi
+            <!-- System Toggle -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-700 pb-2">Kontrol Sistem</h3>
+                
+                <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div>
+                        <span class="block font-bold text-slate-800 dark:text-white">Maintenance Mode</span>
+                        <span class="text-xs text-slate-500">Jika aktif, hanya admin yang bisa mengakses sistem.</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" wire:model="maintenance_mode" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-cyan-300 dark:peer-focus:ring-cyan-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-cyan-600"></div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="pt-4 flex justify-end">
+                <button wire:click="save" class="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
+                    Simpan Perubahan
                 </button>
             </div>
         </div>
-    </form>
+    </div>
 </div>
