@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\LogsActivity;
 
 /**
  * Class InventoryTransaction
@@ -15,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class InventoryTransaction extends Model
 {
+    use LogsActivity;
+
     /**
      * The attributes that are mass assignable.
      *
