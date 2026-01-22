@@ -1,4 +1,4 @@
-<div wire:poll.10s x-data="{ wishlist: JSON.parse(localStorage.getItem('wishlist') || '[]'), toggleWishlist(id) { if(this.wishlist.includes(id)) { this.wishlist = this.wishlist.filter(i => i !== id); } else { this.wishlist.push(id); } localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); } }">
+<div x-data="{ wishlist: JSON.parse(localStorage.getItem('wishlist') || '[]'), toggleWishlist(id) { if(this.wishlist.includes(id)) { this.wishlist = this.wishlist.filter(i => i !== id); } else { this.wishlist.push(id); } localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); } }">
     <!-- Notification Toast -->
     <div x-data="{ show: false, message: '' }" 
          x-on:notify.window="show = true; message = $event.detail.message; setTimeout(() => show = false, 3000)"
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Floating Cart -->
-    <button wire:click="toggleCart" class="fixed bottom-8 right-8 z-40 group">
+    <button wire:click="toggleCart" class="fixed bottom-8 right-8 z-[90] group">
         <div class="absolute inset-0 bg-blue-500 rounded-full animate-pulse opacity-20"></div>
         <div class="relative w-16 h-16 bg-slate-900 text-white rounded-full shadow-2xl shadow-blue-900/50 flex items-center justify-center transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-12">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -37,13 +37,12 @@
 
     <!-- Cart Sidebar -->
     @if($isCartOpen)
-        <div class="fixed inset-0 z-50 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 z-[100] overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
             <div class="absolute inset-0 overflow-hidden">
                 <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" wire:click="toggleCart"></div>
                 <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
                     <div class="pointer-events-auto w-screen max-w-md">
                         <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
-                            <!-- ... Cart content (unchanged logic, just styling if needed) ... -->
                             <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
                                 <div class="flex items-start justify-between">
                                     <h2 class="text-lg font-bold text-slate-900" id="slide-over-title">Keranjang Belanja</h2>
@@ -129,7 +128,8 @@
                          x-transition:leave="transition transform duration-1000 ease-in"
                          x-transition:leave-start="opacity-100 scale-100"
                          x-transition:leave-end="opacity-0 scale-95"
-                         class="absolute inset-0 w-full h-full">
+                         class="absolute inset-0 w-full h-full"
+                         style="display: none;">
                         
                         <img src="{{ asset('storage/' . $banner->image_path) }}" class="w-full h-full object-cover opacity-60 mix-blend-overlay">
                         <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent"></div>
@@ -198,7 +198,7 @@
             <a href="{{ route('marketing.flash-sale.index') }}" class="hidden sm:block text-sm font-bold text-cyan-600 hover:underline">Lihat Semua ></a>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" wire:poll.15s>
             @foreach($flashSales as $sale)
                 <div wire:click="openProduct({{ $sale->product_id }})" class="group cursor-pointer relative bg-white border border-rose-100 rounded-2xl p-4 shadow-lg shadow-rose-100/50 hover:-translate-y-1 transition-transform">
                     <div class="absolute top-4 left-4 z-10 bg-rose-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm">
@@ -330,7 +330,7 @@
         </aside>
 
         <!-- Product Grid Area -->
-        <div class="flex-1">
+        <div class="flex-1" wire:poll.10s>
             <!-- Mobile Filter Toggle -->
             <div class="lg:hidden mb-6 flex gap-2 overflow-x-auto no-scrollbar pb-2">
                 <button wire:click="$set('category', '')" class="whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold bg-white border border-slate-200 shadow-sm {{ $category === '' ? 'text-cyan-600 border-cyan-200' : 'text-slate-600' }}">All</button>
@@ -445,5 +445,38 @@
         </div>
     </div>
 
+    <!-- Modals outside polling area -->
     @include('livewire.store.partials.modals')
+
+    <!-- Comparison Floating Bar -->
+    @if(count($compareList) > 0)
+        <div class="fixed bottom-0 left-0 right-0 z-[80] bg-white/90 backdrop-blur-xl border-t border-white/50 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] p-4 transform transition-transform duration-300 animate-slide-up">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-6">
+                    <span class="font-bold text-slate-800 text-sm uppercase tracking-wider">{{ count($compareList) }} Produk Dipilih</span>
+                    <div class="flex gap-3">
+                        @foreach($compareList as $id)
+                            @php $prod = \App\Models\Product::find($id); @endphp
+                            @if($prod)
+                                <div class="relative w-12 h-12 bg-white rounded-xl border border-slate-200 overflow-hidden group shadow-sm">
+                                    @if($prod->image_path)
+                                        <img src="{{ asset('storage/' . $prod->image_path) }}" class="w-full h-full object-cover">
+                                    @endif
+                                    <button wire:click="removeFromCompare({{ $id }})" class="absolute inset-0 bg-rose-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button wire:click="$set('compareList', [])" class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-rose-600 transition-colors">Reset</button>
+                    <button wire:click="openCompare" class="px-8 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-cyan-600 transition-all shadow-lg hover:shadow-cyan-500/30">
+                        Bandingkan
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
