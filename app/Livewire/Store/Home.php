@@ -182,6 +182,24 @@ class Home extends Component
             });
     }
 
+    // Service Tracking
+    public $trackingNumber = '';
+    public $trackingResult = null;
+
+    public function trackService()
+    {
+        $this->validate(['trackingNumber' => 'required']);
+        
+        $ticket = \App\Models\ServiceTicket::where('ticket_number', $this->trackingNumber)->first();
+        
+        if ($ticket) {
+            $this->trackingResult = $ticket;
+        } else {
+            $this->addError('trackingNumber', 'Nomor tiket tidak ditemukan.');
+            $this->trackingResult = null;
+        }
+    }
+
     public function render()
     {
         $products = Product::query()

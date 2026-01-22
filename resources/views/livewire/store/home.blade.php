@@ -376,6 +376,50 @@
         </div>
     </div>
 
+    <!-- Service Tracking Section -->
+    <div class="bg-white py-16 border-t border-slate-200">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-2xl font-extrabold text-slate-900 mb-2">Cek Status Servis</h2>
+            <p class="text-slate-500 mb-8">Pantau progres perbaikan perangkat Anda secara real-time.</p>
+            
+            <form wire:submit="trackService" class="relative max-w-lg mx-auto mb-8">
+                <input wire:model="trackingNumber" type="text" class="block w-full pl-6 pr-32 py-4 border-2 border-slate-200 rounded-full bg-slate-50 focus:bg-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-mono text-center text-lg uppercase placeholder-slate-400" placeholder="Masukkan No. Tiket (SRV-...)">
+                <button type="submit" class="absolute right-2 top-2 bottom-2 px-6 bg-slate-900 hover:bg-blue-600 text-white rounded-full font-bold transition-all">
+                    Lacak
+                </button>
+            </form>
+            @error('trackingNumber') <p class="text-rose-500 font-bold mb-4">{{ $message }}</p> @enderror
+
+            @if($trackingResult)
+                <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6 text-left animate-fade-in-up">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4 mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nomor Tiket</span>
+                            <h3 class="text-xl font-extrabold text-slate-900 font-mono">{{ $trackingResult->ticket_number }}</h3>
+                        </div>
+                        <span class="px-4 py-2 rounded-full text-sm font-bold {{ $trackingResult->status_color }}">
+                            {{ $trackingResult->status_label }}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="block text-slate-400 mb-1">Perangkat</span>
+                            <span class="font-semibold text-slate-800">{{ $trackingResult->device_name }}</span>
+                        </div>
+                        <div>
+                            <span class="block text-slate-400 mb-1">Estimasi Biaya</span>
+                            <span class="font-semibold text-slate-800">Rp {{ number_format($trackingResult->estimated_cost, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="block text-slate-400 mb-1">Keluhan</span>
+                            <span class="font-medium text-slate-600">{{ $trackingResult->problem_description }}</span>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+
     <!-- Product Details Modal -->
     @if($showModal && $selectedProduct)
     <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
