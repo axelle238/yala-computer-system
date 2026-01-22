@@ -32,6 +32,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/employees/create', \App\Livewire\Employees\Form::class)->name('employees.create');
     Route::get('/employees/{id}/edit', \App\Livewire\Employees\Form::class)->name('employees.edit');
     Route::get('/payroll', \App\Livewire\Employees\Payroll::class)->name('employees.payroll');
+    Route::get('/expenses', \App\Livewire\Expenses\Index::class)->name('expenses.index');
+    Route::get('/finance/profit-loss', \App\Livewire\Finance\ProfitLoss::class)->name('finance.profit-loss');
     
     // Audit Log
     Route::get('/activity-logs', \App\Livewire\ActivityLogs\Index::class)->name('activity-logs.index');

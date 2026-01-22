@@ -253,31 +253,127 @@
             
                             
             
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors {{ request()->routeIs('employees.payroll') ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors {{ request()->routeIs('employees.payroll') ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             
             
             
                             
             
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             
             
             
                             
             
-                                                    </svg>
+                                                                        </svg>
             
             
             
                             
             
-                                                    <span>Payroll & Kinerja</span>
+                                                                        <span>Payroll & Kinerja</span>
             
             
             
                             
             
-                                                </a>
+                                                                    </a>
+            
+            
+            
+                            
+            
+                                                    
+            
+            
+            
+                            
+            
+                                                                    <a href="{{ route('expenses.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group {{ request()->routeIs('expenses.index') ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm ring-1 ring-blue-100' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
+            
+            
+            
+                            
+            
+                                                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors {{ request()->routeIs('expenses.index') ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            
+            
+            
+                            
+            
+                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            
+            
+            
+                            
+            
+                                                                                            </svg>
+            
+            
+            
+                            
+            
+                                                                                            <span>Biaya Operasional</span>
+            
+            
+            
+                            
+            
+                                                                                        </a>
+            
+            
+            
+                            
+            
+                                                                        
+            
+            
+            
+                            
+            
+                                                                                        <a href="{{ route('finance.profit-loss') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group {{ request()->routeIs('finance.profit-loss') ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm ring-1 ring-blue-100' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
+            
+            
+            
+                            
+            
+                                                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors {{ request()->routeIs('finance.profit-loss') ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            
+            
+            
+                            
+            
+                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            
+            
+            
+                            
+            
+                                                                                            </svg>
+            
+            
+            
+                            
+            
+                                                                                            <span>Laporan Keuangan</span>
+            
+            
+            
+                            
+            
+                                                                                        </a>
+            
+            
+            
+                            
+            
+                                                                        
+            
+            
+            
+                            
+            
+                                                    
             
             
             
