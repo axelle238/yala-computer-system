@@ -45,6 +45,11 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/services/create', \App\Livewire\Services\Form::class)->name('services.create');
     Route::get('/services/{id}/edit', \App\Livewire\Services\Form::class)->name('services.edit');
 
+    // Purchase Orders (Procurement)
+    Route::get('/purchase-orders', \App\Livewire\PurchaseOrders\Index::class)->name('purchase-orders.index');
+    Route::get('/purchase-orders/create', \App\Livewire\PurchaseOrders\Form::class)->name('purchase-orders.create');
+    Route::get('/purchase-orders/{id}/edit', \App\Livewire\PurchaseOrders\Form::class)->name('purchase-orders.edit');
+
     // Printing Routes
     Route::get('/print/transaction/{id}', [\App\Http\Controllers\PrintController::class, 'transaction'])->name('print.transaction');
     Route::get('/print/service/{id}', [\App\Http\Controllers\PrintController::class, 'service'])->name('print.service');

@@ -135,15 +135,35 @@
             
                                                     </svg>
             
-                                                    <span>Pusat Servis</span>
+                                                                        <span>Pusat Servis</span>
             
-                                                </a>
+                                                                    </a>
             
-                                                @endif
+                                                                    @endif
             
-                                
+                                                    
             
-                                                @if(auth()->user()->isAdmin())
+                                                                    @if(auth()->user()->isAdmin() || auth()->user()->hasPermission('manage_stock'))
+            
+                                                                    <a href="{{ route('purchase-orders.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group {{ request()->routeIs('purchase-orders.*') ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm ring-1 ring-blue-100' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
+            
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors {{ request()->routeIs('purchase-orders.*') ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            
+                                                                        </svg>
+            
+                                                                        <span>Pembelian (PO)</span>
+            
+                                                                    </a>
+            
+                                                                    @endif
+            
+                                                    
+            
+                                                                    @if(auth()->user()->isAdmin())
+            
+                                                    
             
                                 
             
