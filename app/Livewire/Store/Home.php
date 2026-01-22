@@ -136,7 +136,7 @@ class Home extends Component
     {
         if (empty($this->cart)) return;
 
-        $message = "Halo Yala Computer, saya ingin memesan:\n\n";
+        $message = "*Halo Yala Computer, saya ingin memesan:*\n\n";
         $total = 0;
         
         $products = Product::whereIn('id', array_keys($this->cart))->get();
@@ -146,11 +146,12 @@ class Home extends Component
             $subtotal = $product->sell_price * $qty;
             $total += $subtotal;
             
-            $message .= "- {$product->name} (x{$qty}) : Rp " . number_format($subtotal, 0, ',', '.') . "\n";
+            $message .= "📦 *{$product->name}*\n";
+            $message .= "   └ x{$qty} @ Rp " . number_format($product->sell_price, 0, ',', '.') . " = Rp " . number_format($subtotal, 0, ',', '.') . "\n";
         }
 
-        $message .= "\nTotal: *Rp " . number_format($total, 0, ',', '.') . "*";
-        $message .= "\n\nMohon info ketersediaan dan ongkirnya. Terima kasih!";
+        $message .= "\n💰 *Total Estimasi: Rp " . number_format($total, 0, ',', '.') . "*";
+        $message .= "\n\n📍 _Mohon info ketersediaan stok dan biaya pengiriman ke alamat saya._ Terima kasih!";
 
         // Encode message for URL
         $encodedMessage = urlencode($message);
@@ -161,9 +162,6 @@ class Home extends Component
         // Redirect to WhatsApp
         $waLink = "https://wa.me/{$waNumber}?text={$encodedMessage}";
         
-        // Reset Cart after checkout intent (optional, but keep for now in case they come back)
-        // Session::forget('cart'); 
-
         return redirect()->away($waLink);
     }
 
