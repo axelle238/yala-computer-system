@@ -59,7 +59,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 antialiased transition-colors duration-300 selection:bg-cyan-500 selection:text-white">
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 antialiased transition-colors duration-300 selection:bg-cyan-500 selection:text-white h-screen overflow-hidden">
     
     <!-- Background Decor -->
     <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
@@ -67,14 +67,14 @@
         <div class="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-600/10 dark:bg-blue-900/20 rounded-full blur-[100px]"></div>
     </div>
 
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-full w-full">
         
         <livewire:components.spotlight />
 
         <!-- Sidebar -->
-        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-50 w-72 glass-sidebar transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col h-full shadow-2xl md:shadow-none">
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-50 w-72 glass-sidebar transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col h-full shadow-2xl md:shadow-none flex-shrink-0">
             <!-- Brand -->
-            <div class="h-24 flex items-center gap-3 px-6 border-b border-slate-100 dark:border-slate-800">
+            <div class="h-24 flex items-center gap-3 px-6 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
                 <div class="relative w-12 h-12">
                     <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-xl transform rotate-6 animate-pulse"></div>
                     <div class="absolute inset-0 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center border border-slate-100 dark:border-slate-700 shadow-lg">
@@ -169,7 +169,7 @@
             </nav>
 
             <!-- User Panel -->
-            <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+            <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex-shrink-0">
                 <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-3 flex items-center gap-3 shadow-sm">
                     <div class="relative">
                         <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-300">
@@ -192,10 +192,10 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50 dark:bg-slate-900 transition-all duration-300" :class="sidebarOpen ? 'md:ml-0' : ''">
+        <main class="flex-1 flex flex-col h-full min-w-0 bg-slate-50 dark:bg-slate-900 transition-all duration-300" :class="sidebarOpen ? 'md:ml-0' : ''">
             
             <!-- Topbar -->
-            <header class="h-20 flex items-center justify-between px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 z-10 sticky top-0">
+            <header class="h-20 flex items-center justify-between px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 z-10 sticky top-0 flex-shrink-0">
                 <div class="flex items-center gap-4">
                     <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 text-slate-500">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
