@@ -14,7 +14,8 @@ class PurchaseOrder extends Model
     ];
 
     protected $casts = [
-        'order_date' => 'date',
+        'order_date' => 'datetime',
+        'total_amount' => 'float',
     ];
 
     public function supplier()
@@ -25,10 +26,5 @@ class PurchaseOrder extends Model
     public function items()
     {
         return $this->hasMany(PurchaseOrderItem::class);
-    }
-
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'created_by');
     }
 }

@@ -1,122 +1,137 @@
-<div class="max-w-5xl mx-auto space-y-6">
-    <div class="flex items-center justify-between">
+<div class="max-w-5xl mx-auto space-y-6 animate-fade-in-up">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
         <div>
-            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">
-                {{ $po ? 'Edit Purchase Order' : 'Buat PO Baru' }}
+            <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
+                PO <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Workbench</span>
             </h2>
-            <p class="text-slate-500 mt-1 text-sm font-medium">No. PO: <span class="font-mono bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold">{{ $po_number }}</span></p>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Buat dan kelola pesanan ke supplier.</p>
         </div>
         
-        <div class="flex gap-2">
-            @if($po && $status === 'ordered')
-                <button wire:click="receiveStock" wire:confirm="Pastikan fisik barang sudah diterima. Stok akan bertambah otomatis. Lanjutkan?" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-lg shadow-emerald-600/20 font-bold transition-all">
-                    Terima Barang (Masuk Gudang)
-                </button>
+        <!-- Status Action Bar -->
+        <div class="flex items-center gap-3">
+            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider 
+                {{ $status == 'draft' ? 'bg-slate-100 text-slate-600' : '' }}
+                {{ $status == 'ordered' ? 'bg-blue-100 text-blue-700' : '' }}
+                {{ $status == 'received' ? 'bg-emerald-100 text-emerald-700' : '' }}
+                {{ $status == 'cancelled' ? 'bg-rose-100 text-rose-700' : '' }}">
+                Status: {{ $status }}
+            </span>
+
+            @if($po)
+                @if($status === 'draft')
+                    <button wire:click="$set('status', 'ordered'); $wire.save()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md text-sm transition-all">
+                        Finalize & Order
+                    </button>
+                @elseif($status === 'ordered')
+                    <button wire:click="receiveStock" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md text-sm transition-all flex items-center gap-2" onclick="return confirm('Terima barang dan update stok?') || event.stopImmediatePropagation()">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        Terima Barang
+                    </button>
+                @endif
             @endif
-            <a href="{{ route('purchase-orders.index') }}" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-colors">
-                Kembali
-            </a>
         </div>
     </div>
 
-    <form wire:submit="save" class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div class="p-8 space-y-8">
-            
-            <!-- Header Info -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Supplier</label>
-                    <select wire:model.live="supplier_id" class="block w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                        <option value="">-- Pilih Supplier --</option>
-                        @foreach($suppliers as $sup)
-                            <option value="{{ $sup->id }}">{{ $sup->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('supplier_id') <span class="text-xs text-rose-500 font-bold">{{ $message }}</span> @enderror
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Tanggal Order</label>
-                    <input wire:model="order_date" type="date" class="block w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Status</label>
-                    <select wire:model="status" class="block w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" {{ $po && $po->status === 'received' ? 'disabled' : '' }}>
-                        <option value="draft">Draft (Konsep)</option>
-                        <option value="ordered">Ordered (Dipesan)</option>
-                        <option value="received">Received (Diterima)</option>
-                        <option value="cancelled">Cancelled (Batal)</option>
-                    </select>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Panel: Info -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 dark:text-white mb-4 border-b border-slate-100 pb-2">Informasi Dasar</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nomor PO</label>
+                        <input wire:model="po_number" type="text" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg font-mono text-sm" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Supplier</label>
+                        <select wire:model.live="supplier_id" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-blue-500 text-sm font-bold" {{ $status !== 'draft' ? 'disabled' : '' }}>
+                            <option value="">-- Pilih Supplier --</option>
+                            @foreach($suppliers as $supplier)
+                                <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('supplier_id') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tanggal Pesan</label>
+                        <input wire:model="order_date" type="date" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-blue-500 text-sm" {{ $status !== 'draft' ? 'disabled' : '' }}>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Catatan</label>
+                        <textarea wire:model="notes" rows="3" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-blue-500 text-sm"></textarea>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Items Table -->
-            <div>
-                <h3 class="text-lg font-bold text-slate-800 mb-4">Daftar Barang</h3>
-                <div class="border border-slate-200 rounded-xl overflow-hidden">
+        <!-- Right Panel: Items -->
+        <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col h-full">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-900 dark:text-white">Item Pesanan</h3>
+                    @if($status === 'draft')
+                        <button wire:click="addItem" class="text-xs font-bold text-blue-600 hover:underline">+ Tambah Baris</button>
+                    @endif
+                </div>
+
+                <div class="flex-1 overflow-x-auto">
                     <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 text-slate-700 font-bold">
+                        <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 font-bold uppercase text-[10px]">
                             <tr>
-                                <th class="p-4 w-1/2">Produk</th>
-                                <th class="p-4 text-center">Qty</th>
-                                <th class="p-4 text-right">Harga Satuan</th>
-                                <th class="p-4 text-right">Subtotal</th>
-                                <th class="p-4 text-center w-10">#</th>
+                                <th class="px-4 py-3 min-w-[200px]">Produk</th>
+                                <th class="px-4 py-3 w-24 text-center">Qty</th>
+                                <th class="px-4 py-3 w-32 text-right">Harga Beli</th>
+                                <th class="px-4 py-3 w-32 text-right">Subtotal</th>
+                                @if($status === 'draft') <th class="px-4 py-3 w-10"></th> @endif
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                             @foreach($items as $index => $item)
-                                <tr>
-                                    <td class="p-2">
-                                        <select wire:model.live="items.{{ $index }}.product_id" wire:change="updatePrice({{ $index }})" class="w-full px-3 py-2 border border-slate-200 rounded-lg">
-                                            <option value="">-- Pilih Produk --</option>
-                                            @foreach($products as $prod)
-                                                <option value="{{ $prod->id }}">{{ $prod->name }} (Stok: {{ $prod->stock_quantity }})</option>
+                                <tr class="bg-white dark:bg-slate-800 group">
+                                    <td class="px-4 py-2">
+                                        <select wire:model.live="items.{{ $index }}.product_id" wire:change="updatePrice({{ $index }})" class="w-full bg-transparent border-none p-0 text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-0 cursor-pointer" {{ $status !== 'draft' ? 'disabled' : '' }}>
+                                            <option value="">Pilih Produk...</option>
+                                            @foreach($products as $product)
+                                                <option value="{{ $product->id }}">{{ $product->name }} (Stok: {{ $product->stock_quantity }})</option>
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td class="p-2">
-                                        <input wire:model.live="items.{{ $index }}.qty" type="number" min="1" class="w-20 px-3 py-2 border border-slate-200 rounded-lg text-center">
+                                    <td class="px-4 py-2">
+                                        <input wire:model.live="items.{{ $index }}.qty" type="number" class="w-full text-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg py-1 text-xs font-bold" min="1" {{ $status !== 'draft' ? 'disabled' : '' }}>
                                     </td>
-                                    <td class="p-2 text-right">
-                                        <input wire:model.live="items.{{ $index }}.price" type="number" class="w-32 px-3 py-2 border border-slate-200 rounded-lg text-right">
+                                    <td class="px-4 py-2">
+                                        <input wire:model.live="items.{{ $index }}.price" type="number" class="w-full text-right bg-transparent border-none p-0 font-mono text-xs" {{ $status !== 'draft' ? 'disabled' : '' }}>
                                     </td>
-                                    <td class="p-2 text-right font-bold text-slate-700">
-                                        Rp {{ number_format(($items[$index]['qty'] * $items[$index]['price']), 0, ',', '.') }}
+                                    <td class="px-4 py-2 text-right font-bold font-mono text-slate-800 dark:text-white">
+                                        {{ number_format((int)$item['qty'] * (int)$item['price'], 0, ',', '.') }}
                                     </td>
-                                    <td class="p-2 text-center">
-                                        <button type="button" wire:click="removeItem({{ $index }})" class="text-rose-500 hover:bg-rose-50 p-2 rounded-full transition-colors">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                        </button>
-                                    </td>
+                                    @if($status === 'draft')
+                                        <td class="px-4 py-2 text-center">
+                                            <button wire:click="removeItem({{ $index }})" class="text-slate-300 hover:text-rose-500 transition-colors">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            </button>
+                                        </td>
+                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>
-                        <tfoot class="bg-slate-50 border-t border-slate-200">
-                            <tr>
-                                <td colspan="3" class="p-4 text-right font-bold text-slate-600">TOTAL ESTIMASI</td>
-                                <td class="p-4 text-right font-extrabold text-slate-900 text-lg">Rp {{ number_format($this->total, 0, ',', '.') }}</td>
-                                <td class="p-4"></td>
-                            </tr>
-                        </tfoot>
                     </table>
                 </div>
-                <button type="button" wire:click="addItem" class="mt-4 text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
-                    + Tambah Baris Barang
-                </button>
+
+                <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex justify-end items-center gap-4">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Total Estimasi</span>
+                    <span class="text-2xl font-black font-tech text-slate-900 dark:text-white">Rp {{ number_format($this->total, 0, ',', '.') }}</span>
+                </div>
             </div>
 
-            <!-- Notes -->
-            <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">Catatan Tambahan</label>
-                <textarea wire:model="notes" rows="3" class="block w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"></textarea>
-            </div>
-
-            <!-- Submit -->
-            <div class="pt-6 border-t border-slate-100 flex justify-end">
-                <button type="submit" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-600/30 font-bold transition-all transform active:scale-95">
-                    Simpan Perubahan
+            <!-- Footer Actions -->
+            <div class="mt-6 flex justify-end gap-3">
+                <a href="{{ route('purchase-orders.index') }}" class="px-6 py-3 rounded-xl text-slate-500 font-bold hover:bg-slate-100 transition-colors">Kembali</a>
+                <button wire:click="save" class="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
+                    Simpan Draft
                 </button>
             </div>
         </div>
-    </form>
+    </div>
 </div>
