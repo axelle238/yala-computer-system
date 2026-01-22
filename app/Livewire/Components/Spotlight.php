@@ -9,71 +9,67 @@ use Livewire\Component;
 class Spotlight extends Component
 {
     public $search = '';
-    public $results = [];
     public $isOpen = false;
 
     public function updatedSearch()
     {
+        // No operation needed, render updates results
+    }
+
+    public function getResultsProperty()
+    {
         if (strlen($this->search) < 2) {
-            $this->results = [];
-            return;
+            return [];
         }
 
-        $this->results = [];
+        $results = collect();
 
-        // 1. Search Menus
+        // 1. Menu Navigation
         $menus = [
-            ['title' => 'Dashboard', 'url' => route('dashboard'), 'icon' => 'home'],
-            ['title' => 'Produk & Stok', 'url' => route('products.index'), 'icon' => 'box'],
-            ['title' => 'Tambah Produk Baru', 'url' => route('products.create'), 'icon' => 'plus'],
-            ['title' => 'Laporan Transaksi', 'url' => route('transactions.index'), 'icon' => 'document-text'],
-            ['title' => 'Catat Transaksi Baru', 'url' => route('transactions.create'), 'icon' => 'shopping-cart'],
-            ['title' => 'Service Center', 'url' => route('services.index'), 'icon' => 'wrench'],
-            ['title' => 'Input Tiket Servis', 'url' => route('services.create'), 'icon' => 'ticket'],
-            ['title' => 'Pengaturan Sistem', 'url' => route('settings.index'), 'icon' => 'cog'],
+            ['title' => 'Dashboard', 'url' => route('dashboard'), 'subtitle' => 'Go to Dashboard', 'type' => 'menu'],
+            ['title' => 'Produk', 'url' => route('products.index'), 'subtitle' => 'Manage Inventory', 'type' => 'menu'],
+            ['title' => 'Transaksi', 'url' => route('transactions.index'), 'subtitle' => 'View Transactions', 'type' => 'menu'],
+            ['title' => 'Service Center', 'url' => route('services.index'), 'subtitle' => 'Manage Services', 'type' => 'menu'],
+            ['title' => 'Pegawai', 'url' => route('employees.index'), 'subtitle' => 'Manage Employees', 'type' => 'menu'],
         ];
 
         foreach ($menus as $menu) {
             if (stripos($menu['title'], $this->search) !== false) {
-                $this->results[] = [
-                    'title' => $menu['title'],
-                    'subtitle' => 'Navigasi Menu',
-                    'url' => $menu['url'],
-                    'type' => 'menu',
-                    'icon' => $menu['icon']
-                ];
+                $results->push($menu);
             }
         }
 
         // 2. Search Products
         $products = Product::where('name', 'like', '%' . $this->search . '%')
             ->orWhere('sku', 'like', '%' . $this->search . '%')
-            ->take(3)->get();
+            ->take(5)
+            ->get();
 
         foreach ($products as $product) {
-            $this->results[] = [
+            $results->push([
                 'title' => $product->name,
-                'subtitle' => 'Produk - Stok: ' . $product->stock_quantity,
-                'url' => route('products.edit', $product->id),
-                'type' => 'product',
-                'icon' => 'cube'
-            ];
+                'url' => route('products.edit', $product->id), // Assuming edit route exists
+                'subtitle' => 'Product • ' . $product->sku,
+                'type' => 'product'
+            ]);
         }
 
-        // 3. Search Services
+        // 3. Search Service Tickets
         $tickets = ServiceTicket::where('ticket_number', 'like', '%' . $this->search . '%')
             ->orWhere('customer_name', 'like', '%' . $this->search . '%')
-            ->take(3)->get();
+            ->take(3)
+            ->get();
 
         foreach ($tickets as $ticket) {
-            $this->results[] = [
+            $results->push([
                 'title' => $ticket->ticket_number . ' - ' . $ticket->customer_name,
-                'subtitle' => 'Servis - Status: ' . ucfirst($ticket->status),
                 'url' => route('services.edit', $ticket->id),
-                'type' => 'service',
-                'icon' => 'ticket'
-            ];
+                'subtitle' => 'Service • ' . $ticket->status,
+                'type' => 'service'
+            ]);
         }
+
+        return $results->all();
     }
 
     public function render()

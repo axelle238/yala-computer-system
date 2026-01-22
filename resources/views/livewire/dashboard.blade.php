@@ -1,6 +1,6 @@
 <div class="space-y-8 animate-fade-in-up">
     <!-- Live Status Bar -->
-    <div class="flex items-center justify-between bg-white/50 dark:bg-slate-800/50 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20 dark:border-slate-700 shadow-sm mb-6 text-xs font-mono">
+    <div class="flex flex-col md:flex-row md:items-center justify-between bg-white/50 dark:bg-slate-800/50 backdrop-blur-md px-4 py-3 rounded-xl border border-white/20 dark:border-slate-700 shadow-sm mb-6 text-xs font-mono gap-2 md:gap-0">
         <div class="flex items-center gap-4">
             <div class="flex items-center gap-2">
                 <span class="relative flex h-2 w-2">
@@ -9,10 +9,10 @@
                 </span>
                 <span class="text-emerald-600 dark:text-emerald-400 font-bold tracking-wider">SYSTEM ONLINE</span>
             </div>
-            <div class="hidden md:block text-slate-300">|</div>
-            <div class="hidden md:block text-slate-500 dark:text-slate-400">Database: <span class="text-slate-700 dark:text-slate-200 font-semibold">{{ DB::connection()->getDatabaseName() }}</span></div>
+            <div class="hidden md:block text-slate-300 dark:text-slate-600">|</div>
+            <div class="hidden md:block text-slate-500 dark:text-slate-400">Database: <span class="text-slate-700 dark:text-slate-200 font-semibold uppercase">{{ DB::connection()->getDatabaseName() }}</span></div>
         </div>
-        <div class="flex items-center gap-4" x-data="{ time: new Date().toLocaleTimeString() }" x-init="setInterval(() => time = new Date().toLocaleTimeString(), 1000)">
+        <div class="flex items-center gap-4" x-data="{ time: new Date().toLocaleTimeString('id-ID') }" x-init="setInterval(() => time = new Date().toLocaleTimeString('id-ID'), 1000)">
             <div class="text-slate-500 dark:text-slate-400">Server Time: <span class="text-slate-900 dark:text-white font-bold" x-text="time"></span></div>
         </div>
     </div>
@@ -40,6 +40,32 @@
             </a>
         </div>
     </div>
+
+    <!-- AI Insights (New Feature) -->
+    @if(count($insights) > 0)
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        @foreach($insights as $insight)
+            <div class="flex items-start gap-3 p-4 rounded-xl border transition-all hover:-translate-y-1 
+                {{ $insight['type'] == 'success' ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800' : '' }}
+                {{ $insight['type'] == 'warning' ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-800' : '' }}
+                {{ $insight['type'] == 'info' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800' : '' }}
+            ">
+                <div class="mt-0.5">
+                    @if($insight['type'] == 'success') <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                    @elseif($insight['type'] == 'warning') <svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    @else <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    @endif
+                </div>
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider mb-1 opacity-70 {{ $insight['type'] == 'success' ? 'text-emerald-700 dark:text-emerald-400' : ($insight['type'] == 'warning' ? 'text-amber-700 dark:text-amber-400' : 'text-blue-700 dark:text-blue-400') }}">
+                        AI Insight
+                    </p>
+                    <p class="text-sm font-medium text-slate-700 dark:text-slate-300 leading-snug">{{ $insight['message'] }}</p>
+                </div>
+            </div>
+        @endforeach
+    </div>
+    @endif
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -129,14 +155,14 @@
                 <h3 class="font-bold text-lg text-slate-800 dark:text-white font-tech">Tren 7 Hari</h3>
                 <div class="flex items-center gap-2 text-xs font-bold text-slate-400">
                     <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-                    <span>Sales Volume</span>
+                    <span>Volume</span>
                 </div>
             </div>
             
-            <div class="flex-1 flex items-end justify-between gap-3 relative z-10">
+            <div class="flex-1 flex items-end justify-between gap-3 relative z-10 h-48">
                 @foreach($chartData as $data)
-                    <div class="w-full flex flex-col items-center gap-3 group cursor-pointer">
-                        <div class="relative w-full bg-slate-100 dark:bg-slate-700 rounded-t-lg transition-all duration-500 group-hover:bg-blue-500/20 overflow-hidden" style="height: {{ $data['height'] > 0 ? $data['height'] : 5 }}%">
+                    <div class="w-full flex flex-col items-center gap-3 group cursor-pointer h-full justify-end">
+                        <div class="relative w-full bg-slate-100 dark:bg-slate-700 rounded-t-sm transition-all duration-500 group-hover:bg-blue-500/20 overflow-hidden" style="height: {{ $data['height'] > 0 ? $data['height'] : 5 }}%">
                              <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-blue-600 to-cyan-400 transition-all duration-500 group-hover:opacity-80" style="height: 100%"></div>
                         </div>
                         <span class="text-[10px] font-bold text-slate-400 group-hover:text-blue-500 transition-colors">{{ substr($data['day'], 0, 3) }}</span>
