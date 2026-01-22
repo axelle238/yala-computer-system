@@ -1,25 +1,5 @@
-<div x-data="{ wishlist: JSON.parse(localStorage.getItem('wishlist') || '[]'), toggleWishlist(id) { if(this.wishlist.includes(id)) { this.wishlist = this.wishlist.filter(i => i !== id); } else { this.wishlist.push(id); } localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); } }">
-    <!-- Notification Toast -->
-    <div x-data="{ show: false, message: '' }" 
-         x-on:notify.window="show = true; message = $event.detail.message; setTimeout(() => show = false, 3000)"
-         x-show="show" 
-         x-transition:enter="transition ease-out duration-300 transform"
-         x-transition:enter-start="opacity-0 translate-y-4"
-         x-transition:enter-end="opacity-100 translate-y-0"
-         x-transition:leave="transition ease-in duration-200 transform"
-         x-transition:leave-start="opacity-100 translate-y-0"
-         x-transition:leave-end="opacity-0 translate-y-4"
-         class="fixed top-24 right-4 z-[999] bg-white/90 backdrop-blur-md text-slate-800 px-6 py-4 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] flex items-center gap-4 border border-white/50 ring-1 ring-slate-900/5"
-         style="display: none;">
-        <div class="w-8 h-8 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-        </div>
-        <div>
-            <h6 class="font-bold text-sm">Notifikasi</h6>
-            <p x-text="message" class="text-xs text-slate-500 mt-0.5"></p>
-        </div>
-    </div>
-
+<div wire:poll.10s x-data="{ wishlist: JSON.parse(localStorage.getItem('wishlist') || '[]'), toggleWishlist(id) { if(this.wishlist.includes(id)) { this.wishlist = this.wishlist.filter(i => i !== id); } else { this.wishlist.push(id); } localStorage.setItem('wishlist', JSON.stringify(this.wishlist)); } }">
+    
     <!-- Floating Cart -->
     <button wire:click="toggleCart" class="fixed bottom-8 right-8 z-[90] group">
         <div class="absolute inset-0 bg-blue-500 rounded-full animate-pulse opacity-20"></div>

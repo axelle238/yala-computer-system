@@ -82,7 +82,7 @@
                 @foreach($trendData as $data)
                     <div class="group flex-1 flex flex-col items-center justify-end h-full gap-2 relative">
                         <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-t-sm relative overflow-hidden transition-all duration-500 hover:bg-emerald-500/20" 
-                             style="height: {{ max(5, ($data['profit'] / $maxProfit) * 100) }}%">
+                             style="height: {{ $maxProfit > 0 ? max(5, ($data['profit'] / $maxProfit) * 100) : 5 }}%">
                              <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-emerald-500 to-cyan-400 opacity-80 group-hover:opacity-100 transition-opacity" style="height: 100%"></div>
                         </div>
                         <!-- Tooltip -->

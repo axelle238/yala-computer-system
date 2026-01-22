@@ -126,6 +126,7 @@
           }
       }"
 >
+    <x-notification />
     
     <!-- Background Animation -->
     <div class="mesh-bg">
