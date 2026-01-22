@@ -59,6 +59,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // Warehouse
     Route::get('/warehouses/transfer', \App\Livewire\Warehouses\Transfer::class)->name('warehouses.transfer');
+    Route::get('/warehouses/stock-opname', \App\Livewire\Warehouses\StockOpname::class)->name('warehouses.stock-opname');
 
     // Marketing
     Route::get('/marketing/flash-sale', \App\Livewire\Marketing\FlashSale\Index::class)->name('marketing.flash-sale.index');
