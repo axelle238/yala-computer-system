@@ -17,11 +17,12 @@ class Form extends Component
 
     public $name = '';
     public $email = '';
-    public $password = ''; // Only for creation or reset
+    public $password = ''; 
     public $role = 'employee';
+    public $base_salary = 0;
+    public $join_date = '';
     public $selectedPermissions = [];
 
-    // Daftar Izin yang tersedia untuk Pegawai
     public $availablePermissions = [
         'view_dashboard' => 'Melihat Dashboard',
         'manage_products' => 'Kelola Produk (Tambah/Edit)',
@@ -29,6 +30,7 @@ class Form extends Component
         'create_transaction' => 'Catat Transaksi (Kasir)',
         'view_reports' => 'Lihat Laporan Transaksi',
         'manage_settings' => 'Akses Pengaturan (Bahaya)',
+        'manage_stock' => 'Kelola Stok & Pembelian',
     ];
 
     public function mount($id = null)
@@ -42,7 +44,11 @@ class Form extends Component
             $this->name = $this->user->name;
             $this->email = $this->user->email;
             $this->role = $this->user->role;
+            $this->base_salary = $this->user->base_salary;
+            $this->join_date = $this->user->join_date ? $this->user->join_date->format('Y-m-d') : '';
             $this->selectedPermissions = $this->user->access_rights ?? [];
+        } else {
+            $this->join_date = date('Y-m-d');
         }
     }
 
@@ -53,14 +59,16 @@ class Form extends Component
             'email' => ['required', 'email', Rule::unique('users')->ignore($this->user->id ?? null)],
             'role' => 'required|in:admin,owner,employee',
             'password' => $this->user ? 'nullable|min:6' : 'required|min:6',
+            'base_salary' => 'numeric|min:0',
+            'join_date' => 'nullable|date',
         ]);
 
         $data = [
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role,
-            // Jika role bukan employee, permissions null (admin full, owner view only default)
-            // Jika employee, simpan array permissions
+            'base_salary' => $this->base_salary,
+            'join_date' => $this->join_date,
             'access_rights' => $this->role === 'employee' ? $this->selectedPermissions : null,
         ];
 

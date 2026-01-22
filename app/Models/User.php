@@ -23,6 +23,8 @@ class User extends Authenticatable
         'password',
         'role',
         'access_rights',
+        'base_salary',
+        'join_date',
     ];
 
     /**
@@ -45,7 +47,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'access_rights' => 'array', // Otomatis convert JSON ke Array
+            'access_rights' => 'array',
+            'join_date' => 'date',
         ];
     }
 
@@ -68,22 +71,18 @@ class User extends Authenticatable
 
     /**
      * Cek apakah user memiliki izin spesifik.
-     * Admin & Owner biasanya punya akses implisit, tapi kita bisa batasi Owner hanya view.
      */
     public function hasPermission($permission)
     {
-        // Admin selalu punya semua akses
         if ($this->isAdmin()) {
             return true;
         }
 
-        // Owner biasanya punya akses lihat laporan dan dashboard
         if ($this->isOwner()) {
             $ownerPermissions = ['view_dashboard', 'view_reports', 'view_products'];
             return in_array($permission, $ownerPermissions);
         }
 
-        // Pegawai tergantung settingan manual
         if ($this->isEmployee()) {
             return in_array($permission, $this->access_rights ?? []);
         }

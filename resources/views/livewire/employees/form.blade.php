@@ -37,6 +37,26 @@
                 </div>
             </div>
 
+            <!-- Employment Info (New) -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">Kepegawaian</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Gaji Pokok</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-500 font-bold">Rp</span>
+                            <input wire:model="base_salary" type="number" class="block w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                        </div>
+                        @error('base_salary') <span class="text-xs text-rose-500 font-bold">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Tanggal Bergabung</label>
+                        <input wire:model="join_date" type="date" class="block w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    </div>
+                </div>
+            </div>
+
             <!-- Role & Permissions -->
             <div class="space-y-6">
                 <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">Role & Akses</h3>
@@ -68,7 +88,7 @@
                     </div>
                 </div>
 
-                <!-- Manual Access Rights (Hanya muncul jika Role = Employee) -->
+                <!-- Manual Access Rights -->
                 @if($role === 'employee')
                     <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
                         <label class="block text-sm font-bold text-slate-800 mb-4">Pilih Hak Akses Manual</label>
@@ -80,7 +100,6 @@
                                 </label>
                             @endforeach
                         </div>
-                        <p class="text-xs text-slate-500 mt-4 italic">* Centang fitur yang diizinkan untuk pegawai ini.</p>
                     </div>
                 @endif
             </div>
