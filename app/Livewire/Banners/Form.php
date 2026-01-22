@@ -7,6 +7,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Illuminate\Support\Facades\Storage;
 
 #[Layout('layouts.app')]
 #[Title('Form Banner - Yala Computer')]
@@ -16,22 +17,26 @@ class Form extends Component
 
     public ?Banner $banner = null;
 
-    public $title = '';
-    public $link_url = '';
-    public $image;
-    public $image_path;
-    public $order = 0;
+    public $title;
+    public $description;
+    public $image; // Temporary upload
+    public $existingImage;
+    public $link_url;
     public $is_active = true;
+    public $order = 0;
 
     public function mount($id = null)
     {
         if ($id) {
             $this->banner = Banner::findOrFail($id);
             $this->title = $this->banner->title;
+            $this->description = $this->banner->description;
+            $this->existingImage = $this->banner->image_path;
             $this->link_url = $this->banner->link_url;
-            $this->image_path = $this->banner->image_path;
-            $this->order = $this->banner->order;
             $this->is_active = $this->banner->is_active;
+            $this->order = $this->banner->order;
+        } else {
+            $this->order = Banner::max('order') + 1;
         }
     }
 
@@ -44,24 +49,31 @@ class Form extends Component
             'order' => 'integer',
         ]);
 
+        $imagePath = $this->existingImage;
+        if ($this->image) {
+            if ($this->existingImage) {
+                Storage::disk('public')->delete($this->existingImage);
+            }
+            $imagePath = $this->image->store('banners', 'public');
+        }
+
         $data = [
             'title' => $this->title,
+            'description' => $this->description,
+            'image_path' => $imagePath,
             'link_url' => $this->link_url,
-            'order' => $this->order,
             'is_active' => $this->is_active,
+            'order' => $this->order,
         ];
-
-        if ($this->image) {
-            $data['image_path'] = $this->image->store('banners', 'public');
-        }
 
         if ($this->banner) {
             $this->banner->update($data);
+            session()->flash('success', 'Banner diperbarui.');
         } else {
             Banner::create($data);
+            session()->flash('success', 'Banner baru ditambahkan.');
         }
 
-        session()->flash('success', 'Banner berhasil disimpan.');
         return redirect()->route('banners.index');
     }
 

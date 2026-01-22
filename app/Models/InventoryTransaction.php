@@ -26,6 +26,7 @@ class InventoryTransaction extends Model
     protected $fillable = [
         'product_id',
         'user_id',
+        'warehouse_id', // New
         'type',
         'quantity',
         'unit_price', // New: Snapshot of Sell Price
@@ -54,5 +55,10 @@ class InventoryTransaction extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 }
