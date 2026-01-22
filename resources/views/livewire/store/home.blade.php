@@ -387,9 +387,17 @@
                         <div class="mb-1 text-xs font-bold text-blue-600 uppercase tracking-wide">
                             {{ $product->category->name }}
                         </div>
-                        <h3 class="font-bold text-slate-900 text-lg leading-snug mb-2 group-hover:text-blue-700 transition-colors line-clamp-2">
+                        <h3 class="font-bold text-slate-900 text-lg leading-snug mb-1 group-hover:text-blue-700 transition-colors line-clamp-2">
                             {{ $product->name }}
                         </h3>
+                        
+                        <!-- Rating Stars -->
+                        <div class="flex items-center gap-1 mb-2">
+                            @for($i=1; $i<=5; $i++)
+                                <svg class="w-3 h-3 {{ $i <= round($product->reviews_avg_rating) ? 'text-amber-400 fill-current' : 'text-slate-200' }}" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                            @endfor
+                            <span class="text-[10px] text-slate-400">({{ $product->reviews_count ?? 0 }})</span>
+                        </div>
                         
                         <div class="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between">
                             <div>
@@ -398,11 +406,16 @@
                                     Rp {{ number_format($product->sell_price, 0, ',', '.') }}
                                 </span>
                             </div>
-                            <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
+                            <div class="flex gap-2">
+                                <button wire:click.stop="addToCompare({{ $product->id }})" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 transition-colors" title="Bandingkan">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+                                </button>
+                                <button class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -504,6 +517,113 @@
             @endif
         </div>
     </div>
+
+    <!-- Comparison Floating Bar -->
+    @if(count($compareList) > 0)
+        <div class="fixed bottom-0 left-0 right-0 z-[80] bg-white border-t border-slate-200 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] p-4 transform transition-transform duration-300">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="font-bold text-slate-800">{{ count($compareList) }} Produk Dipilih</span>
+                    <div class="flex gap-2">
+                        @foreach($compareList as $id)
+                            @php $prod = \App\Models\Product::find($id); @endphp
+                            @if($prod)
+                                <div class="relative w-10 h-10 bg-slate-100 rounded-lg border border-slate-200 overflow-hidden group">
+                                    @if($prod->image_path)
+                                        <img src="{{ asset('storage/' . $prod->image_path) }}" class="w-full h-full object-cover">
+                                    @endif
+                                    <button wire:click="removeFromCompare({{ $id }})" class="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button wire:click="$set('compareList', [])" class="px-4 py-2 text-sm font-semibold text-slate-500 hover:text-rose-600 transition-colors">Reset</button>
+                    <button wire:click="openCompare" class="px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors">
+                        Bandingkan Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Comparison Modal -->
+    @if($showCompareModal)
+        <div class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm transition-opacity" wire:click="closeCompare"></div>
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative bg-white w-full max-w-5xl rounded-2xl shadow-xl overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="text-xl font-extrabold text-slate-900">Perbandingan Spesifikasi</h3>
+                        <button wire:click="closeCompare" class="p-2 bg-slate-100 rounded-full hover:bg-rose-100 hover:text-rose-600 transition-colors">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+                    <div class="p-6 overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr>
+                                    <th class="p-4 w-1/4"></th>
+                                    @foreach($compareList as $id)
+                                        @php $prod = \App\Models\Product::find($id); @endphp
+                                        <th class="p-4 w-1/4 align-top">
+                                            <div class="h-32 bg-slate-50 rounded-xl mb-4 flex items-center justify-center p-2">
+                                                @if($prod->image_path)
+                                                    <img src="{{ asset('storage/' . $prod->image_path) }}" class="max-h-full object-contain mix-blend-multiply">
+                                                @endif
+                                            </div>
+                                            <h4 class="font-bold text-slate-900 text-sm line-clamp-2">{{ $prod->name }}</h4>
+                                            <p class="text-lg font-extrabold text-blue-600 mt-2">Rp {{ number_format($prod->sell_price, 0, ',', '.') }}</p>
+                                        </th>
+                                    @endforeach
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm">
+                                <tr>
+                                    <td class="p-4 font-bold text-slate-500">Kategori</td>
+                                    @foreach($compareList as $id)
+                                        <td class="p-4">
+                                            <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-bold">
+                                                {{ \App\Models\Product::find($id)->category->name }}
+                                            </span>
+                                        </td>
+                                    @endforeach
+                                </tr>
+                                <tr>
+                                    <td class="p-4 font-bold text-slate-500">Garansi</td>
+                                    @foreach($compareList as $id)
+                                        <td class="p-4">{{ \App\Models\Product::find($id)->warranty_duration }} Bulan</td>
+                                    @endforeach
+                                </tr>
+                                <tr>
+                                    <td class="p-4 font-bold text-slate-500">Deskripsi</td>
+                                    @foreach($compareList as $id)
+                                        <td class="p-4 text-slate-600">{{ Str::limit(\App\Models\Product::find($id)->description, 100) }}</td>
+                                    @endforeach
+                                </tr>
+                                <!-- Tech Specs (Dynamic JSON) -->
+                                @php 
+                                    // Ambil semua key spesifikasi unik dari produk yang dibandingkan
+                                    $allSpecs = [];
+                                    foreach($compareList as $id) {
+                                        $prod = \App\Models\Product::find($id);
+                                        if($prod->specifications) {
+                                            // Asumsi specifications disimpan sebagai array/json [Key => Value]
+                                            // Namun saat ini di DB masih nullable text/json.
+                                            // Kita skip detail JSON kompleks untuk MVP ini, tampilkan raw specs jika ada.
+                                        }
+                                    }
+                                @endphp
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- Product Details Modal -->
     @if($showModal && $selectedProduct)

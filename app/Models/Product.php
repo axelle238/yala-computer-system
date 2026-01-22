@@ -90,6 +90,11 @@ class Product extends Model
         return $this->hasMany(FlashSale::class);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
     /**
      * Check if the product stock is below the alert threshold.
      *

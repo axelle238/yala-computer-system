@@ -201,11 +201,51 @@ class Home extends Component
         }
     }
 
+    // Comparison State
+    public $compareList = [];
+    public $showCompareModal = false;
+
+    public function addToCompare($productId)
+    {
+        if (in_array($productId, $this->compareList)) {
+            $this->dispatch('notify', message: 'Produk sudah ada di perbandingan.', type: 'error');
+            return;
+        }
+
+        if (count($this->compareList) >= 3) {
+            $this->dispatch('notify', message: 'Maksimal 3 produk untuk dibandingkan.', type: 'error');
+            return;
+        }
+
+        $this->compareList[] = $productId;
+        $this->dispatch('notify', message: 'Ditambahkan ke perbandingan.');
+    }
+
+    public function removeFromCompare($productId)
+    {
+        $this->compareList = array_diff($this->compareList, [$productId]);
+    }
+
+    public function openCompare()
+    {
+        if (count($this->compareList) < 2) {
+            $this->dispatch('notify', message: 'Pilih minimal 2 produk.', type: 'error');
+            return;
+        }
+        $this->showCompareModal = true;
+    }
+
+    public function closeCompare()
+    {
+        $this->showCompareModal = false;
+    }
+
     public function render()
     {
         $products = Product::query()
             ->where('is_active', true)
-            ->with('category')
+            ->with(['category', 'reviews']) // Eager load reviews
+            ->withAvg('reviews', 'rating')
             ->when($this->search, function ($query) {
                 $query->where(function($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')
