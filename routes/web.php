@@ -30,7 +30,12 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     
     // Master Data
     Route::get('/master/categories', \App\Livewire\Master\Categories::class)->name('master.categories');
+    Route::get('/master/categories/create', \App\Livewire\Master\Categories\Form::class)->name('master.categories.create');
+    Route::get('/master/categories/{id}/edit', \App\Livewire\Master\Categories\Form::class)->name('master.categories.edit');
+    
     Route::get('/master/suppliers', \App\Livewire\Master\Suppliers::class)->name('master.suppliers');
+    Route::get('/master/suppliers/create', \App\Livewire\Master\Suppliers\Form::class)->name('master.suppliers.create');
+    Route::get('/master/suppliers/{id}/edit', \App\Livewire\Master\Suppliers\Form::class)->name('master.suppliers.edit');
 
     // Employee Management (Admin Only)
     Route::get('/employees', \App\Livewire\Employees\Index::class)->name('employees.index');
