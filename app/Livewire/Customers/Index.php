@@ -3,13 +3,14 @@
 namespace App\Livewire\Customers;
 
 use App\Models\Customer;
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.app')]
-#[Title('Data Member - Yala Computer')]
+#[Title('CRM Dashboard - Yala Computer')]
 class Index extends Component
 {
     use WithPagination;
@@ -46,17 +47,26 @@ class Index extends Component
             'join_date' => now(),
         ]);
 
-        session()->flash('success', 'Member baru berhasil didaftarkan.');
+        $this->dispatch('notify', message: 'Member baru berhasil didaftarkan!', type: 'success');
         $this->closeModal();
     }
 
     public function render()
     {
+        // Statistics
+        $totalMembers = Customer::count();
+        $newMembersThisMonth = Customer::whereMonth('join_date', Carbon::now()->month)->count();
+        
+        // Data List
         $customers = Customer::where('name', 'like', '%' . $this->search . '%')
             ->orWhere('phone', 'like', '%' . $this->search . '%')
-            ->latest()
+            ->orderBy('points', 'desc') // Sort by loyalty points
             ->paginate(10);
 
-        return view('livewire.customers.index', ['customers' => $customers]);
+        return view('livewire.customers.index', [
+            'customers' => $customers,
+            'totalMembers' => $totalMembers,
+            'newMembersThisMonth' => $newMembersThisMonth,
+        ]);
     }
 }

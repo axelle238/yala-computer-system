@@ -1,72 +1,85 @@
-<div class="space-y-6">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="space-y-6 animate-fade-in-up">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
         <div>
-            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Flash Sale Manager</h2>
-            <p class="text-slate-500 mt-1 text-sm font-medium">Atur jadwal diskon kilat untuk menarik pelanggan.</p>
+            <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
+                Flash <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-orange-600">Sale</span>
+            </h2>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Kelola promo waktu terbatas untuk meningkatkan penjualan.</p>
         </div>
-        <a href="{{ route('marketing.flash-sale.create') }}" class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all font-semibold text-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Buat Promo Baru
+        <a href="{{ route('marketing.flash-sale.create') }}" class="px-6 py-3 bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white font-bold rounded-xl shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+            Buat Flash Sale
         </a>
     </div>
 
-    <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-600">
-                <thead class="bg-slate-50 text-xs uppercase font-bold text-slate-500 tracking-wider">
-                    <tr>
-                        <th class="px-6 py-4">Produk</th>
-                        <th class="px-6 py-4">Harga Promo</th>
-                        <th class="px-6 py-4">Periode</th>
-                        <th class="px-6 py-4 text-center">Quota</th>
-                        <th class="px-6 py-4 text-center">Status</th>
-                        <th class="px-6 py-4 text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($sales as $sale)
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 font-bold text-slate-900">
-                                {{ $sale->product->name }}
-                                <div class="text-xs text-slate-400 line-through">Rp {{ number_format($sale->product->sell_price, 0, ',', '.') }}</div>
-                            </td>
-                            <td class="px-6 py-4 font-bold text-rose-600">
-                                Rp {{ number_format($sale->discount_price, 0, ',', '.') }}
-                            </td>
-                            <td class="px-6 py-4 text-xs">
-                                <div class="font-bold">Mulai: {{ $sale->start_time->format('d M H:i') }}</div>
-                                <div class="text-slate-400">Selesai: {{ $sale->end_time->format('d M H:i') }}</div>
-                            </td>
-                            <td class="px-6 py-4 text-center font-mono">
-                                {{ $sale->quota }}
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                @if($sale->isRunning())
-                                    <span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold animate-pulse">LIVE</span>
-                                @elseif(now() > $sale->end_time)
-                                    <span class="bg-slate-100 text-slate-500 px-2 py-1 rounded text-xs font-bold">Expired</span>
-                                @else
-                                    <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">Scheduled</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <button wire:click="delete({{ $sale->id }})" wire:confirm="Hapus promo ini?" class="text-slate-400 hover:text-rose-600">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                </button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-8 text-center text-slate-400">Belum ada promo aktif.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="bg-slate-50 px-6 py-4 border-t border-slate-100">
-            {{ $sales->links() }}
-        </div>
+    <!-- Active Sales Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        @forelse($flashSales as $sale)
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-rose-300 dark:hover:border-rose-700 transition-all">
+                
+                <!-- Status Badge -->
+                <div class="absolute top-4 right-4">
+                    @if($sale->isRunning())
+                        <span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Live
+                        </span>
+                    @elseif(!$sale->is_active)
+                        <span class="px-2 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-bold uppercase tracking-wider">Non-Aktif</span>
+                    @elseif($sale->end_time < now())
+                        <span class="px-2 py-1 bg-rose-100 text-rose-700 rounded-lg text-xs font-bold uppercase tracking-wider">Berakhir</span>
+                    @else
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold uppercase tracking-wider">Terjadwal</span>
+                    @endif
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="w-24 h-24 bg-slate-100 dark:bg-slate-700 rounded-xl flex items-center justify-center flex-shrink-0">
+                        @if($sale->product->image_path)
+                            <img src="{{ asset('storage/' . $sale->product->image_path) }}" class="w-20 h-20 object-contain">
+                        @else
+                            <span class="text-xs font-bold text-slate-400">No Image</span>
+                        @endif
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-lg line-clamp-1">{{ $sale->product->name }}</h3>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-rose-600 font-bold text-xl">Rp {{ number_format($sale->discount_price, 0, ',', '.') }}</span>
+                            <span class="text-slate-400 text-sm line-through decoration-rose-500/50">Rp {{ number_format($sale->product->sell_price, 0, ',', '.') }}</span>
+                        </div>
+                        
+                        <!-- Progress -->
+                        <div class="mt-3">
+                            <div class="flex justify-between text-xs font-bold text-slate-500 mb-1">
+                                <span>Stok Promo</span>
+                                <span>{{ $sale->quota }} Unit</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                                <div class="bg-gradient-to-r from-rose-500 to-orange-500 h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center text-sm">
+                    <div class="flex flex-col">
+                        <span class="text-slate-400 text-xs">Periode</span>
+                        <span class="font-bold text-slate-700 dark:text-slate-300">
+                            {{ $sale->start_time->format('d M H:i') }} - {{ $sale->end_time->format('d M H:i') }}
+                        </span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer" wire:click="toggleStatus({{ $sale->id }})" {{ $sale->is_active ? 'checked' : '' }}>
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-rose-300 dark:peer-focus:ring-rose-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-rose-600"></div>
+                    </label>
+                </div>
+            </div>
+        @empty
+            <div class="col-span-full py-12 text-center text-slate-400">Belum ada Flash Sale yang dibuat.</div>
+        @endforelse
+    </div>
+    
+    <div class="mt-6">
+        {{ $flashSales->links() }}
     </div>
 </div>

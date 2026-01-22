@@ -9,20 +9,29 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.app')]
-#[Title('Flash Sale - Yala Computer')]
+#[Title('Flash Sale Manager - Yala Computer')]
 class Index extends Component
 {
     use WithPagination;
 
-    public function delete($id)
+    public function toggleStatus($id)
     {
-        FlashSale::findOrFail($id)->delete();
-        session()->flash('success', 'Promo dihapus.');
+        $sale = FlashSale::find($id);
+        if ($sale) {
+            $sale->is_active = !$sale->is_active;
+            $sale->save();
+            $this->dispatch('notify', message: 'Status Flash Sale diperbarui.', type: 'success');
+        }
     }
 
     public function render()
     {
-        $sales = FlashSale::with('product')->latest()->paginate(10);
-        return view('livewire.marketing.flash-sale.index', ['sales' => $sales]);
+        $flashSales = FlashSale::with('product')
+            ->orderBy('start_time', 'desc')
+            ->paginate(10);
+
+        return view('livewire.marketing.flash-sale.index', [
+            'flashSales' => $flashSales
+        ]);
     }
 }
