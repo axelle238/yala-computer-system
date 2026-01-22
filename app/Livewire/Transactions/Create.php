@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Transactions;
 
+use App\Models\Customer;
 use App\Models\InventoryTransaction;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,7 @@ class Create extends Component
     public $quantity = 1;
     public $notes = '';
     public $reference_number = '';
+    public $customer_phone = ''; // New Field for Member
 
     // Searchable Product Dropdown
     public $productSearch = '';
@@ -47,6 +49,7 @@ class Create extends Component
             'quantity' => 'required|integer|min:1',
             'notes' => 'nullable|string|max:255',
             'reference_number' => 'nullable|string|max:50',
+            'customer_phone' => 'nullable|string',
         ]);
 
         $product = Product::findOrFail($this->product_id);
@@ -74,11 +77,23 @@ class Create extends Component
                 'quantity' => $this->quantity,
                 'remaining_stock' => $newStock,
                 'reference_number' => $this->reference_number,
-                'notes' => $this->notes,
+                'notes' => $this->notes . ($this->customer_phone ? " (Member: {$this->customer_phone})" : ''),
             ]);
 
             // 3. Update Product Stock
             $product->update(['stock_quantity' => $newStock]);
+
+            // 4. Update Member Points (Jika Transaksi Keluar & Ada Member)
+            if ($this->type === 'out' && $this->customer_phone) {
+                $customer = Customer::where('phone', $this->customer_phone)->first();
+                if ($customer) {
+                    $totalPrice = $product->sell_price * $this->quantity;
+                    $pointsEarned = floor($totalPrice / 100000); // 1 Poin per 100rb
+                    if ($pointsEarned > 0) {
+                        $customer->increment('points', $pointsEarned);
+                    }
+                }
+            }
         });
 
         session()->flash('success', 'Transaksi berhasil dicatat!');

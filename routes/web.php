@@ -35,6 +35,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/expenses', \App\Livewire\Expenses\Index::class)->name('expenses.index');
     Route::get('/finance/profit-loss', \App\Livewire\Finance\ProfitLoss::class)->name('finance.profit-loss');
     
+    // CRM
+    Route::get('/customers', \App\Livewire\Customers\Index::class)->name('customers.index');
+
     // Audit Log
     Route::get('/activity-logs', \App\Livewire\ActivityLogs\Index::class)->name('activity-logs.index');
 
