@@ -80,6 +80,35 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* Tech UI Utilities */
+        .tech-border {
+            position: relative;
+            background: white;
+            clip-path: polygon(
+                0 0, 
+                100% 0, 
+                100% calc(100% - 20px), 
+                calc(100% - 20px) 100%, 
+                0 100%
+            );
+        }
+        .tech-border::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, transparent 50%, rgba(15, 23, 42, 0.1) 50%);
+            z-index: 10;
+        }
+        
+        .grid-pattern {
+            background-size: 20px 20px;
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+        }
     </style>
 </head>
 <body class="text-slate-800 antialiased selection:bg-cyan-500 selection:text-white"

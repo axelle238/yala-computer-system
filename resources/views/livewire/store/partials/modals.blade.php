@@ -142,8 +142,39 @@
                             </div>
                         </div>
 
-                        <div class="prose prose-slate text-slate-600 mb-8 leading-relaxed">
-                            <p>{{ $selectedProduct->description ?? 'Tidak ada deskripsi detail.' }}</p>
+                        <div x-data="{ tab: 'desc' }">
+                            <div class="flex gap-4 border-b border-slate-100 mb-6">
+                                <button @click="tab = 'desc'" :class="{ 'text-slate-900 border-cyan-500': tab === 'desc', 'text-slate-400 border-transparent hover:text-slate-600': tab !== 'desc' }" class="pb-2 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors">Deskripsi</button>
+                                <button @click="tab = 'reviews'" :class="{ 'text-slate-900 border-cyan-500': tab === 'reviews', 'text-slate-400 border-transparent hover:text-slate-600': tab !== 'reviews' }" class="pb-2 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors">Ulasan ({{ $selectedProduct->reviews->count() }})</button>
+                            </div>
+
+                            <div x-show="tab === 'desc'" class="prose prose-slate text-slate-600 mb-8 leading-relaxed h-[200px] overflow-y-auto custom-scrollbar">
+                                <p>{{ $selectedProduct->description ?? 'Tidak ada deskripsi detail.' }}</p>
+                            </div>
+
+                            <div x-show="tab === 'reviews'" class="mb-8 h-[200px] overflow-y-auto custom-scrollbar" style="display: none;">
+                                @forelse($selectedProduct->reviews as $review)
+                                    <div class="mb-4 pb-4 border-b border-slate-50 last:border-0">
+                                        <div class="flex justify-between items-start mb-1">
+                                            <span class="font-bold text-slate-800 text-sm">{{ $review->customer_name ?? 'Pelanggan' }}</span>
+                                            <div class="flex text-amber-400">
+                                                @for($i=0; $i<5; $i++)
+                                                    <svg class="w-3 h-3 {{ $i < $review->rating ? 'fill-current' : 'text-slate-200' }}" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                                                @endfor
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-slate-500">{{ $review->comment }}</p>
+                                    </div>
+                                @empty
+                                    <p class="text-center text-slate-400 text-sm py-8">Belum ada ulasan.</p>
+                                @endforelse
+                                
+                                <!-- Simple Review Call to Action -->
+                                <div class="mt-4 pt-4 border-t border-slate-100 text-center">
+                                    <p class="text-xs text-slate-400 mb-2">Sudah membeli produk ini?</p>
+                                    <a href="https://wa.me/{{ \App\Models\Setting::get('whatsapp_number') }}?text=Halo%20Admin,%20saya%20ingin%20memberikan%20ulasan%20untuk%20{{ urlencode($selectedProduct->name) }}" target="_blank" class="inline-block text-xs font-bold text-cyan-600 hover:underline">Kirim Ulasan via WhatsApp</a>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="mt-auto border-t border-slate-100 pt-8">

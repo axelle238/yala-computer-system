@@ -114,9 +114,13 @@
 
     <!-- Hero Section (Slider) -->
     <div class="relative pt-8 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div class="bg-white/40 backdrop-blur-xl rounded-[2.5rem] p-2 border border-white/50 shadow-2xl shadow-blue-900/5 relative overflow-hidden">
+        <div class="bg-white/40 backdrop-blur-xl rounded-[2.5rem] p-2 border border-white/50 shadow-2xl shadow-blue-900/5 relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
             <div class="relative bg-slate-900 rounded-[2rem] overflow-hidden min-h-[500px] flex items-center" x-data="{ activeSlide: 0, slides: {{ $banners->count() }}, timer: null }" x-init="timer = setInterval(() => { activeSlide = activeSlide === slides - 1 ? 0 : activeSlide + 1 }, 6000)">
                 
+                <!-- Grid Overlay on Hero -->
+                <div class="absolute inset-0 z-0 opacity-20" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 30px 30px;"></div>
+
                 @forelse($banners as $index => $banner)
                     <div x-show="activeSlide === {{ $index }}" 
                          x-transition:enter="transition transform duration-1000 ease-out"
@@ -131,16 +135,16 @@
                         <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent"></div>
 
                         <div class="relative z-10 h-full flex flex-col justify-center px-8 md:px-16 max-w-3xl">
-                            <h1 class="text-4xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 font-tech">
+                            <h1 class="text-4xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 font-tech drop-shadow-lg">
                                 {{ $banner->title }}
                             </h1>
                             <div class="flex gap-4">
                                 @if($banner->link_url)
-                                    <a href="{{ $banner->link_url }}" class="px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-slate-900 rounded-full font-bold transition-all flex items-center gap-2">
+                                    <a href="{{ $banner->link_url }}" class="px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-slate-900 rounded-full font-bold transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:shadow-[0_0_30px_rgba(6,182,212,0.7)]">
                                         Lihat Penawaran
                                     </a>
                                 @else
-                                    <a href="#katalog" class="px-8 py-4 bg-white text-slate-900 rounded-full font-bold transition-all hover:bg-slate-200">
+                                    <a href="#katalog" class="px-8 py-4 bg-white text-slate-900 rounded-full font-bold transition-all hover:bg-slate-200 hover:scale-105">
                                         Belanja Sekarang
                                     </a>
                                 @endif
@@ -149,10 +153,131 @@
                     </div>
                 @empty
                     <!-- Fallback Static Banner -->
-                    <div class="absolute inset-0 w-full h-full flex items-center justify-center text-white">
-                        <h1 class="text-4xl font-bold">Welcome to Yala Computer</h1>
+                    <div class="absolute inset-0 w-full h-full flex items-center justify-center text-white z-10">
+                        <div class="text-center">
+                            <h1 class="text-5xl md:text-7xl font-black font-tech mb-4 tracking-tighter">FUTURE <span class="text-cyan-400">TECH</span></h1>
+                            <p class="text-xl text-slate-300 max-w-2xl mx-auto">Platform belanja hardware komputer tercanggih dengan update stok realtime.</p>
+                             <a href="#katalog" class="mt-8 inline-block px-10 py-4 bg-cyan-500 text-slate-900 font-bold rounded-full hover:bg-white transition-all shadow-lg hover:shadow-cyan-500/50">
+                                Mulai Belanja
+                            </a>
+                        </div>
                     </div>
                 @endforelse
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Sale Section -->
+    @if($flashSales->isNotEmpty())
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <div class="p-2 bg-rose-100 rounded-lg">
+                    <svg class="w-8 h-8 text-rose-600 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-black font-tech text-slate-900 uppercase tracking-wide">Flash Sale</h2>
+                    <div class="flex gap-2 items-center text-sm font-bold text-rose-500" x-data="{ 
+                            endTime: new Date('{{ $flashSales->first()->end_time }}').getTime(),
+                            now: new Date().getTime(),
+                            timeLeft: '',
+                            update() {
+                                const distance = this.endTime - new Date().getTime();
+                                if (distance < 0) { this.timeLeft = 'EXPIRED'; return; }
+                                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                const s = Math.floor((distance % (1000 * 60)) / 1000);
+                                this.timeLeft = `${h}h ${m}m ${s}s`;
+                            }
+                        }" x-init="setInterval(() => update(), 1000); update()">
+                        <span>Berakhir dalam:</span>
+                        <span x-text="timeLeft" class="bg-rose-500 text-white px-2 py-0.5 rounded font-mono"></span>
+                    </div>
+                </div>
+            </div>
+            <a href="{{ route('marketing.flash-sale.index') }}" class="hidden sm:block text-sm font-bold text-cyan-600 hover:underline">Lihat Semua ></a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @foreach($flashSales as $sale)
+                <div wire:click="openProduct({{ $sale->product_id }})" class="group cursor-pointer relative bg-white border border-rose-100 rounded-2xl p-4 shadow-lg shadow-rose-100/50 hover:-translate-y-1 transition-transform">
+                    <div class="absolute top-4 left-4 z-10 bg-rose-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm">
+                        {{ number_format((($sale->product->sell_price - $sale->discount_price) / $sale->product->sell_price) * 100) }}% OFF
+                    </div>
+                    <div class="h-40 bg-slate-50 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+                        @if($sale->product->image_path)
+                            <img src="{{ asset('storage/' . $sale->product->image_path) }}" class="max-h-[80%] object-contain mix-blend-multiply group-hover:scale-110 transition-transform">
+                        @else
+                            <svg class="w-12 h-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        @endif
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-sm line-clamp-2 mb-2 h-10">{{ $sale->product->name }}</h3>
+                    <div class="flex flex-col">
+                        <span class="text-xs text-slate-400 line-through">Rp {{ number_format($sale->product->sell_price, 0, ',', '.') }}</span>
+                        <span class="text-lg font-bold text-rose-600 font-tech">Rp {{ number_format($sale->discount_price, 0, ',', '.') }}</span>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="mt-3">
+                        <div class="flex justify-between text-[10px] font-bold text-slate-500 mb-1">
+                            <span>Terjual</span>
+                            <span>{{ $sale->quota - $sale->remaining_quota }}/{{ $sale->quota }}</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                            <div class="bg-gradient-to-r from-rose-500 to-orange-500 h-2 rounded-full" style="width: {{ (($sale->quota - $sale->remaining_quota) / $sale->quota) * 100 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    <!-- Service Tracking Section -->
+    <div id="services" class="bg-slate-900 py-16 relative overflow-hidden mb-16">
+        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+        <div class="absolute -top-24 -right-24 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-white font-tech mb-4">Lacak Status Service</h2>
+                    <p class="text-slate-400 text-lg mb-8 leading-relaxed">
+                        Pantau perbaikan perangkat Anda secara real-time. Masukkan nomor tiket layanan Anda untuk melihat progres pengerjaan teknisi kami.
+                    </p>
+                    
+                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10">
+                        <div class="flex gap-4">
+                            <input wire:model="trackingNumber" type="text" placeholder="Masukkan Nomor Tiket (Cth: SVC-2026-001)" class="flex-1 bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-xl px-4 py-3 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                            <button wire:click="trackService" class="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold px-6 py-3 rounded-xl transition-colors shadow-lg shadow-cyan-500/20 flex items-center gap-2">
+                                <svg wire:loading.remove wire:target="trackService" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                <svg wire:loading wire:target="trackService" class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <span class="hidden sm:inline">Lacak</span>
+                            </button>
+                        </div>
+                        @error('trackingNumber') <span class="text-rose-400 text-sm mt-2 block font-medium">{{ $message }}</span> @enderror
+
+                        @if($trackingResult)
+                            <div class="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl animate-fade-in-up">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-bold text-white text-lg">{{ $trackingResult->device_name }}</h4>
+                                    <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded uppercase">{{ $trackingResult->status }}</span>
+                                </div>
+                                <p class="text-slate-300 text-sm">{{ $trackingResult->problem_description }}</p>
+                                <div class="mt-3 pt-3 border-t border-white/10 flex justify-between text-xs text-slate-400">
+                                    <span>Masuk: {{ $trackingResult->created_at->format('d M Y') }}</span>
+                                    <span>Estimasi: {{ $trackingResult->estimated_completion ? \Carbon\Carbon::parse($trackingResult->estimated_completion)->format('d M Y') : '-' }}</span>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                <div class="hidden md:block relative">
+                    <!-- Decorative 3D Elements -->
+                    <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-full opacity-20 blur-3xl animate-pulse"></div>
+                    <img src="https://cdni.iconscout.com/illustration/premium/thumb/technical-support-illustration-download-in-svg-png-gif-file-formats--customer-service-call-center-communication-help-business-pack-illustrations-2852265.png" alt="Service Center" class="relative z-10 w-full drop-shadow-2xl hover:scale-105 transition-transform duration-500">
+                </div>
             </div>
         </div>
     </div>
@@ -170,7 +295,10 @@
 
                 <!-- Category -->
                 <div class="bg-white/80 backdrop-blur-xl border border-white/50 rounded-2xl p-6 shadow-lg shadow-slate-200/50">
-                    <h3 class="font-tech font-bold text-slate-900 text-lg mb-4">Kategori</h3>
+                    <h3 class="font-tech font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+                        Kategori
+                    </h3>
                     <div class="space-y-2">
                         <button wire:click="$set('category', '')" class="w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-all {{ $category === '' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100' }}">Semua Produk</button>
                         @foreach($categories as $cat)
@@ -183,7 +311,10 @@
 
                 <!-- Price Filter -->
                 <div class="bg-white/80 backdrop-blur-xl border border-white/50 rounded-2xl p-6 shadow-lg shadow-slate-200/50">
-                    <h3 class="font-tech font-bold text-slate-900 text-lg mb-4">Harga</h3>
+                    <h3 class="font-tech font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        Harga
+                    </h3>
                     <div class="space-y-4">
                         <div>
                             <label class="text-xs font-bold text-slate-500 uppercase">Max: Rp <span x-text="new Intl.NumberFormat('id-ID').format($wire.maxPrice)"></span></label>
@@ -245,21 +376,26 @@
                 @forelse($products as $product)
                     <div wire:key="{{ $product->id }}" 
                          wire:click="openProduct({{ $product->id }})"
-                         class="reveal group relative bg-white rounded-3xl border border-slate-100 p-4 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-2 cursor-pointer overflow-hidden">
+                         class="reveal tech-border group relative p-4 transition-all duration-500 hover:shadow-2xl hover:shadow-cyan-900/10 hover:-translate-y-2 cursor-pointer overflow-hidden border border-slate-100 hover:border-cyan-200">
                         
+                        <!-- Grid Background on Hover -->
+                        <div class="absolute inset-0 grid-pattern opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
                         <!-- Hover Glow Effect -->
-                        <div class="relative h-56 bg-slate-50 rounded-2xl overflow-hidden mb-4 flex items-center justify-center group-hover:bg-white transition-colors">
+                        <div class="relative h-56 bg-slate-50 rounded-2xl overflow-hidden mb-4 flex items-center justify-center group-hover:bg-white transition-colors z-10">
                             @if($product->image_path)
                                 <img src="{{ asset('storage/' . $product->image_path) }}" class="max-h-[80%] max-w-[80%] object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-110 group-hover:rotate-2">
                             @else
                                 <svg class="w-16 h-16 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                             @endif
-                        <!-- Quick View Overlay -->
-                        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center p-6 text-center z-10 pointer-events-none">
-                            <p class="text-white text-xs font-bold uppercase tracking-widest mb-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-100">Spesifikasi</p>
-                            <p class="text-white/90 text-sm line-clamp-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-200">
-                                {{ $product->description ? Str::limit($product->description, 80) : 'Lihat detail untuk info lengkap.' }}
-                            </p>
+                        
+                            <!-- Quick View Overlay -->
+                            <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center p-6 text-center z-10 pointer-events-none">
+                                <p class="text-white text-xs font-bold uppercase tracking-widest mb-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-100">Spesifikasi</p>
+                                <p class="text-white/90 text-sm line-clamp-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-200">
+                                    {{ $product->description ? Str::limit($product->description, 80) : 'Lihat detail untuk info lengkap.' }}
+                                </p>
+                            </div>
                         </div>
 
                         <!-- Floating Action Button (Add to Cart) -->
@@ -268,26 +404,25 @@
                         </button>
 
                         <!-- Wishlist Button -->
-                        <button @click.stop="toggleWishlist({{ $product->id }})" class="absolute top-4 right-4 p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-rose-50 transition-colors z-20" :class="{ 'text-rose-500': wishlist.includes({{ $product->id }}), 'text-slate-400': !wishlist.includes({{ $product->id }}) }">
+                        <button @click.stop="toggleWishlist({{ $product->id }})" class="absolute top-4 right-4 p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-rose-50 transition-colors z-20 group-hover:opacity-100 opacity-0" :class="{ 'text-rose-500 opacity-100': wishlist.includes({{ $product->id }}), 'text-slate-400': !wishlist.includes({{ $product->id }}) }">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" :fill="wishlist.includes({{ $product->id }}) ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                         </button>
-                    </div>
 
                         <!-- Info -->
-                        <div class="px-2">
+                        <div class="px-2 relative z-10">
                             <div class="flex justify-between items-start mb-2">
-                                <span class="text-[10px] font-bold tracking-wider text-cyan-600 uppercase bg-cyan-50 px-2 py-1 rounded-md">{{ $product->category->name }}</span>
+                                <span class="text-[10px] font-bold tracking-wider text-cyan-600 uppercase bg-cyan-50 px-2 py-1 rounded-md border border-cyan-100">{{ $product->category->name }}</span>
                                 <div class="flex items-center gap-1">
                                     <svg class="w-3 h-3 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
                                     <span class="text-xs font-bold text-slate-700">{{ number_format($product->reviews_avg_rating ?? 0, 1) }}</span>
                                 </div>
                             </div>
-                            <h3 class="font-bold text-slate-900 text-lg leading-snug mb-2 line-clamp-2 group-hover:text-cyan-700 transition-colors">{{ $product->name }}</h3>
+                            <h3 class="font-bold text-slate-900 text-lg leading-snug mb-2 line-clamp-2 group-hover:text-cyan-700 transition-colors h-14">{{ $product->name }}</h3>
                             
                             <div class="flex items-end justify-between mt-4 border-t border-slate-50 pt-4">
                                 <div class="flex flex-col">
-                                    <span class="text-xs text-slate-400 font-medium">Price</span>
-                                    <span class="text-xl font-tech font-bold text-slate-900">Rp {{ number_format($product->sell_price, 0, ',', '.') }}</span>
+                                    <span class="text-xs text-slate-400 font-medium">Harga</span>
+                                    <span class="text-xl font-tech font-bold text-slate-900 group-hover:text-cyan-600 transition-colors">Rp {{ number_format($product->sell_price, 0, ',', '.') }}</span>
                                 </div>
                                 <button wire:click.stop="addToCompare({{ $product->id }})" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 transition-colors" title="Bandingkan">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
