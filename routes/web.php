@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public Storefront
 Route::get('/', StoreHome::class)->name('home');
-
-// Authentication
+Route::get('/rakit-pc', \App\Livewire\Store\PcBuilder::class)->name('pc-builder');
 Route::get('/login', Login::class)->name('login')->middleware('guest');
 Route::post('/logout', function () {
     auth()->logout();

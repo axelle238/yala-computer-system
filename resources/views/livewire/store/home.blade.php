@@ -173,6 +173,15 @@
                                     Lihat Penawaran
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                                 </a>
+                            @else
+                                <div class="flex flex-col sm:flex-row gap-4">
+                                    <a href="#katalog" class="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold shadow-lg shadow-blue-600/30 transition-all transform hover:-translate-y-1 text-center">
+                                        Belanja Sekarang
+                                    </a>
+                                    <a href="{{ route('pc-builder') }}" class="px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-full font-bold backdrop-blur-sm transition-all text-center">
+                                        Simulasi Rakit PC
+                                    </a>
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -188,7 +197,12 @@
                                 Masa Depan Teknologi <br>
                                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Ada Di Sini.</span>
                             </h1>
-                            <a href="#katalog" class="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold shadow-lg shadow-blue-600/30 transition-all">Belanja Sekarang</a>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <a href="#katalog" class="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold shadow-lg shadow-blue-600/30 transition-all text-center">Belanja Sekarang</a>
+                                <a href="{{ route('pc-builder') }}" class="px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-full font-bold backdrop-blur-sm transition-all text-center">
+                                    Simulasi Rakit PC
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
