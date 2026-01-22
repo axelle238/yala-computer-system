@@ -13,6 +13,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
+use Livewire\Attributes\Computed;
 
 #[Layout('layouts.store')]
 #[Title('Yala Computer - Pusat Belanja IT')]
@@ -136,7 +137,9 @@ class Home extends Component
     {
         if (empty($this->cart)) return;
 
-        $message = "*Halo Yala Computer, saya ingin memesan:*\n\n";
+        $message = "*Halo Yala Computer, saya ingin memesan:*
+
+";
         $total = 0;
         
         $products = Product::whereIn('id', array_keys($this->cart))->get();
@@ -146,7 +149,8 @@ class Home extends Component
             $subtotal = $product->sell_price * $qty;
             $total += $subtotal;
             
-            $message .= "📦 *{$product->name}*\n";
+            $message .= "📦 *{$product->name}*
+";
             $message .= "   └ x{$qty} @ Rp " . number_format($product->sell_price, 0, ',', '.') . " = Rp " . number_format($subtotal, 0, ',', '.') . "\n";
         }
 
@@ -165,6 +169,7 @@ class Home extends Component
         return redirect()->away($waLink);
     }
 
+    #[Computed]
     public function getCartTotalProperty()
     {
         $total = 0;
@@ -177,6 +182,7 @@ class Home extends Component
         return $total;
     }
 
+    #[Computed]
     public function getCartItemsProperty()
     {
         if (empty($this->cart)) return collect();

@@ -28,6 +28,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/transactions/create', TransactionCreate::class)->name('transactions.create');
     Route::get('/settings', \App\Livewire\Settings\Index::class)->name('settings.index');
     
+    // Master Data
+    Route::get('/master/categories', \App\Livewire\Master\Categories::class)->name('master.categories');
+    Route::get('/master/suppliers', \App\Livewire\Master\Suppliers::class)->name('master.suppliers');
+
     // Employee Management (Admin Only)
     Route::get('/employees', \App\Livewire\Employees\Index::class)->name('employees.index');
     Route::get('/employees/create', \App\Livewire\Employees\Form::class)->name('employees.create');

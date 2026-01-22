@@ -1,7 +1,7 @@
 <div class="max-w-2xl mx-auto space-y-6 animate-fade-in-up">
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-black font-tech text-slate-900 dark:text-white">
-            {{ $employee ? 'Edit Pegawai' : 'Tambah Pegawai Baru' }}
+            {{ $user ? 'Edit Pegawai' : 'Tambah Pegawai Baru' }}
         </h2>
     </div>
 
@@ -31,7 +31,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                        Password {{ $employee ? '(Kosongkan jika tidak ubah)' : '' }}
+                        Password {{ $user ? '(Kosongkan jika tidak ubah)' : '' }}
                     </label>
                     <input wire:model="password" type="password" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-cyan-500">
                     @error('password') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror

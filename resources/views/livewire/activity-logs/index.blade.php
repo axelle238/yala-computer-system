@@ -61,29 +61,40 @@
                                                 <span class="font-bold text-slate-900 dark:text-white">{{ $log->user->name ?? 'System' }}</span>
                                                 <span class="text-xs text-slate-400 dark:text-slate-500 font-mono">{{ $log->created_at->format('d M Y H:i:s') }}</span>
                                             </div>
+                                            
+                                            <!-- Narrative Log Description -->
                                             <p class="text-slate-600 dark:text-slate-300">
-                                                {{ $log->description }}
+                                                @if($log->action == 'created')
+                                                    Menambahkan data baru pada <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ class_basename($log->model_type) }}</span>
+                                                @elseif($log->action == 'updated')
+                                                    Melakukan perubahan pada <span class="font-bold text-blue-600 dark:text-blue-400">{{ class_basename($log->model_type) }}</span>
+                                                @elseif($log->action == 'deleted')
+                                                    Menghapus data dari <span class="font-bold text-rose-600 dark:text-rose-400">{{ class_basename($log->model_type) }}</span>
+                                                @else
+                                                    {{ $log->description }}
+                                                @endif
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 ml-2 border border-slate-200 dark:border-slate-600 font-mono">
-                                                    {{ class_basename($log->model_type) }} #{{ $log->model_id }}
+                                                    ID: #{{ $log->model_id }}
                                                 </span>
                                             </p>
                                         </div>
                                         
-                                        @if($log->action == 'updated' && isset($log->properties['old']))
+                                        <!-- Visual Diff for Updates -->
+                                        @if($log->action == 'updated' && isset($log->properties['old']) && isset($log->properties['new']))
                                             <div class="mt-3 bg-slate-50 dark:bg-slate-900 rounded-xl p-3 border border-slate-100 dark:border-slate-700 text-xs font-mono overflow-x-auto">
                                                 <table class="w-full text-left">
                                                     <thead>
                                                         <tr class="text-slate-400 border-b border-slate-200 dark:border-slate-700">
                                                             <th class="pb-2 w-1/3">Field</th>
-                                                            <th class="pb-2 w-1/3 text-rose-500">Before</th>
-                                                            <th class="pb-2 w-1/3 text-emerald-500">After</th>
+                                                            <th class="pb-2 w-1/3 text-rose-500">Sebelum</th>
+                                                            <th class="pb-2 w-1/3 text-emerald-500">Sesudah</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                                                         @foreach(array_keys($log->properties['new']) as $key)
                                                             @if(isset($log->properties['old'][$key]) && $log->properties['old'][$key] != $log->properties['new'][$key])
                                                                 <tr>
-                                                                    <td class="py-2 font-bold text-slate-600 dark:text-slate-400">{{ $key }}</td>
+                                                                    <td class="py-2 font-bold text-slate-600 dark:text-slate-400">{{ ucfirst(str_replace('_', ' ', $key)) }}</td>
                                                                     <td class="py-2 text-rose-600 dark:text-rose-400 truncate max-w-xs" title="{{ $log->properties['old'][$key] }}">
                                                                         {{ Str::limit($log->properties['old'][$key], 30) }}
                                                                     </td>
