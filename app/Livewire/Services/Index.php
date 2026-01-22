@@ -4,32 +4,40 @@ namespace App\Livewire\Services;
 
 use App\Models\ServiceTicket;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.app')]
-#[Title('Manajemen Servis - Yala Computer')]
+#[Title('Service Kanban - Yala Computer')]
 class Index extends Component
 {
-    use WithPagination;
+    public $statuses = [
+        'pending' => 'Menunggu Antrian',
+        'diagnosing' => 'Pengecekan',
+        'waiting_part' => 'Menunggu Sparepart',
+        'repairing' => 'Sedang Diperbaiki',
+        'ready' => 'Siap Diambil',
+        'picked_up' => 'Selesai/Diambil'
+    ];
 
-    public $search = '';
-    public $statusFilter = '';
+    public function updateStatus($ticketId, $newStatus)
+    {
+        $ticket = ServiceTicket::find($ticketId);
+        if ($ticket && array_key_exists($newStatus, $this->statuses)) {
+            $ticket->update(['status' => $newStatus]);
+            
+            // Notify
+            $this->dispatch('notify', message: "Status tiket #{$ticket->ticket_number} diperbarui!", type: 'success');
+        }
+    }
 
     public function render()
     {
-        $tickets = ServiceTicket::query()
-            ->when($this->search, function($q) {
-                $q->where('ticket_number', 'like', '%' . $this->search . '%')
-                  ->orWhere('customer_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('device_name', 'like', '%' . $this->search . '%');
-            })
-            ->when($this->statusFilter, function($q) {
-                $q->where('status', $this->statusFilter);
-            })
+        $tickets = ServiceTicket::with('technician')
+            ->where('status', '!=', 'cancelled') // Hide cancelled from board
             ->latest()
-            ->paginate(10);
+            ->get()
+            ->groupBy('status');
 
         return view('livewire.services.index', [
             'tickets' => $tickets

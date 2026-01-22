@@ -20,11 +20,21 @@ class ServiceTicket extends Model
         'final_cost',
         'technician_notes',
         'technician_id',
+        'estimated_completion', // New field based on context
+    ];
+
+    protected $casts = [
+        'estimated_completion' => 'datetime',
     ];
 
     public function technician()
     {
         return $this->belongsTo(User::class, 'technician_id');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(ServiceItem::class);
     }
 
     // Helper untuk label status warna-warni

@@ -3,7 +3,6 @@
 namespace App\Livewire\Employees;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -17,33 +16,18 @@ class Index extends Component
 
     public $search = '';
 
-    public function mount()
-    {
-        // Security Gate: Hanya Admin yang boleh masuk sini
-        if (!Auth::user()->isAdmin()) {
-            return abort(403, 'Akses Ditolak. Halaman ini khusus Administrator.');
-        }
-    }
-
-    public function delete($id)
-    {
-        if ($id == Auth::id()) {
-            return session()->flash('error', 'Anda tidak bisa menghapus akun sendiri!');
-        }
-
-        User::findOrFail($id)->delete();
-        session()->flash('success', 'Pegawai berhasil dihapus.');
-    }
-
     public function render()
     {
-        $users = User::query()
-            ->where('name', 'like', '%' . $this->search . '%')
-            ->orWhere('email', 'like', '%' . $this->search . '%')
+        $employees = User::where('role', '!=', 'customer')
+            ->when($this->search, function($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%');
+            })
+            ->latest()
             ->paginate(10);
 
         return view('livewire.employees.index', [
-            'users' => $users
+            'employees' => $employees
         ]);
     }
 }
