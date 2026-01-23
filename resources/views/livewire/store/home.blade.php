@@ -112,7 +112,6 @@
                          style="display: none;">
                         
                         <img src="{{ asset('storage/' . $banner->image_path) }}" class="w-full h-full object-cover opacity-80">
-                        <!-- LIGHTER OVERLAY HERE -->
                         <div class="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/40 to-transparent"></div>
 
                         <div class="relative z-10 h-full flex flex-col justify-center px-8 md:px-16 max-w-3xl">
@@ -194,7 +193,7 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" wire:poll.15s>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             @foreach($flashSales as $sale)
                 <div wire:click="openProduct({{ $sale->product_id }})" class="group cursor-pointer relative bg-slate-900 border border-fuchsia-900/50 hover:border-fuchsia-500 rounded-2xl p-4 shadow-lg overflow-hidden transition-all hover:-translate-y-2">
                     <div class="absolute inset-0 bg-gradient-to-br from-fuchsia-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -230,76 +229,6 @@
                     </div>
                 </div>
             @endforeach
-        </div>
-    </div>
-    @endif
-
-    <!-- Service Tracking Section -->
-    @if($serviceTrackingEnabled)
-    <div id="services" class="bg-slate-900 py-20 relative overflow-hidden mb-16 border-y border-white/5">
-        <div class="absolute inset-0 cyber-grid opacity-30"></div>
-        
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="grid md:grid-cols-2 gap-16 items-center">
-                <div>
-                    <div class="inline-block px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full mb-6">
-                        <span class="text-blue-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                            Live Service Status
-                        </span>
-                    </div>
-                    <h2 class="text-4xl md:text-5xl font-black text-white font-tech mb-6 leading-tight">TRACK YOUR <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">REPAIR PROCESS</span></h2>
-                    <p class="text-slate-400 text-lg mb-8 leading-relaxed">
-                        Sistem pelacakan terintegrasi kami memungkinkan Anda memantau setiap langkah perbaikan perangkat Anda secara real-time. Transparansi total.
-                    </p>
-                    
-                    <div class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-2xl">
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <div class="flex-1 relative">
-                                <input wire:model="trackingNumber" type="text" placeholder="Masukkan Nomor Tiket (Cth: SVC-2026-001)" class="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-xl px-5 py-4 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all font-mono">
-                                <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                                    <svg class="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                                </div>
-                            </div>
-                            <button wire:click="trackService" class="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2">
-                                <svg wire:loading.remove wire:target="trackService" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                                <svg wire:loading wire:target="trackService" class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                <span class="hidden sm:inline">Lacak</span>
-                            </button>
-                        </div>
-                        @error('trackingNumber') <span class="text-rose-400 text-sm mt-3 block font-medium flex items-center gap-2"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> {{ $message }}</span> @enderror
-
-                        @if($trackingResult)
-                            <div class="mt-6 p-5 bg-emerald-500/5 border border-emerald-500/30 rounded-xl animate-fade-in-up relative overflow-hidden">
-                                <div class="absolute top-0 right-0 p-3 opacity-10">
-                                    <svg class="w-16 h-16 text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                                </div>
-                                <div class="flex justify-between items-start mb-2 relative z-10">
-                                    <div>
-                                        <h4 class="font-bold text-white text-lg">{{ $trackingResult->device_name }}</h4>
-                                        <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">{{ $trackingResult->ticket_number }}</p>
-                                    </div>
-                                    <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full uppercase border border-emerald-500/30">{{ $trackingResult->status }}</span>
-                                </div>
-                                <div class="mt-4 pt-4 border-t border-white/5 relative z-10">
-                                    <p class="text-slate-300 text-sm mb-3"><span class="text-slate-500">Problem:</span> {{ $trackingResult->problem_description }}</p>
-                                    <div class="flex justify-between text-xs text-slate-400 font-mono">
-                                        <span>Masuk: {{ $trackingResult->created_at->format('d/m/Y') }}</span>
-                                        <span>Est: {{ $trackingResult->estimated_completion ? \Carbon\Carbon::parse($trackingResult->estimated_completion)->format('d/m/Y') : 'Pending' }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-                <div class="hidden md:block relative">
-                     <!-- 3D Graphic Placeholder -->
-                     <div class="relative w-full aspect-square">
-                        <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 to-blue-600/20 rounded-full blur-3xl animate-pulse"></div>
-                        <img src="https://cdni.iconscout.com/illustration/premium/thumb/server-room-illustration-download-in-svg-png-gif-file-formats--data-center-storage-cloud-network-hosting-technology-pack-illustrations-3696245.png" alt="Tech Service" class="relative z-10 w-full drop-shadow-[0_20px_50px_rgba(8,145,178,0.3)] animate-float">
-                     </div>
-                </div>
-            </div>
         </div>
     </div>
     @endif
@@ -365,53 +294,13 @@
 
         <!-- Product Grid Area -->
         <div class="flex-1">
-            <!-- Mobile Filter Toggle -->
-            <div class="lg:hidden mb-6">
-                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                    <button wire:click="$set('category', '')" class="whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold border {{ $category === '' ? 'bg-cyan-500 text-slate-900 border-cyan-500' : 'bg-slate-800 text-slate-400 border-slate-700' }}">All</button>
-                    @foreach($categories as $cat)
-                        <button wire:click="$set('category', {{ $cat->id }})" class="whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold border {{ $category == $cat->id ? 'bg-cyan-500 text-slate-900 border-cyan-500' : 'bg-slate-800 text-slate-400 border-slate-700' }}">{{ $cat->name }}</button>
-                    @endforeach
-                </div>
-                
-                <div class="mt-4">
-                     <input wire:model.live.debounce.300ms="search" type="text" class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-sm text-white focus:ring-1 focus:ring-cyan-500" placeholder="Cari produk...">
-                </div>
-            </div>
-
-            <!-- Active Filters Badge -->
-            @if($search || $category || $maxPrice < 50000000)
-                <div class="mb-6 flex flex-wrap gap-2 items-center animate-fade-in-up">
-                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-2">Active Filters:</span>
-                    @if($search) <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs font-bold text-white">"{{ $search }}" <button wire:click="$set('search', '')" class="hover:text-rose-500 ml-1">x</button></span> @endif
-                    @if($category) <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs font-bold text-white">Kat: {{ \App\Models\Category::find($category)->name }} <button wire:click="$set('category', '')" class="hover:text-rose-500 ml-1">x</button></span> @endif
-                    <button wire:click="$set('search', ''); $set('category', ''); $set('maxPrice', 50000000)" class="text-xs font-bold text-rose-500 hover:underline ml-2">Clear All</button>
-                </div>
-            @endif
-
             <!-- Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative">
-                
-                <!-- Loading Skeleton -->
-                <div wire:loading.flex class="absolute inset-0 z-50 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 bg-slate-900/80 backdrop-blur-sm transition-all duration-300">
-                    @for($i=0; $i<6; $i++)
-                        <div class="bg-slate-800 rounded-3xl border border-white/5 p-4 animate-pulse">
-                            <div class="h-56 bg-slate-700 rounded-2xl mb-4"></div>
-                            <div class="h-4 bg-slate-700 rounded w-1/2 mb-2"></div>
-                            <div class="h-6 bg-slate-700 rounded w-3/4 mb-4"></div>
-                            <div class="h-8 bg-slate-700 rounded w-1/3"></div>
-                        </div>
-                    @endfor
-                </div>
-
                 @forelse($products as $product)
                     <div wire:key="{{ $product->id }}" 
                          wire:click="openProduct({{ $product->id }})"
                          class="group relative bg-slate-900 border border-white/5 hover:border-cyan-500/50 rounded-3xl p-4 transition-all duration-200 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] hover:-translate-y-1 cursor-pointer overflow-hidden">
                         
-                        <!-- Hover Glow -->
-                        <div class="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-
                         <!-- Image Area -->
                         <div class="relative h-56 bg-slate-800/50 rounded-2xl overflow-hidden mb-5 flex items-center justify-center group-hover:bg-slate-800 transition-colors z-10">
                             @if($product->image_path)
@@ -419,47 +308,17 @@
                             @else
                                 <svg class="w-16 h-16 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                             @endif
-                        
-                            <!-- Quick Overlay -->
-                            <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-center items-center p-6 text-center z-10">
-                                <span class="px-4 py-2 border border-cyan-500 text-cyan-400 text-xs font-bold uppercase tracking-widest hover:bg-cyan-500 hover:text-slate-900 transition-colors">
-                                    Quick View
-                                </span>
-                            </div>
                         </div>
-
-                        <!-- Add to Cart (Floating) -->
-                        <button wire:click.stop="addToCart({{ $product->id }})" class="ripple absolute top-4 right-4 w-10 h-10 bg-slate-900/50 backdrop-blur border border-white/10 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-cyan-500 hover:text-slate-900 hover:border-cyan-500 z-20">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                        </button>
 
                         <!-- Content -->
                         <div class="px-1 relative z-10">
-                            <div class="flex justify-between items-start mb-3">
-                                <span class="text-[10px] font-bold tracking-wider text-cyan-400 uppercase bg-cyan-900/30 px-2 py-1 rounded border border-cyan-500/20">{{ $product->category->name }}</span>
-                                <div class="flex items-center gap-1">
-                                    <svg class="w-3 h-3 text-amber-500 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
-                                    <span class="text-xs font-bold text-slate-400">{{ number_format($product->reviews_avg_rating ?? 0, 1) }}</span>
-                                </div>
-                            </div>
                             <h3 class="font-bold text-white text-lg leading-snug mb-2 line-clamp-2 group-hover:text-cyan-400 transition-colors h-14 font-tech tracking-wide">{{ $product->name }}</h3>
-                            
-                            <div class="flex items-end justify-between mt-2 pt-4 border-t border-white/5">
-                                <div class="flex flex-col">
-                                    <span class="text-xs text-slate-500 font-medium">Price</span>
-                                    <span class="text-xl font-mono font-bold text-white group-hover:text-cyan-400 transition-colors">Rp {{ number_format($product->sell_price, 0, ',', '.') }}</span>
-                                </div>
-                                <button wire:click.stop="addToCompare({{ $product->id }})" class="text-slate-500 hover:text-white transition-colors p-2" title="Bandingkan">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                                </button>
-                            </div>
+                            <p class="font-mono text-cyan-400 font-bold">Rp {{ number_format($product->sell_price, 0, ',', '.') }}</p>
                         </div>
                     </div>
                 @empty
                     <div class="col-span-full py-24 text-center">
-                        <div class="inline-flex p-6 bg-slate-800 rounded-full mb-4 animate-pulse"><svg class="w-12 h-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></div>
-                        <h3 class="text-xl font-bold text-white">Produk tidak ditemukan</h3>
-                        <p class="text-slate-500 mt-2">Coba atur ulang filter pencarian Anda atau cek kategori lain.</p>
+                        <p class="text-slate-500">Produk tidak ditemukan.</p>
                     </div>
                 @endforelse
             </div>
@@ -469,55 +328,4 @@
             </div>
         </div>
     </div>
-
-    <!-- Modals -->
-    @include('livewire.store.partials.modals')
-
-    <!-- Comparison Floating Bar -->
-    @if(count($compareList) > 0)
-        <div class="fixed bottom-0 left-0 right-0 z-[80] bg-slate-900/90 backdrop-blur-xl border-t border-cyan-500/30 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] p-4 transform transition-transform duration-300 animate-slide-up">
-            <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <div class="flex items-center gap-6">
-                    <span class="font-bold text-white text-sm uppercase tracking-wider">{{ count($compareList) }} Produk Dipilih</span>
-                    <div class="flex gap-3">
-                        @foreach($compareList as $id)
-                            @php $prod = \App\Models\Product::find($id); @endphp
-                            @if($prod)
-                                <div class="relative w-12 h-12 bg-slate-800 rounded-xl border border-white/20 overflow-hidden group shadow-sm">
-                                    @if($prod->image_path)
-                                        <img src="{{ asset('storage/' . $prod->image_path) }}" class="w-full h-full object-cover">
-                                    @endif
-                                    <button wire:click="removeFromCompare({{ $id }})" class="absolute inset-0 bg-rose-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                                    </button>
-                                </div>
-                            @endif
-                        @endforeach
-                    </div>
-                </div>
-                <div class="flex gap-3">
-                    <button wire:click="$set('compareList', [])" class="px-6 py-2.5 text-sm font-bold text-slate-400 hover:text-rose-500 transition-colors">Reset</button>
-                    <button wire:click="openCompare" class="px-8 py-2.5 bg-cyan-600 text-slate-900 rounded-xl font-bold text-sm hover:bg-cyan-500 transition-all shadow-[0_0_20px_rgba(8,145,178,0.4)]">
-                        Bandingkan
-                    </button>
-                </div>
-            </div>
-        </div>
-    @endif
-    
-    <style>
-        .clip-path-button {
-            clip-path: polygon(0 0, 100% 0, 100% 70%, 90% 100%, 0 100%);
-        }
-        .glow-text {
-            text-shadow: 0 0 10px rgba(232, 121, 249, 0.5);
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
-        }
-    </style>
 </div>

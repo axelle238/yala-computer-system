@@ -71,14 +71,6 @@ class Home extends Component
         return redirect()->route('product.detail', $id);
     }
 
-    /* 
-    public function closeModal()
-    {
-        $this->showModal = false;
-        $this->selectedProduct = null;
-    }
-    */
-
     // --- Cart Logic ---
     public function toggleCart()
     {
@@ -107,13 +99,6 @@ class Home extends Component
 
         Session::put('cart', $this->cart);
         $this->dispatch('notify', message: 'Produk masuk keranjang!');
-        
-        // Close modal if adding from modal
-        if ($this->showModal) {
-            $this->closeModal();
-        }
-        
-        // Open cart to show user
         $this->isCartOpen = true;
     }
 
@@ -164,15 +149,9 @@ class Home extends Component
         $message .= "\n💰 *Total Estimasi: Rp " . number_format($total, 0, ',', '.') . "*";
         $message .= "\n\n📍 _Mohon info ketersediaan stok dan biaya pengiriman ke alamat saya._ Terima kasih!";
 
-        // Encode message for URL
         $encodedMessage = urlencode($message);
-        
-        // Get WhatsApp number from Settings
         $waNumber = Setting::get('whatsapp_number', '6281234567890');
-        
-        // Redirect to WhatsApp
         $waLink = "https://wa.me/{$waNumber}?text={$encodedMessage}";
-        
         return redirect()->away($waLink);
     }
 
@@ -210,9 +189,7 @@ class Home extends Component
     public function trackService()
     {
         $this->validate(['trackingNumber' => 'required']);
-        
         $ticket = \App\Models\ServiceTicket::where('ticket_number', $this->trackingNumber)->first();
-        
         if ($ticket) {
             $this->trackingResult = $ticket;
         } else {
@@ -231,12 +208,10 @@ class Home extends Component
             $this->dispatch('notify', message: 'Produk sudah ada di perbandingan.', type: 'error');
             return;
         }
-
         if (count($this->compareList) >= 3) {
             $this->dispatch('notify', message: 'Maksimal 3 produk untuk dibandingkan.', type: 'error');
             return;
         }
-
         $this->compareList[] = $productId;
         $this->dispatch('notify', message: 'Ditambahkan ke perbandingan.');
     }
@@ -269,7 +244,7 @@ class Home extends Component
     {
         $products = Product::query()
             ->where('is_active', true)
-            ->with(['category', 'reviews']) // Eager load reviews
+            ->with(['category', 'reviews'])
             ->withAvg('reviews', 'rating')
             ->when($this->search, function ($query) {
                 $query->where(function($q) {
@@ -281,28 +256,14 @@ class Home extends Component
                 $query->where('category_id', $this->category);
             })
             ->whereBetween('sell_price', [$this->minPrice, $this->maxPrice])
-            ->when($this->sort === 'price_asc', function ($q) {
-                $q->orderBy('sell_price', 'asc');
-            })
-            ->when($this->sort === 'price_desc', function ($q) {
-                $q->orderBy('sell_price', 'desc');
-            })
-            ->when($this->sort === 'latest', function ($q) {
-                $q->latest();
-            })
+            ->when($this->sort === 'price_asc', function ($q) { $q->orderBy('sell_price', 'asc'); })
+            ->when($this->sort === 'price_desc', function ($q) { $q->orderBy('sell_price', 'desc'); })
+            ->when($this->sort === 'latest', function ($q) { $q->latest(); })
             ->paginate(12);
 
         $categories = Category::has('products')->get();
         $banners = Banner::where('is_active', true)->orderBy('order')->get();
-        
-        // Ambil Flash Sale yang sedang aktif
-        $flashSales = FlashSale::with('product')
-            ->where('is_active', true)
-            ->where('start_time', '<=', now())
-            ->where('end_time', '>=', now())
-            ->where('quota', '>', 0)
-            ->take(4)
-            ->get();
+        $flashSales = FlashSale::with('product')->where('is_active', true)->where('start_time', '<=', now())->where('end_time', '>=', now())->where('quota', '>', 0)->take(4)->get();
 
         return view('livewire.store.home', [
             'products' => $products,

@@ -10,14 +10,20 @@ use Illuminate\Support\Facades\Route;
 // Public Storefront
 Route::get('/', StoreHome::class)->name('home');
 Route::get('/product/{id}', \App\Livewire\Store\ProductDetail::class)->name('product.detail');
+Route::get('/berita', \App\Livewire\Store\News\Index::class)->name('news.index');
+Route::get('/berita/{slug}', \App\Livewire\Store\News\Show::class)->name('news.show');
 Route::get('/rakit-pc', \App\Livewire\Store\PcBuilder::class)->name('pc-builder');
 Route::get('/garansi', \App\Livewire\Store\WarrantyCheck::class)->name('warranty-check');
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+
 Route::view('/privacy-policy', 'store.privacy-policy')->name('privacy-policy');
 Route::view('/terms-of-service', 'store.terms-of-service')->name('terms-of-service');
+
 Route::get('/login', Login::class)->name('login')->middleware('guest');
 Route::post('/logout', function () {
     auth()->logout();
     session()->invalidate();
+    session()->regenerateToken();
     return redirect('/');
 })->name('logout');
 
@@ -80,6 +86,11 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     // Marketing
     Route::get('/marketing/flash-sale', \App\Livewire\Marketing\FlashSale\Index::class)->name('marketing.flash-sale.index');
     Route::get('/marketing/flash-sale/create', \App\Livewire\Marketing\FlashSale\Form::class)->name('marketing.flash-sale.create');
+
+    // News Management
+    Route::get('/news', \App\Livewire\News\Index::class)->name('admin.news.index');
+    Route::get('/news/create', \App\Livewire\News\Form::class)->name('admin.news.create');
+    Route::get('/news/{id}/edit', \App\Livewire\News\Form::class)->name('admin.news.edit');
 
     // Printing Routes
     Route::get('/print/transaction/{id}', [\App\Http\Controllers\PrintController::class, 'transaction'])->name('print.transaction');
