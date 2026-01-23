@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Store;
 
-use App\Models\Category;
 use App\Models\Product;
 use App\Models\Setting;
 use Livewire\Component;
@@ -34,14 +33,62 @@ class PcBuilder extends Component
         'psus' => 'Power Supply (PSU)',
     ];
 
+    public $compatibilityIssues = [];
+    public $estimatedWattage = 0;
+
     public function selectPart($categorySlug, $productId)
     {
         $this->selection[$categorySlug] = $productId;
+        $this->checkCompatibility();
     }
 
     public function removePart($categorySlug)
     {
         $this->selection[$categorySlug] = null;
+        $this->checkCompatibility();
+    }
+
+    public function checkCompatibility()
+    {
+        $this->compatibilityIssues = [];
+        $this->estimatedWattage = 0;
+
+        $cpu = $this->getProduct('processors');
+        $mobo = $this->getProduct('motherboards');
+        $ram = $this->getProduct('rams');
+        $gpu = $this->getProduct('gpus');
+        $psu = $this->getProduct('psus');
+
+        // Wattage Calculation
+        if ($cpu) $this->estimatedWattage += ($cpu->tdp_watts ?? 65);
+        if ($gpu) $this->estimatedWattage += ($gpu->tdp_watts ?? 150);
+        // Base system overhead
+        $this->estimatedWattage += 50; 
+
+        // Socket Check
+        if ($cpu && $mobo) {
+            if ($cpu->socket_type && $mobo->socket_type && $cpu->socket_type !== $mobo->socket_type) {
+                $this->compatibilityIssues[] = "CPU Socket ({$cpu->socket_type}) tidak cocok dengan Motherboard ({$mobo->socket_type}).";
+            }
+        }
+
+        // RAM Check
+        if ($ram && $mobo) {
+            if ($ram->memory_type && $mobo->memory_type && $ram->memory_type !== $mobo->memory_type) {
+                $this->compatibilityIssues[] = "Tipe RAM ({$ram->memory_type}) tidak didukung oleh Motherboard ({$mobo->memory_type}).";
+            }
+        }
+
+        // PSU Check
+        if ($psu && $this->estimatedWattage > ($psu->wattage ?? 0)) {
+            $this->compatibilityIssues[] = "PSU ({$psu->wattage}W) mungkin tidak cukup untuk sistem ini (Est: {$this->estimatedWattage}W).";
+        }
+    }
+
+    protected function getProduct($slug)
+    {
+        $id = $this->selection[$slug] ?? null;
+        return $id ? Product::find($id) : null;
     }
 
     public function getTotalPriceProperty()
@@ -78,7 +125,15 @@ class PcBuilder extends Component
 
         $total = number_format($this->getTotalPriceProperty(), 0, ',', '.');
         $message .= "\n💰 *Total Estimasi: Rp {$total}*";
-        $message .= "\n\nMohon dicek ketersediaan dan kompatibilitasnya. Terima kasih!";
+        
+        if (!empty($this->compatibilityIssues)) {
+            $message .= "\n\n⚠️ *Catatan Kompatibilitas:*";
+            foreach ($this->compatibilityIssues as $issue) {
+                $message .= "\n- " . $issue;
+            }
+        }
+
+        $message .= "\n\n📍 _Mohon info ketersediaan stok dan biaya pengiriman._";
 
         $waNumber = Setting::get('whatsapp_number', '6281234567890');
         $encodedMessage = urlencode($message);

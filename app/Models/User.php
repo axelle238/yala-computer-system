@@ -89,4 +89,14 @@ class User extends Authenticatable
 
         return false;
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function savedBuilds()
+    {
+        return $this->hasMany(SavedBuild::class);
+    }
 }

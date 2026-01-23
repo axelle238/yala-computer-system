@@ -19,6 +19,11 @@ Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'ind
 Route::view('/privacy-policy', 'store.privacy-policy')->name('privacy-policy');
 Route::view('/terms-of-service', 'store.terms-of-service')->name('terms-of-service');
 
+// Customer Auth
+Route::get('/customer/login', \App\Livewire\Store\Auth\Login::class)->name('customer.login')->middleware('guest');
+Route::get('/customer/register', \App\Livewire\Store\Auth\Register::class)->name('customer.register')->middleware('guest');
+
+// Admin/Staff Login
 Route::get('/login', Login::class)->name('login')->middleware('guest');
 Route::post('/logout', function () {
     auth()->logout();

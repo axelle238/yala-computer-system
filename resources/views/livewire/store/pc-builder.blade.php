@@ -106,6 +106,31 @@
                 </div>
                 
                 <div class="p-6">
+                    <!-- Compatibility Alerts -->
+                    @if(count($compatibilityIssues) > 0)
+                        <div class="mb-6 p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl">
+                            <h4 class="text-sm font-bold text-rose-400 mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                Isu Kompatibilitas
+                            </h4>
+                            <ul class="text-xs text-rose-300 space-y-1 list-disc pl-4">
+                                @foreach($compatibilityIssues as $issue)
+                                    <li>{{ $issue }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @elseif($estimatedWattage > 0)
+                        <div class="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center gap-3">
+                            <div class="p-2 bg-emerald-500/20 rounded-lg text-emerald-400">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs text-emerald-400 font-bold">Kompatibel</p>
+                                <p class="text-[10px] text-slate-400">Estimasi Daya: {{ $estimatedWattage }}W</p>
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="space-y-4 mb-8">
                         @php $itemCount = 0; @endphp
                         @foreach($selection as $slug => $id)

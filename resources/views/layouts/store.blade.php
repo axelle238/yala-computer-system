@@ -69,6 +69,29 @@
             </nav>
 
             <!-- Mobile Menu Toggle -->
+            <div class="hidden md:flex items-center gap-4">
+                @auth
+                    <div class="relative group">
+                        <button class="flex items-center gap-2 text-sm font-bold text-slate-300 hover:text-white transition-colors">
+                            <span>{{ auth()->user()->name }}</span>
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                        </button>
+                        <div class="absolute right-0 mt-2 w-48 bg-slate-900 border border-white/10 rounded-xl shadow-xl overflow-hidden hidden group-hover:block">
+                            <a href="#" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Profile</a>
+                            <a href="#" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Order History</a>
+                            <div class="border-t border-white/10"></div>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-rose-500 hover:bg-rose-500/10 transition-colors">Logout</button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ route('customer.login') }}" class="text-sm font-bold text-slate-400 hover:text-white transition-colors">Login</a>
+                    <a href="{{ route('customer.register') }}" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full text-xs font-bold transition-all shadow-lg shadow-cyan-500/20">Register</a>
+                @endauth
+            </div>
+
             <button @click="mobileMenuOpen = !mobileMenuOpen" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 md:hidden hover:bg-white/10 hover:text-white transition-all">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
