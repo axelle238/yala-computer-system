@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Article;
 use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Services\BusinessIntelligence;
@@ -20,8 +21,7 @@ class Dashboard extends Component
 {
     public function render()
     {
-        // Cache heavy queries for 60 seconds to improve performance
-        // In a real app, clear this cache when products/transactions are updated
+        // Cache heavy queries for 60 seconds
         $stats = \Illuminate\Support\Facades\Cache::remember('dashboard_stats', 60, function () {
             
             // 1. Fetch Total Products Count
@@ -41,22 +41,28 @@ class Dashboard extends Component
                 ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->sum('quantity');
+
+            // 5. News Stats
+            $totalArticles = Article::count();
+            $totalViews = Article::sum('views_count');
                 
             return [
                 'totalProducts' => $totalProducts,
                 'lowStockCount' => $lowStockCount,
                 'totalValue' => $totalValue,
                 'monthlySales' => $monthlySales,
+                'totalArticles' => $totalArticles,
+                'totalViews' => $totalViews,
             ];
         });
 
-        // 5. Fetch Recent Activity (Always live or short cache)
+        // 6. Fetch Recent Activity
         $recentTransactions = InventoryTransaction::with(['product', 'user'])
             ->latest()
             ->take(5)
             ->get();
 
-        // 6. Data Grafik Penjualan (Cached)
+        // 7. Data Grafik Penjualan
         $chartData = \Illuminate\Support\Facades\Cache::remember('dashboard_chart', 300, function () {
             $data = [];
             for ($i = 6; $i >= 0; $i--) {
@@ -76,7 +82,7 @@ class Dashboard extends Component
             return $data;
         });
 
-        // 7. AI Insights (Cached)
+        // 8. AI Insights
         $insights = \Illuminate\Support\Facades\Cache::remember('dashboard_insights', 300, function() {
             $bi = new BusinessIntelligence();
             return $bi->getInsights();
@@ -87,6 +93,8 @@ class Dashboard extends Component
             'lowStockCount' => $stats['lowStockCount'],
             'totalValue' => $stats['totalValue'],
             'monthlySales' => $stats['monthlySales'],
+            'totalArticles' => $stats['totalArticles'],
+            'totalViews' => $stats['totalViews'],
             'recentTransactions' => $recentTransactions,
             'chartData' => $chartData,
             'insights' => $insights,

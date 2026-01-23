@@ -128,19 +128,24 @@
             </div>
         </div>
 
-        <!-- Card 4: Monthly Sales -->
+        <!-- Card 4: News Stats (Updated) -->
         <div class="relative bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-700 overflow-hidden group hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-300">
             <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl -mr-8 -mt-8 group-hover:bg-blue-500/10 transition-colors"></div>
             
             <div class="flex items-center justify-between mb-4">
                 <div class="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
                 </div>
             </div>
             
             <div>
-                <p class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Penjualan Bulan Ini</p>
-                <h3 class="text-3xl font-black font-tech text-slate-900 dark:text-white">{{ number_format($monthlySales) }} <span class="text-sm font-normal text-slate-400">Unit</span></h3>
+                <p class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Berita & Pembaca</p>
+                <div class="flex items-end gap-2">
+                    <h3 class="text-3xl font-black font-tech text-slate-900 dark:text-white">{{ number_format($totalArticles) }}</h3>
+                    <span class="text-xs font-bold mb-1.5 text-slate-400">
+                        Artikel / {{ number_format($totalViews) }} Views
+                    </span>
+                </div>
             </div>
         </div>
     </div>
