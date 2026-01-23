@@ -5,10 +5,10 @@
     
     <!-- Header -->
     <div class="text-center mb-16 relative z-10">
-        <h1 class="text-4xl md:text-5xl font-black font-tech text-slate-900 tracking-tight mb-4 uppercase drop-shadow-sm">
-            Simulasi <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-blue-600">Rakit PC</span>
+        <h1 class="text-4xl md:text-5xl font-black font-tech text-white tracking-tight mb-4 uppercase drop-shadow-sm">
+            Simulasi <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Rakit PC</span>
         </h1>
-        <p class="text-slate-500 max-w-2xl mx-auto text-lg">Bangun PC impianmu dengan tool simulasi real-time. Pilih komponen, cek kompatibilitas, dan dapatkan penawaran terbaik.</p>
+        <p class="text-slate-400 max-w-2xl mx-auto text-lg">Bangun PC impianmu dengan tool simulasi real-time. Pilih komponen, cek kompatibilitas, dan dapatkan penawaran terbaik.</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start relative z-10">
@@ -16,33 +16,33 @@
         <!-- Selection Area (Left) -->
         <div class="lg:col-span-2 space-y-6">
             @foreach($partsList as $slug => $label)
-                <div class="group bg-white/80 backdrop-blur-md rounded-2xl border border-white/50 shadow-lg shadow-slate-200/50 overflow-hidden transition-all duration-300 hover:shadow-cyan-500/10 hover:border-cyan-200" x-data="{ open: false }">
+                <div class="group bg-slate-900/80 backdrop-blur-md rounded-2xl border border-white/10 shadow-lg shadow-black/20 overflow-hidden transition-all duration-300 hover:shadow-cyan-500/10 hover:border-cyan-500/30" x-data="{ open: false }">
                     <div class="p-6 flex items-center justify-between cursor-pointer" @click="open = !open">
                         <div class="flex items-center gap-5">
-                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 flex items-center justify-center font-bold text-lg shadow-inner group-hover:from-cyan-500 group-hover:to-blue-600 group-hover:text-white transition-all duration-300">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-800 to-slate-700 text-slate-400 flex items-center justify-center font-bold text-lg shadow-inner group-hover:from-cyan-600 group-hover:to-blue-600 group-hover:text-white transition-all duration-300">
                                 {{ substr($label, 0, 1) }}
                             </div>
                             <div>
-                                <h3 class="font-bold text-slate-900 text-lg group-hover:text-cyan-700 transition-colors">{{ $label }}</h3>
+                                <h3 class="font-bold text-white text-lg group-hover:text-cyan-400 transition-colors">{{ $label }}</h3>
                                 @if($selection[$slug])
                                     @php $selected = \App\Models\Product::find($selection[$slug]); @endphp
                                     <div class="flex items-center gap-2 mt-1">
                                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                        <p class="text-sm text-slate-700 font-semibold line-clamp-1">{{ $selected->name }}</p>
+                                        <p class="text-sm text-slate-300 font-semibold line-clamp-1">{{ $selected->name }}</p>
                                     </div>
                                 @else
-                                    <p class="text-xs text-slate-400 mt-1 font-medium uppercase tracking-wider">Belum dipilih</p>
+                                    <p class="text-xs text-slate-500 mt-1 font-medium uppercase tracking-wider">Belum dipilih</p>
                                 @endif
                             </div>
                         </div>
                         <div class="flex items-center gap-4">
                             @if($selection[$slug])
-                                <span class="text-base font-bold font-tech text-slate-900">Rp {{ number_format(\App\Models\Product::find($selection[$slug])->sell_price, 0, ',', '.') }}</span>
-                                <button wire:click.stop="removePart('{{ $slug }}')" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-rose-50 hover:text-rose-500 rounded-lg transition-colors" title="Hapus">
+                                <span class="text-base font-bold font-tech text-white">Rp {{ number_format(\App\Models\Product::find($selection[$slug])->sell_price, 0, ',', '.') }}</span>
+                                <button wire:click.stop="removePart('{{ $slug }}')" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-rose-500/20 hover:text-rose-500 rounded-lg transition-colors" title="Hapus">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
                             @else
-                                <div class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 group-hover:bg-cyan-50 group-hover:text-cyan-500 transition-colors">
+                                <div class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 text-slate-500 group-hover:bg-cyan-500/10 group-hover:text-cyan-400 transition-colors">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-transform duration-300" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                                 </div>
                             @endif
@@ -54,32 +54,32 @@
                          x-transition:enter="transition ease-out duration-200"
                          x-transition:enter-start="opacity-0 -translate-y-2"
                          x-transition:enter-end="opacity-100 translate-y-0"
-                         class="border-t border-slate-100 bg-slate-50/50 p-4 max-h-96 overflow-y-auto custom-scrollbar" style="display: none;">
+                         class="border-t border-white/5 bg-slate-950/50 p-4 max-h-96 overflow-y-auto custom-scrollbar" style="display: none;">
                         @if($catalog[$slug]->count() > 0)
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 @foreach($catalog[$slug] as $item)
-                                    <div wire:click="selectPart('{{ $slug }}', {{ $item->id }}); open = false" class="bg-white p-4 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-100 transition-all group/item flex items-start gap-4 relative overflow-hidden">
-                                        <div class="absolute inset-0 bg-gradient-to-r from-cyan-50 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity pointer-events-none"></div>
+                                    <div wire:click="selectPart('{{ $slug }}', {{ $item->id }}); open = false" class="bg-slate-900 p-4 rounded-xl border border-white/5 cursor-pointer hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-900/20 transition-all group/item flex items-start gap-4 relative overflow-hidden">
+                                        <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity pointer-events-none"></div>
                                         
-                                        <div class="w-16 h-16 bg-white rounded-lg border border-slate-100 flex items-center justify-center p-1 relative z-10">
+                                        <div class="w-16 h-16 bg-white rounded-lg border border-slate-700 flex items-center justify-center p-1 relative z-10 shrink-0">
                                             @if($item->image_path)
                                                 <img src="{{ asset('storage/' . $item->image_path) }}" class="max-w-full max-h-full object-contain mix-blend-multiply">
                                             @else
-                                                <svg class="w-8 h-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                <svg class="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                             @endif
                                         </div>
-                                        <div class="flex-1 relative z-10">
-                                            <h4 class="text-sm font-bold text-slate-800 line-clamp-2 leading-snug group-hover/item:text-cyan-700">{{ $item->name }}</h4>
+                                        <div class="flex-1 relative z-10 min-w-0">
+                                            <h4 class="text-sm font-bold text-slate-200 line-clamp-2 leading-snug group-hover/item:text-cyan-400 transition-colors">{{ $item->name }}</h4>
                                             <div class="mt-2 flex justify-between items-end">
-                                                <p class="text-sm font-tech font-bold text-slate-900">Rp {{ number_format($item->sell_price, 0, ',', '.') }}</p>
-                                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500 group-hover/item:bg-cyan-100 group-hover/item:text-cyan-700">Pilih</span>
+                                                <p class="text-sm font-tech font-bold text-white">Rp {{ number_format($item->sell_price, 0, ',', '.') }}</p>
+                                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 group-hover/item:bg-cyan-500/20 group-hover/item:text-cyan-400 transition-colors">Pilih</span>
                                             </div>
                                         </div>
                                     </div>
                                 @endforeach
                             </div>
                         @else
-                            <div class="flex flex-col items-center justify-center py-10 text-slate-400">
+                            <div class="flex flex-col items-center justify-center py-10 text-slate-500">
                                 <svg class="w-12 h-12 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                                 <p class="text-sm">Stok komponen ini sedang kosong.</p>
                             </div>
@@ -91,8 +91,8 @@
 
         <!-- Summary (Sticky Right) -->
         <div class="lg:col-span-1">
-            <div class="sticky top-24 bg-white/90 backdrop-blur-xl rounded-2xl border border-white/50 shadow-2xl shadow-blue-900/10 p-0 overflow-hidden tech-border">
-                <div class="p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden">
+            <div class="sticky top-24 bg-slate-900/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-blue-900/10 p-0 overflow-hidden tech-card">
+                <div class="p-6 bg-gradient-to-br from-slate-950 to-slate-900 text-white relative overflow-hidden border-b border-white/5">
                     <div class="absolute inset-0 grid-pattern opacity-10"></div>
                     <h3 class="text-xl font-bold font-tech relative z-10 flex items-center gap-2">
                         <svg class="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -107,40 +107,40 @@
                             @if($id)
                                 @php $itemCount++; @endphp
                                 <div class="flex justify-between items-start text-sm group">
-                                    <span class="text-slate-500 w-2/3 leading-tight group-hover:text-cyan-600 transition-colors cursor-default">{{ \App\Models\Product::find($id)->name }}</span>
-                                    <span class="font-bold text-slate-800 font-mono">{{ number_format(\App\Models\Product::find($id)->sell_price, 0, ',', '.') }}</span>
+                                    <span class="text-slate-400 w-2/3 leading-tight group-hover:text-cyan-400 transition-colors cursor-default">{{ \App\Models\Product::find($id)->name }}</span>
+                                    <span class="font-bold text-white font-mono">{{ number_format(\App\Models\Product::find($id)->sell_price, 0, ',', '.') }}</span>
                                 </div>
                             @endif
                         @endforeach
                         
                         @if($itemCount === 0)
                             <div class="text-center py-8">
-                                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <svg class="w-8 h-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                                <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <svg class="w-8 h-8 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                                 </div>
-                                <p class="text-sm text-slate-400 italic">Mulai pilih komponen di sebelah kiri.</p>
+                                <p class="text-sm text-slate-500 italic">Mulai pilih komponen di sebelah kiri.</p>
                             </div>
                         @endif
                     </div>
 
-                    <div class="border-t-2 border-dashed border-slate-100 pt-6 mb-6">
+                    <div class="border-t-2 border-dashed border-slate-700 pt-6 mb-6">
                         <div class="flex justify-between items-end">
                             <div>
-                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Estimasi</span>
-                                <p class="text-[10px] text-slate-400 mt-0.5">*Belum termasuk ongkir</p>
+                                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Estimasi</span>
+                                <p class="text-[10px] text-slate-600 mt-0.5">*Belum termasuk ongkir</p>
                             </div>
-                            <span class="text-3xl font-black font-tech text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-700">Rp {{ number_format($this->totalPrice, 0, ',', '.') }}</span>
+                            <span class="text-3xl font-black font-tech text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">Rp {{ number_format($this->totalPrice, 0, ',', '.') }}</span>
                         </div>
                     </div>
 
-                    <button wire:click="sendToWhatsapp" class="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/30 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none" {{ $itemCount === 0 ? 'disabled' : '' }}>
+                    <button wire:click="sendToWhatsapp" class="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none" {{ $itemCount === 0 ? 'disabled' : '' }}>
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                         Pesan Rakitan Ini
                     </button>
                     
-                    <div class="mt-4 flex items-center justify-center gap-2 text-xs text-slate-400">
+                    <div class="mt-4 flex items-center justify-center gap-2 text-xs text-slate-500">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                         <span>Transaksi Aman & Bergaransi Resmi</span>
                     </div>

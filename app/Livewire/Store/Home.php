@@ -44,9 +44,15 @@ class Home extends Component
     public $isCartOpen = false;
     public $cart = []; // [product_id => quantity]
 
+    // Feature Toggles
+    public $flashSaleEnabled = true;
+    public $serviceTrackingEnabled = true;
+
     public function mount()
     {
         $this->cart = Session::get('cart', []);
+        $this->flashSaleEnabled = (bool) Setting::get('feature_flash_sale', true);
+        $this->serviceTrackingEnabled = (bool) Setting::get('feature_service_tracking', true);
     }
 
     public function updatedSearch()

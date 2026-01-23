@@ -82,6 +82,46 @@
                 </div>
 
                 <div class="pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <h4 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Fitur & Modul</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl flex items-center justify-between">
+                            <div>
+                                <span class="block font-bold text-slate-700 dark:text-slate-300">Flash Sale Section</span>
+                                <span class="text-xs text-slate-400">Tampilkan bagian flash sale di halaman depan</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" wire:model="feature_flash_sale" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-cyan-300 dark:peer-focus:ring-cyan-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-cyan-600"></div>
+                            </label>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl flex items-center justify-between">
+                            <div>
+                                <span class="block font-bold text-slate-700 dark:text-slate-300">Service Tracking</span>
+                                <span class="text-xs text-slate-400">Tampilkan formulir cek status service</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" wire:model="feature_service_tracking" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-cyan-300 dark:peer-focus:ring-cyan-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-cyan-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <h4 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Pengumuman (Announcement Bar)</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" wire:model="store_announcement_active" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-cyan-300 dark:peer-focus:ring-cyan-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-cyan-600"></div>
+                            </label>
+                            <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Aktifkan Bar Pengumuman</span>
+                        </div>
+                        <input wire:model="store_announcement_text" type="text" placeholder="Contoh: Diskon 50% untuk semua produk Gaming Gear!" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-cyan-500">
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 dark:border-slate-700">
                     <h4 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Tautan Sosial Media</h4>
                     <div class="grid grid-cols-1 gap-4">
                         <div class="flex items-center gap-3">

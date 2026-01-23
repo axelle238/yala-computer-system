@@ -24,6 +24,12 @@ class Index extends Component
     public $social_instagram;
     public $social_twitter;
 
+    // Features & Modules
+    public $feature_flash_sale;
+    public $feature_service_tracking;
+    public $store_announcement_text;
+    public $store_announcement_active;
+
     // Admin & System
     public $admin_title;
     public $bank_account;
@@ -42,6 +48,11 @@ class Index extends Component
         $this->social_facebook = Setting::get('social_facebook', '#');
         $this->social_instagram = Setting::get('social_instagram', '#');
         $this->social_twitter = Setting::get('social_twitter', '#');
+
+        $this->feature_flash_sale = (bool) Setting::get('feature_flash_sale', true);
+        $this->feature_service_tracking = (bool) Setting::get('feature_service_tracking', true);
+        $this->store_announcement_text = Setting::get('store_announcement_text', '');
+        $this->store_announcement_active = (bool) Setting::get('store_announcement_active', false);
 
         $this->admin_title = Setting::get('admin_title', 'YALA SYSTEM');
         $this->bank_account = Setting::get('bank_account', 'BCA 1234567890 a.n Yala Computer');
@@ -62,6 +73,11 @@ class Index extends Component
         Setting::set('social_facebook', $this->social_facebook);
         Setting::set('social_instagram', $this->social_instagram);
         Setting::set('social_twitter', $this->social_twitter);
+
+        Setting::set('feature_flash_sale', $this->feature_flash_sale);
+        Setting::set('feature_service_tracking', $this->feature_service_tracking);
+        Setting::set('store_announcement_text', $this->store_announcement_text);
+        Setting::set('store_announcement_active', $this->store_announcement_active);
 
         Setting::set('admin_title', $this->admin_title);
         Setting::set('bank_account', $this->bank_account);
