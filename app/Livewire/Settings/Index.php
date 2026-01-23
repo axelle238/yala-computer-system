@@ -4,6 +4,7 @@ namespace App\Livewire\Settings;
 
 use App\Models\Setting;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
@@ -11,8 +12,11 @@ use Livewire\Attributes\Title;
 #[Title('Pengaturan Sistem - Yala Computer')]
 class Index extends Component
 {
+    use WithFileUploads;
+
     // General
     public $store_name;
+    public $logo;
     public $whatsapp_number;
     public $address;
     
@@ -62,6 +66,11 @@ class Index extends Component
 
     public function save()
     {
+        if ($this->logo) {
+            $path = $this->logo->store('logo', 'public');
+            Setting::set('store_logo', $path);
+        }
+
         Setting::set('store_name', $this->store_name);
         Setting::set('whatsapp_number', $this->whatsapp_number);
         Setting::set('address', $this->address);

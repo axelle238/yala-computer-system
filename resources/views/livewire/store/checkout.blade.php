@@ -16,15 +16,37 @@
                         <input wire:model="name" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-purple-500 outline-none transition-all" placeholder="Enter your name">
                         @error('name') <span class="text-rose-500 text-xs font-bold mt-1">{{ $message }}</span> @enderror
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">WhatsApp Number</label>
-                        <input wire:model="whatsapp" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-purple-500 outline-none transition-all" placeholder="e.g. 628123456789">
-                        @error('whatsapp') <span class="text-rose-500 text-xs font-bold mt-1">{{ $message }}</span> @enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Notes (Optional)</label>
-                        <textarea wire:model="notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-purple-500 outline-none transition-all" placeholder="Any special instructions?"></textarea>
-                    </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">No. WhatsApp (Aktif)</label>
+                    <input wire:model="whatsapp" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="08123456789">
+                    @error('whatsapp') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <h4 class="font-bold text-gray-800 mb-2">Instruksi Pembayaran</h4>
+                    <p class="text-sm text-gray-600 mb-2">Silakan transfer total tagihan ke rekening berikut:</p>
+                    <div class="font-mono text-lg font-bold text-blue-600">{{ \App\Models\Setting::get('bank_account', 'BCA 1234567890') }}</div>
+                    <p class="text-xs text-gray-500 mt-2">Upload bukti transfer di bawah ini agar pesanan dapat diproses.</p>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Upload Bukti Transfer</label>
+                    <input wire:model="payment_proof" type="file" accept="image/*" class="block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-blue-50 file:text-blue-700
+                        hover:file:bg-blue-100
+                    "/>
+                    @error('payment_proof') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    
+                    <div wire:loading wire:target="payment_proof" class="text-xs text-blue-500 mt-1">Mengupload...</div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Catatan Pesanan (Opsional)</label>
+                    <textarea wire:model="notes" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="3"></textarea>
+                </div>
 
                     <div class="pt-6">
                         <button type="submit" class="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-center rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:-translate-y-1 transition-all">

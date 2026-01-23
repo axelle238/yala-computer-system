@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
@@ -13,9 +14,12 @@ use Livewire\Attributes\Title;
 #[Title('Checkout - Yala Computer')]
 class Checkout extends Component
 {
+    use WithFileUploads;
+
     public $name;
     public $whatsapp;
     public $notes;
+    public $payment_proof;
     public $cartItems = [];
 
     public function mount()
@@ -36,7 +40,10 @@ class Checkout extends Component
         $this->validate([
             'name' => 'required|string|max:255',
             'whatsapp' => 'required|string|max:20',
+            'payment_proof' => 'required|image|max:2048', // Mandatory proof for online order
         ]);
+
+        $proofPath = $this->payment_proof->store('payments', 'public');
 
         $total = 0;
         foreach ($this->cartItems as $item) {
@@ -54,8 +61,9 @@ class Checkout extends Component
             'guest_whatsapp' => $this->whatsapp,
             'order_number' => $orderNumber,
             'total_amount' => $total,
-            'status' => 'pending',
-            'payment_status' => 'unpaid',
+            'status' => 'pending', // Pending verification
+            'payment_status' => 'pending_approval',
+            'payment_proof_path' => $proofPath,
             'notes' => $this->notes,
         ]);
 
