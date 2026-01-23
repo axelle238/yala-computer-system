@@ -106,6 +106,25 @@
                                 <button wire:click="updateQty({{ $index }}, {{ $item['quantity'] + 1 }})" class="w-5 h-5 flex items-center justify-center rounded bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-emerald-500 text-xs shadow-sm">+</button>
                             </div>
                         </div>
+                        
+                        <!-- Serial Number Inputs (Collapsible) -->
+                        @if($type === 'out' && ($item['warranty_period'] ?? 0) > 0)
+                        <div x-data="{ open: false }" class="mt-2">
+                            <button @click="open = !open" class="text-[10px] text-cyan-600 dark:text-cyan-400 font-bold flex items-center gap-1 hover:underline">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 17h.01M9 17h.01M12 13h.01M12 21h0" /></svg>
+                                <span>Input Serial Number ({{ count($item['serial_numbers'] ?? []) }})</span>
+                            </button>
+                            <div x-show="open" class="mt-2 space-y-1 pl-1 border-l-2 border-slate-100 dark:border-slate-700">
+                                @foreach($item['serial_numbers'] as $snIndex => $snValue)
+                                    <input type="text" 
+                                        wire:change="updateSerial({{ $index }}, {{ $snIndex }}, $event.target.value)"
+                                        value="{{ $snValue }}"
+                                        class="w-full text-[10px] px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-1 focus:ring-cyan-500 placeholder-slate-400" 
+                                        placeholder="S/N Unit #{{ $snIndex + 1 }}">
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
                     </div>
                     <button wire:click="removeFromCart({{ $index }})" class="text-slate-300 hover:text-rose-500 transition-colors self-center">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>

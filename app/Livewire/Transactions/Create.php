@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Setting;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -70,19 +71,20 @@ class Create extends Component
         }
 
         if ($existingItemKey !== null) {
-            $this->cart[$existingItemKey]['quantity']++;
-            $this->cart[$existingItemKey]['subtotal'] = $this->cart[$existingItemKey]['quantity'] * $this->cart[$existingItemKey]['price'];
+            $this->updateQty($existingItemKey, $this->cart[$existingItemKey]['quantity'] + 1);
         } else {
             $this->cart[] = [
                 'product_id' => $product->id,
                 'name' => $product->name,
                 'sku' => $product->sku,
                 'price' => $product->sell_price,
-                'buy_price' => $product->buy_price, // Hidden for calc
+                'buy_price' => $product->buy_price, 
                 'quantity' => 1,
                 'image' => $product->image_path,
                 'max_stock' => $product->stock_quantity,
-                'subtotal' => $product->sell_price
+                'subtotal' => $product->sell_price,
+                'warranty_period' => $product->warranty_period ?? 0, // e.g., 12 months
+                'serial_numbers' => [''] // Init 1 empty SN
             ];
         }
     }
@@ -107,6 +109,25 @@ class Create extends Component
 
         $this->cart[$index]['quantity'] = $newQty;
         $this->cart[$index]['subtotal'] = $newQty * $this->cart[$index]['price'];
+
+        // Adjust Serial Numbers array size
+        $currentSNs = $this->cart[$index]['serial_numbers'] ?? [];
+        if ($newQty > count($currentSNs)) {
+            // Add empty slots
+            for ($i = count($currentSNs); $i < $newQty; $i++) {
+                $currentSNs[] = '';
+            }
+        } elseif ($newQty < count($currentSNs)) {
+            // Remove excess slots
+            $currentSNs = array_slice($currentSNs, 0, $newQty);
+        }
+        $this->cart[$index]['serial_numbers'] = $currentSNs;
+    }
+    
+    // Helper to sync input from view
+    public function updateSerial($index, $snIndex, $value)
+    {
+        $this->cart[$index]['serial_numbers'][$snIndex] = $value;
     }
 
     // --- Calculations ---
@@ -173,6 +194,10 @@ class Create extends Component
                 
                 $product->update(['stock_quantity' => $newStock]);
 
+                // Prepare Serial Numbers (Clean empty ones)
+                $snList = array_filter($item['serial_numbers'] ?? []);
+                $snString = !empty($snList) ? implode(',', $snList) : null;
+
                 // Create Inventory Log
                 InventoryTransaction::create([
                     'product_id' => $product->id,
@@ -183,16 +208,25 @@ class Create extends Component
                     'cogs' => $product->buy_price,        
                     'remaining_stock' => $newStock,
                     'reference_number' => $this->reference_number,
+                    'serial_numbers' => $this->type === 'out' ? $snString : null,
                     'notes' => $this->notes . ($this->customer_phone ? " (Member: {$this->customer_phone})" : ''),
                 ]);
 
                 // Create Order Item (if Order exists)
                 if ($order) {
+                    // Calculate Warranty Expiry
+                    $warrantyEnds = null;
+                    if (!empty($item['warranty_period']) && $item['warranty_period'] > 0) {
+                        $warrantyEnds = Carbon::now()->addMonths($item['warranty_period']);
+                    }
+
                     OrderItem::create([
                         'order_id' => $order->id,
                         'product_id' => $product->id,
                         'quantity' => $item['quantity'],
                         'price' => $product->sell_price,
+                        'serial_numbers' => $snString,
+                        'warranty_ends_at' => $warrantyEnds
                     ]);
                 }
 

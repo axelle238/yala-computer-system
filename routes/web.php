@@ -14,6 +14,7 @@ Route::get('/berita', \App\Livewire\Store\News\Index::class)->name('news.index')
 Route::get('/berita/{slug}', \App\Livewire\Store\News\Show::class)->name('news.show');
 Route::get('/rakit-pc', \App\Livewire\Store\PcBuilder::class)->name('pc-builder');
 Route::get('/garansi', \App\Livewire\Store\WarrantyCheck::class)->name('warranty-check');
+Route::get('/track-service', \App\Livewire\Front\TrackService::class)->name('track-service'); // New Tracking
 Route::get('/cart', \App\Livewire\Store\Cart::class)->name('cart');
 Route::get('/checkout', \App\Livewire\Store\Checkout::class)->name('checkout');
 Route::get('/order-success/{id}', \App\Livewire\Store\OrderSuccess::class)->name('order.success');
@@ -86,6 +87,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/purchase-orders', \App\Livewire\PurchaseOrders\Index::class)->name('purchase-orders.index');
     Route::get('/purchase-orders/create', \App\Livewire\PurchaseOrders\Form::class)->name('purchase-orders.create');
     Route::get('/purchase-orders/{id}/edit', \App\Livewire\PurchaseOrders\Form::class)->name('purchase-orders.edit');
+    Route::get('/purchase-orders/{po}', \App\Livewire\PurchaseOrders\Show::class)->name('purchase-orders.show');
 
     // Online Orders (Sales)
     Route::get('/orders', \App\Livewire\Orders\Index::class)->name('orders.index');
