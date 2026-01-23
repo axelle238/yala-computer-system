@@ -132,4 +132,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     // HR & Analytics
     Route::get('/analytics', \App\Livewire\Reports\Index::class)->name('reports.index');
     Route::get('/shift', \App\Livewire\Shift\Manager::class)->name('shift.open');
+
+    // B2B & Finance
+    Route::get('/quotations/create', \App\Livewire\Quotations\Create::class)->name('quotations.create');
+    Route::get('/finance/receivables', \App\Livewire\Finance\Receivables::class)->name('finance.receivables');
 });
