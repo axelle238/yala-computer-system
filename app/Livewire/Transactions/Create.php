@@ -2,9 +2,13 @@
 
 namespace App\Livewire\Transactions;
 
+use App\Models\Commission;
 use App\Models\Customer;
 use App\Models\InventoryTransaction;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -136,6 +140,21 @@ class Create extends Component
         ]);
 
         DB::transaction(function () {
+            // 1. Create Order Record (Only for Sales 'out')
+            $order = null;
+            if ($this->type === 'out') {
+                $order = Order::create([
+                    'user_id' => Auth::id(), // Sales/Cashier
+                    'guest_name' => $this->customer_phone ? 'Member ' . $this->customer_phone : 'Guest',
+                    'guest_whatsapp' => $this->customer_phone,
+                    'order_number' => $this->reference_number,
+                    'total_amount' => $this->total,
+                    'status' => 'completed',
+                    'payment_status' => 'paid',
+                    'notes' => $this->notes,
+                ]);
+            }
+
             foreach ($this->cart as $item) {
                 $product = Product::lockForUpdate()->find($item['product_id']);
 
@@ -154,19 +173,28 @@ class Create extends Component
                 
                 $product->update(['stock_quantity' => $newStock]);
 
-                // Create Log
+                // Create Inventory Log
                 InventoryTransaction::create([
                     'product_id' => $product->id,
                     'user_id' => Auth::id() ?? 1,
                     'type' => $this->type,
                     'quantity' => $item['quantity'],
-                    'unit_price' => $product->sell_price, // Snapshot Sell Price
-                    'cogs' => $product->buy_price,        // Snapshot Buy Price
+                    'unit_price' => $product->sell_price, 
+                    'cogs' => $product->buy_price,        
                     'remaining_stock' => $newStock,
                     'reference_number' => $this->reference_number,
-                    'serial_numbers' => $this->type === 'out' ? ($item['serial_numbers'] ?? null) : null, // Add serial numbers logic if needed in cart but for now keeping compatible
                     'notes' => $this->notes . ($this->customer_phone ? " (Member: {$this->customer_phone})" : ''),
                 ]);
+
+                // Create Order Item (if Order exists)
+                if ($order) {
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'product_id' => $product->id,
+                        'quantity' => $item['quantity'],
+                        'price' => $product->sell_price,
+                    ]);
+                }
 
                 // Member Points Logic
                 if ($this->type === 'out' && $this->customer_phone) {
@@ -179,6 +207,23 @@ class Create extends Component
                     if ($pointsEarned > 0) {
                         $customer->increment('points', $pointsEarned);
                     }
+                }
+            }
+
+            // 2. Automated Sales Commission
+            if ($order && Auth::check()) {
+                $percent = Setting::get('commission_sales_percent', 1); // Default 1%
+                $commissionAmount = $order->total_amount * ($percent / 100);
+
+                if ($commissionAmount > 0) {
+                    Commission::create([
+                        'user_id' => Auth::id(),
+                        'amount' => $commissionAmount,
+                        'description' => "Komisi Penjualan #{$order->order_number} ({$percent}%)",
+                        'source_type' => Order::class,
+                        'source_id' => $order->id,
+                        'is_paid' => false
+                    ]);
                 }
             }
         });

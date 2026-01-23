@@ -1,70 +1,79 @@
 <div class="space-y-6">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Payroll & Kinerja</h2>
-            <p class="text-slate-500 mt-1 text-sm font-medium">Laporan gaji dan performa penjualan pegawai.</p>
+            <h1 class="text-3xl font-black text-slate-800 dark:text-white font-tech uppercase tracking-tight">Manajemen Penggajian</h1>
+            <p class="text-slate-500 dark:text-slate-400">Periode: {{ date('F Y', mktime(0, 0, 0, $month, 1, $year)) }}</p>
         </div>
         
         <div class="flex gap-2">
-            <select wire:model.live="month" class="px-4 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+            <select wire:model.live="month" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 font-bold text-slate-700 dark:text-slate-200">
                 @for($m=1; $m<=12; $m++)
-                    <option value="{{ sprintf('%02d', $m) }}">{{ date('F', mktime(0, 0, 0, $m, 1)) }}</option>
+                    <option value="{{ $m }}">{{ date('F', mktime(0, 0, 0, $m, 1)) }}</option>
                 @endfor
             </select>
-            <select wire:model.live="year" class="px-4 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-                @for($y=date('Y'); $y>=2024; $y--)
+            <select wire:model.live="year" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 font-bold text-slate-700 dark:text-slate-200">
+                @for($y=date('Y'); $y>=date('Y')-2; $y--)
                     <option value="{{ $y }}">{{ $y }}</option>
                 @endfor
             </select>
         </div>
     </div>
 
-    <!-- Payroll Table -->
-    <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-600">
-                <thead class="bg-slate-50 text-xs uppercase font-bold text-slate-500 tracking-wider">
-                    <tr>
-                        <th class="px-6 py-4">Pegawai</th>
-                        <th class="px-6 py-4 text-right">Gaji Pokok</th>
-                        <th class="px-6 py-4 text-right">Omzet Penjualan</th>
-                        <th class="px-6 py-4 text-right">Komisi (1%)</th>
-                        <th class="px-6 py-4 text-right bg-blue-50 text-blue-700">Total Gaji</th>
-                        <th class="px-6 py-4 text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($employees as $emp)
-                        <tr class="hover:bg-slate-50 transition-colors">
+    @if(!$hasGenerated)
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-8 text-center">
+            <h3 class="text-lg font-bold text-blue-800 dark:text-blue-300 mb-2">Payroll Belum Dibuat</h3>
+            <p class="text-blue-600 dark:text-blue-400 mb-6">Klik tombol di bawah untuk menghitung gaji pokok dan komisi secara otomatis untuk periode ini.</p>
+            <button wire:click="generatePayroll" wire:confirm="Yakin ingin generate payroll? Komisi yang pending akan dihitung." class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg shadow-blue-500/30 transition-all hover:-translate-y-1">
+                Generate Payroll Otomatis
+            </button>
+        </div>
+    @else
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-50 dark:bg-slate-700 text-xs uppercase font-bold text-slate-500">
+                        <tr>
+                            <th class="px-6 py-4">Karyawan</th>
+                            <th class="px-6 py-4 text-right">Gaji Pokok</th>
+                            <th class="px-6 py-4 text-right">Komisi</th>
+                            <th class="px-6 py-4 text-right">Potongan</th>
+                            <th class="px-6 py-4 text-right">Gaji Bersih (Net)</th>
+                            <th class="px-6 py-4 text-center">Status</th>
+                            <th class="px-6 py-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                        @foreach($payrolls as $payroll)
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
                             <td class="px-6 py-4">
-                                <div class="font-bold text-slate-900">{{ $emp['name'] }}</div>
-                                <div class="text-xs text-slate-400">Join: {{ $emp['join_date'] }}</div>
+                                <div class="font-bold text-slate-800 dark:text-white">{{ $payroll->user->name }}</div>
+                                <div class="text-xs text-slate-500">{{ $payroll->user->job_title ?? 'Staff' }}</div>
                             </td>
-                            <td class="px-6 py-4 text-right">
-                                Rp {{ number_format($emp['base_salary'], 0, ',', '.') }}
-                            </td>
-                            <td class="px-6 py-4 text-right font-medium text-emerald-600">
-                                Rp {{ number_format($emp['sales_total'], 0, ',', '.') }}
-                            </td>
-                            <td class="px-6 py-4 text-right font-medium text-amber-600">
-                                Rp {{ number_format($emp['commission'], 0, ',', '.') }}
-                            </td>
-                            <td class="px-6 py-4 text-right font-bold text-blue-700 bg-blue-50/50">
-                                Rp {{ number_format($emp['total_salary'], 0, ',', '.') }}
+                            <td class="px-6 py-4 text-right font-mono">Rp {{ number_format($payroll->base_salary, 0, ',', '.') }}</td>
+                            <td class="px-6 py-4 text-right font-mono text-emerald-600 font-bold">+ Rp {{ number_format($payroll->total_commission, 0, ',', '.') }}</td>
+                            <td class="px-6 py-4 text-right font-mono text-rose-500">- Rp {{ number_format($payroll->deductions, 0, ',', '.') }}</td>
+                            <td class="px-6 py-4 text-right font-mono font-black text-lg text-slate-800 dark:text-white">Rp {{ number_format($payroll->net_salary, 0, ',', '.') }}</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="px-2 py-1 rounded text-[10px] font-bold uppercase {{ $payroll->status == 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600' }}">
+                                    {{ $payroll->status }}
+                                </span>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <button class="text-slate-400 hover:text-blue-600" onclick="window.print()" title="Cetak Slip">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                                </button>
+                                @if($payroll->status == 'draft')
+                                    <button wire:click="markAsPaid({{ $payroll->id }})" class="text-xs bg-emerald-600 text-white px-3 py-1 rounded hover:bg-emerald-700 font-bold">
+                                        Bayar
+                                    </button>
+                                @else
+                                    <button class="text-xs bg-slate-200 text-slate-500 px-3 py-1 rounded cursor-not-allowed font-bold" disabled>
+                                        Lunas
+                                    </button>
+                                @endif
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-8 text-center text-slate-400">Tidak ada data pegawai.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+    @endif
 </div>

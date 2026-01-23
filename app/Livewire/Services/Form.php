@@ -2,10 +2,12 @@
 
 namespace App\Livewire\Services;
 
+use App\Models\Commission;
 use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\ServiceItem;
 use App\Models\ServiceTicket;
+use App\Models\Setting;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -203,6 +205,35 @@ class Form extends Component
                             'note' => $part['note'],
                             'is_stock_deducted' => $isDeducted
                         ]);
+                    }
+                }
+
+                // 3. Automated Commission (Complex Feature)
+                if ($this->status === 'picked_up') {
+                    // Cek apakah sudah pernah dapat komisi untuk tiket ini
+                    $existingCommission = Commission::where('source_type', ServiceTicket::class)
+                        ->where('source_id', $this->ticket->id)
+                        ->first();
+
+                    if (!$existingCommission) {
+                        $percent = Setting::get('commission_service_percent', 10);
+                        // Labor Cost = Final Cost - Parts Cost
+                        // Recalculate based on saved items to be sure
+                        $partsCost = $this->ticket->items()->sum(DB::raw('price * quantity'));
+                        $laborCost = max(0, $this->ticket->final_cost - $partsCost);
+                        
+                        $commissionAmount = $laborCost * ($percent / 100);
+
+                        if ($commissionAmount > 0) {
+                            Commission::create([
+                                'user_id' => auth()->id(), // Teknisi yang login/mengerjakan
+                                'amount' => $commissionAmount,
+                                'description' => "Komisi Service #{$this->ticket->ticket_number} ({$percent}%)",
+                                'source_type' => ServiceTicket::class,
+                                'source_id' => $this->ticket->id,
+                                'is_paid' => false
+                            ]);
+                        }
                     }
                 }
             });
