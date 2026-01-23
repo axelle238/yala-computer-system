@@ -1,128 +1,147 @@
-<div class="space-y-8 animate-fade-in-up">
+<div class="space-y-6">
     <!-- Header & Filter -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
-                Financial <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-600">Intelligence</span>
-            </h2>
-            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Analisis profitabilitas dan arus kas real-time.</p>
+            <h1 class="text-3xl font-black text-slate-800 dark:text-white font-tech uppercase tracking-tight">Laporan Laba Rugi</h1>
+            <p class="text-slate-500 dark:text-slate-400">Analisis kinerja keuangan periode {{ date('F Y', mktime(0, 0, 0, $month, 1, $year)) }}</p>
         </div>
-        
-        <div class="flex gap-3 bg-white dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <select wire:model.live="month" class="bg-transparent border-none text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-0 cursor-pointer">
-                @for($i=1; $i<=12; $i++)
-                    <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
+        <div class="flex gap-2">
+            <select wire:model.live="month" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 font-bold text-slate-700 dark:text-slate-200">
+                @for($m=1; $m<=12; $m++)
+                    <option value="{{ $m }}">{{ date('F', mktime(0, 0, 0, $m, 1)) }}</option>
                 @endfor
             </select>
-            <div class="w-px bg-slate-200 dark:bg-slate-700 my-1"></div>
-            <select wire:model.live="year" class="bg-transparent border-none text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-0 cursor-pointer">
-                @for($i=2024; $i<=date('Y'); $i++)
-                    <option value="{{ $i }}">{{ $i }}</option>
+            <select wire:model.live="year" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 font-bold text-slate-700 dark:text-slate-200">
+                @for($y=date('Y'); $y>=date('Y')-2; $y--)
+                    <option value="{{ $y }}">{{ $y }}</option>
                 @endfor
             </select>
+            <button onclick="window.print()" class="bg-slate-800 text-white px-4 py-2 rounded-lg font-bold hover:bg-slate-900">
+                Print
+            </button>
         </div>
     </div>
 
-    <!-- Main KPIs -->
+    <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Revenue Card -->
-        <div class="relative bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-100 dark:border-slate-700 overflow-hidden group">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-blue-500/20 transition-all"></div>
-            <div class="flex justify-between items-start mb-4">
-                <div class="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-2xl text-blue-600 dark:text-blue-400">
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-xl text-blue-600">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Revenue</span>
+                <span class="text-xs font-bold text-slate-400 uppercase">Total Omset</span>
             </div>
-            <h3 class="text-3xl font-black font-tech text-slate-900 dark:text-white">Rp {{ number_format($revenue, 0, ',', '.') }}</h3>
-            <p class="text-xs text-slate-500 mt-2 font-medium">Total Omset Penjualan</p>
+            <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-1">Rp {{ number_format($productRevenue + $serviceRevenue, 0, ',', '.') }}</h3>
+            <div class="text-xs text-slate-500">
+                Barang: Rp {{ number_format($productRevenue, 0, ',', '.') }} <br>
+                Jasa: Rp {{ number_format($serviceRevenue, 0, ',', '.') }}
+            </div>
         </div>
 
         <!-- Expense Card -->
-        <div class="relative bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-100 dark:border-slate-700 overflow-hidden group">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-rose-500/20 transition-all"></div>
-            <div class="flex justify-between items-start mb-4">
-                <div class="p-3 bg-rose-50 dark:bg-rose-900/30 rounded-2xl text-rose-600 dark:text-rose-400">
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-rose-50 dark:bg-rose-900/30 rounded-xl text-rose-600">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg>
                 </div>
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Expenses + COGS</span>
+                <span class="text-xs font-bold text-slate-400 uppercase">Total Pengeluaran</span>
             </div>
-            <h3 class="text-3xl font-black font-tech text-slate-900 dark:text-white">Rp {{ number_format($totalExpenses + $cogs, 0, ',', '.') }}</h3>
-            <p class="text-xs text-slate-500 mt-2 font-medium">HPP: {{ number_format($cogs, 0, ',', '.') }} | Ops: {{ number_format($totalExpenses, 0, ',', '.') }}</p>
+            <h3 class="text-2xl font-black text-rose-600 dark:text-rose-400 mb-1">Rp {{ number_format($cogs + $totalExpenses, 0, ',', '.') }}</h3>
+             <div class="text-xs text-slate-500">
+                HPP Barang: Rp {{ number_format($cogs, 0, ',', '.') }} <br>
+                Operasional: Rp {{ number_format($totalExpenses, 0, ',', '.') }}
+            </div>
         </div>
 
         <!-- Net Profit Card -->
-        <div class="relative bg-slate-900 dark:bg-white rounded-3xl p-6 border border-slate-800 dark:border-slate-200 overflow-hidden group shadow-xl">
-            <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div class="flex justify-between items-start mb-4 relative z-10">
-                <div class="p-3 bg-white/10 dark:bg-slate-100 rounded-2xl text-white dark:text-slate-900">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-6 rounded-2xl shadow-lg shadow-emerald-500/20 text-white relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-3 bg-white/20 rounded-xl">
+                        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <span class="text-xs font-bold text-white/80 uppercase">Laba Bersih (Net Profit)</span>
                 </div>
-                <span class="text-xs font-bold uppercase tracking-wider text-white/60 dark:text-slate-500">Net Profit</span>
+                <h3 class="text-3xl font-black mb-1">Rp {{ number_format($netProfit, 0, ',', '.') }}</h3>
+                <p class="text-sm text-emerald-100 font-medium">
+                    {{ $netProfit >= 0 ? 'Profitabilitas Positif' : 'Perlu Evaluasi (Rugi)' }}
+                </p>
             </div>
-            <h3 class="text-4xl font-black font-tech text-white dark:text-slate-900 relative z-10">
-                Rp {{ number_format($netProfit, 0, ',', '.') }}
-            </h3>
-            <div class="mt-4 w-full bg-white/10 dark:bg-slate-200 rounded-full h-1.5 overflow-hidden">
-                @php $margin = $revenue > 0 ? ($netProfit / $revenue) * 100 : 0; @endphp
-                <div class="bg-gradient-to-r from-emerald-400 to-cyan-400 h-full rounded-full transition-all duration-1000" style="width: {{ max(0, min(100, $margin)) }}%"></div>
-            </div>
-            <p class="text-xs text-white/60 dark:text-slate-500 mt-2 font-medium relative z-10">Net Margin: {{ number_format($margin, 1) }}%</p>
+            <!-- Decorative Pattern -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none"></div>
         </div>
     </div>
 
-    <!-- Profit Trend Chart & Details -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Chart Visualization -->
-        <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
-            <h3 class="font-bold text-lg text-slate-900 dark:text-white mb-6 font-tech">Daily Profit Trend</h3>
-            
-            <div class="flex items-end justify-between gap-1 h-64 w-full">
-                @php $maxProfit = max(array_column($trendData, 'profit') ?: [1]); @endphp
-                @foreach($trendData as $data)
-                    <div class="group flex-1 flex flex-col items-center justify-end h-full gap-2 relative">
-                        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-t-sm relative overflow-hidden transition-all duration-500 hover:bg-emerald-500/20" 
-                             style="height: {{ $maxProfit > 0 ? max(5, ($data['profit'] / $maxProfit) * 100) : 5 }}%">
-                             <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-emerald-500 to-cyan-400 opacity-80 group-hover:opacity-100 transition-opacity" style="height: 100%"></div>
-                        </div>
-                        <!-- Tooltip -->
-                        <div class="absolute -top-8 bg-slate-900 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-                            Rp {{ number_format($data['profit'] / 1000, 0) }}k
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-            <div class="flex justify-between mt-2 text-[10px] text-slate-400 font-mono">
-                <span>Day 1</span>
-                <span>Day {{ count($trendData) }}</span>
-            </div>
+    <!-- Detailed Waterfall Table -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="p-6 border-b border-slate-100 dark:border-slate-700">
+            <h3 class="font-bold text-lg text-slate-800 dark:text-white">Rincian Laba Rugi (Waterfall)</h3>
         </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                    <!-- Revenue Section -->
+                    <tr class="bg-slate-50/50 dark:bg-slate-700/50">
+                        <td class="px-6 py-3 font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-xs" colspan="2">1. Pendapatan (Revenue)</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-3 text-slate-600 dark:text-slate-400 pl-10">Penjualan Barang Retail</td>
+                        <td class="px-6 py-3 text-right font-mono text-slate-800 dark:text-white font-bold">Rp {{ number_format($productRevenue, 0, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-3 text-slate-600 dark:text-slate-400 pl-10">Pendapatan Jasa Service</td>
+                        <td class="px-6 py-3 text-right font-mono text-slate-800 dark:text-white font-bold">Rp {{ number_format($serviceRevenue, 0, ',', '.') }}</td>
+                    </tr>
+                    <tr class="bg-blue-50/50 dark:bg-blue-900/10">
+                        <td class="px-6 py-3 font-bold text-blue-700 dark:text-blue-400 pl-10">Total Pendapatan</td>
+                        <td class="px-6 py-3 text-right font-mono text-blue-700 dark:text-blue-400 font-bold border-t border-blue-200 dark:border-blue-800">Rp {{ number_format($productRevenue + $serviceRevenue, 0, ',', '.') }}</td>
+                    </tr>
 
-        <!-- Expenses Breakdown -->
-        <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-lg text-slate-900 dark:text-white font-tech">Beban Operasional</h3>
-                <a href="{{ route('expenses.index') }}" class="text-xs font-bold text-cyan-600 hover:underline">Kelola</a>
-            </div>
+                    <!-- COGS Section -->
+                    <tr class="bg-slate-50/50 dark:bg-slate-700/50">
+                        <td class="px-6 py-3 font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-xs" colspan="2">2. Beban Pokok Penjualan (HPP)</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-3 text-slate-600 dark:text-slate-400 pl-10">Harga Pokok Barang Terjual</td>
+                        <td class="px-6 py-3 text-right font-mono text-rose-600 dark:text-rose-400 font-bold">(Rp {{ number_format($cogs, 0, ',', '.') }})</td>
+                    </tr>
+                    
+                    <!-- Gross Profit -->
+                    <tr class="bg-emerald-50/50 dark:bg-emerald-900/10">
+                        <td class="px-6 py-4 font-black text-emerald-800 dark:text-emerald-400 uppercase">3. Laba Kotor (Gross Profit)</td>
+                        <td class="px-6 py-4 text-right font-mono text-emerald-800 dark:text-emerald-400 font-black text-lg border-t-2 border-emerald-100 dark:border-emerald-800">Rp {{ number_format($grossProfit, 0, ',', '.') }}</td>
+                    </tr>
 
-            <div class="flex-1 overflow-y-auto custom-scrollbar space-y-4">
-                @forelse($expenses as $expense)
-                    <div class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-600 group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center text-rose-500">
-                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-800 dark:text-white">{{ $expense->title }}</p>
-                                <p class="text-[10px] text-slate-500">{{ $expense->expense_date->format('d M') }} • {{ ucfirst($expense->category) }}</p>
-                            </div>
-                        </div>
-                        <span class="font-mono font-bold text-rose-600 dark:text-rose-400 text-sm">-{{ number_format($expense->amount / 1000, 0) }}k</span>
-                    </div>
-                @empty
-                    <div class="text-center py-10 text-slate-400 text-sm">Tidak ada pengeluaran bulan ini.</div>
-                @endforelse
-            </div>
+                    <!-- Expenses Section -->
+                    <tr class="bg-slate-50/50 dark:bg-slate-700/50">
+                        <td class="px-6 py-3 font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-xs" colspan="2">4. Beban Operasional</td>
+                    </tr>
+                    @forelse($expenses as $expense)
+                        <tr>
+                            <td class="px-6 py-2 text-slate-600 dark:text-slate-400 pl-10 flex justify-between items-center group">
+                                <span>{{ $expense->description ?? $expense->category }} <span class="text-xs text-slate-400 ml-2">({{ $expense->created_at->format('d M') }})</span></span>
+                            </td>
+                            <td class="px-6 py-2 text-right font-mono text-rose-600 dark:text-rose-400">(Rp {{ number_format($expense->amount, 0, ',', '.') }})</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td class="px-6 py-3 text-slate-400 italic pl-10">Tidak ada pengeluaran operasional tercatat bulan ini.</td>
+                            <td class="px-6 py-3 text-right font-mono text-slate-400">-</td>
+                        </tr>
+                    @endforelse
+                    <tr class="bg-rose-50/50 dark:bg-rose-900/10">
+                        <td class="px-6 py-3 font-bold text-rose-700 dark:text-rose-400 pl-10">Total Beban Operasional</td>
+                        <td class="px-6 py-3 text-right font-mono text-rose-700 dark:text-rose-400 font-bold border-t border-rose-200 dark:border-rose-800">(Rp {{ number_format($totalExpenses, 0, ',', '.') }})</td>
+                    </tr>
+
+                    <!-- Net Profit Final -->
+                    <tr class="bg-slate-900 text-white dark:bg-black">
+                        <td class="px-6 py-6 font-black text-xl uppercase tracking-widest">5. Laba Bersih (Net Profit)</td>
+                        <td class="px-6 py-6 text-right font-mono font-black text-2xl {{ $netProfit < 0 ? 'text-rose-400' : 'text-emerald-400' }}">Rp {{ number_format($netProfit, 0, ',', '.') }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
