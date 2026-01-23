@@ -36,9 +36,24 @@ Route::post('/logout', function () {
     return redirect('/');
 })->name('logout');
 
+// Member Area (Protected)
+Route::prefix('member')->middleware('auth')->group(function () {
+    Route::get('/dashboard', \App\Livewire\Member\Dashboard::class)->name('member.dashboard');
+    Route::get('/orders', \App\Livewire\Member\Orders::class)->name('member.orders');
+    Route::get('/services', \App\Livewire\Member\Services::class)->name('member.services');
+    Route::get('/rma/request', \App\Livewire\Member\RmaRequest::class)->name('member.rma.request');
+});
+
 // Admin Panel (Protected)
 Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/', Dashboard::class)->name('dashboard');
+    // ...
+    
+    // RMA (Admin)
+    Route::get('/rma', \App\Livewire\Rma\Index::class)->name('rma.index');
+    Route::get('/rma/create', \App\Livewire\Rma\Form::class)->name('rma.create');
+    Route::get('/rma/{id}/edit', \App\Livewire\Rma\Form::class)->name('rma.edit');
+
     Route::get('/products', ProductIndex::class)->name('products.index');
     Route::get('/products/create', \App\Livewire\Products\Form::class)->name('products.create');
     Route::get('/products/{id}/edit', \App\Livewire\Products\Form::class)->name('products.edit');
