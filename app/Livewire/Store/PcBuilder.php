@@ -103,6 +103,37 @@ class PcBuilder extends Component
         return $total;
     }
 
+    public function addToCart()
+    {
+        $cart = session()->get('cart', []);
+        $count = 0;
+
+        foreach ($this->selection as $id) {
+            if ($id) {
+                $product = Product::find($id);
+                if ($product) {
+                    if (isset($cart[$product->id])) {
+                        $cart[$product->id]['quantity']++;
+                    } else {
+                        $cart[$product->id] = [
+                            'name' => $product->name,
+                            'price' => $product->sell_price,
+                            'quantity' => 1,
+                            'image' => $product->image_path // Might be null, view handles it
+                        ];
+                    }
+                    $count++;
+                }
+            }
+        }
+
+        if ($count > 0) {
+            session()->put('cart', $cart);
+            $this->dispatch('cart-updated');
+            return redirect()->route('cart');
+        }
+    }
+
     public function sendToWhatsapp()
     {
         $message = "Halo Yala Computer, saya mau konsultasi rakitan PC ini:\n\n";
