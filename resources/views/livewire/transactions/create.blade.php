@@ -9,11 +9,13 @@
                     <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                 </div>
                 <input wire:model.live.debounce.300ms="search" type="text" class="block w-full pl-10 pr-3 py-2.5 border-none rounded-xl bg-slate-100 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-cyan-500 transition-all placeholder-slate-500" placeholder="Scan Barcode / Cari Produk..." autofocus>
-                
-                <!-- Helper Shortcut Hint -->
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    <kbd class="hidden sm:inline-block border border-slate-300 dark:border-slate-600 rounded px-1 text-[10px] font-mono text-slate-500">AUTOFOCUS</kbd>
-                </div>
+            </div>
+            
+            <div class="relative w-full sm:w-48">
+                <input wire:model="searchBuild" wire:keydown.enter="loadBuild" type="text" class="block w-full px-3 py-2.5 border-none rounded-xl bg-violet-50 dark:bg-violet-900/20 text-sm focus:ring-2 focus:ring-violet-500 placeholder-violet-400 text-violet-700 dark:text-violet-300" placeholder="Load ID Rakitan...">
+                <button wire:click="loadBuild" class="absolute right-2 top-2 text-violet-500 hover:text-violet-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                </button>
             </div>
             
             <select wire:model.live="category" class="py-2.5 px-4 border-none rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-slate-600 dark:text-slate-300 focus:ring-2 focus:ring-cyan-500 cursor-pointer">
@@ -140,10 +142,31 @@
 
         <!-- Footer Summary -->
         <div class="bg-slate-50 dark:bg-slate-800 p-4 border-t border-slate-200 dark:border-slate-700 space-y-3">
+            
+            @if($customerPoints > 0)
+            <div class="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-100 dark:border-amber-800 flex justify-between items-center">
+                <div>
+                    <span class="block text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase">Poin Member</span>
+                    <span class="font-bold text-amber-700 dark:text-amber-300">{{ number_format($customerPoints) }} Poin</span>
+                </div>
+                <button wire:click="togglePoints" class="px-3 py-1.5 rounded text-xs font-bold transition-colors {{ $usePoints ? 'bg-amber-500 text-white' : 'bg-white border border-amber-300 text-amber-600 hover:bg-amber-100' }}">
+                    {{ $usePoints ? 'BATAL' : 'TUKAR' }}
+                </button>
+            </div>
+            @endif
+
             <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
                 <span>Subtotal</span>
                 <span>Rp {{ number_format($this->subtotal, 0, ',', '.') }}</span>
             </div>
+            
+            @if($this->discount > 0)
+            <div class="flex justify-between text-xs text-emerald-600 dark:text-emerald-400 font-bold">
+                <span>Diskon Poin</span>
+                <span>- Rp {{ number_format($this->discount, 0, ',', '.') }}</span>
+            </div>
+            @endif
+
             <div class="flex justify-between items-end">
                 <span class="text-sm font-bold text-slate-700 dark:text-slate-200">Total Tagihan</span>
                 <span class="text-xl font-black font-tech text-slate-900 dark:text-white">Rp {{ number_format($this->total, 0, ',', '.') }}</span>

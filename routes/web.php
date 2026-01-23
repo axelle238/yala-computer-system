@@ -42,6 +42,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/products', ProductIndex::class)->name('products.index');
     Route::get('/products/create', \App\Livewire\Products\Form::class)->name('products.create');
     Route::get('/products/{id}/edit', \App\Livewire\Products\Form::class)->name('products.edit');
+    Route::get('/products/labels', \App\Livewire\Products\LabelMaker::class)->name('products.labels'); // New
+
     Route::get('/transactions', \App\Livewire\Transactions\Index::class)->name('transactions.index');
     Route::get('/transactions/create', TransactionCreate::class)->name('transactions.create');
     Route::get('/settings', \App\Livewire\Settings\Index::class)->name('settings.index');
@@ -110,4 +112,5 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/print/transaction/{id}', [\App\Http\Controllers\PrintController::class, 'transaction'])->name('print.transaction');
     Route::get('/print/service/{id}', [\App\Http\Controllers\PrintController::class, 'service'])->name('print.service');
     Route::get('/print/label/{id}', [\App\Http\Controllers\PrintController::class, 'productLabel'])->name('print.label');
+    Route::get('/print/labels', [\App\Http\Controllers\PrintController::class, 'labels'])->name('print.labels'); // New
 });

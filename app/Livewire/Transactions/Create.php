@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Setting;
+use App\Models\SavedBuild;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -30,6 +31,11 @@ class Create extends Component
     // Search & Filter
     public $search = '';
     public $category = '';
+    public $searchBuild = ''; // For searching Saved Builds
+
+    // Loyalty System
+    public $customerPoints = 0;
+    public $usePoints = false;
     
     // UI State
     public $showSuccessModal = false;
@@ -37,6 +43,63 @@ class Create extends Component
     public function mount()
     {
         $this->reference_number = 'TRX-' . strtoupper(uniqid());
+    }
+
+    // --- Saved Build Integration ---
+    public function loadBuild()
+    {
+        $build = SavedBuild::where('id', $this->searchBuild)
+            ->orWhere('share_token', $this->searchBuild)
+            ->first();
+
+        if (!$build) {
+            $this->dispatch('notify', message: 'Rakitan tidak ditemukan.', type: 'error');
+            return;
+        }
+
+        $components = $build->components; // JSON array: ['processors' => 1, 'rams' => 5]
+        $loadedCount = 0;
+        
+        foreach ($components as $key => $productId) {
+            if ($productId) {
+                $product = Product::find($productId);
+                if ($product && $product->stock_quantity > 0) {
+                    $this->addToCart($product->id);
+                    $loadedCount++;
+                }
+            }
+        }
+
+        if ($loadedCount > 0) {
+            $this->dispatch('notify', message: "Berhasil memuat {$loadedCount} komponen dari rakitan '{$build->name}'.", type: 'success');
+            $this->searchBuild = ''; // Reset
+        } else {
+            $this->dispatch('notify', message: 'Semua komponen dalam rakitan ini stoknya habis.', type: 'error');
+        }
+    }
+
+    // --- Customer & Loyalty Logic ---
+    public function updatedCustomerPhone()
+    {
+        // Check member points
+        if (strlen($this->customer_phone) >= 10) {
+            $customer = Customer::where('phone', $this->customer_phone)->first();
+            if ($customer) {
+                $this->customerPoints = $customer->points;
+                $this->dispatch('notify', message: "Member ditemukan! Poin: " . number_format($customer->points), type: 'info');
+            } else {
+                $this->customerPoints = 0;
+            }
+        } else {
+            $this->customerPoints = 0;
+            $this->usePoints = false;
+        }
+    }
+
+    public function togglePoints()
+    {
+        if ($this->customerPoints <= 0) return;
+        $this->usePoints = !$this->usePoints;
     }
 
     // --- Search & Barcode Logic ---
@@ -136,6 +199,16 @@ class Create extends Component
         return array_sum(array_column($this->cart, 'subtotal'));
     }
 
+    public function getDiscountProperty()
+    {
+        if ($this->usePoints && $this->customerPoints > 0) {
+            // Redemption Rate: 1 Point = Rp 1 (Default)
+            // Limit discount to subtotal (cannot be negative total)
+            return min($this->customerPoints, $this->subtotal);
+        }
+        return 0;
+    }
+
     public function getTaxProperty()
     {
         // Simple 11% PPN logic (Optional, configurable)
@@ -144,7 +217,7 @@ class Create extends Component
 
     public function getTotalProperty()
     {
-        return $this->subtotal + $this->tax;
+        return max(0, $this->subtotal + $this->tax - $this->discount);
     }
 
     // --- Finalize Transaction ---
@@ -160,20 +233,40 @@ class Create extends Component
             'notes' => 'nullable|string|max:255',
         ]);
 
+        if ($this->usePoints && $this->customerPoints > 0) {
+            // Re-verify points
+            $customer = Customer::where('phone', $this->customer_phone)->first();
+            if (!$customer || $customer->points < $this->discount) {
+                $this->addError('customer_phone', 'Saldo poin tidak valid atau berubah.');
+                return;
+            }
+        }
+
         DB::transaction(function () {
             // 1. Create Order Record (Only for Sales 'out')
             $order = null;
             if ($this->type === 'out') {
+                $notes = $this->notes;
+                if ($this->discount > 0) {
+                    $notes .= " [Redeem {$this->discount} Points]";
+                }
+
                 $order = Order::create([
                     'user_id' => Auth::id(), // Sales/Cashier
                     'guest_name' => $this->customer_phone ? 'Member ' . $this->customer_phone : 'Guest',
                     'guest_whatsapp' => $this->customer_phone,
                     'order_number' => $this->reference_number,
-                    'total_amount' => $this->total,
+                    'total_amount' => $this->total, // Total after discount
                     'status' => 'completed',
                     'payment_status' => 'paid',
-                    'notes' => $this->notes,
+                    'notes' => $notes,
                 ]);
+
+                // Deduct Points
+                if ($this->discount > 0 && $this->customer_phone) {
+                    $customer = Customer::where('phone', $this->customer_phone)->first();
+                    $customer->decrement('points', $this->discount);
+                }
             }
 
             foreach ($this->cart as $item) {

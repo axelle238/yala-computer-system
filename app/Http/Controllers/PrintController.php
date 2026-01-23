@@ -6,10 +6,25 @@ use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\ServiceTicket;
 use App\Models\Setting;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 
 class PrintController extends Controller
 {
+    // ...
+
+    public function labels(Request $request)
+    {
+        $key = $request->query('key');
+        $queue = Cache::get($key);
+
+        if (!$queue) {
+            abort(404, 'Data cetak kadaluarsa.');
+        }
+
+        return view('print.labels', compact('queue'));
+    }
+}
     public function transaction($id)
     {
         // Ambil transaksi utama untuk mendapatkan referensi
