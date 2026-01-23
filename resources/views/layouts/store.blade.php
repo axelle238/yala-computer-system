@@ -287,8 +287,8 @@
             <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-white/5">
                 <p class="text-xs text-slate-600">© 2026 Yala Computer System. All Rights Reserved.</p>
                 <div class="flex gap-2 text-xs font-bold text-slate-600 uppercase tracking-wider">
-                    <span class="px-2 py-1 bg-white/5 rounded">Privacy Policy</span>
-                    <span class="px-2 py-1 bg-white/5 rounded">Terms of Service</span>
+                    <a href="{{ route('privacy-policy') }}" class="px-2 py-1 bg-white/5 rounded hover:bg-white/10 hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="{{ route('terms-of-service') }}" class="px-2 py-1 bg-white/5 rounded hover:bg-white/10 hover:text-white transition-colors">Terms of Service</a>
                 </div>
             </div>
         </div>

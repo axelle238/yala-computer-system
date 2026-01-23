@@ -12,6 +12,8 @@ Route::get('/', StoreHome::class)->name('home');
 Route::get('/product/{id}', \App\Livewire\Store\ProductDetail::class)->name('product.detail');
 Route::get('/rakit-pc', \App\Livewire\Store\PcBuilder::class)->name('pc-builder');
 Route::get('/garansi', \App\Livewire\Store\WarrantyCheck::class)->name('warranty-check');
+Route::view('/privacy-policy', 'store.privacy-policy')->name('privacy-policy');
+Route::view('/terms-of-service', 'store.terms-of-service')->name('terms-of-service');
 Route::get('/login', Login::class)->name('login')->middleware('guest');
 Route::post('/logout', function () {
     auth()->logout();

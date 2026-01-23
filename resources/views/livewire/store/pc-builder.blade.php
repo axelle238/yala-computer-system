@@ -17,27 +17,31 @@
         <div class="lg:col-span-2 space-y-6">
             @foreach($partsList as $slug => $label)
                 <div class="group bg-slate-900/80 backdrop-blur-md rounded-2xl border border-white/10 shadow-lg shadow-black/20 overflow-hidden transition-all duration-300 hover:shadow-cyan-500/10 hover:border-cyan-500/30" x-data="{ open: false }">
-                    <div class="p-6 flex items-center justify-between cursor-pointer" @click="open = !open">
-                        <div class="flex items-center gap-5">
-                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-800 to-slate-700 text-slate-400 flex items-center justify-center font-bold text-lg shadow-inner group-hover:from-cyan-600 group-hover:to-blue-600 group-hover:text-white transition-all duration-300">
+                    <div class="p-6 flex items-start justify-between cursor-pointer" @click="open = !open">
+                        <div class="flex items-start gap-5 flex-1">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-800 to-slate-700 text-slate-400 flex items-center justify-center font-bold text-lg shadow-inner group-hover:from-cyan-600 group-hover:to-blue-600 group-hover:text-white transition-all duration-300 flex-shrink-0">
                                 {{ substr($label, 0, 1) }}
                             </div>
-                            <div>
+                            <div class="flex-1">
                                 <h3 class="font-bold text-white text-lg group-hover:text-cyan-400 transition-colors">{{ $label }}</h3>
                                 @if($selection[$slug])
                                     @php $selected = \App\Models\Product::find($selection[$slug]); @endphp
-                                    <div class="flex items-center gap-2 mt-1">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                        <p class="text-sm text-slate-300 font-semibold line-clamp-1">{{ $selected->name }}</p>
+                                    <div class="mt-2">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                            <p class="text-sm text-white font-bold line-clamp-1">{{ $selected->name }}</p>
+                                        </div>
+                                        <!-- Show Specs -->
+                                        <p class="text-xs text-slate-400 leading-relaxed">{{ $selected->description }}</p>
                                     </div>
                                 @else
                                     <p class="text-xs text-slate-500 mt-1 font-medium uppercase tracking-wider">Belum dipilih</p>
                                 @endif
                             </div>
                         </div>
-                        <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-4 pl-4">
                             @if($selection[$slug])
-                                <span class="text-base font-bold font-tech text-white">Rp {{ number_format(\App\Models\Product::find($selection[$slug])->sell_price, 0, ',', '.') }}</span>
+                                <span class="text-base font-bold font-tech text-white whitespace-nowrap">Rp {{ number_format(\App\Models\Product::find($selection[$slug])->sell_price, 0, ',', '.') }}</span>
                                 <button wire:click.stop="removePart('{{ $slug }}')" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-rose-500/20 hover:text-rose-500 rounded-lg transition-colors" title="Hapus">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
@@ -70,6 +74,7 @@
                                         </div>
                                         <div class="flex-1 relative z-10 min-w-0">
                                             <h4 class="text-sm font-bold text-slate-200 line-clamp-2 leading-snug group-hover/item:text-cyan-400 transition-colors">{{ $item->name }}</h4>
+                                            <p class="text-[10px] text-slate-500 line-clamp-2 mt-1">{{ $item->description }}</p>
                                             <div class="mt-2 flex justify-between items-end">
                                                 <p class="text-sm font-tech font-bold text-white">Rp {{ number_format($item->sell_price, 0, ',', '.') }}</p>
                                                 <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 group-hover/item:bg-cyan-500/20 group-hover/item:text-cyan-400 transition-colors">Pilih</span>
