@@ -15,11 +15,12 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+    public $statusFilter = '';
+    public $categoryFilter = '';
 
-    public function updatedSearch()
-    {
-        $this->resetPage();
-    }
+    public function updatedSearch() { $this->resetPage(); }
+    public function updatedStatusFilter() { $this->resetPage(); }
+    public function updatedCategoryFilter() { $this->resetPage(); }
 
     public function delete($id)
     {
@@ -32,12 +33,16 @@ class Index extends Component
 
     public function render()
     {
-        $articles = Article::where('title', 'like', '%' . $this->search . '%')
+        $articles = Article::query()
+            ->when($this->search, fn($q) => $q->where('title', 'like', '%' . $this->search . '%'))
+            ->when($this->statusFilter !== '', fn($q) => $q->where('is_published', $this->statusFilter))
+            ->when($this->categoryFilter, fn($q) => $q->where('category', $this->categoryFilter))
             ->latest()
             ->paginate(10);
 
         return view('livewire.news.index', [
-            'articles' => $articles
+            'articles' => $articles,
+            'categories' => ['General', 'Teknologi', 'Tips & Trik', 'Promo', 'Hardware', 'Review']
         ]);
     }
 }

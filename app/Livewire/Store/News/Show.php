@@ -19,12 +19,6 @@ class Show extends Component
             ->firstOrFail();
     }
 
-    #[Title]
-    public function getTitle()
-    {
-        return $this->article->title . ' - Berita Yala Computer';
-    }
-
     public function render()
     {
         $related = Article::where('id', '!=', $this->article->id)
@@ -35,6 +29,6 @@ class Show extends Component
 
         return view('livewire.store.news.show', [
             'related' => $related
-        ])->title($this->article->title . ' - Yala Computer');
+        ])->title($this->article->title . ' - Berita Yala Computer');
     }
 }

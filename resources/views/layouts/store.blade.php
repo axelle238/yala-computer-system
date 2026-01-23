@@ -15,63 +15,115 @@
         h1, h2, h3, h4, h5, h6, .font-tech { font-family: 'Exo 2', sans-serif; }
         .cyber-grid { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; background-color: #020617; background-image: linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px); background-size: 50px 50px; }
         .cyber-grid::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, transparent 0%, #020617 90%); }
+        .tech-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); position: relative; overflow: hidden; }
+        
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body class="antialiased" x-data="{ mobileMenuOpen: false }">
+<body class="antialiased selection:bg-cyan-500 selection:text-white" x-data="{ mobileMenuOpen: false, scrolled: false }" @scroll.window="scrolled = (window.pageYOffset > 20)">
     <div class="cyber-grid"></div>
 
-    @if(\App\Models\Setting::get('store_announcement_active', false))
-        <div class="bg-cyan-900 text-white text-[10px] font-bold py-1.5 text-center uppercase tracking-widest border-b border-cyan-500/20">
+    <!-- Announcement Bar -->
+    @php $announcement = \App\Models\Setting::get('store_announcement_active', false); @endphp
+    @if($announcement)
+        <div class="bg-gradient-to-r from-cyan-900 via-blue-900 to-purple-900 text-white text-[10px] font-bold py-2 text-center uppercase tracking-widest border-b border-cyan-500/20 relative z-50">
             {{ \App\Models\Setting::get('store_announcement_text') }}
         </div>
     @endif
 
-    <header class="fixed top-0 w-full z-50 bg-slate-900/90 border-b border-white/10 backdrop-blur-md">
+    <!-- Modern Header -->
+    <header class="fixed top-0 w-full z-40 transition-all duration-300 border-b border-transparent"
+            :class="{ 'bg-slate-900/80 backdrop-blur-md border-white/10 shadow-lg top-0': scrolled, 'bg-transparent top-0': !scrolled }">
         <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
-            <a href="/" class="flex flex-col group">
-                <span class="font-tech font-bold text-xl text-white tracking-tight uppercase group-hover:text-cyan-400 transition-colors">{{ \App\Models\Setting::get('store_name', 'YALA COMPUTER') }}</span>
-                <span class="text-[8px] font-bold text-cyan-600 uppercase tracking-[0.3em] group-hover:text-cyan-300 transition-colors">Cyberpunk Enterprise</span>
+            <!-- Logo -->
+            <a href="/" class="group flex items-center gap-3">
+                <div class="relative w-10 h-10">
+                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg transform rotate-6 group-hover:rotate-12 transition-transform duration-300 shadow-[0_0_20px_rgba(6,182,212,0.5)]"></div>
+                    <div class="absolute inset-0 bg-slate-900 rounded-lg flex items-center justify-center border border-white/20 transform -rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                        <span class="font-tech font-black text-xl text-cyan-400">Y</span>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-tech font-bold text-xl text-white tracking-tight uppercase leading-none">{{ \App\Models\Setting::get('store_name', 'YALA COMPUTER') }}</span>
+                    <span class="text-[8px] font-bold text-cyan-400 uppercase tracking-[0.3em] leading-none mt-1 group-hover:text-cyan-300 transition-colors">Future Tech Store</span>
+                </div>
             </a>
             
-            <nav class="hidden md:flex items-center gap-1 bg-white/5 border border-white/5 rounded-full px-2 py-1">
-                <a href="{{ route('home') }}" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('home') ? 'bg-cyan-500 text-slate-900' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">Katalog</a>
-                <a href="{{ route('pc-builder') }}" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('pc-builder') ? 'bg-cyan-500 text-slate-900' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">Rakit PC</a>
-                <a href="{{ route('news.index') }}" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('news.*') ? 'bg-cyan-500 text-slate-900' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">Berita</a>
-                <a href="{{ route('warranty-check') }}" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('warranty-check') ? 'bg-cyan-500 text-slate-900' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">Garansi</a>
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center p-1 bg-slate-800/50 border border-white/5 rounded-full backdrop-blur-sm">
+                @foreach([
+                    ['label' => 'Katalog', 'route' => 'home'],
+                    ['label' => 'Rakit PC', 'route' => 'pc-builder'],
+                    ['label' => 'Berita', 'route' => 'news.index'],
+                    ['label' => 'Garansi', 'route' => 'warranty-check']
+                ] as $item)
+                    <a href="{{ route($item['route']) }}" 
+                       class="px-5 py-2 rounded-full text-xs font-bold transition-all duration-300 {{ request()->routeIs($item['route'].'*') ? 'bg-cyan-500 text-slate-900 shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                        {{ $item['label'] }}
+                    </a>
+                @endforeach
             </nav>
 
+            <!-- Mobile Menu Toggle -->
             <button @click="mobileMenuOpen = !mobileMenuOpen" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 md:hidden hover:bg-white/10 hover:text-white transition-all">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    <path x-show="mobileMenuOpen" style="display: none;" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
             </button>
         </div>
 
-        <!-- Mobile Menu -->
-        <div x-show="mobileMenuOpen" x-transition class="md:hidden bg-slate-950 border-b border-white/10" style="display: none;">
-            <div class="px-4 pt-2 pb-4 space-y-1">
-                <a href="{{ route('home') }}" class="block px-3 py-2 rounded-md text-sm font-bold text-slate-300 hover:text-white hover:bg-white/10">Katalog</a>
-                <a href="{{ route('pc-builder') }}" class="block px-3 py-2 rounded-md text-sm font-bold text-slate-300 hover:text-white hover:bg-white/10">Rakit PC</a>
-                <a href="{{ route('news.index') }}" class="block px-3 py-2 rounded-md text-sm font-bold text-slate-300 hover:text-white hover:bg-white/10">Berita</a>
-                <a href="{{ route('warranty-check') }}" class="block px-3 py-2 rounded-md text-sm font-bold text-slate-300 hover:text-white hover:bg-white/10">Garansi</a>
+        <!-- Mobile Menu Dropdown -->
+        <div x-show="mobileMenuOpen" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 -translate-y-4"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-4"
+             class="md:hidden bg-slate-900/95 backdrop-blur-xl border-b border-white/10 absolute w-full"
+             style="display: none;">
+            <div class="px-4 pt-4 pb-6 space-y-2">
+                @foreach([
+                    ['label' => 'Katalog Produk', 'route' => 'home'],
+                    ['label' => 'Simulasi Rakit PC', 'route' => 'pc-builder'],
+                    ['label' => 'Berita & Artikel', 'route' => 'news.index'],
+                    ['label' => 'Cek Status Garansi', 'route' => 'warranty-check']
+                ] as $item)
+                    <a href="{{ route($item['route']) }}" class="block px-4 py-3 rounded-xl text-sm font-bold {{ request()->routeIs($item['route'].'*') ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                        {{ $item['label'] }}
+                    </a>
+                @endforeach
             </div>
         </div>
     </header>
 
-    <main class="pt-20 min-h-screen relative z-10">
+    <main class="pt-28 min-h-screen relative z-10">
         {{ $slot }}
     </main>
 
-    <footer class="bg-slate-950 border-t border-white/10 py-12 relative overflow-hidden">
+    <footer class="bg-slate-950 border-t border-white/10 py-16 relative overflow-hidden mt-20">
         <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5"></div>
-        <div class="max-w-7xl mx-auto px-4 text-center relative z-10">
-            <h3 class="font-tech text-white font-bold mb-6 uppercase text-2xl tracking-widest">{{ \App\Models\Setting::get('store_name', 'YALA COMPUTER') }}</h3>
-            <div class="flex flex-wrap justify-center gap-4 md:gap-8 text-xs text-slate-500 font-bold uppercase tracking-widest mb-8">
-                <a href="{{ route('home') }}" class="hover:text-cyan-400 transition-colors">Katalog</a>
-                <a href="{{ route('pc-builder') }}" class="hover:text-cyan-400 transition-colors">Rakit PC</a>
-                <a href="{{ route('news.index') }}" class="hover:text-cyan-400 transition-colors">Berita</a>
-                <a href="{{ route('privacy-policy') }}" class="hover:text-cyan-400 transition-colors">Privacy Policy</a>
-                <a href="{{ route('terms-of-service') }}" class="hover:text-cyan-400 transition-colors">Terms of Service</a>
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-8 mb-12">
+                <div class="text-center md:text-left">
+                    <h3 class="font-tech text-white font-bold text-2xl uppercase tracking-widest mb-2">{{ \App\Models\Setting::get('store_name', 'YALA COMPUTER') }}</h3>
+                    <p class="text-xs text-slate-500 max-w-xs">Building the future, one PC at a time. Enterprise grade hardware for professionals and gamers.</p>
+                </div>
+                <div class="flex flex-wrap justify-center gap-6 text-xs text-slate-400 font-bold uppercase tracking-widest">
+                    <a href="{{ route('home') }}" class="hover:text-cyan-400 transition-colors">Katalog</a>
+                    <a href="{{ route('news.index') }}" class="hover:text-cyan-400 transition-colors">Berita</a>
+                    <a href="{{ route('privacy-policy') }}" class="hover:text-cyan-400 transition-colors">Privacy</a>
+                    <a href="{{ route('terms-of-service') }}" class="hover:text-cyan-400 transition-colors">Terms</a>
+                </div>
             </div>
-            <p class="text-[10px] text-slate-700 uppercase tracking-widest">© 2026 Yala Computer System. All Rights Reserved.</p>
+            <div class="text-center border-t border-white/5 pt-8">
+                <p class="text-[10px] text-slate-600 uppercase tracking-widest">© {{ date('Y') }} Yala Computer System. All Rights Reserved.</p>
+            </div>
         </div>
     </footer>
 

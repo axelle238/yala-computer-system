@@ -15,11 +15,18 @@ class Article extends Model
         'excerpt',
         'content',
         'image_path',
+        'category',
+        'tags',
+        'author_name',
+        'is_featured',
+        'views_count',
         'is_published',
         'published_at',
     ];
 
     protected $casts = [
+        'tags' => 'array',
+        'is_featured' => 'boolean',
         'is_published' => 'boolean',
         'published_at' => 'datetime',
     ];

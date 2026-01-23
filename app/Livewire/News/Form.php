@@ -21,7 +21,13 @@ class Form extends Component
     public $content;
     public $image;
     public $oldImage;
+    public $category = 'General';
+    public $tags = '';
+    public $author_name;
+    public $is_featured = false;
     public $is_published = true;
+
+    public $categories = ['General', 'Teknologi', 'Tips & Trik', 'Promo', 'Hardware', 'Review'];
 
     public function mount($id = null)
     {
@@ -31,13 +37,19 @@ class Form extends Component
             $this->slug = $this->article->slug;
             $this->content = $this->article->content;
             $this->oldImage = $this->article->image_path;
+            $this->category = $this->article->category;
+            $this->tags = $this->article->tags ? implode(', ', $this->article->tags) : '';
+            $this->author_name = $this->article->author_name;
+            $this->is_featured = $this->article->is_featured;
             $this->is_published = $this->article->is_published;
+        } else {
+            $this->author_name = auth()->user()->name;
         }
     }
 
     public function updatedTitle()
     {
-        if (!$this->article) { // Only auto-generate slug on create
+        if (!$this->article) {
             $this->slug = Str::slug($this->title);
         }
     }
@@ -49,6 +61,8 @@ class Form extends Component
             'slug' => 'required|string|max:255|unique:articles,slug,' . ($this->article->id ?? 'NULL'),
             'content' => 'required',
             'image' => 'nullable|image|max:2048',
+            'category' => 'required|string',
+            'author_name' => 'nullable|string',
         ]);
 
         $imagePath = $this->oldImage;
@@ -56,14 +70,22 @@ class Form extends Component
             $imagePath = $this->image->store('articles', 'public');
         }
 
+        // Process tags
+        $tagsArray = array_map('trim', explode(',', $this->tags));
+        $tagsArray = array_filter($tagsArray);
+
         $data = [
             'title' => $this->title,
             'slug' => $this->slug,
             'content' => $this->content,
             'image_path' => $imagePath,
+            'category' => $this->category,
+            'tags' => $tagsArray,
+            'author_name' => $this->author_name,
+            'is_featured' => $this->is_featured,
             'is_published' => $this->is_published,
             'excerpt' => Str::limit(strip_tags($this->content), 150),
-            'published_at' => $this->is_published ? now() : null,
+            'published_at' => $this->is_published ? ($this->article->published_at ?? now()) : null,
         ];
 
         if ($this->article) {

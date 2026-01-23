@@ -92,12 +92,10 @@
         </div>
     @endif
 
-    <!-- Hero Section (Tech Slider) -->
+    <!-- Hero Section -->
     <div class="relative pt-8 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div class="tech-card rounded-[2rem] p-1 shadow-2xl shadow-cyan-900/10 relative overflow-hidden group">
             <div class="relative bg-slate-900 rounded-[2rem] overflow-hidden min-h-[500px] flex items-center" x-data="{ activeSlide: 0, slides: {{ $banners->count() }}, timer: null }" x-init="timer = setInterval(() => { activeSlide = activeSlide === slides - 1 ? 0 : activeSlide + 1 }, 6000)">
-                
-                <!-- Holographic Grid Overlay -->
                 <div class="absolute inset-0 z-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#06b6d4 1px, transparent 1px); background-size: 30px 30px;"></div>
 
                 @forelse($banners as $index => $banner)
@@ -115,41 +113,31 @@
                         <div class="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/40 to-transparent"></div>
 
                         <div class="relative z-10 h-full flex flex-col justify-center px-8 md:px-16 max-w-3xl">
-                            <span class="inline-block px-3 py-1 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded text-xs font-bold uppercase tracking-widest w-fit mb-4 animate-fade-in-up">Featured Promo</span>
-                            <h1 class="text-4xl md:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6 font-tech drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] animate-fade-in-up" style="animation-delay: 100ms;">
-                                {{ $banner->title }}
-                            </h1>
-                            <div class="flex gap-4 animate-fade-in-up" style="animation-delay: 200ms;">
+                            <span class="inline-block px-3 py-1 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded text-xs font-bold uppercase tracking-widest w-fit mb-4">Featured Promo</span>
+                            <h1 class="text-4xl md:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6 font-tech drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{{ $banner->title }}</h1>
+                            <div class="flex gap-4">
                                 @if($banner->link_url)
                                     <a href="{{ $banner->link_url }}" class="group relative px-8 py-4 bg-cyan-500 text-slate-900 rounded-none font-bold overflow-hidden transition-all clip-path-button">
                                         <div class="absolute inset-0 w-full h-full bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></div>
-                                        <span class="relative flex items-center gap-2">
-                                            Lihat Penawaran
-                                            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                                        </span>
+                                        <span class="relative flex items-center gap-2">Lihat Penawaran <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg></span>
                                     </a>
                                 @else
-                                    <a href="#katalog" class="px-8 py-4 border border-white/30 text-white hover:bg-white hover:text-slate-900 transition-all font-bold tracking-wider uppercase text-sm">
-                                        Belanja Sekarang
-                                    </a>
+                                    <a href="#katalog" class="px-8 py-4 border border-white/30 text-white hover:bg-white hover:text-slate-900 transition-all font-bold tracking-wider uppercase text-sm">Belanja Sekarang</a>
                                 @endif
                             </div>
                         </div>
                     </div>
                 @empty
-                    <!-- Fallback Static Banner -->
+                    <!-- Fallback Banner -->
                     <div class="absolute inset-0 w-full h-full flex items-center justify-center text-white z-10">
                         <div class="text-center px-4">
                             <h1 class="text-5xl md:text-8xl font-black font-tech mb-4 tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400">FUTURE <span class="text-cyan-400">TECH</span></h1>
                             <p class="text-xl text-slate-400 max-w-2xl mx-auto font-light tracking-wide">High-Performance Hardware Ecosystem for Professionals & Gamers.</p>
-                             <a href="#katalog" class="mt-8 inline-block px-10 py-4 bg-cyan-500 text-slate-900 font-bold hover:bg-cyan-400 transition-all shadow-[0_0_40px_rgba(6,182,212,0.4)] hover:shadow-[0_0_60px_rgba(6,182,212,0.6)] rounded-sm">
-                                Explore Inventory
-                            </a>
+                             <a href="#katalog" class="mt-8 inline-block px-10 py-4 bg-cyan-500 text-slate-900 font-bold hover:bg-cyan-400 transition-all shadow-[0_0_40px_rgba(6,182,212,0.4)] hover:shadow-[0_0_60px_rgba(6,182,212,0.6)] rounded-sm">Explore Inventory</a>
                         </div>
                     </div>
                 @endforelse
                 
-                <!-- Custom Dots -->
                 <div class="absolute bottom-8 left-8 md:left-16 flex gap-3 z-20">
                     @for($i = 0; $i < $banners->count(); $i++)
                         <button @click="activeSlide = {{ $i }}" class="w-12 h-1 rounded transition-all duration-300" :class="activeSlide === {{ $i }} ? 'bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]' : 'bg-white/20 hover:bg-white/40'"></button>
@@ -159,11 +147,10 @@
         </div>
     </div>
 
-    <!-- Flash Sale Section -->
+    <!-- Flash Sale -->
     @if($flashSales->isNotEmpty() && $flashSaleEnabled)
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 relative">
         <div class="absolute -inset-4 bg-fuchsia-900/20 blur-3xl -z-10 rounded-full"></div>
-        
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <div class="flex items-center gap-4">
                 <div class="p-3 bg-fuchsia-500/10 border border-fuchsia-500/50 rounded-lg">
@@ -171,37 +158,16 @@
                 </div>
                 <div>
                     <h2 class="text-3xl font-black font-tech text-white uppercase tracking-wide italic transform -skew-x-6"><span class="text-fuchsia-500">Flash</span> Sale</h2>
-                    <div class="flex gap-2 items-center text-sm font-bold text-fuchsia-400" x-data="{ 
-                            endTime: new Date('{{ $flashSales->first()->end_time }}').getTime(),
-                            update() {
-                                const distance = this.endTime - new Date().getTime();
-                                if (distance < 0) { this.timeLeft = 'EXPIRED'; return; }
-                                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                                const s = Math.floor((distance % (1000 * 60)) / 1000);
-                                this.$refs.timer.innerText = `${h}h ${m}m ${s}s`;
-                            }
-                        }" x-init="setInterval(() => update(), 1000); update()">
-                        <span>Ends in:</span>
-                        <span x-ref="timer" class="bg-fuchsia-500 text-white px-2 py-0.5 rounded font-mono shadow-[0_0_10px_rgba(217,70,239,0.5)]"></span>
-                    </div>
+                    <div class="flex gap-2 items-center text-sm font-bold text-fuchsia-400">Limited Time Offers</div>
                 </div>
             </div>
-            <a href="{{ route('marketing.flash-sale.index') }}" class="group flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-fuchsia-400 transition-colors">
-                VIEW ALL OFFERS 
-                <span class="block w-4 h-4 border-t border-r border-current rotate-45 group-hover:translate-x-1 transition-transform"></span>
-            </a>
+            <a href="{{ route('marketing.flash-sale.index') }}" class="group flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-fuchsia-400 transition-colors">VIEW ALL <span class="block w-4 h-4 border-t border-r border-current rotate-45 group-hover:translate-x-1 transition-transform"></span></a>
         </div>
-
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             @foreach($flashSales as $sale)
                 <div wire:click="openProduct({{ $sale->product_id }})" class="group cursor-pointer relative bg-slate-900 border border-fuchsia-900/50 hover:border-fuchsia-500 rounded-2xl p-4 shadow-lg overflow-hidden transition-all hover:-translate-y-2">
                     <div class="absolute inset-0 bg-gradient-to-br from-fuchsia-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    
-                    <div class="absolute top-4 left-4 z-10 bg-fuchsia-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg shadow-fuchsia-600/50">
-                        -{{ number_format((($sale->product->sell_price - $sale->discount_price) / $sale->product->sell_price) * 100) }}%
-                    </div>
-                    
+                    <div class="absolute top-4 left-4 z-10 bg-fuchsia-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg shadow-fuchsia-600/50">-{{ number_format((($sale->product->sell_price - $sale->discount_price) / $sale->product->sell_price) * 100) }}%</div>
                     <div class="h-40 bg-slate-800 rounded-xl mb-4 flex items-center justify-center overflow-hidden relative">
                         @if($sale->product->image_path)
                             <img src="{{ asset('storage/' . $sale->product->image_path) }}" class="max-h-[80%] object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
@@ -209,99 +175,78 @@
                             <svg class="w-12 h-12 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         @endif
                     </div>
-                    
                     <h3 class="font-bold text-white text-sm line-clamp-2 mb-2 h-10 group-hover:text-fuchsia-400 transition-colors">{{ $sale->product->name }}</h3>
-                    
-                    <div class="flex flex-col mb-3">
-                        <span class="text-xs text-slate-500 line-through">Rp {{ number_format($sale->product->sell_price, 0, ',', '.') }}</span>
-                        <span class="text-lg font-bold text-fuchsia-400 font-tech glow-text">Rp {{ number_format($sale->discount_price, 0, ',', '.') }}</span>
-                    </div>
-                    
-                    <!-- Progress Bar -->
-                    <div class="relative pt-1">
-                        <div class="flex justify-between text-[10px] font-bold text-slate-400 mb-1">
-                            <span>Sold: {{ $sale->quota - $sale->remaining_quota }}</span>
-                            <span class="{{ $sale->remaining_quota < 5 ? 'text-red-400 animate-pulse' : '' }}">Left: {{ $sale->remaining_quota }}</span>
-                        </div>
-                        <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                            <div class="bg-gradient-to-r from-fuchsia-600 to-purple-500 h-1.5 rounded-full shadow-[0_0_10px_rgba(217,70,239,0.5)]" style="width: {{ (($sale->quota - $sale->remaining_quota) / $sale->quota) * 100 }}%"></div>
-                        </div>
-                    </div>
+                    <div class="flex flex-col mb-3"><span class="text-xs text-slate-500 line-through">Rp {{ number_format($sale->product->sell_price, 0, ',', '.') }}</span><span class="text-lg font-bold text-fuchsia-400 font-tech glow-text">Rp {{ number_format($sale->discount_price, 0, ',', '.') }}</span></div>
                 </div>
             @endforeach
         </div>
     </div>
     @endif
 
-    <!-- Main Content (Sidebar + Grid) -->
+    <!-- Service Tracking -->
+    @if($serviceTrackingEnabled)
+    <div id="services" class="bg-slate-900 py-20 relative overflow-hidden mb-16 border-y border-white/5">
+        <div class="absolute inset-0 cyber-grid opacity-30"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="inline-block px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full mb-6"><span class="text-blue-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>Live Service Status</span></div>
+                    <h2 class="text-4xl md:text-5xl font-black text-white font-tech mb-6 leading-tight">TRACK YOUR <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">REPAIR PROCESS</span></h2>
+                    <p class="text-slate-400 text-lg mb-8 leading-relaxed">Pantau perbaikan perangkat Anda secara real-time. Transparansi total.</p>
+                    <div class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-2xl">
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <input wire:model="trackingNumber" type="text" placeholder="Masukkan Nomor Tiket (Cth: SVC-2026-001)" class="flex-1 w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-xl px-5 py-4 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all font-mono">
+                            <button wire:click="trackService" class="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold px-8 py-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2">Lacak</button>
+                        </div>
+                        @if($trackingResult)
+                            <div class="mt-6 p-5 bg-emerald-500/5 border border-emerald-500/30 rounded-xl animate-fade-in-up relative overflow-hidden">
+                                <div class="flex justify-between items-start mb-2 relative z-10">
+                                    <div><h4 class="font-bold text-white text-lg">{{ $trackingResult->device_name }}</h4><p class="text-xs text-slate-500 uppercase tracking-widest mt-1">{{ $trackingResult->ticket_number }}</p></div>
+                                    <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full uppercase border border-emerald-500/30">{{ $trackingResult->status }}</span>
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-white/5 relative z-10"><p class="text-slate-300 text-sm mb-3"><span class="text-slate-500">Problem:</span> {{ $trackingResult->problem_description }}</p></div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                <div class="hidden md:block relative">
+                     <div class="relative w-full aspect-square">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 to-blue-600/20 rounded-full blur-3xl animate-pulse"></div>
+                        <img src="https://cdni.iconscout.com/illustration/premium/thumb/server-room-illustration-download-in-svg-png-gif-file-formats--data-center-storage-cloud-network-hosting-technology-pack-illustrations-3696245.png" alt="Tech Service" class="relative z-10 w-full drop-shadow-[0_20px_50px_rgba(8,145,178,0.3)] animate-float">
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Catalog -->
     <div id="katalog" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 relative z-10 flex flex-col lg:flex-row gap-8">
-        
-        <!-- Sidebar Filter (Desktop) -->
         <aside class="hidden lg:block w-72 flex-shrink-0">
             <div class="sticky top-28 space-y-6">
                 <!-- Search -->
                 <div class="tech-card rounded-2xl p-5 shadow-lg">
                     <h3 class="font-bold text-white text-sm uppercase tracking-wider mb-4">Pencarian</h3>
-                    <div class="relative">
-                        <input wire:model.live.debounce.300ms="search" type="text" class="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-sm text-white focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 transition-all placeholder-slate-500" placeholder="Cari nama produk...">
-                        <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                            <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                        </div>
-                    </div>
+                    <input wire:model.live.debounce.300ms="search" type="text" class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-sm text-white focus:ring-1 focus:ring-cyan-500 placeholder-slate-500" placeholder="Cari produk...">
                 </div>
-
                 <!-- Category -->
                 <div class="tech-card rounded-2xl p-6 shadow-lg">
-                    <h3 class="font-bold text-white text-sm uppercase tracking-wider mb-4 flex items-center justify-between">
-                        Kategori
-                        <button wire:click="$set('category', '')" class="text-[10px] text-cyan-400 hover:text-cyan-300">RESET</button>
-                    </h3>
+                    <h3 class="font-bold text-white text-sm uppercase tracking-wider mb-4 flex justify-between">Kategori <button wire:click="$set('category', '')" class="text-[10px] text-cyan-400 hover:text-cyan-300">RESET</button></h3>
                     <div class="space-y-1">
-                        <button wire:click="$set('category', '')" class="w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-3 {{ $category === '' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:bg-white/5 hover:text-white border border-transparent' }}">
-                            <span class="w-1.5 h-1.5 rounded-full {{ $category === '' ? 'bg-cyan-400' : 'bg-slate-600' }}"></span>
-                            Semua Produk
-                        </button>
                         @foreach($categories as $cat)
                             <button wire:click="$set('category', {{ $cat->id }})" class="w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-between group {{ $category == $cat->id ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:bg-white/5 hover:text-white border border-transparent' }}">
-                                <span class="flex items-center gap-3">
-                                    <span class="w-1.5 h-1.5 rounded-full {{ $category == $cat->id ? 'bg-cyan-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
-                                    {{ $cat->name }}
-                                </span>
+                                <span>{{ $cat->name }}</span>
                             </button>
                         @endforeach
-                    </div>
-                </div>
-
-                <!-- Price Filter -->
-                <div class="tech-card rounded-2xl p-6 shadow-lg">
-                    <h3 class="font-bold text-white text-sm uppercase tracking-wider mb-4">Rentang Harga</h3>
-                    <div class="space-y-6">
-                        <div>
-                            <div class="flex justify-between text-xs font-mono text-cyan-400 mb-2">
-                                <span>0</span>
-                                <span>{{ number_format($maxPrice/1000000, 1) }}jt</span>
-                            </div>
-                            <input type="range" wire:model.live.debounce.500ms="maxPrice" min="0" max="50000000" step="500000" class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500">
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button wire:click="$set('sort', 'price_asc')" class="py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs font-bold text-slate-400 hover:border-cyan-500 hover:text-cyan-400 transition-all {{ $sort === 'price_asc' ? 'border-cyan-500 text-cyan-400 bg-cyan-900/20' : '' }}">Termurah</button>
-                            <button wire:click="$set('sort', 'price_desc')" class="py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs font-bold text-slate-400 hover:border-cyan-500 hover:text-cyan-400 transition-all {{ $sort === 'price_desc' ? 'border-cyan-500 text-cyan-400 bg-cyan-900/20' : '' }}">Termahal</button>
-                        </div>
                     </div>
                 </div>
             </div>
         </aside>
 
-        <!-- Product Grid Area -->
         <div class="flex-1">
-            <!-- Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative">
                 @forelse($products as $product)
-                    <div wire:key="{{ $product->id }}" 
-                         wire:click="openProduct({{ $product->id }})"
-                         class="group relative bg-slate-900 border border-white/5 hover:border-cyan-500/50 rounded-3xl p-4 transition-all duration-200 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] hover:-translate-y-1 cursor-pointer overflow-hidden">
-                        
-                        <!-- Image Area -->
+                    <div wire:key="{{ $product->id }}" wire:click="openProduct({{ $product->id }})" class="group relative bg-slate-900 border border-white/5 hover:border-cyan-500/50 rounded-3xl p-4 transition-all duration-200 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] hover:-translate-y-1 cursor-pointer overflow-hidden">
                         <div class="relative h-56 bg-slate-800/50 rounded-2xl overflow-hidden mb-5 flex items-center justify-center group-hover:bg-slate-800 transition-colors z-10">
                             @if($product->image_path)
                                 <img src="{{ asset('storage/' . $product->image_path) }}" class="max-h-[85%] max-w-[85%] object-contain transition-transform duration-200 group-hover:scale-105">
@@ -309,23 +254,68 @@
                                 <svg class="w-16 h-16 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                             @endif
                         </div>
-
-                        <!-- Content -->
                         <div class="px-1 relative z-10">
                             <h3 class="font-bold text-white text-lg leading-snug mb-2 line-clamp-2 group-hover:text-cyan-400 transition-colors h-14 font-tech tracking-wide">{{ $product->name }}</h3>
-                            <p class="font-mono text-cyan-400 font-bold">Rp {{ number_format($product->sell_price, 0, ',', '.') }}</p>
+                            <div class="flex items-end justify-between mt-2 pt-4 border-t border-white/5">
+                                <span class="text-xl font-mono font-bold text-white group-hover:text-cyan-400 transition-colors">Rp {{ number_format($product->sell_price, 0, ',', '.') }}</span>
+                                <button wire:click.stop="addToCart({{ $product->id }})" class="text-slate-500 hover:text-white transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg></button>
+                            </div>
                         </div>
                     </div>
                 @empty
-                    <div class="col-span-full py-24 text-center">
-                        <p class="text-slate-500">Produk tidak ditemukan.</p>
-                    </div>
+                    <div class="col-span-full py-24 text-center"><p class="text-slate-500">Produk tidak ditemukan.</p></div>
                 @endforelse
             </div>
-
-            <div class="mt-16">
-                {{ $products->links() }}
-            </div>
+            <div class="mt-16">{{ $products->links() }}</div>
         </div>
     </div>
+
+    <!-- Latest News Section -->
+    @if($latestNews->isNotEmpty())
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 relative z-10">
+            <div class="flex justify-between items-end mb-8 border-b border-white/10 pb-4">
+                <div>
+                    <h2 class="text-3xl font-black font-tech text-white uppercase tracking-tight">Latest <span class="text-cyan-500">Updates</span></h2>
+                    <p class="text-slate-400 text-sm mt-1">Berita terbaru dan artikel menarik seputar teknologi.</p>
+                </div>
+                <a href="{{ route('news.index') }}" class="text-xs font-bold text-cyan-500 hover:text-white uppercase tracking-widest transition-colors mb-1">Lihat Semua ></a>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                @foreach($latestNews as $article)
+                    <a href="{{ route('news.show', $article->slug) }}" class="group block bg-slate-900 border border-white/10 rounded-2xl overflow-hidden hover:border-cyan-500/30 transition-all hover:-translate-y-1">
+                        <div class="h-40 bg-slate-800 relative overflow-hidden">
+                            @if($article->image_path)
+                                <img src="{{ asset('storage/' . $article->image_path) }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center text-slate-700">
+                                    <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
+                                </div>
+                            @endif
+                            <div class="absolute top-3 left-3">
+                                <span class="px-2 py-1 bg-slate-900/90 backdrop-blur text-white text-[10px] font-bold uppercase tracking-widest rounded">{{ $article->category }}</span>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="font-bold text-white text-md line-clamp-2 mb-2 group-hover:text-cyan-400 transition-colors">{{ $article->title }}</h3>
+                            <p class="text-slate-500 text-xs line-clamp-2">{{ $article->excerpt }}</p>
+                            <div class="mt-4 flex items-center gap-2 text-[10px] text-slate-600 uppercase font-bold tracking-widest">
+                                <span>{{ $article->created_at->format('d M Y') }}</span>
+                            </div>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    @include('livewire.store.partials.modals')
+    @include('livewire.store.partials.compare-modal')
+    
+    <style>
+        .clip-path-button { clip-path: polygon(0 0, 100% 0, 100% 70%, 90% 100%, 0 100%); }
+        .glow-text { text-shadow: 0 0 10px rgba(232, 121, 249, 0.5); }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+    </style>
 </div>
