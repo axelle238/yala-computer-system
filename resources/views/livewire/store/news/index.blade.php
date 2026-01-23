@@ -3,11 +3,25 @@
     <div class="absolute inset-0 cyber-grid opacity-30"></div>
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="text-center mb-16">
+        <div class="text-center mb-12">
             <h1 class="text-5xl font-black font-tech text-white mb-4 uppercase tracking-tight drop-shadow-lg">
                 News <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">&</span> Insights
             </h1>
             <p class="text-slate-400 text-lg max-w-2xl mx-auto">Update teknologi terbaru, review hardware, dan promo eksklusif.</p>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="flex flex-wrap justify-center gap-3 mb-16">
+            <button wire:click="filterCategory('')" 
+                    class="px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider border transition-all duration-300 {{ $category === '' ? 'bg-cyan-500 text-slate-900 border-cyan-500 shadow-lg shadow-cyan-500/30' : 'bg-transparent text-slate-400 border-white/10 hover:border-white/30 hover:text-white' }}">
+                All Stories
+            </button>
+            @foreach($categories as $cat)
+                <button wire:click="filterCategory('{{ $cat }}')"
+                        class="px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider border transition-all duration-300 {{ $category === $cat ? 'bg-cyan-500 text-slate-900 border-cyan-500 shadow-lg shadow-cyan-500/30' : 'bg-transparent text-slate-400 border-white/10 hover:border-white/30 hover:text-white' }}">
+                    {{ $cat }}
+                </button>
+            @endforeach
         </div>
 
         @if($articles->isEmpty())
@@ -15,11 +29,14 @@
                 <div class="inline-flex p-4 bg-slate-800 rounded-full mb-4">
                     <svg class="w-8 h-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
                 </div>
-                <p class="text-slate-500 italic">Belum ada artikel yang dipublikasikan.</p>
+                <p class="text-slate-500 italic">Belum ada berita dalam kategori ini.</p>
+                @if($category)
+                    <button wire:click="filterCategory('')" class="mt-4 text-cyan-500 hover:text-cyan-400 font-bold text-sm">Lihat Semua Berita</button>
+                @endif
             </div>
         @else
-            <!-- Featured Article (First One) -->
-            @if($articles->onFirstPage())
+            <!-- Featured Article (First One on Page 1) -->
+            @if($articles->onFirstPage() && !$category)
                 @php $featured = $articles->shift(); @endphp
                 <div class="mb-16">
                     <a href="{{ route('news.show', $featured->slug) }}" class="group relative block bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-white/10 hover:border-cyan-500/50 transition-all duration-500">
@@ -88,7 +105,7 @@
                 @endforeach
             </div>
 
-            <div class="mt-16">
+            <div class="mt-12">
                 {{ $articles->links() }}
             </div>
         @endif

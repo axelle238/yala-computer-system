@@ -65,12 +65,19 @@ class PcBuilder extends Component
             if ($id) {
                 $product = Product::find($id);
                 $price = number_format($product->sell_price, 0, ',', '.');
-                $message .= "• {$label}: {$product->name} (Rp {$price})\n";
+                $message .= "• *{$label}*: {$product->name}\n";
+                // Add specs if available, cleaned up
+                if ($product->description) {
+                    $specs = strip_tags($product->description);
+                    $specs = \Illuminate\Support\Str::limit($specs, 100);
+                    $message .= "  _Specs: {$specs}_\n";
+                }
+                $message .= "  Rp {$price}\n\n";
             }
         }
 
         $total = number_format($this->getTotalPriceProperty(), 0, ',', '.');
-        $message .= "\nTotal Estimasi: *Rp {$total}*";
+        $message .= "\n💰 *Total Estimasi: Rp {$total}*";
         $message .= "\n\nMohon dicek ketersediaan dan kompatibilitasnya. Terima kasih!";
 
         $waNumber = Setting::get('whatsapp_number', '6281234567890');
