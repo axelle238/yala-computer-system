@@ -129,53 +129,116 @@ class Form extends Component
             'status' => 'required',
         ]);
 
-        DB::transaction(function () {
-            // 1. Create/Update Ticket
-            $data = [
-                'ticket_number' => $this->ticket_number,
-                'customer_name' => $this->customer_name,
-                'customer_phone' => $this->customer_phone,
-                'device_name' => $this->device_name,
-                'problem_description' => $this->problem_description,
-                'status' => $this->status,
-                'estimated_cost' => $this->estimated_cost,
-                'final_cost' => $this->grandTotal,
-                'technician_notes' => $this->technician_notes,
-                'technician_id' => auth()->id(),
-            ];
+        try {
+            DB::transaction(function () {
+                // 1. Create/Update Ticket
+                $data = [
+                    'ticket_number' => $this->ticket_number,
+                    'customer_name' => $this->customer_name,
+                    'customer_phone' => $this->customer_phone,
+                    'device_name' => $this->device_name,
+                    'problem_description' => $this->problem_description,
+                    'status' => $this->status,
+                    'estimated_cost' => $this->estimated_cost,
+                    'final_cost' => $this->grandTotal,
+                    'technician_notes' => $this->technician_notes,
+                    'technician_id' => auth()->id(),
+                ];
 
-            if ($this->ticket) {
-                $this->ticket->update($data);
-                
-                // Diff items to handle stock return/deduction logic is complex, 
-                // for MVP simplicity: Delete all items and recreate (simpler but careful with stock)
-                // Real-world: needs better diffing. Here we just assume simple updates.
-                
-                // NOTE: For safety in this prompt context, we won't auto-deduct stock on UPDATE to avoid double deduction bugs without complex diffing.
-                // We will only deduct stock for NEW tickets or newly added items if we built that logic. 
-                // For now, let's keep it simple: Just save the records. Stock adjustment can be manual via Inventory Transaction if needed for Service, 
-                // OR we deduct only when status changes to 'ready' (one time).
-                
-                $this->ticket->items()->delete(); 
-            } else {
-                $this->ticket = ServiceTicket::create($data);
+                if (!$this->ticket) {
+                    $this->ticket = ServiceTicket::create($data);
+                } else {
+                    $this->ticket->update($data);
+                }
+
+                // 2. Handle Items Logic with Stock Deduction
+                $existingItems = $this->ticket->items()->get()->keyBy('id');
+                $currentPartIds = collect($this->parts)->pluck('id')->filter()->toArray();
+
+                // A. DELETE removed items
+                foreach ($existingItems as $id => $item) {
+                    if (!in_array($id, $currentPartIds)) {
+                        // Return stock if it was deducted
+                        if ($item->is_stock_deducted && $item->product_id) {
+                            $this->adjustStock($item->product_id, $item->quantity, 'in', "Service Cancel Item #{$this->ticket->ticket_number}");
+                        }
+                        $item->delete();
+                    }
+                }
+
+                // B. UPDATE or CREATE items
+                foreach ($this->parts as $part) {
+                    if ($part['id'] && isset($existingItems[$part['id']])) {
+                        // Update
+                        $item = $existingItems[$part['id']];
+                        $qtyDiff = $part['qty'] - $item->quantity;
+
+                        // Only adjust stock if quantity changed AND it's an inventory item that was tracked
+                        if ($qtyDiff != 0 && $item->is_stock_deducted && $item->product_id) {
+                            // If qty increased (positive diff), we need OUT. If decreased (negative), we need IN.
+                            $type = $qtyDiff > 0 ? 'out' : 'in';
+                            $this->adjustStock($item->product_id, abs($qtyDiff), $type, "Service Update Item #{$this->ticket->ticket_number}");
+                        }
+                        
+                        $item->update([
+                            'quantity' => $part['qty'],
+                            'price' => $part['price'],
+                            'note' => $part['note'],
+                        ]);
+                        
+                    } else {
+                        // Create
+                        $isDeducted = false;
+                        if ($part['product_id']) {
+                            $this->adjustStock($part['product_id'], $part['qty'], 'out', "Service Usage #{$this->ticket->ticket_number}");
+                            $isDeducted = true;
+                        }
+
+                        ServiceItem::create([
+                            'service_ticket_id' => $this->ticket->id,
+                            'product_id' => $part['product_id'],
+                            'item_name' => $part['name'],
+                            'quantity' => $part['qty'],
+                            'price' => $part['price'],
+                            'note' => $part['note'],
+                            'is_stock_deducted' => $isDeducted
+                        ]);
+                    }
+                }
+            });
+
+            session()->flash('success', 'Data servis berhasil disimpan.');
+            return redirect()->route('services.index');
+
+        } catch (\Exception $e) {
+            $this->addError('parts', $e->getMessage());
+        }
+    }
+
+    protected function adjustStock($productId, $qty, $type, $reason) {
+        $product = Product::lockForUpdate()->find($productId);
+        if(!$product) return;
+
+        if ($type === 'out') {
+            if ($product->stock_quantity < $qty) {
+                 throw new \Exception("Stok {$product->name} tidak mencukupi! (Sisa: {$product->stock_quantity})");
             }
-
-            // 2. Save Items
-            foreach ($this->parts as $part) {
-                ServiceItem::create([
-                    'service_ticket_id' => $this->ticket->id,
-                    'product_id' => $part['product_id'],
-                    'item_name' => $part['name'],
-                    'quantity' => $part['qty'],
-                    'price' => $part['price'],
-                    'note' => $part['note'],
-                ]);
-            }
-        });
-
-        session()->flash('success', 'Data servis berhasil disimpan.');
-        return redirect()->route('services.index');
+            $product->decrement('stock_quantity', $qty);
+        } else {
+            $product->increment('stock_quantity', $qty);
+        }
+        
+        InventoryTransaction::create([
+            'product_id' => $product->id,
+            'user_id' => auth()->id(),
+            'type' => $type, // 'out' (usage) or 'in' (return)
+            'quantity' => $qty,
+            'remaining_stock' => $product->stock_quantity,
+            'unit_price' => $product->sell_price,
+            'cogs' => $product->buy_price,
+            'reference_number' => $this->ticket->ticket_number,
+            'notes' => $reason
+        ]);
     }
     
     public function printInvoice()

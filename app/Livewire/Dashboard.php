@@ -45,6 +45,13 @@ class Dashboard extends Component
             // 5. News Stats
             $totalArticles = Article::count();
             $totalViews = Article::sum('views_count');
+            
+            // 6. Service Stats (New)
+            $serviceStats = [
+                'pending' => \App\Models\ServiceTicket::whereIn('status', ['pending', 'diagnosing'])->count(),
+                'repairing' => \App\Models\ServiceTicket::whereIn('status', ['waiting_part', 'repairing'])->count(),
+                'ready' => \App\Models\ServiceTicket::where('status', 'ready')->count(),
+            ];
                 
             return [
                 'totalProducts' => $totalProducts,
@@ -53,6 +60,7 @@ class Dashboard extends Component
                 'monthlySales' => $monthlySales,
                 'totalArticles' => $totalArticles,
                 'totalViews' => $totalViews,
+                'serviceStats' => $serviceStats,
             ];
         });
 
@@ -95,6 +103,7 @@ class Dashboard extends Component
             'monthlySales' => $stats['monthlySales'],
             'totalArticles' => $stats['totalArticles'],
             'totalViews' => $stats['totalViews'],
+            'serviceStats' => $stats['serviceStats'],
             'recentTransactions' => $recentTransactions,
             'chartData' => $chartData,
             'insights' => $insights,

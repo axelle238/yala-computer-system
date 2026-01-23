@@ -50,7 +50,7 @@ class StockOpname extends Component
                 'product_id' => $product->id,
                 'user_id' => Auth::id(),
                 'type' => 'adjustment',
-                'quantity' => abs($diff),
+                'quantity' => $diff, // Signed quantity
                 'remaining_stock' => $realStock,
                 'notes' => 'Stock Opname: ' . ($diff > 0 ? "Surplus +$diff" : "Defisit $diff"),
                 'reference_number' => 'SO-' . date('Ymd'),
@@ -73,27 +73,10 @@ class StockOpname extends Component
         $product = Product::find($transaction->product_id);
         
         if ($product) {
-            // Revert stock
-            // If notes say "Surplus +X", it means we added stock. To revert, we subtract.
-            // If notes say "Defisit -X", it means we removed stock. To revert, we add.
-            // Actually, we stored absolute quantity. We need to know direction.
-            // But simpler: we stored the diff description. 
-            // Better logic: Compare 'remaining_stock' with previous state? No.
-            // Let's rely on the notes or just infer from context? 
-            // Standard approach: store signed quantity or create a reversal transaction.
-            // But here I'm deleting the log. So I should revert the effect.
-            
-            // "Surplus +5" -> Stock increased by 5. Revert: Decrease by 5.
-            // "Defisit -5" -> Stock decreased by 5. Revert: Increase by 5.
-            
-            $isSurplus = str_contains($transaction->notes, 'Surplus');
-            $qty = $transaction->quantity;
-
-            if ($isSurplus) {
-                $product->decrement('stock_quantity', $qty);
-            } else {
-                $product->increment('stock_quantity', $qty);
-            }
+            // Revert stock: Subtract the transaction quantity
+            // If we added 5 (qty=5), we subtract 5.
+            // If we removed 5 (qty=-5), we subtract -5 (add 5).
+            $product->decrement('stock_quantity', $transaction->quantity);
             
             $transaction->delete();
             $this->dispatch('notify', message: 'Penyesuaian dibatalkan.', type: 'success');
