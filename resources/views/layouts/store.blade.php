@@ -196,10 +196,6 @@
 
                 <!-- Actions -->
                 <div class="flex items-center gap-4">
-                    <a href="{{ route('login') }}" class="hidden md:inline-flex items-center justify-center px-6 py-2 text-xs font-bold text-cyan-400 border border-cyan-500/30 bg-cyan-500/10 rounded-full hover:bg-cyan-500 hover:text-slate-900 transition-all duration-300 uppercase tracking-wider">
-                        Admin Area
-                    </a>
-                    
                     <!-- Mobile Menu Button -->
                     <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-slate-300 hover:text-white">
                         <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
@@ -223,7 +219,6 @@
                 <a href="{{ route('home') }}" class="block px-3 py-2 rounded-md text-base font-bold text-white hover:bg-white/10">Katalog</a>
                 <a href="{{ route('pc-builder') }}" class="block px-3 py-2 rounded-md text-base font-bold text-slate-300 hover:text-white hover:bg-white/10">Rakit PC</a>
                 <a href="{{ route('warranty-check') }}" class="block px-3 py-2 rounded-md text-base font-bold text-slate-300 hover:text-white hover:bg-white/10">Cek Garansi</a>
-                <a href="{{ route('login') }}" class="block px-3 py-2 rounded-md text-base font-bold text-cyan-400 hover:bg-white/10">Login Admin</a>
             </div>
         </div>
     </header>
@@ -271,7 +266,6 @@
                         <li><a href="{{ route('home') }}" class="hover:text-cyan-400 transition-colors">Katalog Produk</a></li>
                         <li><a href="{{ route('pc-builder') }}" class="hover:text-cyan-400 transition-colors">Simulasi Rakit PC</a></li>
                         <li><a href="{{ route('warranty-check') }}" class="hover:text-cyan-400 transition-colors">Cek Status Garansi</a></li>
-                        <li><a href="{{ route('login') }}" class="hover:text-cyan-400 transition-colors">Login Staff</a></li>
                     </ul>
                 </div>
 

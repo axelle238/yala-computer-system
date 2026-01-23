@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public Storefront
 Route::get('/', StoreHome::class)->name('home');
+Route::get('/product/{id}', \App\Livewire\Store\ProductDetail::class)->name('product.detail');
 Route::get('/rakit-pc', \App\Livewire\Store\PcBuilder::class)->name('pc-builder');
 Route::get('/garansi', \App\Livewire\Store\WarrantyCheck::class)->name('warranty-check');
 Route::get('/login', Login::class)->name('login')->middleware('guest');

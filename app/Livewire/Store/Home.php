@@ -65,18 +65,19 @@ class Home extends Component
         $this->resetPage();
     }
 
-    // --- Modal Logic ---
+    // --- Navigation Logic ---
     public function openProduct($id)
     {
-        $this->selectedProduct = Product::with('category', 'supplier')->find($id);
-        $this->showModal = true;
+        return redirect()->route('product.detail', $id);
     }
 
+    /* 
     public function closeModal()
     {
         $this->showModal = false;
         $this->selectedProduct = null;
     }
+    */
 
     // --- Cart Logic ---
     public function toggleCart()
