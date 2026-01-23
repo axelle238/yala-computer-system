@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Transactions;
 
+use App\Models\CashRegister;
 use App\Models\Commission;
 use App\Models\Customer;
 use App\Models\InventoryTransaction;
@@ -233,6 +234,16 @@ class Create extends Component
             'notes' => 'nullable|string|max:255',
         ]);
 
+        // Validate Active Register
+        $activeRegister = CashRegister::where('user_id', Auth::id())
+            ->where('status', 'open')
+            ->first();
+
+        if (!$activeRegister && $this->type === 'out') {
+            $this->dispatch('notify', message: 'Shift Kasir belum dibuka!', type: 'error');
+            return redirect()->route('shift.open');
+        }
+
         if ($this->usePoints && $this->customerPoints > 0) {
             // Re-verify points
             $customer = Customer::where('phone', $this->customer_phone)->first();
@@ -242,7 +253,7 @@ class Create extends Component
             }
         }
 
-        DB::transaction(function () {
+        DB::transaction(function () use ($activeRegister) {
             // 1. Create Order Record (Only for Sales 'out')
             $order = null;
             if ($this->type === 'out') {
@@ -253,12 +264,14 @@ class Create extends Component
 
                 $order = Order::create([
                     'user_id' => Auth::id(), // Sales/Cashier
+                    'cash_register_id' => $activeRegister->id,
                     'guest_name' => $this->customer_phone ? 'Member ' . $this->customer_phone : 'Guest',
                     'guest_whatsapp' => $this->customer_phone,
                     'order_number' => $this->reference_number,
                     'total_amount' => $this->total, // Total after discount
                     'status' => 'completed',
                     'payment_status' => 'paid',
+                    'payment_method' => 'cash',
                     'notes' => $notes,
                 ]);
 

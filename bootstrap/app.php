@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(\App\Http\Middleware\CheckForMaintenanceMode::class);
+        $middleware->alias([
+            'shift.open' => \App\Http\Middleware\EnsureCashRegisterOpen::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
