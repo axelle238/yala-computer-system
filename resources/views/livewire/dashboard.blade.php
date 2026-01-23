@@ -182,7 +182,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <!-- Chart Section -->
-        <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl shadow-sm p-6 lg:col-span-1 flex flex-col relative overflow-hidden">
+        <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl shadow-sm p-6 lg:col-span-2 flex flex-col relative overflow-hidden">
             <div class="absolute inset-0 grid-pattern opacity-5 pointer-events-none"></div>
             <div class="flex items-center justify-between mb-8 relative z-10">
                 <h3 class="font-bold text-lg text-slate-800 dark:text-white font-tech">Tren 7 Hari</h3>
@@ -204,8 +204,13 @@
             </div>
         </div>
 
+        <!-- Attendance Widget (New) -->
+        <div class="lg:col-span-1 h-full">
+            @livewire('employees.attendance-widget')
+        </div>
+
         <!-- Recent Transactions Table -->
-        <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden lg:col-span-2 flex flex-col">
+        <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden lg:col-span-3 flex flex-col">
             <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50 backdrop-blur-sm">
                 <div>
                     <h3 class="font-bold text-lg text-slate-800 dark:text-white font-tech">Aktivitas Terkini</h3>

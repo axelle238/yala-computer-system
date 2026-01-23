@@ -127,5 +127,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/print/transaction/{id}', [\App\Http\Controllers\PrintController::class, 'transaction'])->name('print.transaction');
     Route::get('/print/service/{id}', [\App\Http\Controllers\PrintController::class, 'service'])->name('print.service');
     Route::get('/print/label/{id}', [\App\Http\Controllers\PrintController::class, 'productLabel'])->name('print.label');
-    Route::get('/print/labels', [\App\Http\Controllers\PrintController::class, 'labels'])->name('print.labels'); // New
+    Route::get('/print/labels', [\App\Http\Controllers\PrintController::class, 'labels'])->name('print.labels');
+
+    // HR & Analytics
+    Route::get('/analytics', \App\Livewire\Reports\Index::class)->name('reports.index');
+    Route::get('/shift', \App\Livewire\Shift\Manager::class)->name('shift.open');
 });
