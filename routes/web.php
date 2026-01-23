@@ -136,4 +136,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     // B2B & Finance
     Route::get('/quotations/create', \App\Livewire\Quotations\Create::class)->name('quotations.create');
     Route::get('/finance/receivables', \App\Livewire\Finance\Receivables::class)->name('finance.receivables');
+
+    // System Maintenance
+    Route::get('/system/health', \App\Livewire\System\Health::class)->name('system.health');
+    Route::get('/system/backups', \App\Livewire\System\Backups::class)->name('system.backups');
 });
