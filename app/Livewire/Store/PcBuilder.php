@@ -3,104 +3,172 @@
 namespace App\Livewire\Store;
 
 use App\Models\Product;
+use App\Models\SavedBuild;
 use App\Models\Setting;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.store')]
-#[Title('Simulasi Rakit PC - Yala Computer')]
+#[Title('Simulasi Rakit PC Professional - Yala Computer')]
 class PcBuilder extends Component
 {
-    // Selected Components [category_slug => product_id]
-    public $selection = [
-        'processors' => null,
-        'motherboards' => null,
-        'rams' => null,
-        'gpus' => null,
-        'storage' => null,
-        'cases' => null,
-        'psus' => null,
-    ];
+    use WithPagination;
 
-    public $partsList = [
-        'processors' => 'Processor (CPU)',
-        'motherboards' => 'Motherboard',
-        'rams' => 'Memory (RAM)',
-        'gpus' => 'VGA (Graphics Card)',
-        'storage' => 'Storage (SSD/HDD)',
-        'cases' => 'Casing PC',
-        'psus' => 'Power Supply (PSU)',
-    ];
-
-    public $compatibilityIssues = [];
+    // Build State
+    public $buildName = 'My Custom PC';
+    public $selection = []; // [category_slug => ['product_id', 'price', 'name', 'image']]
+    public $totalPrice = 0;
     public $estimatedWattage = 0;
+    public $compatibilityIssues = [];
 
-    public function selectPart($categorySlug, $productId)
+    // Modal Selector State
+    public $showSelector = false;
+    public $currentCategory = null;
+    public $searchQuery = '';
+    
+    // Config
+    public $partsList = [
+        'processors' => ['label' => 'Processor (CPU)', 'icon' => 'cpu'],
+        'motherboards' => ['label' => 'Motherboard', 'icon' => 'server'],
+        'rams' => ['label' => 'Memory (RAM)', 'icon' => 'memory'],
+        'gpus' => ['label' => 'Graphic Card (VGA)', 'icon' => 'monitor'],
+        'storage' => ['label' => 'Storage (SSD/NVMe)', 'icon' => 'hard-drive'],
+        'cases' => ['label' => 'Casing PC', 'icon' => 'box'],
+        'psus' => ['label' => 'Power Supply (PSU)', 'icon' => 'zap'],
+        'coolers' => ['label' => 'CPU Cooler', 'icon' => 'wind'],
+    ];
+
+    public function mount()
     {
-        $this->selection[$categorySlug] = $productId;
-        $this->checkCompatibility();
+        // Initialize empty selection
+        foreach (array_keys($this->partsList) as $key) {
+            $this->selection[$key] = null;
+        }
+
+        // Load saved build if requested (logic could be added here via query param)
     }
 
-    public function removePart($categorySlug)
+    // --- Modal Selection Logic ---
+
+    public function openSelector($category)
     {
-        $this->selection[$categorySlug] = null;
-        $this->checkCompatibility();
+        $this->currentCategory = $category;
+        $this->searchQuery = '';
+        $this->showSelector = true;
+        $this->resetPage(); // Reset pagination for the new category
     }
 
-    public function checkCompatibility()
+    public function closeSelector()
     {
+        $this->showSelector = false;
+        $this->currentCategory = null;
+    }
+
+    public function selectProduct($productId)
+    {
+        $product = Product::find($productId);
+        if ($product) {
+            $this->selection[$this->currentCategory] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->sell_price,
+                'image' => $product->image_path,
+                'specs' => [
+                    'socket' => $product->socket_type, // Assuming these columns exist or we parse desc
+                    'wattage' => $product->tdp_watts ?? 0,
+                    'memory_type' => $product->memory_type
+                ]
+            ];
+            $this->recalculate();
+        }
+        $this->closeSelector();
+    }
+
+    public function removePart($category)
+    {
+        $this->selection[$category] = null;
+        $this->recalculate();
+    }
+
+    // --- Calculation & Logic ---
+
+    public function recalculate()
+    {
+        $this->totalPrice = 0;
+        $this->estimatedWattage = 50; // Base overhead
         $this->compatibilityIssues = [];
-        $this->estimatedWattage = 0;
 
-        $cpu = $this->getProduct('processors');
-        $mobo = $this->getProduct('motherboards');
-        $ram = $this->getProduct('rams');
-        $gpu = $this->getProduct('gpus');
-        $psu = $this->getProduct('psus');
+        // Sum Price & Wattage
+        foreach ($this->selection as $key => $item) {
+            if ($item) {
+                $this->totalPrice += $item['price'];
+                
+                // Wattage (CPU & GPU major contributors)
+                if (in_array($key, ['processors', 'gpus'])) {
+                    $this->estimatedWattage += ($item['specs']['wattage'] ?? 0);
+                }
+            }
+        }
 
-        // Wattage Calculation
-        if ($cpu) $this->estimatedWattage += ($cpu->tdp_watts ?? 65);
-        if ($gpu) $this->estimatedWattage += ($gpu->tdp_watts ?? 150);
-        // Base system overhead
-        $this->estimatedWattage += 50; 
+        // --- Compatibility Checks ---
+        $cpu = $this->selection['processors'] ?? null;
+        $mobo = $this->selection['motherboards'] ?? null;
+        $ram = $this->selection['rams'] ?? null;
+        $psu = $this->selection['psus'] ?? null; // Assume we fetch PSU wattage from simulation if not in DB column
 
-        // Socket Check
+        // 1. Socket Check
         if ($cpu && $mobo) {
-            if ($cpu->socket_type && $mobo->socket_type && $cpu->socket_type !== $mobo->socket_type) {
-                $this->compatibilityIssues[] = "CPU Socket ({$cpu->socket_type}) tidak cocok dengan Motherboard ({$mobo->socket_type}).";
+            // Simulation logic: In real app, check DB columns 'socket_type'
+            // Here we assume standard naming if columns specific aren't guaranteed populated
+            if (isset($cpu['specs']['socket']) && isset($mobo['specs']['socket'])) {
+                if ($cpu['specs']['socket'] != $mobo['specs']['socket']) {
+                    $this->compatibilityIssues[] = "Socket CPU ({$cpu['specs']['socket']}) mungkin tidak cocok dengan Motherboard.";
+                }
             }
         }
 
-        // RAM Check
+        // 2. RAM Generation Check
         if ($ram && $mobo) {
-            if ($ram->memory_type && $mobo->memory_type && $ram->memory_type !== $mobo->memory_type) {
-                $this->compatibilityIssues[] = "Tipe RAM ({$ram->memory_type}) tidak didukung oleh Motherboard ({$mobo->memory_type}).";
+            // e.g. DDR4 vs DDR5
+            if (str_contains(strtolower($ram['name']), 'ddr4') && str_contains(strtolower($mobo['name']), 'ddr5')) {
+                $this->compatibilityIssues[] = "RAM DDR4 tidak kompatibel dengan Motherboard DDR5.";
+            }
+             if (str_contains(strtolower($ram['name']), 'ddr5') && str_contains(strtolower($mobo['name']), 'ddr4')) {
+                $this->compatibilityIssues[] = "RAM DDR5 tidak kompatibel dengan Motherboard DDR4.";
             }
         }
 
-        // PSU Check
-        if ($psu && $this->estimatedWattage > ($psu->wattage ?? 0)) {
-            $this->compatibilityIssues[] = "PSU ({$psu->wattage}W) mungkin tidak cukup untuk sistem ini (Est: {$this->estimatedWattage}W).";
+        // 3. PSU Check (Simple)
+        // If we had PSU wattage in DB, we'd check it. 
+        // For now, simple logic: if High-End GPU + CPU > 500W and no PSU selected
+        if ($this->estimatedWattage > 400 && !$psu) {
+            $this->compatibilityIssues[] = "Estimasi daya tinggi ({$this->estimatedWattage}W). Jangan lupa pilih PSU yang memadai (500W+).";
         }
     }
 
-    protected function getProduct($slug)
-    {
-        $id = $this->selection[$slug] ?? null;
-        return $id ? Product::find($id) : null;
-    }
+    // --- Actions ---
 
-    public function getTotalPriceProperty()
+    public function saveBuild()
     {
-        $total = 0;
-        foreach ($this->selection as $id) {
-            if ($id) {
-                $product = Product::find($id);
-                if ($product) $total += $product->sell_price;
-            }
+        if (!Auth::check()) {
+            $this->dispatch('notify', message: 'Silakan login untuk menyimpan rakitan.', type: 'error');
+            return redirect()->route('login');
         }
-        return $total;
+
+        SavedBuild::create([
+            'user_id' => Auth::id(),
+            'name' => $this->buildName,
+            'description' => 'Disimpan pada ' . now()->format('d M Y'),
+            'total_price_estimated' => $this->totalPrice,
+            'components' => $this->selection,
+            'share_token' => Str::random(32),
+        ]);
+
+        $this->dispatch('notify', message: 'Rakitan berhasil disimpan di profil Anda!', type: 'success');
     }
 
     public function addToCart()
@@ -108,82 +176,53 @@ class PcBuilder extends Component
         $cart = session()->get('cart', []);
         $count = 0;
 
-        foreach ($this->selection as $id) {
-            if ($id) {
-                $product = Product::find($id);
-                if ($product) {
-                    if (isset($cart[$product->id])) {
-                        $cart[$product->id]['quantity']++;
-                    } else {
-                        $cart[$product->id] = [
-                            'name' => $product->name,
-                            'price' => $product->sell_price,
-                            'quantity' => 1,
-                            'image' => $product->image_path // Might be null, view handles it
-                        ];
-                    }
-                    $count++;
+        foreach ($this->selection as $item) {
+            if ($item) {
+                $id = $item['id'];
+                if (isset($cart[$id])) {
+                    $cart[$id]['quantity']++;
+                } else {
+                    $cart[$id] = [
+                        'name' => $item['name'],
+                        'price' => $item['price'],
+                        'quantity' => 1,
+                        'image' => $item['image']
+                    ];
                 }
+                $count++;
             }
         }
 
         if ($count > 0) {
             session()->put('cart', $cart);
-            $this->dispatch('cart-updated');
+            $this->dispatch('cart-updated'); // Event for Cart Badge
             return redirect()->route('cart');
+        } else {
+             $this->dispatch('notify', message: 'Pilih komponen terlebih dahulu.', type: 'warning');
         }
     }
 
-    public function sendToWhatsapp()
+    public function printPdf()
     {
-        $message = "Halo Yala Computer, saya mau konsultasi rakitan PC ini:\n\n";
-        
-        foreach ($this->partsList as $slug => $label) {
-            $id = $this->selection[$slug];
-            if ($id) {
-                $product = Product::find($id);
-                $price = number_format($product->sell_price, 0, ',', '.');
-                $message .= "• *{$label}*: {$product->name}\n";
-                // Add specs if available, cleaned up
-                if ($product->description) {
-                    $specs = strip_tags($product->description);
-                    $specs = \Illuminate\Support\Str::limit($specs, 100);
-                    $message .= "  _Specs: {$specs}_\n";
-                }
-                $message .= "  Rp {$price}\n\n";
-            }
-        }
-
-        $total = number_format($this->getTotalPriceProperty(), 0, ',', '.');
-        $message .= "\n💰 *Total Estimasi: Rp {$total}*";
-        
-        if (!empty($this->compatibilityIssues)) {
-            $message .= "\n\n⚠️ *Catatan Kompatibilitas:*";
-            foreach ($this->compatibilityIssues as $issue) {
-                $message .= "\n- " . $issue;
-            }
-        }
-
-        $message .= "\n\n📍 _Mohon info ketersediaan stok dan biaya pengiriman._";
-
-        $waNumber = Setting::get('whatsapp_number', '6281234567890');
-        $encodedMessage = urlencode($message);
-        
-        return redirect()->away("https://wa.me/{$waNumber}?text={$encodedMessage}");
+        // Placeholder for PDF generation
+        $this->dispatch('notify', message: 'Fitur cetak PDF akan segera hadir!', type: 'info');
     }
 
     public function render()
     {
-        // Load products for each category
-        $catalog = [];
-        foreach (array_keys($this->partsList) as $slug) {
-            $catalog[$slug] = Product::whereHas('category', function($q) use ($slug) {
-                $q->where('slug', $slug);
-            })->where('is_active', true)->where('stock_quantity', '>', 0)->get();
+        $products = [];
+        if ($this->showSelector && $this->currentCategory) {
+            $products = Product::where('is_active', true)
+                ->whereHas('category', function($q) {
+                    $q->where('slug', $this->currentCategory);
+                })
+                ->where('name', 'like', '%' . $this->searchQuery . '%')
+                ->orderBy('sell_price')
+                ->paginate(10);
         }
 
         return view('livewire.store.pc-builder', [
-            'catalog' => $catalog
+            'products' => $products
         ]);
     }
 }
