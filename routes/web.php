@@ -55,6 +55,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/rma/{id}/edit', \App\Livewire\Rma\Form::class)->name('rma.edit');
 
     Route::get('/products', ProductIndex::class)->name('products.index');
+    Route::get('/products/bundles', \App\Livewire\Products\Bundles::class)->name('products.bundles'); // New
     Route::get('/products/create', \App\Livewire\Products\Form::class)->name('products.create');
     Route::get('/products/{id}/edit', \App\Livewire\Products\Form::class)->name('products.edit');
     Route::get('/products/labels', \App\Livewire\Products\LabelMaker::class)->name('products.labels'); // New
@@ -73,6 +74,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/master/suppliers/{id}/edit', \App\Livewire\Master\Suppliers\Form::class)->name('master.suppliers.edit');
 
     // Employee Management (Admin Only)
+    Route::get('/employees/attendance', \App\Livewire\Employees\Attendance::class)->name('employees.attendance');
     Route::get('/employees', \App\Livewire\Employees\Index::class)->name('employees.index');
     Route::get('/employees/roles', \App\Livewire\Employees\Roles::class)->name('employees.roles');
     Route::get('/employees/create', \App\Livewire\Employees\Form::class)->name('employees.create');
@@ -99,6 +101,11 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/services', \App\Livewire\Services\Index::class)->name('services.index');
     Route::get('/services/create', \App\Livewire\Services\Form::class)->name('services.create');
     Route::get('/services/{id}/edit', \App\Livewire\Services\Form::class)->name('services.edit');
+
+    // Purchase Requisitions (New)
+    Route::get('/purchase-requisitions', \App\Livewire\PurchaseRequisitions\Index::class)->name('purchase-requisitions.index');
+    Route::get('/purchase-requisitions/create', \App\Livewire\PurchaseRequisitions\Create::class)->name('purchase-requisitions.create');
+    Route::get('/purchase-requisitions/{id}', \App\Livewire\PurchaseRequisitions\Show::class)->name('purchase-requisitions.show');
 
     // Purchase Orders (Procurement)
     Route::get('/purchase-orders', \App\Livewire\PurchaseOrders\Index::class)->name('purchase-orders.index');
@@ -134,7 +141,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/shift', \App\Livewire\Shift\Manager::class)->name('shift.open');
 
     // B2B & Finance
+    Route::get('/quotations', \App\Livewire\Quotations\Index::class)->name('quotations.index');
     Route::get('/quotations/create', \App\Livewire\Quotations\Create::class)->name('quotations.create');
+    Route::get('/quotations/{id}', \App\Livewire\Quotations\Show::class)->name('quotations.show');
     Route::get('/finance/receivables', \App\Livewire\Finance\Receivables::class)->name('finance.receivables');
 
     // System Maintenance

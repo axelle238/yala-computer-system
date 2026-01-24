@@ -102,7 +102,7 @@ class Create extends Component
         });
 
         $this->dispatch('notify', message: 'Penawaran berhasil dibuat!', type: 'success');
-        return redirect()->route('dashboard'); // Harusnya ke index quotation
+        return redirect()->route('quotations.index');
     }
 
     public function render()
