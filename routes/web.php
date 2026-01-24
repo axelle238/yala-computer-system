@@ -55,6 +55,7 @@ Route::prefix('member')->middleware('auth')->group(function () {
     Route::get('/orders', \App\Livewire\Member\Orders::class)->name('member.orders');
     Route::get('/orders/{id}', \App\Livewire\Member\OrderDetail::class)->name('member.orders.show'); 
     Route::get('/profile', \App\Livewire\Member\ProfileSettings::class)->name('member.profile'); // New
+    Route::get('/referrals', \App\Livewire\Member\Referrals::class)->name('member.referrals'); // New
     Route::get('/loyalty', \App\Livewire\Member\LoyaltyPoints::class)->name('member.loyalty'); // New
     Route::get('/rma/request', \App\Livewire\Member\RmaRequest::class)->name('member.rma.request');
 });
