@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class FaqCategory extends Model
 {
-    protected $fillable = ['name', 'slug', 'order'];
+    protected $guarded = [];
 
     public function faqs()
     {
-        return $this->hasMany(Faq::class)->orderBy('order');
+        return $this->hasMany(Faq::class)->orderBy('order_index');
     }
 }

@@ -2,113 +2,45 @@
 
 namespace App\Livewire\CRM;
 
-use App\Models\CustomerInteraction;
-use App\Models\LoyaltyLog;
+use App\Models\Order;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Models\ServiceTicket;
+use App\Models\Rma;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.admin')]
 #[Title('Customer 360 View - Yala Computer')]
 class CustomerDetail extends Component
 {
-    use WithPagination;
-
-    public $customerId;
-    public $activeTab = 'overview'; // overview, orders, interactions, loyalty
-    
-    // Interaction Form
-    public $interactionType = 'note';
-    public $interactionContent;
-    public $interactionDate;
-
-    // Point Adjustment
-    public $pointAction = 'add';
-    public $pointAmount;
-    public $pointReason;
+    public User $customer;
+    public $activeTab = 'overview'; // overview, orders, services, rma
 
     public function mount($id)
     {
-        $this->customerId = $id;
-        $this->interactionDate = date('Y-m-d');
+        $this->customer = User::withCount(['orders', 'serviceTickets'])->findOrFail($id);
     }
 
-    public function getCustomerProperty()
+    public function setTab($tab)
     {
-        return User::with(['customerGroup', 'orders'])->findOrFail($this->customerId);
-    }
-
-    public function addInteraction()
-    {
-        $this->validate([
-            'interactionContent' => 'required|string',
-            'interactionDate' => 'required|date',
-        ]);
-
-        CustomerInteraction::create([
-            'user_id' => $this->customerId,
-            'staff_id' => Auth::id(),
-            'type' => $this->interactionType,
-            'content' => $this->interactionContent,
-            'interaction_date' => $this->interactionDate,
-            'outcome' => 'logged'
-        ]);
-
-        $this->reset(['interactionContent']);
-        $this->dispatch('notify', message: 'Interaksi dicatat.', type: 'success');
-    }
-
-    public function adjustPoints()
-    {
-        $this->validate([
-            'pointAmount' => 'required|integer|min:1',
-            'pointReason' => 'required|string',
-        ]);
-
-        $customer = $this->customer;
-        $points = (int) $this->pointAmount;
-
-        if ($this->pointAction === 'add') {
-            $customer->increment('points', $points);
-        } else {
-            if ($customer->points < $points) {
-                $this->dispatch('notify', message: 'Poin tidak cukup.', type: 'error');
-                return;
-            }
-            $customer->decrement('points', $points);
-        }
-
-        LoyaltyLog::create([
-            'user_id' => $this->customerId,
-            'type' => $this->pointAction === 'add' ? 'adjustment_add' : 'adjustment_sub',
-            'points' => $this->pointAction === 'add' ? $points : -$points,
-            'reference_type' => 'manual',
-            'description' => $this->pointReason . ' (by ' . Auth::user()->name . ')'
-        ]);
-
-        $this->reset(['pointAmount', 'pointReason']);
-        $this->dispatch('notify', message: 'Saldo poin diperbarui.', type: 'success');
-    }
-
-    public function recalculateTier()
-    {
-        $this->customer->recalculateLevel();
-        $this->dispatch('notify', message: 'Level pelanggan dihitung ulang.', type: 'success');
+        $this->activeTab = $tab;
     }
 
     public function render()
     {
-        $interactions = CustomerInteraction::where('user_id', $this->customerId)->latest()->paginate(5, ['*'], 'interactionsPage');
-        $orders = $this->customer->orders()->latest()->paginate(5, ['*'], 'ordersPage');
-        $logs = LoyaltyLog::where('user_id', $this->customerId)->latest()->paginate(10, ['*'], 'logsPage');
+        $data = [];
+        
+        if ($this->activeTab === 'orders') {
+            $data['orders'] = Order::where('user_id', $this->customer->id)->latest()->paginate(5);
+        } elseif ($this->activeTab === 'services') {
+            $data['services'] = ServiceTicket::where('customer_phone', $this->customer->phone)
+                ->orWhere('customer_name', $this->customer->name) // Fallback logic
+                ->latest()->get();
+        } elseif ($this->activeTab === 'rma') {
+            $data['rmas'] = Rma::where('user_id', $this->customer->id)->latest()->get();
+        }
 
-        return view('livewire.c-r-m.customer-detail', [
-            'interactions' => $interactions,
-            'orders' => $orders,
-            'logs' => $logs
-        ]);
+        return view('livewire.crm.customer-detail', $data);
     }
 }

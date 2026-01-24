@@ -1,113 +1,89 @@
 <div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12">
     <div class="container mx-auto px-4 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8 animate-fade-in-up">
-            <a href="{{ route('member.dashboard') }}" class="text-sm font-bold text-slate-500 hover:text-blue-600 mb-2 inline-block">&larr; Kembali ke Dashboard</a>
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <h1 class="text-3xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tighter">
-                Loyalty <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Rewards</span>
+                Loyalty & <span class="text-blue-600">Referral</span>
             </h1>
-            <p class="text-slate-500 dark:text-slate-400">Kumpulkan poin dari setiap transaksi dan tukarkan dengan hadiah eksklusif.</p>
-        </div>
-
-        <!-- Stats Card -->
-        <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl mb-12 animate-fade-in-up delay-100">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-            
-            <div class="relative z-10 flex flex-col md:flex-row justify-between gap-8 items-center">
-                <div class="text-center md:text-left">
-                    <p class="text-amber-400 font-bold uppercase tracking-widest text-sm mb-1">Total Poin Anda</p>
-                    <h2 class="text-6xl font-black font-mono mb-2">{{ number_format($user->points) }}</h2>
-                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-bold border border-white/10">
-                        <span class="w-2 h-2 rounded-full {{ $user->level['color'] == 'text-amber-400' ? 'bg-amber-400' : ($user->level['color'] == 'text-purple-400' ? 'bg-purple-400' : 'bg-slate-400') }}"></span>
-                        {{ $user->level['name'] }} Member
-                    </div>
-                </div>
-
-                <div class="w-full md:w-1/2">
-                    <div class="flex justify-between text-xs font-bold mb-2">
-                        <span class="text-slate-400">Progress ke Level Berikutnya</span>
-                        <span class="text-amber-400">{{ round($nextLevel['percent']) }}%</span>
-                    </div>
-                    <div class="w-full h-3 bg-slate-700 rounded-full overflow-hidden mb-2">
-                        <div class="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-1000" style="width: {{ $nextLevel['percent'] }}%"></div>
-                    </div>
-                    @if($nextLevel['target'] > 0)
-                        <p class="text-xs text-slate-500 text-right">Belanja Rp {{ number_format($nextLevel['remaining'], 0, ',', '.') }} lagi untuk naik level.</p>
-                    @else
-                        <p class="text-xs text-amber-400 text-right font-bold">Level Maksimal Tercapai!</p>
-                    @endif
-                </div>
-            </div>
+            <a href="{{ route('member.dashboard') }}" class="text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold text-sm">
+                &larr; Kembali ke Dashboard
+            </a>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Rewards Catalog -->
-            <div class="lg:col-span-2 space-y-6 animate-fade-in-up delay-200">
-                <h3 class="font-bold text-xl text-slate-900 dark:text-white flex items-center gap-2">
-                    <svg class="w-6 h-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
-                    Tukarkan Poin
-                </h3>
+            
+            <!-- Points Card -->
+            <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                <h3 class="text-blue-100 font-bold uppercase tracking-widest text-sm mb-2">Total Poin Anda</h3>
+                <div class="text-6xl font-black font-mono mb-4">{{ number_format($user->points) }}</div>
+                <p class="text-blue-100 text-sm mb-6">Tukarkan poin saat checkout untuk mendapatkan diskon langsung.</p>
+                <div class="inline-block bg-white/20 backdrop-blur rounded-lg px-4 py-2 text-xs font-bold border border-white/10">
+                    1 Poin = Rp 1
+                </div>
+            </div>
 
-                @if($rewards->count() > 0)
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        @foreach($rewards as $reward)
-                            <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 relative overflow-hidden group hover:border-amber-500 transition-all">
-                                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                    <svg class="w-24 h-24 text-amber-500" fill="currentColor" viewBox="0 0 24 24"><path d="M20.25 5.5l-2.25 2.25-2.25-2.25-2.25 2.25-2.25-2.25-2.25 2.25-2.25-2.25-2.25 2.25V21h18V7.75l-2.25-2.25z"/></svg>
-                                </div>
-                                
-                                <h4 class="font-bold text-lg text-slate-900 dark:text-white mb-1">{{ $reward->name }}</h4>
-                                <p class="text-sm text-slate-500 mb-4 line-clamp-2">{{ $reward->description }}</p>
-                                
-                                <div class="flex justify-between items-end">
-                                    <div class="text-amber-500 font-mono font-bold text-xl">{{ number_format($reward->points_cost) }} PTS</div>
-                                    <button wire:click="redeem({{ $reward->id }})" 
-                                            onclick="confirm('Tukarkan {{ number_format($reward->points_cost) }} poin untuk voucher ini?') || event.stopImmediatePropagation()"
-                                            class="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-lg text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-                                            {{ $user->points < $reward->points_cost ? 'disabled' : '' }}>
-                                        Tukar
-                                    </button>
-                                </div>
-                            </div>
-                        @endforeach
+            <!-- Referral Card -->
+            <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-700">
+                <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-4">Undang Teman, Dapat Cuan!</h3>
+                <p class="text-slate-500 mb-6">Bagikan kode unikmu. Kamu dan temanmu akan mendapatkan <span class="text-blue-600 font-bold">10.000 Poin</span> setelah pesanan pertama mereka selesai.</p>
+                
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1 bg-slate-100 dark:bg-slate-900 rounded-xl p-4 flex justify-between items-center border border-slate-200 dark:border-slate-700">
+                        <span class="font-mono font-black text-2xl text-slate-800 dark:text-white tracking-wider">{{ $user->referral_code }}</span>
+                        <button onclick="navigator.clipboard.writeText('{{ $user->referral_code }}'); alert('Kode disalin!')" class="text-blue-600 hover:text-blue-800 font-bold text-sm">
+                            Salin Kode
+                        </button>
                     </div>
-                @else
-                    <div class="text-center py-12 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-500">
-                        Belum ada reward yang tersedia saat ini.
+                    <div class="flex-1 bg-slate-100 dark:bg-slate-900 rounded-xl p-4 flex justify-between items-center border border-slate-200 dark:border-slate-700">
+                        <span class="text-sm text-slate-500 truncate">{{ route('customer.register', ['ref' => $user->referral_code]) }}</span>
+                        <button onclick="navigator.clipboard.writeText('{{ route('customer.register', ['ref' => $user->referral_code]) }}'); alert('Link disalin!')" class="text-blue-600 hover:text-blue-800 font-bold text-sm ml-4">
+                            Salin Link
+                        </button>
                     </div>
-                @endif
+                </div>
             </div>
 
             <!-- History Log -->
-            <div class="animate-fade-in-up delay-300">
-                <h3 class="font-bold text-xl text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                    <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    Riwayat Poin
-                </h3>
-                
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                    <div class="divide-y divide-slate-100 dark:divide-slate-700">
-                        @forelse($history as $log)
-                            <div class="p-4 flex justify-between items-center hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                                <div>
-                                    <p class="font-bold text-sm text-slate-800 dark:text-white">{{ $log->description }}</p>
-                                    <p class="text-xs text-slate-500">{{ $log->created_at->format('d M Y, H:i') }}</p>
-                                </div>
-                                <span class="font-mono font-bold {{ $log->amount > 0 ? 'text-emerald-500' : 'text-rose-500' }}">
-                                    {{ $log->amount > 0 ? '+' : '' }}{{ number_format($log->amount) }}
-                                </span>
-                            </div>
+            <div class="lg:col-span-3 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-slate-700">
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-white">Riwayat Poin</h3>
+                </div>
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 font-bold uppercase border-b border-slate-100 dark:border-slate-700">
+                        <tr>
+                            <th class="p-4">Tanggal</th>
+                            <th class="p-4">Aktivitas</th>
+                            <th class="p-4">Deskripsi</th>
+                            <th class="p-4 text-right">Poin</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                        @forelse($logs as $log)
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                <td class="p-4 text-slate-500">{{ $log->created_at->format('d M Y H:i') }}</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 rounded-full text-xs font-bold uppercase 
+                                        {{ $log->points > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }}">
+                                        {{ ucfirst($log->type) }}
+                                    </span>
+                                </td>
+                                <td class="p-4 text-slate-700 dark:text-slate-300">{{ $log->description }}</td>
+                                <td class="p-4 text-right font-mono font-bold {{ $log->points > 0 ? 'text-emerald-600' : 'text-red-600' }}">
+                                    {{ $log->points > 0 ? '+' : '' }}{{ number_format($log->points) }}
+                                </td>
+                            </tr>
                         @empty
-                            <div class="p-8 text-center text-slate-400 text-sm">Belum ada riwayat poin.</div>
+                            <tr>
+                                <td colspan="4" class="p-8 text-center text-slate-400">Belum ada riwayat poin.</td>
+                            </tr>
                         @endforelse
-                    </div>
-                    @if($history->hasPages())
-                        <div class="p-4 border-t border-slate-100 dark:border-slate-700">
-                            {{ $history->links() }}
-                        </div>
-                    @endif
+                    </tbody>
+                </table>
+                <div class="p-4 border-t border-slate-100 dark:border-slate-700">
+                    {{ $logs->links() }}
                 </div>
             </div>
+
         </div>
     </div>
 </div>
