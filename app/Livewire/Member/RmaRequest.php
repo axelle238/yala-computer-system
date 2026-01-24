@@ -27,6 +27,7 @@ class RmaRequest extends Component
     public $selectedOrderId;
     public $selectedOrder;
     public $rmaItems = []; // ['order_item_id' => ['qty' => 1, 'condition' => '', 'reason' => '']]
+    public $uploads = []; // ['order_item_id' => [TemporaryUploadedFile, ...]]
 
     // Form
     public $resolutionPreference = 'repair'; // repair, replacement, refund
@@ -38,6 +39,7 @@ class RmaRequest extends Component
         'rmaItems.*.qty' => 'required|integer|min:1',
         'rmaItems.*.condition' => 'required|string',
         'rmaItems.*.reason' => 'required|string|min:10',
+        'uploads.*.*' => 'image|max:2048', // Max 2MB per image
         'resolutionPreference' => 'required|in:repair,replacement,refund',
     ];
 
@@ -55,7 +57,7 @@ class RmaRequest extends Component
         $this->selectedOrder = Order::with('items.product')->where('user_id', Auth::id())->findOrFail($orderId);
         
         // Cek apakah order eligible (misal: status completed)
-        if ($this->selectedOrder->status !== 'completed') {
+        if (!in_array($this->selectedOrder->status, ['completed', 'received'])) {
             $this->dispatch('notify', message: 'Hanya pesanan dengan status Selesai yang dapat diklaim garansi.', type: 'error');
             $this->resetSelection();
             return;
@@ -69,6 +71,7 @@ class RmaRequest extends Component
         $this->selectedOrderId = null;
         $this->selectedOrder = null;
         $this->rmaItems = [];
+        $this->uploads = [];
         $this->step = 1;
     }
 
@@ -76,6 +79,7 @@ class RmaRequest extends Component
     {
         if (isset($this->rmaItems[$orderItemId])) {
             unset($this->rmaItems[$orderItemId]);
+            unset($this->uploads[$orderItemId]);
         } else {
             // Find max qty
             $item = $this->selectedOrder->items->find($orderItemId);
@@ -87,6 +91,7 @@ class RmaRequest extends Component
                 'condition' => 'used',
                 'reason' => ''
             ];
+            $this->uploads[$orderItemId] = [];
         }
     }
 
@@ -109,13 +114,21 @@ class RmaRequest extends Component
 
             // 2. Create RMA Items
             foreach ($this->rmaItems as $orderItemId => $data) {
+                // Handle Uploads
+                $evidencePaths = [];
+                if (isset($this->uploads[$orderItemId])) {
+                    foreach ($this->uploads[$orderItemId] as $file) {
+                        $evidencePaths[] = $file->store('rma-evidence', 'public');
+                    }
+                }
+
                 RmaItem::create([
                     'rma_id' => $rma->id,
                     'product_id' => $data['product_id'],
                     'quantity' => $data['qty'],
                     'condition' => $data['condition'],
                     'problem_description' => $data['reason'],
-                    // Serial number logic can be added here if we track serials in OrderItem
+                    'evidence_files' => $evidencePaths, // Casted to array in model
                 ]);
             }
         });

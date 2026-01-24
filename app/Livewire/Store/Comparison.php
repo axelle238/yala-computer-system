@@ -13,6 +13,7 @@ use Livewire\Attributes\Title;
 class Comparison extends Component
 {
     public $products = [];
+    public $specKeys = [];
 
     public function mount()
     {
@@ -25,10 +26,22 @@ class Comparison extends Component
         
         if (empty($ids)) {
             $this->products = collect();
+            $this->specKeys = [];
             return;
         }
 
         $this->products = Product::whereIn('id', $ids)->get();
+        
+        // Extract all unique spec keys
+        $keys = collect();
+        foreach ($this->products as $product) {
+            if (is_array($product->specifications)) {
+                $keys = $keys->merge(array_keys($product->specifications));
+            }
+        }
+        
+        // Filter and sort keys if needed (e.g. remove internal keys)
+        $this->specKeys = $keys->unique()->values()->all();
     }
 
     public function removeProduct($id)

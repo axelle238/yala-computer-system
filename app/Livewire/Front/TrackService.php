@@ -7,26 +7,48 @@ use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Layout('components.layouts.guest')] // Gunakan layout guest
+#[Layout('layouts.store')] 
 #[Title('Cek Status Service - Yala Computer')]
 class TrackService extends Component
 {
-    public $search_ticket; // Ticket ID (SRV-...)
+    public $search_ticket = ''; 
+    public $phone_verification = '';
     public $result = null;
+    public $timeline = [];
 
     public function track()
     {
         $this->validate([
-            'search_ticket' => 'required|string|min:5'
+            'search_ticket' => 'required|string|min:5',
+            'phone_verification' => 'required|string|min:4', // Last 4 digits or full phone
         ]);
 
-        $this->result = ServiceTicket::with(['items', 'technician'])
+        // Find ticket that matches Ticket Number AND Phone (fuzzy match for phone)
+        $ticket = ServiceTicket::with(['items', 'technician', 'histories.user'])
             ->where('ticket_number', $this->search_ticket)
+            ->where('customer_phone', 'like', '%' . $this->phone_verification . '%')
             ->first();
 
-        if (!$this->result) {
-            $this->addError('search_ticket', 'Tiket tidak ditemukan. Periksa kembali nomor tiket Anda.');
+        if (!$ticket) {
+            $this->addError('search_ticket', 'Data tidak ditemukan. Pastikan Nomor Tiket dan Nomor HP sesuai.');
+            $this->result = null;
+            return;
         }
+
+        $this->result = $ticket;
+        
+        // Build Timeline
+        // Default standard milestones
+        $standardSteps = [
+            'pending' => 'Menunggu Antrian',
+            'diagnosing' => 'Pengecekan (Diagnosa)',
+            'repairing' => 'Dalam Pengerjaan',
+            'ready' => 'Selesai / Siap Diambil',
+            'picked_up' => 'Diambil'
+        ];
+
+        // Merge actual history
+        $this->timeline = $ticket->histories->sortByDesc('created_at');
     }
 
     public function render()

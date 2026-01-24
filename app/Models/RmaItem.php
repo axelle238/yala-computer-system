@@ -6,7 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class RmaItem extends Model
 {
-    protected $guarded = [];
+    protected $fillable = [
+        'rma_id',
+        'product_id',
+        'quantity',
+        'condition',
+        'problem_description',
+        'evidence_files', // New
+    ];
+
+    protected $casts = [
+        'evidence_files' => 'array', // New
+    ];
 
     public function product()
     {
