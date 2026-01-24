@@ -159,6 +159,13 @@ return [
                     'permission' => 'setting.edit',
                 ],
                 [
+                    'label' => 'Voucher & Diskon',
+                    'route' => 'marketing.vouchers.index',
+                    'icon'  => 'receipt', // Reusing receipt or ticket icon
+                    'roles' => ['admin', 'owner'],
+                    'permission' => 'setting.edit',
+                ],
+                [
                     'label' => 'Berita & Artikel',
                     'route' => 'admin.news.index',
                     'icon'  => 'newspaper',

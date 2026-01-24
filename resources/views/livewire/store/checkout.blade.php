@@ -122,6 +122,27 @@
                     </div>
 
                     <div class="border-t border-slate-100 dark:border-slate-700 pt-4 space-y-2 mb-6">
+                        <!-- Voucher Input -->
+                        <div class="mb-4">
+                            @if($appliedVoucher)
+                                <div class="bg-pink-50 dark:bg-pink-900/20 border border-pink-100 dark:border-pink-800 rounded-xl p-3 flex justify-between items-center">
+                                    <div>
+                                        <span class="block text-xs font-bold text-pink-600 dark:text-pink-400 uppercase tracking-wider">Voucher Aktif</span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-200">{{ $appliedVoucher->code }}</span>
+                                    </div>
+                                    <button wire:click="removeVoucher" class="text-rose-500 hover:text-rose-700 p-1">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
+                            @else
+                                <div class="flex gap-2">
+                                    <input type="text" wire:model="voucherCode" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm uppercase font-bold placeholder-slate-400" placeholder="KODE PROMO">
+                                    <button wire:click="applyVoucher" class="px-4 py-2 bg-slate-800 dark:bg-slate-700 text-white rounded-xl text-xs font-bold hover:bg-slate-700 transition-colors">Pakai</button>
+                                </div>
+                                @error('voucherCode') <span class="text-xs text-rose-500 mt-1 block">{{ $message }}</span> @enderror
+                            @endif
+                        </div>
+
                         <div class="flex justify-between text-sm">
                             <span class="text-slate-500">Subtotal</span>
                             <span class="font-bold text-slate-800 dark:text-white">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
@@ -130,6 +151,12 @@
                             <span class="text-slate-500">Ongkos Kirim</span>
                             <span class="font-bold text-slate-800 dark:text-white">Rp {{ number_format($shippingCost, 0, ',', '.') }}</span>
                         </div>
+                        @if($voucherDiscount > 0)
+                            <div class="flex justify-between text-sm text-pink-600 font-bold">
+                                <span>Diskon Voucher</span>
+                                <span>- Rp {{ number_format($voucherDiscount, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
                         @if($discountAmount > 0)
                             <div class="flex justify-between text-sm text-emerald-600 font-bold">
                                 <span>Diskon Poin</span>

@@ -5,6 +5,7 @@ namespace App\Livewire\Store;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Voucher; // New Import
 use App\Services\Payment\MidtransService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +27,11 @@ class Checkout extends Component
     public $courier = 'jne'; // jne, jnt, sicepat
     public $pointsToRedeem = 0;
     
+    // Voucher Logic
+    public $voucherCode = '';
+    public $appliedVoucher = null; // Voucher Model Instance
+    public $voucherDiscount = 0;
+
     // Address Book Logic
     public $savedAddresses = [];
     public $selectedAddressId = null;
@@ -110,6 +116,36 @@ class Checkout extends Component
 
     public function updatedCity() { $this->calculateTotals(); }
 
+    public function applyVoucher()
+    {
+        $this->validate(['voucherCode' => 'required|string']);
+
+        $voucher = Voucher::where('code', $this->voucherCode)->first();
+
+        if (!$voucher) {
+            $this->addError('voucherCode', 'Kode voucher tidak valid.');
+            return;
+        }
+
+        // Validate Rules
+        if (!$voucher->isValidForUser(Auth::id(), $this->subtotal)) {
+            $this->addError('voucherCode', 'Voucher tidak dapat digunakan (Min. belanja / Kuota habis).');
+            return;
+        }
+
+        $this->appliedVoucher = $voucher;
+        $this->calculateTotals();
+        $this->dispatch('notify', message: 'Voucher berhasil dipasang!', type: 'success');
+    }
+
+    public function removeVoucher()
+    {
+        $this->appliedVoucher = null;
+        $this->voucherCode = '';
+        $this->voucherDiscount = 0;
+        $this->calculateTotals();
+    }
+
     public function updatedPointsToRedeem()
     {
         if (!Auth::check()) {
@@ -127,8 +163,26 @@ class Checkout extends Component
     {
         $baseCost = $this->cities[$this->city] ?? 0;
         $this->shippingCost = $baseCost;
+        
+        // 1. Calculate Voucher Discount
+        if ($this->appliedVoucher) {
+            // Re-validate just in case subtotal changed below min spend
+            if ($this->subtotal >= $this->appliedVoucher->min_spend) {
+                $this->voucherDiscount = $this->appliedVoucher->calculateDiscount($this->subtotal);
+            } else {
+                // Auto remove if no longer valid
+                $this->appliedVoucher = null; 
+                $this->voucherDiscount = 0;
+            }
+        } else {
+            $this->voucherDiscount = 0;
+        }
+
+        // 2. Points Discount
         $this->discountAmount = $this->pointsToRedeem;
-        $this->grandTotal = $this->subtotal + $this->shippingCost - $this->discountAmount;
+
+        // 3. Grand Total (Subtotal + Shipping - Voucher - Points)
+        $this->grandTotal = $this->subtotal + $this->shippingCost - $this->voucherDiscount - $this->discountAmount;
         if ($this->grandTotal < 0) $this->grandTotal = 0;
     }
 
@@ -155,12 +209,25 @@ class Checkout extends Component
                 'shipping_courier' => $this->courier,
                 'shipping_cost' => $this->shippingCost,
                 'points_redeemed' => $this->pointsToRedeem,
-                'discount_amount' => $this->discountAmount,
+                'discount_amount' => $this->discountAmount, // Points Discount
+                'voucher_code' => $this->appliedVoucher?->code,
+                'voucher_discount' => $this->voucherDiscount,
                 'total_amount' => $this->grandTotal,
                 'status' => 'pending',
                 'payment_status' => 'unpaid',
                 'notes' => 'Checkout via Website',
             ]);
+
+            // Save Voucher Usage
+            if ($this->appliedVoucher) {
+                \App\Models\VoucherUsage::create([
+                    'voucher_id' => $this->appliedVoucher->id,
+                    'user_id' => Auth::id(),
+                    'order_id' => $order->id,
+                    'discount_amount' => $this->voucherDiscount,
+                    'used_at' => now(),
+                ]);
+            }
 
             foreach ($this->cartItems as $item) {
                 OrderItem::create([
