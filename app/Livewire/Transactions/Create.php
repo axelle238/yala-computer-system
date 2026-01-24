@@ -9,6 +9,7 @@ use App\Models\InventoryTransaction;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductBundle;
 use App\Models\Setting;
 use App\Models\SavedBuild;
 use Carbon\Carbon;
@@ -32,7 +33,7 @@ class Create extends Component
     // Search & Filter
     public $search = '';
     public $category = '';
-    public $searchBuild = ''; // For searching Saved Builds
+    public $searchBuild = ''; 
 
     // Loyalty System
     public $customerPoints = 0;
@@ -58,7 +59,7 @@ class Create extends Component
             return;
         }
 
-        $components = $build->components; // JSON array: ['processors' => 1, 'rams' => 5]
+        $components = $build->components; 
         $loadedCount = 0;
         
         foreach ($components as $key => $productId) {
@@ -73,7 +74,7 @@ class Create extends Component
 
         if ($loadedCount > 0) {
             $this->dispatch('notify', message: "Berhasil memuat {$loadedCount} komponen dari rakitan '{$build->name}'.", type: 'success');
-            $this->searchBuild = ''; // Reset
+            $this->searchBuild = ''; 
         } else {
             $this->dispatch('notify', message: 'Semua komponen dalam rakitan ini stoknya habis.', type: 'error');
         }
@@ -82,7 +83,6 @@ class Create extends Component
     // --- Customer & Loyalty Logic ---
     public function updatedCustomerPhone()
     {
-        // Check member points
         if (strlen($this->customer_phone) >= 10) {
             $customer = Customer::where('phone', $this->customer_phone)->first();
             if ($customer) {
@@ -106,15 +106,14 @@ class Create extends Component
     // --- Search & Barcode Logic ---
     public function updatedSearch()
     {
-        // Barcode Scanning Simulation (Exact Match)
         $exactProduct = Product::where('sku', $this->search)
             ->orWhere('barcode', $this->search)
             ->first();
 
         if ($exactProduct) {
             $this->addToCart($exactProduct->id);
-            $this->search = ''; // Reset after scan
-            $this->dispatch('play-beep'); // Optional: Sound effect trigger
+            $this->search = ''; 
+            $this->dispatch('play-beep');
         }
     }
 
@@ -125,7 +124,6 @@ class Create extends Component
         
         if (!$product) return;
 
-        // Check if item exists in cart
         $existingItemKey = null;
         foreach ($this->cart as $key => $item) {
             if ($item['product_id'] == $productId) {
@@ -147,8 +145,8 @@ class Create extends Component
                 'image' => $product->image_path,
                 'max_stock' => $product->stock_quantity,
                 'subtotal' => $product->sell_price,
-                'warranty_period' => $product->warranty_period ?? 0, // e.g., 12 months
-                'serial_numbers' => [''] // Init 1 empty SN
+                'warranty_period' => $product->warranty_period ?? 0, 
+                'serial_numbers' => [''] 
             ];
         }
     }
@@ -156,7 +154,7 @@ class Create extends Component
     public function removeFromCart($index)
     {
         unset($this->cart[$index]);
-        $this->cart = array_values($this->cart); // Re-index
+        $this->cart = array_values($this->cart); 
     }
 
     public function updateQty($index, $qty)
@@ -165,7 +163,6 @@ class Create extends Component
 
         $newQty = max(1, intval($qty));
         
-        // Stock Check for Sales
         if ($this->type === 'out' && $newQty > $this->cart[$index]['max_stock']) {
             $this->dispatch('notify', message: 'Stok tidak mencukupi!', type: 'error');
             $newQty = $this->cart[$index]['max_stock'];
@@ -174,21 +171,17 @@ class Create extends Component
         $this->cart[$index]['quantity'] = $newQty;
         $this->cart[$index]['subtotal'] = $newQty * $this->cart[$index]['price'];
 
-        // Adjust Serial Numbers array size
         $currentSNs = $this->cart[$index]['serial_numbers'] ?? [];
         if ($newQty > count($currentSNs)) {
-            // Add empty slots
             for ($i = count($currentSNs); $i < $newQty; $i++) {
                 $currentSNs[] = '';
             }
         } elseif ($newQty < count($currentSNs)) {
-            // Remove excess slots
             $currentSNs = array_slice($currentSNs, 0, $newQty);
         }
         $this->cart[$index]['serial_numbers'] = $currentSNs;
     }
     
-    // Helper to sync input from view
     public function updateSerial($index, $snIndex, $value)
     {
         $this->cart[$index]['serial_numbers'][$snIndex] = $value;
@@ -203,8 +196,6 @@ class Create extends Component
     public function getDiscountProperty()
     {
         if ($this->usePoints && $this->customerPoints > 0) {
-            // Redemption Rate: 1 Point = Rp 1 (Default)
-            // Limit discount to subtotal (cannot be negative total)
             return min($this->customerPoints, $this->subtotal);
         }
         return 0;
@@ -212,8 +203,7 @@ class Create extends Component
 
     public function getTaxProperty()
     {
-        // Simple 11% PPN logic (Optional, configurable)
-        return 0; // Keeping it 0 for now as per Indonesian simple store logic
+        return 0; 
     }
 
     public function getTotalProperty()
@@ -234,7 +224,6 @@ class Create extends Component
             'notes' => 'nullable|string|max:255',
         ]);
 
-        // Validate Active Register
         $activeRegister = CashRegister::where('user_id', Auth::id())
             ->where('status', 'open')
             ->first();
@@ -245,7 +234,6 @@ class Create extends Component
         }
 
         if ($this->usePoints && $this->customerPoints > 0) {
-            // Re-verify points
             $customer = Customer::where('phone', $this->customer_phone)->first();
             if (!$customer || $customer->points < $this->discount) {
                 $this->addError('customer_phone', 'Saldo poin tidak valid atau berubah.');
@@ -254,7 +242,6 @@ class Create extends Component
         }
 
         DB::transaction(function () use ($activeRegister) {
-            // 1. Create Order Record (Only for Sales 'out')
             $order = null;
             if ($this->type === 'out') {
                 $notes = $this->notes;
@@ -263,19 +250,18 @@ class Create extends Component
                 }
 
                 $order = Order::create([
-                    'user_id' => Auth::id(), // Sales/Cashier
+                    'user_id' => Auth::id(), 
                     'cash_register_id' => $activeRegister->id,
                     'guest_name' => $this->customer_phone ? 'Member ' . $this->customer_phone : 'Guest',
                     'guest_whatsapp' => $this->customer_phone,
                     'order_number' => $this->reference_number,
-                    'total_amount' => $this->total, // Total after discount
+                    'total_amount' => $this->total, 
                     'status' => 'completed',
                     'payment_status' => 'paid',
                     'payment_method' => 'cash',
                     'notes' => $notes,
                 ]);
 
-                // Deduct Points
                 if ($this->discount > 0 && $this->customer_phone) {
                     $customer = Customer::where('phone', $this->customer_phone)->first();
                     $customer->decrement('points', $this->discount);
@@ -284,43 +270,35 @@ class Create extends Component
 
             foreach ($this->cart as $item) {
                 $product = Product::lockForUpdate()->find($item['product_id']);
+                if (!$product) continue;
 
-                // Final Stock Check
-                if ($this->type === 'out' && $product->stock_quantity < $item['quantity']) {
-                    throw new \Exception("Stok {$product->name} tidak mencukupi saat proses akhir.");
-                }
+                $quantitySold = $item['quantity'];
 
-                // Update Stock
-                $newStock = $product->stock_quantity;
-                if ($this->type === 'in' || $this->type === 'return') {
-                    $newStock += $item['quantity'];
+                // --- COMPLEX BUNDLE LOGIC ---
+                if ($product->is_bundle) {
+                    $components = ProductBundle::where('parent_product_id', $product->id)->get();
+                    
+                    if ($components->isEmpty()) {
+                        $this->processStockDeduction($product, $quantitySold, $activeRegister, $order);
+                    } else {
+                        foreach ($components as $component) {
+                            $childProduct = Product::lockForUpdate()->find($component->child_product_id);
+                            if ($childProduct) {
+                                $neededQty = $component->quantity * $quantitySold;
+                                $this->processStockDeduction($childProduct, $neededQty, $activeRegister, $order, "Bundle: {$product->name}");
+                            }
+                        }
+                    }
                 } else {
-                    $newStock -= $item['quantity'];
+                    $this->processStockDeduction($product, $quantitySold, $activeRegister, $order);
                 }
-                
-                $product->update(['stock_quantity' => $newStock]);
 
                 // Prepare Serial Numbers (Clean empty ones)
                 $snList = array_filter($item['serial_numbers'] ?? []);
                 $snString = !empty($snList) ? implode(',', $snList) : null;
 
-                // Create Inventory Log
-                InventoryTransaction::create([
-                    'product_id' => $product->id,
-                    'user_id' => Auth::id() ?? 1,
-                    'type' => $this->type,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $product->sell_price, 
-                    'cogs' => $product->buy_price,        
-                    'remaining_stock' => $newStock,
-                    'reference_number' => $this->reference_number,
-                    'serial_numbers' => $this->type === 'out' ? $snString : null,
-                    'notes' => $this->notes . ($this->customer_phone ? " (Member: {$this->customer_phone})" : ''),
-                ]);
-
-                // Create Order Item (if Order exists)
+                // Create Order Item
                 if ($order) {
-                    // Calculate Warranty Expiry
                     $warrantyEnds = null;
                     if (!empty($item['warranty_period']) && $item['warranty_period'] > 0) {
                         $warrantyEnds = Carbon::now()->addMonths($item['warranty_period']);
@@ -330,13 +308,12 @@ class Create extends Component
                         'order_id' => $order->id,
                         'product_id' => $product->id,
                         'quantity' => $item['quantity'],
-                        'price' => $product->sell_price,
+                        'price' => $item['price'],
                         'serial_numbers' => $snString,
                         'warranty_ends_at' => $warrantyEnds
                     ]);
                 }
 
-                // Member Points Logic
                 if ($this->type === 'out' && $this->customer_phone) {
                     $customer = Customer::firstOrCreate(
                         ['phone' => $this->customer_phone],
@@ -350,9 +327,8 @@ class Create extends Component
                 }
             }
 
-            // 2. Automated Sales Commission
             if ($order && Auth::check()) {
-                $percent = Setting::get('commission_sales_percent', 1); // Default 1%
+                $percent = Setting::get('commission_sales_percent', 1); 
                 $commissionAmount = $order->total_amount * ($percent / 100);
 
                 if ($commissionAmount > 0) {
@@ -374,6 +350,34 @@ class Create extends Component
         $this->notes = '';
         
         $this->dispatch('notify', message: 'Transaksi berhasil disimpan!');
+    }
+
+    protected function processStockDeduction($product, $qty, $register, $order, $notePrefix = '')
+    {
+        if ($this->type === 'out' && $product->stock_quantity < $qty) {
+            throw new \Exception("Stok {$product->name} tidak mencukupi! Butuh: $qty, Sisa: {$product->stock_quantity}");
+        }
+
+        $newStock = $product->stock_quantity;
+        if ($this->type === 'in' || $this->type === 'return') {
+            $newStock += $qty;
+        } else {
+            $newStock -= $qty;
+        }
+        
+        $product->update(['stock_quantity' => $newStock]);
+
+        InventoryTransaction::create([
+            'product_id' => $product->id,
+            'user_id' => Auth::id() ?? 1,
+            'type' => $this->type,
+            'quantity' => $qty,
+            'unit_price' => $product->sell_price, 
+            'cogs' => $product->buy_price,        
+            'remaining_stock' => $newStock,
+            'reference_number' => $this->reference_number,
+            'notes' => trim($notePrefix . ' ' . $this->notes),
+        ]);
     }
 
     public function render()
