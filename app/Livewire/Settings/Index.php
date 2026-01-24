@@ -45,6 +45,12 @@ class Index extends Component
     public $bank_account;
     public $maintenance_mode = false;
 
+    // Payment Gateway (Midtrans)
+    public $midtrans_server_key;
+    public $midtrans_client_key;
+    public $midtrans_merchant_id;
+    public $midtrans_is_production = false;
+
     public function mount()
     {
         $this->store_name = Setting::get('store_name', 'Yala Computer');
@@ -71,38 +77,33 @@ class Index extends Component
         $this->bank_account = Setting::get('bank_account', 'BCA 1234567890 a.n Yala Computer');
         
         $this->maintenance_mode = (bool) Setting::get('maintenance_mode', false);
+
+        // Load Midtrans Settings
+        $this->midtrans_server_key = Setting::get('midtrans_server_key', env('MIDTRANS_SERVER_KEY'));
+        $this->midtrans_client_key = Setting::get('midtrans_client_key', env('MIDTRANS_CLIENT_KEY'));
+        $this->midtrans_merchant_id = Setting::get('midtrans_merchant_id', env('MIDTRANS_MERCHANT_ID'));
+        $this->midtrans_is_production = (bool) Setting::get('midtrans_is_production', false);
     }
 
     public function save()
     {
-        // Handle Logo Upload
+        // ... (Logo & Favicon logic remains same) ...
         if ($this->logo) {
-            $this->validate(['logo' => 'image|max:1024']); // 1MB Max
-            
-            // Delete old logo
-            if ($this->current_logo) {
-                Storage::disk('public')->delete($this->current_logo);
-            }
-            
+            $this->validate(['logo' => 'image|max:1024']);
+            if ($this->current_logo) Storage::disk('public')->delete($this->current_logo);
             $path = $this->logo->store('uploads/branding', 'public');
             Setting::set('store_logo', $path);
             $this->current_logo = $path;
-            $this->logo = null; // Reset input
+            $this->logo = null;
         }
 
-        // Handle Favicon Upload
         if ($this->favicon) {
-            $this->validate(['favicon' => 'image|max:512|mimes:ico,png,jpg']); 
-            
-            // Delete old favicon
-            if ($this->current_favicon) {
-                Storage::disk('public')->delete($this->current_favicon);
-            }
-            
+            $this->validate(['favicon' => 'image|max:512|mimes:ico,png,jpg']);
+            if ($this->current_favicon) Storage::disk('public')->delete($this->current_favicon);
             $path = $this->favicon->store('uploads/branding', 'public');
             Setting::set('store_favicon', $path);
             $this->current_favicon = $path;
-            $this->favicon = null; // Reset input
+            $this->favicon = null;
         }
 
         Setting::set('store_name', $this->store_name);
@@ -127,10 +128,13 @@ class Index extends Component
         
         Setting::set('maintenance_mode', $this->maintenance_mode);
 
+        // Save Midtrans Settings
+        Setting::set('midtrans_server_key', $this->midtrans_server_key);
+        Setting::set('midtrans_client_key', $this->midtrans_client_key);
+        Setting::set('midtrans_merchant_id', $this->midtrans_merchant_id);
+        Setting::set('midtrans_is_production', $this->midtrans_is_production);
+
         $this->dispatch('notify', message: 'Pengaturan berhasil disimpan!', type: 'success');
-        
-        // Refresh page to apply branding changes (optional, but good for favicon)
-        // return redirect(request()->header('Referer'));
     }
 
     public function render()

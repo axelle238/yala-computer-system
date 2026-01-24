@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
 
 class MidtransService
@@ -12,8 +13,9 @@ class MidtransService
 
     public function __construct()
     {
-        $this->serverKey = config('services.midtrans.server_key', env('MIDTRANS_SERVER_KEY'));
-        $this->isProduction = config('services.midtrans.is_production', env('MIDTRANS_IS_PRODUCTION', false));
+        // Prioritize Database Settings, Fallback to .env
+        $this->serverKey = Setting::get('midtrans_server_key', config('services.midtrans.server_key'));
+        $this->isProduction = (bool) Setting::get('midtrans_is_production', config('services.midtrans.is_production', false));
         
         $this->apiUrl = $this->isProduction 
             ? 'https://app.midtrans.com/snap/v1/transactions' 
