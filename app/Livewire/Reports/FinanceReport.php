@@ -6,7 +6,9 @@ use App\Models\Expense;
 use App\Models\InventoryTransaction;
 use App\Models\Order;
 use App\Models\Payroll;
+use App\Models\ServiceTicket;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -52,54 +54,85 @@ class FinanceReport extends Component
         $start = Carbon::parse($this->startDate)->startOfDay();
         $end = Carbon::parse($this->endDate)->endOfDay();
 
-        // 1. Revenue (Omzet)
-        $revenue = Order::whereBetween('created_at', [$start, $end])
-            ->where('status', 'completed') // Only completed sales
+        // 1. Revenue (Sales + Service)
+        $salesRevenue = Order::whereBetween('created_at', [$start, $end])
+            ->whereIn('status', ['completed', 'shipped', 'processing']) // Revenue recognized on process/ship/complete
             ->sum('total_amount');
 
-        // 2. COGS (HPP) - Complex Query
-        // We assume 'out' transactions linked to sales represent COGS
-        // Or strictly use InventoryTransaction where type='out' and unit_price > 0 (sales)
+        $serviceRevenue = ServiceTicket::whereBetween('updated_at', [$start, $end])
+            ->where('status', 'picked_up') // Completed service
+            ->sum('final_cost');
+
+        $totalRevenue = $salesRevenue + $serviceRevenue;
+
+        // 2. COGS (HPP) - From Inventory Out (Sales + Service Parts)
+        // Optimization: Use SQL sum for performance
         $cogs = InventoryTransaction::whereBetween('created_at', [$start, $end])
             ->where('type', 'out')
-            ->sum(function ($txn) {
-                // If cogs column is populated, use it. Otherwise fallback (risky but needed if legacy data)
-                return $txn->cogs > 0 ? $txn->cogs * $txn->quantity : 0;
-            });
-            // Optimization: The sum closure above runs in PHP memory (bad for large data).
-            // Better: DB::raw sum(cogs * quantity)
-            $cogsQuery = InventoryTransaction::whereBetween('created_at', [$start, $end])
-                ->where('type', 'out');
-                
-            // Since cogs is unit cost in DB schema:
-            // Need to sum (cogs * quantity)
-            // But doing this in Eloquent collection is safer for now if data volume < 10k rows for this period. 
-            // For rigorous app, use raw SQL. Let's use collection sum for simplicity in this context.
-            $cogs = $cogsQuery->get()->sum(fn($t) => $t->cogs * $t->quantity);
+            ->sum(DB::raw('quantity * cogs'));
 
         // 3. Gross Profit
-        $grossProfit = $revenue - $cogs;
+        $grossProfit = $totalRevenue - $cogs;
 
-        // 4. Expenses
-        $expenses = Expense::whereBetween('expense_date', [$start, $end])->get();
-        $totalExpenses = $expenses->sum('amount');
+        // 4. Expenses (Operational + Payroll)
+        $operationalExpenses = Expense::whereBetween('expense_date', [$start, $end])->get();
+        $totalOpExpense = $operationalExpenses->sum('amount');
 
-        // 5. Payroll
-        $payroll = Payroll::whereBetween('pay_date', [$start, $end])
+        $payrollExpense = Payroll::whereBetween('pay_date', [$start, $end])
             ->where('status', 'paid')
             ->sum('net_salary');
 
-        // 6. Net Profit
-        $netProfit = $grossProfit - $totalExpenses - $payroll;
+        $totalExpenses = $totalOpExpense + $payrollExpense;
+
+        // 5. Net Profit
+        $netProfit = $grossProfit - $totalExpenses;
+
+        // 6. Chart Data (Daily Trend)
+        $chartData = $this->getChartData($start, $end);
 
         return view('livewire.reports.finance-report', [
-            'revenue' => $revenue,
+            'salesRevenue' => $salesRevenue,
+            'serviceRevenue' => $serviceRevenue,
+            'totalRevenue' => $totalRevenue,
             'cogs' => $cogs,
             'grossProfit' => $grossProfit,
-            'expenses' => $expenses,
+            'operationalExpenses' => $operationalExpenses,
+            'totalOpExpense' => $totalOpExpense,
+            'payrollExpense' => $payrollExpense,
             'totalExpenses' => $totalExpenses,
-            'payroll' => $payroll,
-            'netProfit' => $netProfit
+            'netProfit' => $netProfit,
+            'chartData' => $chartData
         ]);
+    }
+
+    private function getChartData($start, $end)
+    {
+        // Group by day
+        $orders = Order::selectRaw('DATE(created_at) as date, SUM(total_amount) as total')
+            ->whereBetween('created_at', [$start, $end])
+            ->whereIn('status', ['completed', 'shipped', 'processing'])
+            ->groupBy('date')
+            ->get()
+            ->pluck('total', 'date');
+
+        $services = ServiceTicket::selectRaw('DATE(updated_at) as date, SUM(final_cost) as total')
+            ->whereBetween('updated_at', [$start, $end])
+            ->where('status', 'picked_up')
+            ->groupBy('date')
+            ->get()
+            ->pluck('total', 'date');
+
+        // Merge dates
+        $dates = $orders->keys()->merge($services->keys())->unique()->sort();
+        
+        $data = [];
+        foreach ($dates as $date) {
+            $data[] = [
+                'date' => Carbon::parse($date)->format('d M'),
+                'revenue' => ($orders[$date] ?? 0) + ($services[$date] ?? 0)
+            ];
+        }
+
+        return $data;
     }
 }
