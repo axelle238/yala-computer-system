@@ -3,39 +3,31 @@
 namespace App\Livewire\ActivityLogs;
 
 use App\Models\ActivityLog;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Layout('layouts.app')]
-#[Title('Audit Log - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Audit Log Aktivitas - Yala Computer')]
 class Index extends Component
 {
     use WithPagination;
 
     public $search = '';
-
-    public function mount()
-    {
-        if (!Auth::user()->isAdmin()) {
-            abort(403);
-        }
-    }
+    public $actionFilter = '';
 
     public function render()
     {
         $logs = ActivityLog::with('user')
-            ->where(function($q) {
-                $q->where('description', 'like', '%' . $this->search . '%')
-                  ->orWhere('model_type', 'like', '%' . $this->search . '%');
+            ->when($this->search, function($q) {
+                $q->where('description', 'like', '%'.$this->search.'%')
+                  ->orWhereHas('user', fn($sq) => $sq->where('name', 'like', '%'.$this->search.'%'));
             })
+            ->when($this->actionFilter, fn($q) => $q->where('action', $this->actionFilter))
             ->latest()
-            ->paginate(20);
+            ->paginate(15);
 
-        return view('livewire.activity-logs.index', [
-            'logs' => $logs
-        ]);
+        return view('livewire.activity-logs.index', ['logs' => $logs]);
     }
 }
