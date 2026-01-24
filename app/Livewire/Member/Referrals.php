@@ -15,7 +15,7 @@ class Referrals extends Component
     public function render()
     {
         $user = Auth::user();
-        $referrals = User::where('referrer_id', $user->id)->paginate(10);
+        $referrals = User::where('referred_by', $user->id)->paginate(10);
         
         // Calculate earnings (mock logic, normally from Commission table or Points)
         $totalEarned = $referrals->count() * 50000; // Mock: 50k per referral
