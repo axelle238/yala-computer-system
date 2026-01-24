@@ -13,18 +13,24 @@ class ServiceTicket extends Model
         'ticket_number',
         'customer_name',
         'customer_phone',
+        'user_id', // Member ID
         'device_name',
+        'serial_number_in',
+        'passcode',
+        'completeness',
         'problem_description',
+        'warranty_type',
         'status',
         'estimated_cost',
         'final_cost',
         'technician_notes',
         'technician_id',
-        'estimated_completion', // New field based on context
+        'estimated_completion',
     ];
 
     protected $casts = [
         'estimated_completion' => 'datetime',
+        'completeness' => 'array',
     ];
 
     public function technician()
@@ -32,14 +38,26 @@ class ServiceTicket extends Model
         return $this->belongsTo(User::class, 'technician_id');
     }
 
+    public function customerMember()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // New V2 Relationships
+    public function parts()
+    {
+        return $this->hasMany(ServiceTicketPart::class);
+    }
+
+    public function progressLogs()
+    {
+        return $this->hasMany(ServiceTicketProgress::class)->latest();
+    }
+
+    // Keep backward compatibility if needed, but V2 uses progressLogs
     public function items()
     {
         return $this->hasMany(ServiceItem::class);
-    }
-
-    public function histories()
-    {
-        return $this->hasMany(ServiceHistory::class)->latest();
     }
 
     // Helper untuk label status warna-warni
