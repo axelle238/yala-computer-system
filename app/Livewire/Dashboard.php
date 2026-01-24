@@ -2,111 +2,51 @@
 
 namespace App\Livewire;
 
-use App\Models\Article;
 use App\Models\InventoryTransaction;
 use App\Models\Product;
+use App\Models\ServiceTicket;
 use App\Services\BusinessIntelligence;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 
-/**
- * Dashboard Component
- * 
- * The main command center for the Yala Computer System.
- * Aggregates critical statistics and recent activity.
- */
-#[Title('Dashboard - Yala Computer')]
+#[Title('Executive Dashboard - Yala Computer')]
 class Dashboard extends Component
 {
     public function render()
     {
-        // Cache heavy queries for 60 seconds
-        $stats = \Illuminate\Support\Facades\Cache::remember('dashboard_stats', 60, function () {
-            
-            // 1. Fetch Total Products Count
-            $totalProducts = Product::where('is_active', true)->count();
+        $bi = new BusinessIntelligence();
 
-            // 2. Fetch Low Stock Alerts
-            $lowStockCount = Product::where('is_active', true)
-                ->whereColumn('stock_quantity', '<=', 'min_stock_alert')
-                ->count();
-
-            // 3. Calculate Total Inventory Value
-            $totalValue = Product::where('is_active', true)
-                ->sum(DB::raw('stock_quantity * buy_price'));
-
-            // 4. Calculate Monthly Sales
-            $monthlySales = InventoryTransaction::where('type', 'out')
-                ->whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year)
-                ->sum('quantity');
-
-            // 5. News Stats
-            $totalArticles = Article::count();
-            $totalViews = Article::sum('views_count');
-            
-            // 6. Service Stats (New)
-            $serviceStats = [
-                'pending' => \App\Models\ServiceTicket::whereIn('status', ['pending', 'diagnosing'])->count(),
-                'repairing' => \App\Models\ServiceTicket::whereIn('status', ['waiting_part', 'repairing'])->count(),
-                'ready' => \App\Models\ServiceTicket::where('status', 'ready')->count(),
-            ];
-                
+        // 1. Core Stats (Cached 60s)
+        $stats = Cache::remember('dashboard_core_stats', 60, function () {
             return [
-                'totalProducts' => $totalProducts,
-                'lowStockCount' => $lowStockCount,
-                'totalValue' => $totalValue,
-                'monthlySales' => $monthlySales,
-                'totalArticles' => $totalArticles,
-                'totalViews' => $totalViews,
-                'serviceStats' => $serviceStats,
+                'totalValue' => Product::where('is_active', true)->sum(DB::raw('stock_quantity * buy_price')),
+                'monthlyRevenue' => \App\Models\Order::where('status', 'completed')
+                    ->whereMonth('created_at', now()->month)
+                    ->sum('total_amount'),
+                'lowStock' => Product::whereColumn('stock_quantity', '<=', 'min_stock_alert')->count(),
+                'activeTickets' => ServiceTicket::whereNotIn('status', ['completed', 'cancelled', 'picked_up'])->count(),
             ];
         });
 
-        // 6. Fetch Recent Activity
-        $recentTransactions = InventoryTransaction::with(['product', 'user'])
-            ->latest()
-            ->take(5)
-            ->get();
-
-        // 7. Data Grafik Penjualan
-        $chartData = \Illuminate\Support\Facades\Cache::remember('dashboard_chart', 300, function () {
-            $data = [];
-            for ($i = 6; $i >= 0; $i--) {
-                $date = now()->subDays($i);
-                $count = InventoryTransaction::where('type', 'out')
-                    ->whereDate('created_at', $date)
-                    ->sum('quantity');
-                
-                if ($count == 0) $count = rand(0, 5); // Demo visualization
-
-                $data[] = [
-                    'day' => $date->format('D'),
-                    'count' => $count,
-                    'height' => $count > 0 ? ($count * 10) + 20 : 5 
-                ];
-            }
-            return $data;
+        // 2. Business Intelligence Data (Cached 5 mins)
+        $analytics = Cache::remember('dashboard_bi_data', 300, function () use ($bi) {
+            return [
+                'salesTrend' => $bi->getSalesTrend(),
+                'topProducts' => $bi->getTopProducts(),
+                'forecast' => $bi->getInventoryForecast()->take(5), // Top 5 critical items
+                'technicians' => $bi->getEmployeePerformance(),
+            ];
         });
 
-        // 8. AI Insights
-        $insights = \Illuminate\Support\Facades\Cache::remember('dashboard_insights', 300, function() {
-            $bi = new BusinessIntelligence();
-            return $bi->getInsights();
-        });
+        // 3. Recent Activity (Realtime)
+        $recentTransactions = InventoryTransaction::with(['product', 'user'])->latest()->take(5)->get();
 
         return view('livewire.dashboard', [
-            'totalProducts' => $stats['totalProducts'],
-            'lowStockCount' => $stats['lowStockCount'],
-            'totalValue' => $stats['totalValue'],
-            'monthlySales' => $stats['monthlySales'],
-            'totalArticles' => $stats['totalArticles'],
-            'totalViews' => $stats['totalViews'],
-            'serviceStats' => $stats['serviceStats'],
+            'stats' => $stats,
+            'analytics' => $analytics,
             'recentTransactions' => $recentTransactions,
-            'chartData' => $chartData,
-            'insights' => $insights,
         ]);
     }
 }
