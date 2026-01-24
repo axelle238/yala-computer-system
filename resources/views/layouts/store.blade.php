@@ -74,7 +74,8 @@
             <!-- Desktop Navigation -->
             <nav class="hidden lg:flex items-center gap-8">
                 @foreach([
-                    ['label' => 'Katalog', 'route' => 'home'],
+                    ['label' => 'Katalog', 'route' => 'store.catalog'],
+                    ['label' => 'Brands', 'route' => 'store.brands'],
                     ['label' => 'Rakit PC', 'route' => 'pc-builder'],
                     ['label' => 'Service', 'route' => 'track-service'],
                 ] as $item)
@@ -88,13 +89,23 @@
             </nav>
 
             <!-- Search Bar (Centered) -->
-            <div class="hidden md:block flex-1 px-8">
+            <div class="hidden md:block flex-1 px-8 max-w-lg">
                 <livewire:store.global-search />
             </div>
 
             <!-- Desktop Icons -->
             <div class="hidden md:flex items-center gap-4">
                 
+                @auth
+                    <a href="{{ route('wishlist') }}" class="relative group p-2 text-slate-400 hover:text-pink-500 transition-colors">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                        @if(\App\Models\Wishlist::where('user_id', auth()->id())->count() > 0)
+                            <span class="absolute top-1 right-1 w-2 h-2 bg-pink-500 rounded-full animate-ping"></span>
+                            <span class="absolute top-1 right-1 w-2 h-2 bg-pink-500 rounded-full"></span>
+                        @endif
+                    </a>
+                @endauth
+
                 <!-- Mini Cart (Global) -->
                 <livewire:store.mini-cart />
 
@@ -143,11 +154,12 @@
              x-transition:leave="transition ease-in duration-150"
              x-transition:leave-start="opacity-100 translate-y-0"
              x-transition:leave-end="opacity-0 -translate-y-4"
-             class="md:hidden bg-slate-900/95 backdrop-blur-xl border-b border-white/10 absolute w-full"
+             class="md:hidden bg-slate-900 border-b border-white/10 absolute w-full shadow-2xl z-30"
              style="display: none;">
             <div class="px-4 pt-4 pb-6 space-y-2">
                 @foreach([
-                    ['label' => 'Katalog Produk', 'route' => 'home'],
+                    ['label' => 'Katalog Produk', 'route' => 'store.catalog'],
+                    ['label' => 'Mitra Brand', 'route' => 'store.brands'],
                     ['label' => 'Simulasi Rakit PC', 'route' => 'pc-builder'],
                     ['label' => 'Berita & Artikel', 'route' => 'news.index'],
                     ['label' => 'Cek Status Garansi', 'route' => 'warranty-check']
