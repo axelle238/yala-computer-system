@@ -62,27 +62,29 @@
             </a>
             
             <!-- Desktop Navigation -->
-            <nav class="hidden md:flex items-center p-1 bg-slate-800/50 border border-white/5 rounded-full backdrop-blur-sm">
+            <nav class="hidden lg:flex items-center gap-6">
                 @foreach([
                     ['label' => 'Katalog', 'route' => 'home'],
                     ['label' => 'Rakit PC', 'route' => 'pc-builder'],
-                    ['label' => 'Komparasi', 'route' => 'product.compare'],
-                    ['label' => 'Komunitas', 'route' => 'community.index'],
-                    ['label' => 'Berita', 'route' => 'news.index'],
-                    ['label' => 'Garansi', 'route' => 'warranty-check']
+                    ['label' => 'Service', 'route' => 'track-service'],
                 ] as $item)
                     <a href="{{ route($item['route']) }}" 
-                       class="px-5 py-2 rounded-full text-xs font-bold transition-all duration-300 {{ request()->routeIs($item['route'].'*') ? 'bg-cyan-500 text-slate-900 shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                       class="text-xs font-bold uppercase tracking-widest transition-colors {{ request()->routeIs($item['route'].'*') ? 'text-cyan-400' : 'text-slate-400 hover:text-white' }}">
                         {{ $item['label'] }}
                     </a>
                 @endforeach
             </nav>
 
+            <!-- Search Bar (Centered) -->
+            <div class="hidden md:block flex-1 px-8">
+                <livewire:store.global-search />
+            </div>
+
             <!-- Mobile Menu Toggle -->
             <div class="hidden md:flex items-center gap-4">
                 @auth
                     <!-- Notifications -->
-                    <livewire:components.notification-dropdown />
+                    <livewire:store.navbar.notifications />
 
                     <div class="relative group">
                         <button class="flex items-center gap-2 text-sm font-bold text-slate-300 hover:text-white transition-colors">
