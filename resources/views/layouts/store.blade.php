@@ -171,6 +171,8 @@
                     <a href="{{ route('home') }}" class="hover:text-cyan-400 transition-colors">Katalog</a>
                     <a href="{{ route('track-order') }}" class="hover:text-cyan-400 transition-colors">Lacak Pesanan</a>
                     <a href="{{ route('news.index') }}" class="hover:text-cyan-400 transition-colors">Berita</a>
+                    <a href="{{ route('store.about') }}" class="hover:text-cyan-400 transition-colors">Tentang Kami</a>
+                    <a href="{{ route('store.contact') }}" class="hover:text-cyan-400 transition-colors">Hubungi Kami</a>
                     <a href="{{ route('privacy-policy') }}" class="hover:text-cyan-400 transition-colors">Privacy</a>
                     <a href="{{ route('terms-of-service') }}" class="hover:text-cyan-400 transition-colors">Terms</a>
                 </div>

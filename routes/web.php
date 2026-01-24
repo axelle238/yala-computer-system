@@ -21,7 +21,9 @@ Route::get('/help-center', \App\Livewire\Store\HelpCenter::class)->name('help.ce
 Route::get('/rakit-pc', \App\Livewire\Store\PcBuilder::class)->name('pc-builder');
 Route::get('/garansi', \App\Livewire\Store\WarrantyCheck::class)->name('warranty-check');
 Route::get('/track-service', \App\Livewire\Front\TrackService::class)->name('track-service'); 
-Route::get('/track-order', \App\Livewire\Front\TrackOrder::class)->name('track-order'); // New
+Route::get('/track-order', \App\Livewire\Front\TrackOrder::class)->name('track-order');
+Route::get('/contact-us', \App\Livewire\Store\ContactUs::class)->name('store.contact'); // New
+Route::get('/about-us', \App\Livewire\Store\AboutUs::class)->name('store.about'); // New
 Route::get('/cart', \App\Livewire\Store\Cart::class)->name('cart');
 Route::get('/checkout-secure', \App\Livewire\Store\Checkout::class)->name('checkout.secure'); 
 Route::get('/checkout', \App\Livewire\Store\Checkout::class)->name('checkout'); 
