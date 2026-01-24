@@ -14,15 +14,46 @@
             <!-- Left Column: Component Slots -->
             <div class="lg:w-2/3 space-y-4 animate-fade-in-up delay-100">
                 
+                <!-- Errors -->
                 @if(!empty($compatibilityIssues))
-                    <div class="bg-rose-100 border-l-4 border-rose-500 text-rose-700 p-4 rounded-r shadow-sm mb-6">
+                    <div class="bg-rose-100 border-l-4 border-rose-500 text-rose-700 p-4 rounded-r shadow-sm mb-4">
                         <p class="font-bold flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                            Masalah Kompatibilitas Terdeteksi:
+                            Masalah Kompatibilitas (Error):
                         </p>
                         <ul class="list-disc list-inside mt-2 text-sm">
                             @foreach($compatibilityIssues as $issue)
                                 <li>{{ $issue }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <!-- Warnings -->
+                @if(!empty($compatibilityWarnings))
+                    <div class="bg-amber-100 border-l-4 border-amber-500 text-amber-800 p-4 rounded-r shadow-sm mb-4">
+                        <p class="font-bold flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            Peringatan (Warning):
+                        </p>
+                        <ul class="list-disc list-inside mt-2 text-sm">
+                            @foreach($compatibilityWarnings as $warn)
+                                <li>{{ $warn }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <!-- Info -->
+                @if(!empty($compatibilityInfo))
+                    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-800 p-4 rounded-r shadow-sm mb-4">
+                        <p class="font-bold flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Saran Sistem:
+                        </p>
+                        <ul class="list-disc list-inside mt-2 text-sm">
+                            @foreach($compatibilityInfo as $info)
+                                <li>{{ $info }}</li>
                             @endforeach
                         </ul>
                     </div>

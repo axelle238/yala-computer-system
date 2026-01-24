@@ -104,4 +104,31 @@ class Product extends Model
     {
         return $this->stock_quantity <= $this->min_stock_alert;
     }
+
+    // --- PC Builder Accessors ---
+
+    public function getSocketTypeAttribute()
+    {
+        return $this->specifications['socket'] ?? null;
+    }
+
+    public function getMemoryTypeAttribute()
+    {
+        return $this->specifications['memory_type'] ?? null;
+    }
+
+    public function getFormFactorAttribute()
+    {
+        return $this->specifications['form_factor'] ?? null;
+    }
+
+    public function getTdpWattsAttribute()
+    {
+        return $this->specifications['tdp'] ?? 0;
+    }
+
+    public function getPsuWattageAttribute()
+    {
+        return $this->specifications['wattage'] ?? 0;
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Livewire\Store;
 use App\Models\Product;
 use App\Models\SavedBuild;
 use App\Models\Setting;
+use App\Services\PcCompatibilityService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -20,10 +21,14 @@ class PcBuilder extends Component
 
     // Build State
     public $buildName = 'My Custom PC';
-    public $selection = []; // [category_slug => ['product_id', 'price', 'name', 'image']]
+    public $selection = []; 
     public $totalPrice = 0;
     public $estimatedWattage = 0;
+    
+    // Status Messages
     public $compatibilityIssues = [];
+    public $compatibilityWarnings = [];
+    public $compatibilityInfo = [];
 
     // Modal Selector State
     public $showSelector = false;
@@ -67,7 +72,7 @@ class PcBuilder extends Component
         $this->currentCategory = $category;
         $this->searchQuery = '';
         $this->showSelector = true;
-        $this->resetPage(); // Reset pagination for the new category
+        $this->resetPage(); 
     }
 
     public function closeSelector()
@@ -85,11 +90,7 @@ class PcBuilder extends Component
                 'name' => $product->name,
                 'price' => $product->sell_price,
                 'image' => $product->image_path,
-                'specs' => [
-                    'socket' => $product->socket_type, // Assuming these columns exist or we parse desc
-                    'wattage' => $product->tdp_watts ?? 0,
-                    'memory_type' => $product->memory_type
-                ]
+                'specs' => $product->specifications // Store raw specs for service
             ];
             $this->recalculate();
         }
@@ -107,55 +108,22 @@ class PcBuilder extends Component
     public function recalculate()
     {
         $this->totalPrice = 0;
-        $this->estimatedWattage = 50; // Base overhead
-        $this->compatibilityIssues = [];
 
-        // Sum Price & Wattage
-        foreach ($this->selection as $key => $item) {
+        // 1. Sum Price
+        foreach ($this->selection as $item) {
             if ($item) {
                 $this->totalPrice += $item['price'];
-                
-                // Wattage (CPU & GPU major contributors)
-                if (in_array($key, ['processors', 'gpus'])) {
-                    $this->estimatedWattage += ($item['specs']['wattage'] ?? 0);
-                }
             }
         }
 
-        // --- Compatibility Checks ---
-        $cpu = $this->selection['processors'] ?? null;
-        $mobo = $this->selection['motherboards'] ?? null;
-        $ram = $this->selection['rams'] ?? null;
-        $psu = $this->selection['psus'] ?? null; // Assume we fetch PSU wattage from simulation if not in DB column
+        // 2. Compatibility Service
+        $service = new PcCompatibilityService();
+        $result = $service->checkCompatibility($this->selection);
 
-        // 1. Socket Check
-        if ($cpu && $mobo) {
-            // Simulation logic: In real app, check DB columns 'socket_type'
-            // Here we assume standard naming if columns specific aren't guaranteed populated
-            if (isset($cpu['specs']['socket']) && isset($mobo['specs']['socket'])) {
-                if ($cpu['specs']['socket'] != $mobo['specs']['socket']) {
-                    $this->compatibilityIssues[] = "Socket CPU ({$cpu['specs']['socket']}) mungkin tidak cocok dengan Motherboard.";
-                }
-            }
-        }
-
-        // 2. RAM Generation Check
-        if ($ram && $mobo) {
-            // e.g. DDR4 vs DDR5
-            if (str_contains(strtolower($ram['name']), 'ddr4') && str_contains(strtolower($mobo['name']), 'ddr5')) {
-                $this->compatibilityIssues[] = "RAM DDR4 tidak kompatibel dengan Motherboard DDR5.";
-            }
-             if (str_contains(strtolower($ram['name']), 'ddr5') && str_contains(strtolower($mobo['name']), 'ddr4')) {
-                $this->compatibilityIssues[] = "RAM DDR5 tidak kompatibel dengan Motherboard DDR4.";
-            }
-        }
-
-        // 3. PSU Check (Simple)
-        // If we had PSU wattage in DB, we'd check it. 
-        // For now, simple logic: if High-End GPU + CPU > 500W and no PSU selected
-        if ($this->estimatedWattage > 400 && !$psu) {
-            $this->compatibilityIssues[] = "Estimasi daya tinggi ({$this->estimatedWattage}W). Jangan lupa pilih PSU yang memadai (500W+).";
-        }
+        $this->compatibilityIssues = $result['issues'];
+        $this->compatibilityWarnings = $result['warnings'];
+        $this->compatibilityInfo = $result['info'];
+        $this->estimatedWattage = $result['wattage'];
     }
 
     // --- Actions ---
