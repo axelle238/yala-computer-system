@@ -104,6 +104,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/banners/{id}/edit', \App\Livewire\Banners\Form::class)->name('banners.edit');
 
     // Service Center
+    Route::get('/services/board', \App\Livewire\Services\Kanban::class)->name('services.kanban'); // New Kanban
     Route::get('/services', \App\Livewire\Services\Index::class)->name('services.index');
     Route::get('/services/create', \App\Livewire\Services\Form::class)->name('services.create');
     Route::get('/services/{id}/edit', \App\Livewire\Services\Form::class)->name('services.edit');

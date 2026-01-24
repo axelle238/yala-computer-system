@@ -43,10 +43,19 @@ class Dashboard extends Component
         // 3. Recent Activity (Realtime)
         $recentTransactions = InventoryTransaction::with(['product', 'user'])->latest()->take(5)->get();
 
+        // 4. Operational Data (Realtime)
+        $operational = [
+            'unassignedServices' => ServiceTicket::whereNull('technician_id')->whereNotIn('status', ['cancelled', 'picked_up'])->count(),
+            'pendingOpnames' => \App\Models\StockOpname::where('status', 'pending_approval')->count(),
+            'pendingPO' => \App\Models\PurchaseOrder::where('status', 'pending')->count(),
+            'criticalStockList' => Product::whereColumn('stock_quantity', '<=', 'min_stock_alert')->take(5)->get(),
+        ];
+
         return view('livewire.dashboard', [
             'stats' => $stats,
             'analytics' => $analytics,
             'recentTransactions' => $recentTransactions,
+            'operational' => $operational,
         ]);
     }
 }

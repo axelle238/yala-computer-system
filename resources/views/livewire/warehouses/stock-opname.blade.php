@@ -117,7 +117,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                @if($op->status === 'submitted' && (auth()->user()->isAdmin() || auth()->user()->isOwner()))
+                                @if($op->status === 'pending_approval' && (auth()->user()->isAdmin() || auth()->user()->isOwner()))
                                     <button wire:click="approve({{ $op->id }})" wire:confirm="Setujui Opname? Stok akan diupdate permanen." class="px-3 py-1 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700">Approve</button>
                                 @else
                                     <span class="text-xs text-slate-400">-</span>

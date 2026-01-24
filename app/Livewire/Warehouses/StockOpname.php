@@ -77,7 +77,7 @@ class StockOpname extends Component
                 'opname_number' => 'SO-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
                 'creator_id' => Auth::id(),
                 'opname_date' => $this->opnameDate,
-                'status' => 'submitted', // Auto submit for simplicity now
+                'status' => 'pending_approval', // Changed from submitted
                 'notes' => $this->notes,
             ]);
 
