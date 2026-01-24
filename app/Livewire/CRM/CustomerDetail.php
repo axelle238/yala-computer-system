@@ -2,45 +2,90 @@
 
 namespace App\Livewire\CRM;
 
-use App\Models\Order;
 use App\Models\User;
-use App\Models\ServiceTicket;
-use App\Models\Rma;
+use App\Models\PointHistory;
 use Livewire\Component;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Layout;
 
 #[Layout('layouts.admin')]
-#[Title('Customer 360 View - Yala Computer')]
+#[Title('Profil Pelanggan - CRM 360')]
 class CustomerDetail extends Component
 {
-    public User $customer;
-    public $activeTab = 'overview'; // overview, orders, services, rma
+    public $customer;
+    public $activeTab = 'overview'; // overview, orders, services, rma, points
+    
+    // Edit Profile
+    public $notes;
+
+    // Manual Point Adjustment
+    public $pointAdjustment = 0;
+    public $pointReason = '';
 
     public function mount($id)
     {
-        $this->customer = User::withCount(['orders', 'serviceTickets'])->findOrFail($id);
+        $this->customer = User::with(['orders', 'serviceTickets', 'rmas', 'pointHistories'])->findOrFail($id);
+        $this->notes = $this->customer->notes;
     }
 
-    public function setTab($tab)
+    public function updateNotes()
     {
-        $this->activeTab = $tab;
+        $this->customer->update(['notes' => $this->notes]);
+        session()->flash('success', 'Catatan CRM diperbarui.');
+    }
+
+    public function adjustPoints()
+    {
+        $this->validate([
+            'pointAdjustment' => 'required|integer|not_in:0',
+            'pointReason' => 'required|string|min:3',
+        ]);
+
+        $newBalance = $this->customer->loyalty_points + $this->pointAdjustment;
+        
+        if ($newBalance < 0) {
+            $this->addError('pointAdjustment', 'Poin tidak boleh minus.');
+            return;
+        }
+
+        // 1. Update User
+        $this->customer->loyalty_points = $newBalance;
+        $this->customer->save();
+
+        // 2. Log History
+        PointHistory::create([
+            'user_id' => $this->customer->id,
+            'amount' => $this->pointAdjustment,
+            'type' => 'adjustment',
+            'description' => 'Manual Adjustment: ' . $this->pointReason,
+        ]);
+
+        // 3. Check Tier Upgrade (Simple Logic)
+        $this->checkTierUpgrade();
+
+        session()->flash('success', 'Poin berhasil disesuaikan.');
+        $this->reset(['pointAdjustment', 'pointReason']);
+    }
+
+    public function checkTierUpgrade()
+    {
+        // Simple logic based on TOTAL SPENT, not points balance usually
+        // But let's check points for now or skip complex logic
+        $spent = $this->customer->total_spent;
+        
+        $newTier = 'bronze';
+        if ($spent >= 50000000) $newTier = 'platinum';
+        elseif ($spent >= 20000000) $newTier = 'gold';
+        elseif ($spent >= 5000000) $newTier = 'silver';
+
+        if ($newTier !== $this->customer->loyalty_tier) {
+            $this->customer->update(['loyalty_tier' => $newTier]);
+            // Maybe notify user
+        }
     }
 
     public function render()
     {
-        $data = [];
-        
-        if ($this->activeTab === 'orders') {
-            $data['orders'] = Order::where('user_id', $this->customer->id)->latest()->paginate(5);
-        } elseif ($this->activeTab === 'services') {
-            $data['services'] = ServiceTicket::where('customer_phone', $this->customer->phone)
-                ->orWhere('customer_name', $this->customer->name) // Fallback logic
-                ->latest()->get();
-        } elseif ($this->activeTab === 'rma') {
-            $data['rmas'] = Rma::where('user_id', $this->customer->id)->latest()->get();
-        }
-
-        return view('livewire.crm.customer-detail', $data);
+        return view('livewire.crm.customer-detail');
     }
 }

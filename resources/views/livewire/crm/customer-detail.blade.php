@@ -1,144 +1,196 @@
-<div class="p-6">
-    <!-- Header -->
-    <div class="flex items-center gap-4 mb-8">
-        <a href="{{ route('customers.index') }}" class="p-2 rounded-lg hover:bg-gray-100 text-gray-500">
-            &larr;
-        </a>
-        <div class="flex items-center gap-4">
-            <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-2xl font-black text-indigo-600">
-                {{ substr($customer->name, 0, 2) }}
-            </div>
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">{{ $customer->name }}</h1>
-                <div class="flex gap-3 text-sm text-gray-500">
-                    <span>{{ $customer->email }}</span>
-                    <span>•</span>
-                    <span>{{ $customer->phone ?? '-' }}</span>
-                    <span>•</span>
-                    <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold text-xs uppercase">{{ $customer->role }}</span>
-                </div>
-            </div>
-        </div>
-        <div class="ml-auto text-right">
-            <p class="text-xs text-gray-500 uppercase font-bold">Loyalty Points</p>
-            <p class="text-3xl font-black text-indigo-600">{{ number_format($customer->points) }}</p>
-        </div>
-    </div>
-
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-xs text-gray-500 font-bold uppercase">Total Spend</p>
-            <p class="text-xl font-bold text-emerald-600">Rp {{ number_format($customer->orders->sum('total_amount'), 0, ',', '.') }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-xs text-gray-500 font-bold uppercase">Orders</p>
-            <p class="text-xl font-bold text-gray-800">{{ $customer->orders_count }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-xs text-gray-500 font-bold uppercase">Service Tickets</p>
-            <p class="text-xl font-bold text-gray-800">{{ $customer->service_tickets_count }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-xs text-gray-500 font-bold uppercase">Referrals</p>
-            <p class="text-xl font-bold text-blue-600">{{ \App\Models\User::where('referred_by', $customer->id)->count() }}</p>
-        </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="border-b border-gray-200 mb-6">
-        <nav class="flex gap-6">
-            @foreach(['overview' => 'Overview', 'orders' => 'Order History', 'services' => 'Service Tickets', 'rma' => 'RMA / Warranty'] as $key => $label)
-                <button wire:click="setTab('{{ $key }}')" 
-                        class="pb-3 text-sm font-bold border-b-2 transition-colors {{ $activeTab === $key ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }}">
-                    {{ $label }}
-                </button>
-            @endforeach
-        </nav>
-    </div>
-
-    <!-- Content -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 min-h-[400px]">
-        @if($activeTab === 'overview')
-            <div class="p-6">
-                <h3 class="font-bold text-gray-800 mb-4">Customer Insight</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <h4 class="text-sm font-bold text-gray-500 mb-2">Address Book</h4>
-                        <ul class="space-y-2">
-                            @foreach($customer->addresses as $addr)
-                                <li class="p-3 bg-gray-50 rounded-lg text-sm">
-                                    <span class="font-bold block">{{ $addr->label }}</span>
-                                    <span class="text-gray-600">{{ $addr->address_line }}, {{ $addr->city }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
+<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    
+    <!-- HEADER PROFILE -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden mb-6">
+        <div class="h-32 bg-gradient-to-r from-indigo-600 to-purple-600"></div>
+        <div class="px-8 pb-6 relative">
+            <div class="flex flex-col md:flex-row items-end -mt-12 mb-4 gap-6">
+                <!-- Avatar -->
+                <div class="w-24 h-24 rounded-full bg-white p-1 shadow-lg">
+                    <div class="w-full h-full rounded-full bg-slate-200 flex items-center justify-center text-2xl font-bold text-slate-500 uppercase">
+                        {{ substr($customer->name, 0, 2) }}
                     </div>
-                    <div>
-                        <h4 class="text-sm font-bold text-gray-500 mb-2">Notes</h4>
-                        <textarea class="w-full rounded-lg border-gray-300 text-sm" rows="4" placeholder="Internal notes..."></textarea>
-                        <button class="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold">Save Note</button>
+                </div>
+                
+                <!-- Info -->
+                <div class="flex-1 mb-2">
+                    <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        {{ $customer->name }}
+                        <span class="px-2 py-0.5 rounded text-xs border uppercase tracking-wider {{ $customer->tier_color }}">
+                            {{ $customer->loyalty_tier }}
+                        </span>
+                    </h1>
+                    <p class="text-slate-500">{{ $customer->email }} | {{ $customer->phone ?? 'No Phone' }}</p>
+                    <p class="text-xs text-slate-400 mt-1">Bergabung sejak: {{ $customer->created_at->format('d M Y') }}</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="flex gap-6 mb-2">
+                    <div class="text-center">
+                        <div class="text-xs text-slate-500 uppercase font-bold">Total Belanja</div>
+                        <div class="text-xl font-black text-slate-800">Rp {{ number_format($customer->total_spent, 0, ',', '.') }}</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs text-slate-500 uppercase font-bold">Poin Reward</div>
+                        <div class="text-xl font-black text-indigo-600">{{ number_format($customer->loyalty_points) }}</div>
                     </div>
                 </div>
             </div>
 
-        @elseif($activeTab === 'orders')
-            <table class="w-full text-left text-sm text-gray-600">
-                <thead class="bg-gray-50 border-b border-gray-100">
-                    <tr>
-                        <th class="px-6 py-3">Order #</th>
-                        <th class="px-6 py-3">Date</th>
-                        <th class="px-6 py-3">Total</th>
-                        <th class="px-6 py-3">Status</th>
-                        <th class="px-6 py-3">Action</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @foreach($orders as $order)
-                        <tr>
-                            <td class="px-6 py-4 font-mono">{{ $order->order_number }}</td>
-                            <td class="px-6 py-4">{{ $order->created_at->format('d M Y') }}</td>
-                            <td class="px-6 py-4">Rp {{ number_format($order->total_amount) }}</td>
-                            <td class="px-6 py-4"><span class="px-2 py-1 bg-gray-100 rounded text-xs font-bold">{{ $order->status }}</span></td>
-                            <td class="px-6 py-4"><a href="{{ route('orders.show', $order->id) }}" class="text-indigo-600 font-bold hover:underline">View</a></td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            <div class="p-4">{{ $orders->links() }}</div>
-
-        @elseif($activeTab === 'services')
-            <div class="p-6 space-y-4">
-                @forelse($services as $ticket)
-                    <div class="border border-gray-200 rounded-xl p-4 flex justify-between items-center">
-                        <div>
-                            <div class="font-bold text-gray-800">{{ $ticket->ticket_number }} - {{ $ticket->device_name }}</div>
-                            <div class="text-sm text-gray-500">{{ $ticket->problem_description }}</div>
-                        </div>
-                        <div class="text-right">
-                            <span class="{{ $ticket->status_color }} px-3 py-1 rounded-full text-xs font-bold">{{ $ticket->status_label }}</span>
-                            <div class="text-xs text-gray-400 mt-1">{{ $ticket->created_at->format('d M Y') }}</div>
-                        </div>
-                    </div>
-                @empty
-                    <p class="text-gray-400 italic">No service history.</p>
-                @endforelse
+            <!-- Tabs -->
+            <div class="flex border-b border-slate-200 gap-6 overflow-x-auto">
+                @foreach(['overview' => 'Ringkasan', 'orders' => 'Riwayat Belanja', 'services' => 'Servis & Perbaikan', 'rma' => 'Retur & Garansi', 'points' => 'Log Poin'] as $key => $label)
+                    <button wire:click="$set('activeTab', '{{ $key }}')" 
+                            class="pb-3 text-sm font-bold whitespace-nowrap border-b-2 transition {{ $activeTab == $key ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700' }}">
+                        {{ $label }}
+                    </button>
+                @endforeach
             </div>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        @elseif($activeTab === 'rma')
-            <div class="p-6">
-                @forelse($rmas as $rma)
-                    <div class="border border-gray-200 rounded-xl p-4 mb-4">
-                        <div class="flex justify-between">
-                            <span class="font-bold text-indigo-600">{{ $rma->rma_number }}</span>
-                            <span class="text-sm font-bold uppercase text-gray-500">{{ $rma->status }}</span>
-                        </div>
-                        <p class="text-sm text-gray-600 mt-1">Resolution: {{ $rma->resolution_type }}</p>
+        <!-- MAIN CONTENT (Left) -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- TAB: OVERVIEW -->
+            @if($activeTab == 'overview')
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-slate-800 mb-4">Catatan CRM (Internal)</h3>
+                    <textarea wire:model="notes" class="w-full rounded-lg border-slate-300 focus:ring-indigo-500" rows="4" placeholder="Tulis preferensi pelanggan, keluhan khusus, dll..."></textarea>
+                    <div class="mt-2 text-right">
+                        <button wire:click="updateNotes" class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 text-sm font-bold">Simpan Catatan</button>
                     </div>
-                @empty
-                    <p class="text-gray-400 italic">No RMA history.</p>
-                @endforelse
+                </div>
+            @endif
+
+            <!-- TAB: ORDERS -->
+            @if($activeTab == 'orders')
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">No. Order</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">Tanggal</th>
+                                <th class="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase">Total</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            @forelse($customer->orders as $order)
+                                <tr>
+                                    <td class="px-4 py-3 text-sm font-medium text-indigo-600">
+                                        <a href="{{ route('orders.show', $order->id) }}">{{ $order->order_number }}</a>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-slate-500">{{ $order->created_at->format('d/m/Y') }}</td>
+                                    <td class="px-4 py-3 text-sm text-right font-bold">Rp {{ number_format($order->total_amount) }}</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="px-2 py-1 text-xs rounded-full bg-emerald-100 text-emerald-800">{{ $order->status }}</span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="4" class="p-6 text-center text-slate-400">Belum ada transaksi.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+
+            <!-- TAB: SERVICES -->
+            @if($activeTab == 'services')
+                <div class="space-y-4">
+                    @forelse($customer->serviceTickets as $ticket)
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-slate-800">{{ $ticket->device_name }}</div>
+                                <div class="text-xs text-slate-500">Tiket: #{{ $ticket->ticket_number }} | {{ $ticket->created_at->format('d M Y') }}</div>
+                                <div class="text-sm text-rose-600 mt-1">Masalah: {{ $ticket->problem_description }}</div>
+                            </div>
+                            <div class="text-right">
+                                <span class="px-2 py-1 rounded text-xs font-bold {{ $ticket->status_color }}">{{ $ticket->status_label }}</span>
+                                <div class="mt-2 text-sm font-bold">Rp {{ number_format($ticket->final_cost) }}</div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="p-6 text-center text-slate-400 bg-white rounded-xl border border-dashed border-slate-200">Belum ada riwayat servis.</div>
+                    @endforelse
+                </div>
+            @endif
+
+            <!-- TAB: POINTS -->
+            @if($activeTab == 'points')
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">Tanggal</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">Keterangan</th>
+                                <th class="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase">Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            @forelse($customer->pointHistories->sortByDesc('created_at') as $history)
+                                <tr>
+                                    <td class="px-4 py-3 text-sm text-slate-500">{{ $history->created_at->format('d/m/Y H:i') }}</td>
+                                    <td class="px-4 py-3 text-sm text-slate-700">{{ $history->description }}</td>
+                                    <td class="px-4 py-3 text-sm text-right font-bold {{ $history->amount > 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                                        {{ $history->amount > 0 ? '+' : '' }}{{ $history->amount }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="3" class="p-6 text-center text-slate-400">Belum ada riwayat poin.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+
+        </div>
+
+        <!-- SIDEBAR (Right) -->
+        <div class="space-y-6">
+            <!-- Tier Info -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h3 class="font-bold text-slate-800 mb-2">Status Keanggotaan</h3>
+                <div class="w-full bg-slate-100 rounded-full h-2.5 mb-2">
+                    <div class="bg-indigo-600 h-2.5 rounded-full" style="width: {{ min(100, ($customer->total_spent / 50000000) * 100) }}%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-500 mb-4">
+                    <span>Bronze</span>
+                    <span>Platinum (50jt)</span>
+                </div>
+                <p class="text-sm text-slate-600">
+                    Pelanggan perlu belanja <strong>Rp {{ number_format(max(0, 5000000 - $customer->total_spent), 0, ',', '.') }}</strong> lagi untuk naik ke Silver.
+                </p>
             </div>
-        @endif
+
+            <!-- Manual Adjustment -->
+            <div class="bg-slate-50 rounded-xl border border-slate-200 p-6">
+                <h3 class="font-bold text-slate-800 mb-4 text-sm uppercase">Penyesuaian Poin Manual</h3>
+                
+                @if (session()->has('success'))
+                    <div class="mb-4 text-xs text-emerald-600 font-bold bg-emerald-100 p-2 rounded">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500">Jumlah Poin (+/-)</label>
+                        <input type="number" wire:model="pointAdjustment" class="w-full text-sm rounded border-slate-300" placeholder="Contoh: 50 atau -20">
+                        @error('pointAdjustment') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500">Alasan</label>
+                        <input type="text" wire:model="pointReason" class="w-full text-sm rounded border-slate-300" placeholder="Kompensasi keluhan, Bonus ultah...">
+                        @error('pointReason') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
+                    </div>
+                    <button wire:click="adjustPoints" class="w-full py-2 bg-indigo-600 text-white rounded text-sm font-bold hover:bg-indigo-700">Proses</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>

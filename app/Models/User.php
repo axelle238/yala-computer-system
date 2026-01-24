@@ -6,36 +6,33 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Str;
-use App\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, LogsActivity;
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
-        'role',
-        'role_v2_id', // New RBAC
-        'access_rights',
-        'base_salary',
-        'join_date',
-        'points',
-        'referral_code',
-        'referrer_id',
+        'role', // admin, technician, cashier, customer
+        'loyalty_points',
+        'loyalty_tier',
+        'total_spent',
+        'last_purchase_at',
+        'notes',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -43,201 +40,54 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'access_rights' => 'array',
-            'join_date' => 'date',
-            'transport_allowance' => 'decimal:2',
-            'meal_allowance' => 'decimal:2',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'last_purchase_at' => 'datetime',
+        'total_spent' => 'decimal:2',
+    ];
 
-    protected static function booted()
-    {
-        static::creating(function ($user) {
-            if (empty($user->referral_code)) {
-                $user->referral_code = strtoupper(Str::random(8));
-            }
-        });
-    }
-
-    // --- Helper Methods untuk Role & Permission ---
-
-    public function shift()
-    {
-        return $this->belongsTo(Shift::class);
-    }
-
-    public function attendances()
-    {
-        return $this->hasMany(Attendance::class);
-    }
-
-    public function leaveRequests()
-    {
-        return $this->hasMany(LeaveRequest::class);
-    }
-
-    public function roleV2()
-    {
-        return $this->belongsTo(Role::class, 'role_v2_id');
-    }
-
-    public function hasPermissionTo($permission)
-    {
-        // 1. Super Admin Bypass
-        if ($this->isAdmin() || $this->roleV2?->slug === 'super-admin') {
-            return true;
-        }
-
-        // 2. Check Database Permissions (RBAC V2)
-        if ($this->roleV2) {
-            return $this->roleV2->permissions->contains('name', $permission);
-        }
-
-        // 3. Fallback to Legacy Enum/Array (RBAC V1)
-        if ($this->isAdmin()) return true;
-        if ($this->isOwner()) return in_array($permission, ['view_dashboard', 'view_reports']);
-        
-        return in_array($permission, $this->access_rights ?? []);
-    }
-
-    public function isAdmin()
-    {
-        return $this->role === 'admin' || $this->roleV2?->slug === 'admin';
-    }
-
-    public function isOwner()
-    {
-        return $this->role === 'owner';
-    }
-
-    public function isEmployee()
-    {
-        return !in_array($this->role, ['admin', 'owner']);
-    }
-
-    /**
-     * Cek apakah user memiliki izin spesifik.
-     */
-    public function hasPermission($permission)
-    {
-        if ($this->isAdmin()) {
-            return true;
-        }
-
-        if ($this->isOwner()) {
-            $ownerPermissions = ['view_dashboard', 'view_reports', 'view_products'];
-            return in_array($permission, $ownerPermissions);
-        }
-
-        if ($this->isEmployee()) {
-            return in_array($permission, $this->access_rights ?? []);
-        }
-
-        return false;
-    }
+    // --- Relationships ---
 
     public function orders()
     {
         return $this->hasMany(Order::class);
     }
 
-    public function savedBuilds()
+    public function serviceTickets()
     {
-        return $this->hasMany(SavedBuild::class);
+        return $this->hasMany(ServiceTicket::class); // As customer
     }
 
-    // --- CRM & Loyalty ---
-
-    public function customerGroup()
+    public function rmas()
     {
-        return $this->belongsTo(CustomerGroup::class);
+        return $this->hasMany(Rma::class);
     }
 
-    public function interactions()
+    public function pointHistories()
     {
-        return $this->hasMany(CustomerInteraction::class, 'user_id');
+        return $this->hasMany(PointHistory::class);
     }
 
-    public function loyaltyLogs()
+    public function employeeDetail()
     {
-        return $this->hasMany(LoyaltyLog::class);
+        return $this->hasOne(EmployeeDetail::class);
     }
 
-    public function recalculateLevel()
+    // --- Helpers ---
+
+    public function getTierColorAttribute()
     {
-        $totalSpent = $this->orders()->where('status', 'completed')->sum('total_amount');
-        $this->update(['lifetime_value' => $totalSpent]);
-
-        $group = CustomerGroup::where('min_spend', '<=', $totalSpent)
-            ->orderByDesc('min_spend')
-            ->first();
-
-        if ($group && $this->customer_group_id !== $group->id) {
-            $this->update(['customer_group_id' => $group->id]);
-        }
-    }
-
-    // --- Referral System ---
-
-    public function referrer()
-    {
-        return $this->belongsTo(User::class, 'referrer_id');
-    }
-
-    public function referrals()
-    {
-        return $this->hasMany(User::class, 'referrer_id');
-    }
-
-    // --- Gamification Logic ---
-
-    public function getTotalSpentAttribute()
-    {
-        // Cache or calculate on fly. For now, on fly.
-        return $this->orders()->where('status', 'completed')->sum('total_amount');
-    }
-
-    public function getLevelAttribute()
-    {
-        $spent = $this->total_spent;
-
-        if ($spent > 50000000) return ['name' => 'Legend', 'color' => 'text-amber-400', 'bg' => 'bg-amber-400/10', 'icon' => 'crown'];
-        if ($spent > 20000000) return ['name' => 'Pro', 'color' => 'text-purple-400', 'bg' => 'bg-purple-400/10', 'icon' => 'lightning-bolt'];
-        if ($spent > 5000000)  return ['name' => 'Enthusiast', 'color' => 'text-cyan-400', 'bg' => 'bg-cyan-400/10', 'icon' => 'star'];
-        
-        return ['name' => 'Newbie', 'color' => 'text-slate-400', 'bg' => 'bg-slate-400/10', 'icon' => 'user'];
-    }
-
-    public function getNextLevelProgressAttribute()
-    {
-        $spent = $this->total_spent;
-        $levels = [
-            5000000 => 5000000,
-            20000000 => 20000000,
-            50000000 => 50000000,
-        ];
-
-        foreach ($levels as $limit => $target) {
-            if ($spent < $limit) {
-                $prevLimit = $limit === 5000000 ? 0 : ($limit === 20000000 ? 5000000 : 20000000);
-                $progress = ($spent - $prevLimit) / ($target - $prevLimit) * 100;
-                return [
-                    'percent' => min(100, max(0, $progress)),
-                    'target' => $target,
-                    'remaining' => $target - $spent
-                ];
-            }
-        }
-
-        return ['percent' => 100, 'target' => 0, 'remaining' => 0]; // Max level
+        return match($this->loyalty_tier) {
+            'bronze' => 'text-amber-700 bg-amber-100 border-amber-200',
+            'silver' => 'text-slate-700 bg-slate-200 border-slate-300',
+            'gold' => 'text-yellow-700 bg-yellow-100 border-yellow-300',
+            'platinum' => 'text-indigo-700 bg-indigo-100 border-indigo-300',
+            default => 'text-slate-600 bg-slate-100',
+        };
     }
 }

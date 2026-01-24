@@ -12,9 +12,4 @@ class PointHistory extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    public function reference()
-    {
-        return $this->morphTo();
-    }
 }
