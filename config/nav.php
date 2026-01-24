@@ -212,6 +212,13 @@ return [
                     'roles' => ['admin', 'owner'],
                     'permission' => 'setting.view',
                 ],
+                [
+                    'label' => 'Manajemen Aset',
+                    'route' => 'assets.index',
+                    'icon'  => 'cube-transparent', // Need to create icon
+                    'roles' => ['admin', 'owner'],
+                    'permission' => 'setting.edit', // Or specific permission
+                ],
             ]
         ],
     ]

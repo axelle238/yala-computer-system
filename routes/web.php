@@ -147,6 +147,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/print/label/{id}', [\App\Http\Controllers\PrintController::class, 'productLabel'])->name('print.label');
     Route::get('/print/labels', [\App\Http\Controllers\PrintController::class, 'labels'])->name('print.labels');
 
+    // Assets Management
+    Route::get('/assets', \App\Livewire\Assets\Index::class)->name('assets.index');
+    Route::get('/assets/create', \App\Livewire\Assets\Form::class)->name('assets.create');
+
     // HR & Analytics
     Route::get('/analytics', \App\Livewire\Reports\Index::class)->name('reports.index');
     Route::get('/reports/finance', \App\Livewire\Reports\FinanceReport::class)->name('reports.finance'); // New
