@@ -9,58 +9,84 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.app')]
-#[Title('Manajemen Ulasan & Reputasi - Yala Computer')]
+#[Title('Moderasi Ulasan - Yala Computer')]
 class Manager extends Component
 {
     use WithPagination;
 
-    public $filterRating = 'all'; // all, 5, 4, 3, 2, 1
+    public $filter = 'pending'; // pending, approved, rejected, all
     public $search = '';
     
-    // Reply Modal
-    public $replyingToId = null;
-    public $replyContent = '';
-    public $isModalOpen = false;
+    // Reply
+    public $replyingTo = null;
+    public $replyMessage = '';
 
-    public function updatedFilterRating() { $this->resetPage(); }
-
-    public function openReply($id)
+    public function approve($id)
     {
-        $review = Review::findOrFail($id);
-        $this->replyingToId = $id;
-        $this->replyContent = $review->admin_reply;
-        $this->isModalOpen = true;
+        Review::where('id', $id)->update(['is_approved' => true]);
+        $this->dispatch('notify', message: 'Ulasan disetujui.', type: 'success');
+    }
+
+    public function reject($id)
+    {
+        Review::where('id', $id)->update(['is_approved' => false]);
+        $this->dispatch('notify', message: 'Ulasan ditolak/disembunyikan.');
+    }
+
+    public function delete($id)
+    {
+        Review::destroy($id);
+        $this->dispatch('notify', message: 'Ulasan dihapus permanen.', type: 'warning');
+    }
+
+    public function startReply($id)
+    {
+        $this->replyingTo = $id;
+        $review = Review::find($id);
+        $this->replyMessage = $review->reply ?? '';
     }
 
     public function saveReply()
     {
-        $this->validate(['replyContent' => 'required|string|max:1000']);
+        $this->validate(['replyMessage' => 'required|string']);
         
-        $review = Review::findOrFail($this->replyingToId);
-        $review->update([
-            'admin_reply' => $this->replyContent,
+        Review::where('id', $this->replyingTo)->update([
+            'reply' => $this->replyMessage,
             'replied_at' => now()
         ]);
 
-        $this->isModalOpen = false;
-        $this->dispatch('notify', message: 'Balasan ulasan disimpan.', type: 'success');
+        $this->replyingTo = null;
+        $this->replyMessage = '';
+        $this->dispatch('notify', message: 'Balasan terkirim.', type: 'success');
     }
 
-    public function toggleVisibility($id)
+    public function cancelReply()
     {
-        $review = Review::findOrFail($id);
-        $review->update(['is_hidden' => !$review->is_hidden]);
-        $this->dispatch('notify', message: $review->is_hidden ? 'Ulasan disembunyikan.' : 'Ulasan ditampilkan kembali.', type: 'success');
+        $this->replyingTo = null;
+        $this->replyMessage = '';
     }
 
     public function render()
     {
-        $reviews = Review::with(['user', 'product'])
-            ->when($this->filterRating !== 'all', fn($q) => $q->where('rating', $this->filterRating))
+        $reviews = Review::with('product')
             ->when($this->search, function($q) {
-                $q->whereHas('product', fn($p) => $p->where('name', 'like', '%'.$this->search.'%'))
-                  ->orWhereHas('user', fn($u) => $u->where('name', 'like', '%'.$this->search.'%'))
-                  ->orWhere('comment', 'like', '%'.$this->search.'%');
+                $q->where('comment', 'like', '%' . $this->search . '%')
+                  ->orWhere('reviewer_name', 'like', '%' . $this->search . '%');
+            })
+            ->when($this->filter !== 'all', function($q) {
+                if ($this->filter === 'pending') {
+                    // Logic: approved is boolean. Pending usually means not explicitly processed if we had a status column.
+                    // But here we rely on is_approved. Let's assume pending = false initially?
+                    // Actually usually systems auto-approve or hold. 
+                    // Let's assume: is_approved = false means Pending/Hidden.
+                    // To distinguish Rejected vs Pending, we might need a status column or timestamp.
+                    // For simplicity: Pending = is_approved false (default state if manual approval needed)
+                    // If we want 'Rejected', we might need to delete or flag. 
+                    // Let's stick to simple boolean: Approved (Visible) vs Pending/Hidden (Not Visible).
+                    $q->where('is_approved', $this->filter === 'approved');
+                } else {
+                    $q->where('is_approved', $this->filter === 'approved');
+                }
             })
             ->latest()
             ->paginate(10);

@@ -15,19 +15,54 @@ use Livewire\Attributes\Title;
 class Show extends Component
 {
     public Order $order;
+    public $tracking_number;
 
     public function mount($id)
     {
         $this->order = Order::with('items.product')->findOrFail($id);
+        $this->tracking_number = $this->order->shipping_tracking_number;
     }
 
     public function updateStatus($status)
     {
-        $validStatuses = ['pending', 'processing', 'completed', 'cancelled'];
+        $validStatuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
         if (in_array($status, $validStatuses)) {
+            // Logic for transitions
+            if ($status === 'processing' && $this->order->status === 'pending') {
+                // Auto verify payment if moving to processing? Or just move status.
+                // Let's assume manual move doesn't auto-pay unless verified button used.
+            }
+            
             $this->order->update(['status' => $status]);
             $this->dispatch('notify', message: "Order status updated to $status", type: 'success');
         }
+    }
+
+    public function updateTracking()
+    {
+        $this->validate(['tracking_number' => 'required|string|min:5']);
+        $this->order->update(['shipping_tracking_number' => $this->tracking_number]);
+        $this->dispatch('notify', message: "Nomor resi disimpan.", type: 'success');
+    }
+
+    public function markAsShipped()
+    {
+        if (empty($this->tracking_number)) {
+            $this->addError('tracking_number', 'Resi wajib diisi sebelum kirim.');
+            return;
+        }
+        
+        $this->order->update([
+            'status' => 'shipped',
+            'shipping_tracking_number' => $this->tracking_number
+        ]);
+        
+        $this->dispatch('notify', message: "Order dikirim! Status: Shipped", type: 'success');
+    }
+
+    public function printLabel()
+    {
+        return redirect()->route('print.label', $this->order->id);
     }
 
     public function verifyPayment()
