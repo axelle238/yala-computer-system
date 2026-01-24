@@ -41,10 +41,26 @@ class Create extends Component
     
     // UI State
     public $showSuccessModal = false;
+    public $registerStatus = 'closed'; // open, closed
 
     public function mount()
     {
         $this->reference_number = 'TRX-' . strtoupper(uniqid());
+        $this->checkRegister();
+    }
+
+    public function checkRegister()
+    {
+        $active = CashRegister::where('user_id', Auth::id())
+            ->where('status', 'open')
+            ->exists();
+        
+        $this->registerStatus = $active ? 'open' : 'closed';
+
+        if (!$active && $this->type === 'out') {
+            // Optional: Redirect immediately or show blocker
+            // return redirect()->route('finance.cash-register');
+        }
     }
 
     // --- Saved Build Integration ---

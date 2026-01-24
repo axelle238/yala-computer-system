@@ -148,10 +148,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/shift', \App\Livewire\Shift\Manager::class)->name('shift.manager'); // Updated name
     Route::get('/reimbursement', \App\Livewire\Employees\Reimbursement::class)->name('employees.reimbursement'); // Next step
 
-    // B2B & Finance
-    Route::get('/quotations', \App\Livewire\Quotations\Index::class)->name('quotations.index');
-    Route::get('/quotations/create', \App\Livewire\Quotations\Create::class)->name('quotations.create');
-    Route::get('/quotations/{id}', \App\Livewire\Quotations\Show::class)->name('quotations.show');
+    // Finance
+    Route::get('/finance/cash-register', \App\Livewire\Finance\CashRegisterManager::class)->name('finance.cash-register'); // New Complex Feature
     Route::get('/finance/receivables', \App\Livewire\Finance\Receivables::class)->name('finance.receivables');
     Route::get('/finance/profit-loss', \App\Livewire\Finance\ProfitLoss::class)->name('finance.profit-loss'); // New
 

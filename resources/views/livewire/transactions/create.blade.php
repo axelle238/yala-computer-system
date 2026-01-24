@@ -1,4 +1,26 @@
-<div class="h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-6 overflow-hidden animate-fade-in-up">
+<div class="h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-6 overflow-hidden animate-fade-in-up relative">
+
+    @if($registerStatus === 'closed')
+        <div class="absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 rounded-3xl">
+            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border border-slate-200 dark:border-slate-700">
+                <div class="w-20 h-20 bg-rose-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-rose-500/30">
+                    <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2-2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                </div>
+                <h2 class="text-2xl font-black text-slate-800 dark:text-white mb-2 font-tech">KASIR TERTUTUP</h2>
+                <p class="text-slate-500 dark:text-slate-400 mb-8 text-sm">Anda harus membuka sesi kasir (Open Register) terlebih dahulu sebelum dapat melakukan transaksi penjualan.</p>
+                
+                <div class="space-y-3">
+                    <a href="{{ route('finance.cash-register') }}" class="block w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/30">
+                        Buka Shift Kasir Sekarang
+                    </a>
+                    <a href="{{ route('dashboard') }}" class="block w-full py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-all">
+                        Kembali ke Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Left Panel: Product Grid -->
     <div class="flex-1 flex flex-col h-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm overflow-hidden relative tech-border">
         
