@@ -149,7 +149,12 @@
         {{ $slot }}
     </main>
 
-    <footer class="bg-slate-950 border-t border-white/10 py-16 relative overflow-hidden mt-20">
+    <!-- Newsletter Section -->
+    <div class="max-w-7xl mx-auto px-4 mt-20">
+        <livewire:front.newsletter />
+    </div>
+
+    <footer class="bg-slate-950 border-t border-white/10 py-16 relative overflow-hidden mt-12">
         <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5"></div>
         <div class="max-w-7xl mx-auto px-4 relative z-10">
             <div class="flex flex-col md:flex-row justify-between items-center gap-8 mb-12">
@@ -159,6 +164,7 @@
                 </div>
                 <div class="flex flex-wrap justify-center gap-6 text-xs text-slate-400 font-bold uppercase tracking-widest">
                     <a href="{{ route('home') }}" class="hover:text-cyan-400 transition-colors">Katalog</a>
+                    <a href="{{ route('track-order') }}" class="hover:text-cyan-400 transition-colors">Lacak Pesanan</a>
                     <a href="{{ route('news.index') }}" class="hover:text-cyan-400 transition-colors">Berita</a>
                     <a href="{{ route('privacy-policy') }}" class="hover:text-cyan-400 transition-colors">Privacy</a>
                     <a href="{{ route('terms-of-service') }}" class="hover:text-cyan-400 transition-colors">Terms</a>
