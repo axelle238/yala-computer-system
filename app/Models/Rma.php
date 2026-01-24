@@ -2,24 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Rma extends Model
 {
-    use HasFactory;
-
-    protected $fillable = [
-        'rma_number',
-        'user_id',
-        'order_id',
-        'guest_name',
-        'guest_phone',
-        'status',
-        'resolution_type',
-        'reason',
-        'admin_notes',
-    ];
+    protected $guarded = [];
 
     public function items()
     {

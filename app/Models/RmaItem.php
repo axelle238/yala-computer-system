@@ -2,24 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class RmaItem extends Model
 {
-    use HasFactory;
-
-    protected $fillable = [
-        'rma_id',
-        'product_id',
-        'serial_number',
-        'quantity',
-        'condition',
-        'problem_description',
-    ];
+    protected $guarded = [];
 
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function replacementProduct()
+    {
+        return $this->belongsTo(Product::class, 'replacement_product_id');
     }
 }
