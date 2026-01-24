@@ -1,143 +1,170 @@
-<div class="p-6">
-    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-800">RMA Manager</h1>
-            <p class="text-gray-500">Kelola klaim garansi dan retur barang.</p>
-        </div>
-        <div class="flex gap-2">
-            <select wire:model.live="statusFilter" class="rounded-lg border-gray-300">
-                <option value="">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="received_goods">Received Goods</option>
-                <option value="completed">Completed</option>
-                <option value="rejected">Rejected</option>
-            </select>
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search RMA / Customer..." class="rounded-lg border-gray-300">
-        </div>
+<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-slate-800">Manajemen Retur & Garansi (RMA)</h2>
+        <button wire:click="$set('viewMode', 'create')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Buat RMA Baru
+        </button>
     </div>
 
-    <!-- List -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <table class="w-full text-left text-sm text-gray-600">
-            <thead class="bg-gray-50 uppercase text-xs font-semibold text-gray-700">
-                <tr>
-                    <th class="px-6 py-4">RMA Number</th>
-                    <th class="px-6 py-4">Customer</th>
-                    <th class="px-6 py-4">Request Type</th>
-                    <th class="px-6 py-4">Status</th>
-                    <th class="px-6 py-4">Date</th>
-                    <th class="px-6 py-4 text-center">Action</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @forelse($rmas as $rma)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 font-mono font-medium text-gray-900">{{ $rma->rma_number }}</td>
-                        <td class="px-6 py-4">
-                            <div class="font-bold">{{ $rma->guest_name ?? $rma->user->name }}</div>
-                            <div class="text-xs text-gray-400">Ord: {{ $rma->order->order_number ?? 'N/A' }}</div>
-                        </td>
-                        <td class="px-6 py-4 capitalize">{{ $rma->resolution_type }}</td>
-                        <td class="px-6 py-4">
-                            @php
-                                $colors = [
-                                    'pending' => 'bg-yellow-100 text-yellow-700',
-                                    'approved' => 'bg-blue-100 text-blue-700',
-                                    'completed' => 'bg-emerald-100 text-emerald-700',
-                                    'rejected' => 'bg-red-100 text-red-700',
-                                ];
-                            @endphp
-                            <span class="px-2 py-1 rounded-full text-xs font-bold uppercase {{ $colors[$rma->status] ?? 'bg-gray-100' }}">
-                                {{ str_replace('_', ' ', $rma->status) }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4">{{ $rma->created_at->format('d M Y') }}</td>
-                        <td class="px-6 py-4 text-center">
-                            <button wire:click="manage({{ $rma->id }})" class="text-blue-600 font-bold hover:underline">Manage</button>
-                        </td>
+    <!-- LIST MODE -->
+    @if($viewMode == 'list')
+        <div class="bg-white shadow rounded-xl overflow-hidden border border-slate-200">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">No. RMA</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Pelanggan</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Asal Order</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Status</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Aksi</th>
                     </tr>
-                @empty
-                    <tr><td colspan="6" class="px-6 py-12 text-center text-gray-400">No RMA requests found.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-        <div class="p-4 border-t border-gray-100">{{ $rmas->links() }}</div>
-    </div>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                    @forelse($rmas as $rma)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap font-medium text-indigo-600">{{ $rma->rma_number }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{{ $rma->customer_name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $rma->order ? $rma->order->order_number : '-' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <span class="px-2 py-1 rounded-full text-xs font-bold {{ $rma->status_color }}">
+                                    {{ $rma->status_label }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <button wire:click="openProcess({{ $rma->id }})" class="text-indigo-600 hover:text-indigo-900 font-bold text-sm">Proses</button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="5" class="px-6 py-12 text-center text-slate-400">Belum ada data RMA.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+            <div class="px-6 py-3 border-t border-slate-200">{{ $rmas->links() }}</div>
+        </div>
+    @endif
 
-    <!-- Modal -->
-    @if($showModal && $selectedRma)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
-                    <h2 class="text-xl font-bold">Manage {{ $selectedRma->rma_number }}</h2>
-                    <button wire:click="closeModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+    <!-- CREATE MODE -->
+    @if($viewMode == 'create')
+        <div class="bg-white shadow rounded-xl p-6 border border-slate-200">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Buat Permintaan Retur Baru</h3>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Cari Nomor Order / Invoice</label>
+                <div class="flex gap-2">
+                    <input type="text" wire:model="searchOrder" class="w-full rounded-lg border-slate-300" placeholder="Contoh: ORD-20240101-1234">
+                    <button wire:click="searchOrderAction" class="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700">Cari</button>
                 </div>
-                
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Details -->
-                    <div class="space-y-6">
-                        <div class="bg-gray-50 p-4 rounded-xl">
-                            <h3 class="font-bold text-gray-800 mb-2">Customer & Order</h3>
-                            <p class="text-sm"><span class="text-gray-500">Name:</span> {{ $selectedRma->guest_name }}</p>
-                            <p class="text-sm"><span class="text-gray-500">Phone:</span> {{ $selectedRma->guest_phone }}</p>
-                            <p class="text-sm"><span class="text-gray-500">Order:</span> #{{ $selectedRma->order->order_number }}</p>
-                            <p class="text-sm mt-2"><span class="text-gray-500">Reason (General):</span> {{ $selectedRma->reason }}</p>
+                @error('searchOrder') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
+            </div>
+
+            @if($foundOrder)
+                <div class="bg-indigo-50 p-4 rounded-lg mb-6 border border-indigo-100">
+                    <div class="flex justify-between mb-2">
+                        <span class="font-bold text-indigo-900">Order Ditemukan!</span>
+                        <span class="text-sm text-indigo-700">{{ $foundOrder->created_at->format('d M Y') }}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-sm text-indigo-800 mb-4">
+                        <div>Nama: {{ $guestName }}</div>
+                        <div>Telp: {{ $guestPhone }}</div>
+                    </div>
+
+                    <div class="space-y-2">
+                        @foreach($foundOrder->items as $item)
+                            <div class="flex items-start gap-3 bg-white p-3 rounded border border-indigo-100">
+                                <input type="checkbox" wire:model="selectedOrderItems.{{ $item->id }}.selected" class="mt-1 rounded text-indigo-600 focus:ring-indigo-500">
+                                <div class="flex-1">
+                                    <div class="font-bold text-slate-800">{{ $item->product->name }}</div>
+                                    <div class="text-xs text-slate-500">SKU: {{ $item->product->sku }} | Harga: Rp {{ number_format($item->price) }}</div>
+                                    
+                                    @if($selectedOrderItems[$item->id]['selected'] ?? false)
+                                        <div class="mt-2 grid grid-cols-2 gap-2">
+                                            <input type="text" wire:model="selectedOrderItems.{{ $item->id }}.reason" placeholder="Alasan Retur (Wajib)" class="text-xs border-slate-300 rounded">
+                                            <input type="number" wire:model="selectedOrderItems.{{ $item->id }}.qty" max="{{ $item->quantity }}" min="1" placeholder="Qty" class="text-xs border-slate-300 rounded">
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Catatan Tambahan</label>
+                    <textarea wire:model="createNotes" class="w-full rounded-lg border-slate-300" rows="3"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <button wire:click="$set('viewMode', 'list')" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
+                    <button wire:click="storeRma" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold">Simpan RMA</button>
+                </div>
+            @endif
+        </div>
+    @endif
+
+    <!-- PROCESS MODE -->
+    @if($viewMode == 'process' && $activeRma)
+        <div class="bg-white shadow rounded-xl p-6 border border-slate-200">
+            <div class="flex justify-between items-start mb-6 border-b pb-4">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800">Proses RMA #{{ $activeRma->rma_number }}</h3>
+                    <p class="text-sm text-slate-500">Pelanggan: {{ $activeRma->customer_name }}</p>
+                </div>
+                <div class="text-right">
+                    <span class="px-3 py-1 rounded-full text-sm font-bold {{ $activeRma->status_color }}">{{ $activeRma->status_label }}</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Info Barang -->
+                <div>
+                    <h4 class="font-bold text-slate-700 mb-3 uppercase text-xs">Barang Diretur</h4>
+                    <div class="space-y-3">
+                        @foreach($activeRma->items as $item)
+                            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                                <div class="font-bold text-slate-800">{{ $item->product->name }}</div>
+                                <div class="text-sm text-rose-600 mt-1">Masalah: "{{ $item->problem_description }}"</div>
+                                <div class="text-xs text-slate-500 mt-1">Kondisi: {{ $item->condition ?? '-' }}</div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Form Update -->
+                <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                    <h4 class="font-bold text-indigo-900 mb-3 uppercase text-xs">Update Status & Resolusi</h4>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-indigo-800 mb-1">Status Pengerjaan</label>
+                            <select wire:model="processStatus" class="w-full rounded-lg border-indigo-200 focus:ring-indigo-500">
+                                <option value="requested">Permintaan Baru</option>
+                                <option value="approved">Disetujui (Kirim ke Toko)</option>
+                                <option value="received">Diterima Toko (Cek Fisik)</option>
+                                <option value="vendor_process">Klaim ke Distributor</option>
+                                <option value="resolved">Selesai</option>
+                                <option value="rejected">Ditolak</option>
+                            </select>
                         </div>
 
                         <div>
-                            <h3 class="font-bold text-gray-800 mb-2">Items Claimed</h3>
-                            <div class="space-y-3">
-                                @foreach($selectedRma->items as $item)
-                                    <div class="border border-gray-200 rounded-lg p-3">
-                                        <div class="font-bold text-sm">{{ $item->product->name }}</div>
-                                        <div class="text-xs text-gray-500 flex justify-between mt-1">
-                                            <span>Qty: {{ $item->quantity }}</span>
-                                            <span class="capitalize">Cond: {{ str_replace('_', ' ', $item->condition) }}</span>
-                                        </div>
-                                        <div class="mt-2 text-xs bg-red-50 text-red-700 p-2 rounded">
-                                            Problem: {{ $item->problem_description }}
-                                        </div>
-                                        @if($item->evidence_files)
-                                            <div class="mt-2 flex gap-2 overflow-x-auto">
-                                                @foreach($item->evidence_files as $file)
-                                                    <a href="{{ asset('storage/'.$file) }}" target="_blank" class="block w-16 h-16 rounded overflow-hidden border border-gray-300">
-                                                        <img src="{{ asset('storage/'.$file) }}" class="w-full h-full object-cover">
-                                                    </a>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    </div>
-                                @endforeach
-                            </div>
+                            <label class="block text-sm font-medium text-indigo-800 mb-1">Jenis Resolusi (Jika Selesai)</label>
+                            <select wire:model="processResolution" class="w-full rounded-lg border-indigo-200 focus:ring-indigo-500">
+                                <option value="">-- Belum Ditentukan --</option>
+                                <option value="repair">Servis / Perbaikan</option>
+                                <option value="replacement">Tukar Baru (Swap)</option>
+                                <option value="refund">Refund Dana</option>
+                            </select>
                         </div>
-                    </div>
 
-                    <!-- Actions -->
-                    <div class="space-y-6">
-                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                            <h3 class="font-bold text-blue-800 mb-4">Admin Actions</h3>
-                            
-                            <div class="mb-4">
-                                <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Update Status</label>
-                                <select wire:model="updateStatusTo" class="w-full rounded-lg border-gray-300">
-                                    <option value="pending">Pending</option>
-                                    <option value="approved">Approved (Send Instructions)</option>
-                                    <option value="received_goods">Received Goods (Under Inspection)</option>
-                                    <option value="checking">Checking / Repairing</option>
-                                    <option value="completed">Completed (Resolved)</option>
-                                    <option value="rejected">Rejected</option>
-                                </select>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-indigo-800 mb-1">Catatan Admin</label>
+                            <textarea wire:model="processNote" class="w-full rounded-lg border-indigo-200" rows="3" placeholder="Contoh: Barang sudah dikirim ke Jakarta..."></textarea>
+                        </div>
 
-                            <div class="mb-4">
-                                <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Admin Notes / Instruction</label>
-                                <textarea wire:model="adminNotes" rows="5" class="w-full rounded-lg border-gray-300 text-sm" placeholder="Write internal notes or instructions for customer..."></textarea>
-                            </div>
-
-                            <button wire:click="saveManagement" class="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">
-                                Save Update
-                            </button>
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button wire:click="$set('viewMode', 'list')" class="px-4 py-2 text-indigo-600 hover:bg-indigo-100 rounded-lg">Kembali</button>
+                            <button wire:click="updateStatus" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold">Simpan Update</button>
                         </div>
                     </div>
                 </div>

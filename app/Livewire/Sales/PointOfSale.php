@@ -220,7 +220,6 @@ class PointOfSale extends Component
                     'product_id' => $id,
                     'quantity' => $item['qty'],
                     'price' => $item['price'],
-                    'subtotal' => $item['qty'] * $item['price'],
                 ]);
 
                 // 4. Potong Stok & Log Inventory
