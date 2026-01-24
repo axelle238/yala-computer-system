@@ -13,6 +13,13 @@ return [
                     'permission' => 'dashboard.view',
                 ],
                 [
+                    'label' => 'Tugas & Kolaborasi',
+                    'route' => 'admin.tasks',
+                    'icon'  => 'clipboard-list', // Need to create icon
+                    'roles' => ['admin', 'owner', 'technician', 'warehouse'],
+                    'permission' => 'dashboard.view', // Basic permission for all staff
+                ],
+                [
                     'label' => 'Layar Toko (Front)',
                     'route' => 'home',
                     'icon'  => 'store',

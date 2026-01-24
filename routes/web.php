@@ -54,6 +54,9 @@ Route::prefix('member')->middleware('auth')->group(function () {
 Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/', Dashboard::class)->name('dashboard');
     
+    // Tasks & Collaboration
+    Route::get('/tasks', \App\Livewire\Admin\TaskManager::class)->name('admin.tasks'); // New
+
     // RMA (Admin) - UPGRADED TO MANAGER
     Route::get('/rma', \App\Livewire\Rma\Manager::class)->name('rma.index'); // Updated to Manager
     Route::get('/rma/create', \App\Livewire\Rma\Form::class)->name('rma.create');

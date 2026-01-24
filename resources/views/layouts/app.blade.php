@@ -79,6 +79,9 @@
 
                     <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
 
+                    <!-- Notifications -->
+                    <livewire:components.admin-notification />
+
                     <!-- Dark Mode Toggle -->
                     <button @click="toggle()" class="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors relative" title="Ganti Tema">
                         <svg x-show="!darkMode" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
