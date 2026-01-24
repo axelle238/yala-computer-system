@@ -3,118 +3,80 @@
 namespace App\Livewire\Logistics;
 
 use App\Models\Order;
-use App\Models\Shipment;
 use App\Models\ShippingManifest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Layout('layouts.app')]
-#[Title('Manajemen Pengiriman & Logistik - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Logistics & Shipping Manifest - Yala Computer')]
 class Manager extends Component
 {
     use WithPagination;
 
-    public $activeTab = 'ready_to_ship'; // ready_to_ship, shipped, manifests
-    
-    // Bulk Action
+    public $viewMode = 'list'; // list, create
+    public $courierFilter = 'jne'; // Default
     public $selectedOrders = [];
-    public $bulkTrackingNumber = []; // [order_id => 'resi']
     
-    // Manifest Creation
-    public $showManifestModal = false;
-    public $manifestCourier = 'jne';
+    public function toggleMode($mode) { $this->viewMode = $mode; }
 
-    public function updatedActiveTab()
-    {
-        $this->resetPage();
-        $this->selectedOrders = [];
-    }
-
-    public function shipOrder($orderId)
-    {
-        $order = Order::findOrFail($orderId);
-        $resi = $this->bulkTrackingNumber[$orderId] ?? null;
-
-        if (!$resi) {
-            $this->dispatch('notify', message: 'Masukkan nomor resi terlebih dahulu.', type: 'error');
-            return;
-        }
-
-        DB::transaction(function () use ($order, $resi) {
-            // Create Shipment
-            Shipment::create([
-                'order_id' => $order->id,
-                'courier_name' => $order->shipping_courier,
-                'tracking_number' => $resi,
-                'shipping_cost' => $order->shipping_cost,
-                'status' => 'shipped',
-                'shipped_at' => now(),
-            ]);
-
-            // Update Order Status
-            $order->update(['status' => 'shipped']);
-        });
-
-        $this->dispatch('notify', message: 'Pesanan ditandai dikirim.', type: 'success');
-    }
+    public function updatedCourierFilter() { $this->selectedOrders = []; }
 
     public function createManifest()
     {
-        $this->validate([
-            'selectedOrders' => 'required|array|min:1',
-            'manifestCourier' => 'required'
-        ]);
+        if (empty($this->selectedOrders)) {
+            $this->dispatch('notify', message: 'Pilih pesanan terlebih dahulu.', type: 'error');
+            return;
+        }
 
         DB::transaction(function () {
             $manifest = ShippingManifest::create([
-                'manifest_number' => 'MAN-' . date('Ymd') . '-' . rand(100, 999),
-                'courier_name' => $this->manifestCourier,
+                'manifest_number' => 'MNF-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
+                'courier_name' => $this->courierFilter,
                 'created_by' => Auth::id(),
-                'status' => 'ready_for_pickup'
+                'status' => 'generated',
             ]);
 
-            // Link shipments (Assuming shipments already created or create them now? Let's assume created)
-            // But if user selects "Ready to Ship" orders, we need to create shipments first if not exist.
-            // Simplified: Only allow manifesting ALREADY SHIPPED orders (that have resi) but not yet manifested.
-            
-            $shipments = Shipment::whereIn('order_id', $this->selectedOrders)->get();
-            foreach ($shipments as $shipment) {
-                $shipment->update(['shipping_manifest_id' => $manifest->id]);
-            }
+            Order::whereIn('id', $this->selectedOrders)->update([
+                'shipping_manifest_id' => $manifest->id,
+                'status' => 'shipped' // Update status pesanan jadi dikirim
+            ]);
         });
 
-        $this->showManifestModal = false;
+        $this->dispatch('notify', message: 'Manifest berhasil dibuat!', type: 'success');
         $this->selectedOrders = [];
-        $this->activeTab = 'manifests';
-        $this->dispatch('notify', message: 'Manifest berhasil dibuat.', type: 'success');
+        $this->toggleMode('list');
+    }
+
+    public function printManifest($id)
+    {
+        // Placeholder for printing
+        $this->dispatch('notify', message: 'Mencetak Manifest ID: ' . $id, type: 'info');
     }
 
     public function render()
     {
-        $orders = [];
         $manifests = [];
+        $pendingOrders = [];
 
-        if ($this->activeTab === 'ready_to_ship') {
-            $orders = Order::where('status', 'processing') // Or 'paid' if logic differs
-                ->orWhere('status', 'paid') // Usually paid orders are ready to process/ship
+        if ($this->viewMode === 'list') {
+            $manifests = ShippingManifest::withCount('orders')
                 ->latest()
                 ->paginate(10);
-        } elseif ($this->activeTab === 'shipped') {
-            $orders = Order::where('status', 'shipped')
-                ->whereDoesntHave('shipment.manifest') // Not yet manifested
-                ->latest()
-                ->paginate(10);
-        } elseif ($this->activeTab === 'manifests') {
-            $manifests = ShippingManifest::withCount('shipments')->latest()->paginate(10);
+        } else {
+            $pendingOrders = Order::where('status', 'processing') // Ready to ship
+                ->where('shipping_courier', 'like', '%' . $this->courierFilter . '%')
+                ->whereNull('shipping_manifest_id')
+                ->get();
         }
 
         return view('livewire.logistics.manager', [
-            'orders' => $orders,
-            'manifests' => $manifests
+            'manifests' => $manifests,
+            'pendingOrders' => $pendingOrders
         ]);
     }
 }

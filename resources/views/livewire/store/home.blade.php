@@ -68,7 +68,7 @@
                             }, 1000);
                         }
                     }">
-                        <span class="text-rose-500">ENDS IN:</span>
+                        <span class="text-rose-500 text-sm md:text-xl mr-2">ENDS IN:</span>
                         <span x-text="String(time.h).padStart(2, '0')">00</span>:
                         <span x-text="String(time.m).padStart(2, '0')">00</span>:
                         <span x-text="String(time.s).padStart(2, '0')">00</span>
@@ -93,11 +93,13 @@
                                     <span class="text-xs text-slate-500 line-through decoration-rose-500">Rp {{ number_format($sale->product->sell_price, 0, ',', '.') }}</span>
                                 </div>
                                 <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden mb-1">
-                                    <div class="bg-rose-500 h-full" style="width: {{ ($sale->sold_quantity / $sale->quota) * 100 }}%"></div>
+                                    {{-- Avoid division by zero --}}
+                                    @php $percent = $sale->quota > 0 ? ($sale->sold_quantity ?? 0 / $sale->quota) * 100 : 100; @endphp
+                                    <div class="bg-rose-500 h-full" style="width: {{ $percent }}%"></div>
                                 </div>
                                 <div class="flex justify-between text-[10px] text-slate-400 uppercase font-bold">
-                                    <span>Terjual: {{ $sale->sold_quantity }}</span>
-                                    <span>Sisa: {{ $sale->quota - $sale->sold_quantity }}</span>
+                                    <span>Terjual: {{ $sale->sold_quantity ?? 0 }}</span>
+                                    <span>Sisa: {{ $sale->quota - ($sale->sold_quantity ?? 0) }}</span>
                                 </div>
                                 <button wire:click="addToCart({{ $sale->product->id }})" class="w-full mt-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold rounded-lg transition-colors">
                                     AMBIL SEKARANG

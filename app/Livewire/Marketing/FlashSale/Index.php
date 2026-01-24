@@ -3,35 +3,41 @@
 namespace App\Livewire\Marketing\FlashSale;
 
 use App\Models\FlashSale;
+use App\Models\Product;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Layout('layouts.app')]
-#[Title('Flash Sale Manager - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Kelola Flash Sale - Yala Computer')]
 class Index extends Component
 {
     use WithPagination;
 
+    public $search = '';
+
+    public function delete($id)
+    {
+        FlashSale::find($id)->delete();
+        $this->dispatch('notify', message: 'Flash sale item deleted.', type: 'success');
+    }
+
     public function toggleStatus($id)
     {
         $sale = FlashSale::find($id);
-        if ($sale) {
-            $sale->is_active = !$sale->is_active;
-            $sale->save();
-            $this->dispatch('notify', message: 'Status Flash Sale diperbarui.', type: 'success');
-        }
+        $sale->update(['is_active' => !$sale->is_active]);
     }
 
     public function render()
     {
-        $flashSales = FlashSale::with('product')
-            ->orderBy('start_time', 'desc')
+        $sales = FlashSale::with('product')
+            ->whereHas('product', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'))
+            ->latest()
             ->paginate(10);
 
         return view('livewire.marketing.flash-sale.index', [
-            'flashSales' => $flashSales
+            'sales' => $sales
         ]);
     }
 }

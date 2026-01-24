@@ -8,47 +8,52 @@ use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Layout('layouts.app')]
-#[Title('Buat Flash Sale - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Tambah Flash Sale - Yala Computer')]
 class Form extends Component
 {
     public $product_id;
     public $discount_price;
     public $start_time;
     public $end_time;
-    public $quota;
-    public $is_active = true;
+    public $quota = 10;
 
-    // Product Search
-    public $search = '';
-    public $selectedProduct = null;
+    // Search
+    public $searchProduct = '';
+    public $searchResults = [];
+    public $selectedProductName = '';
+    public $originalPrice = 0;
 
-    public function updatedSearch()
+    public function updatedSearchProduct()
     {
-        $this->selectedProduct = null;
+        if (strlen($this->searchProduct) > 2) {
+            $this->searchResults = Product::where('name', 'like', '%' . $this->searchProduct . '%')
+                ->where('is_active', true)
+                ->take(5)->get();
+        } else {
+            $this->searchResults = [];
+        }
     }
 
     public function selectProduct($id)
     {
-        $this->selectedProduct = Product::find($id);
-        $this->product_id = $id;
-        $this->search = $this->selectedProduct->name;
+        $product = Product::find($id);
+        $this->product_id = $product->id;
+        $this->selectedProductName = $product->name;
+        $this->originalPrice = $product->sell_price;
+        $this->searchProduct = ''; // Close dropdown
+        $this->searchResults = [];
     }
 
     public function save()
     {
         $this->validate([
             'product_id' => 'required|exists:products,id',
-            'discount_price' => 'required|numeric|min:0',
+            'discount_price' => 'required|numeric|min:1|lt:originalPrice',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
             'quota' => 'required|integer|min:1',
         ]);
-
-        if ($this->selectedProduct && $this->discount_price >= $this->selectedProduct->sell_price) {
-            $this->addError('discount_price', 'Harga diskon harus lebih rendah dari harga jual normal.');
-            return;
-        }
 
         FlashSale::create([
             'product_id' => $this->product_id,
@@ -56,24 +61,15 @@ class Form extends Component
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
             'quota' => $this->quota,
-            'is_active' => $this->is_active,
+            'is_active' => true,
         ]);
 
-        session()->flash('success', 'Flash Sale berhasil dijadwalkan.');
+        $this->dispatch('notify', message: 'Flash sale berhasil dibuat!', type: 'success');
         return redirect()->route('marketing.flash-sale.index');
     }
 
     public function render()
     {
-        $products = [];
-        if (strlen($this->search) > 2) {
-            $products = Product::where('name', 'like', '%' . $this->search . '%')
-                ->where('is_active', true)
-                ->take(5)->get();
-        }
-
-        return view('livewire.marketing.flash-sale.form', [
-            'products' => $products
-        ]);
+        return view('livewire.marketing.flash-sale.form');
     }
 }
