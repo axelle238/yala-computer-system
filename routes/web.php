@@ -80,6 +80,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/master/suppliers/{id}/edit', \App\Livewire\Master\Suppliers\Form::class)->name('master.suppliers.edit');
 
     // Employee Management (Admin Only)
+    Route::get('/employees/payroll-manager', \App\Livewire\Employees\PayrollManager::class)->name('employees.payroll-manager'); // New Complex Feature
     Route::get('/employees/attendance', \App\Livewire\Employees\Attendance::class)->name('employees.attendance');
     Route::get('/employees', \App\Livewire\Employees\Index::class)->name('employees.index');
     Route::get('/employees/roles', \App\Livewire\Employees\Roles::class)->name('employees.roles');
