@@ -23,6 +23,9 @@ class Catalog extends Component
     public $category = ''; // Slug
 
     #[Url]
+    public $brand = ''; // Supplier ID
+
+    #[Url]
     public $sort = 'newest'; // newest, price_low, price_high, name
 
     #[Url]
@@ -74,7 +77,12 @@ class Catalog extends Component
             });
         }
 
-        // 3. Price Range
+        // 3. Brand (Supplier)
+        if ($this->brand) {
+            $query->where('supplier_id', $this->brand);
+        }
+
+        // 4. Price Range
         if ($this->min_price > 0) {
             $query->where('sell_price', '>=', $this->min_price);
         }

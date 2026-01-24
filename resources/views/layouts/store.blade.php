@@ -183,6 +183,7 @@
 
     <x-notification />
     <livewire:store.chat-widget />
+    <livewire:store.quick-view />
     @livewireScripts
 
     <script>

@@ -179,4 +179,6 @@
             </div>
         @endif
     </div>
+
+    <livewire:store.recently-viewed />
 </div>

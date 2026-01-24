@@ -19,6 +19,14 @@ class ProductDetail extends Component
     public function mount($id)
     {
         $this->product = Product::with(['category', 'reviews', 'flashSales'])->findOrFail($id);
+
+        // Track Recently Viewed
+        $recent = Session::get('recently_viewed', []);
+        if (($key = array_search($id, $recent)) !== false) {
+            unset($recent[$key]);
+        }
+        array_unshift($recent, $id);
+        Session::put('recently_viewed', array_slice($recent, 0, 10));
     }
 
     public function addToCart()
