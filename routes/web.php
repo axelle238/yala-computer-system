@@ -44,10 +44,11 @@ Route::post('/logout', function () {
 
 // Member Area (Protected)
 Route::prefix('member')->middleware('auth')->group(function () {
-    Route::get('/member/dashboard', \App\Livewire\Member\Dashboard::class)->name('member.dashboard');
-    Route::get('/member/addresses', \App\Livewire\Member\Addresses::class)->name('member.addresses'); 
+    Route::get('/dashboard', \App\Livewire\Member\Dashboard::class)->name('member.dashboard');
+    Route::get('/addresses', \App\Livewire\Member\Addresses::class)->name('member.addresses'); 
     Route::get('/service/booking', \App\Livewire\Service\Booking::class)->name('service.booking'); 
-    Route::get('/member/orders', \App\Livewire\Member\Orders::class)->name('member.orders');
+    Route::get('/orders', \App\Livewire\Member\Orders::class)->name('member.orders');
+    Route::get('/orders/{id}', \App\Livewire\Member\OrderDetail::class)->name('member.orders.show'); // New
     Route::get('/rma/request', \App\Livewire\Member\RmaRequest::class)->name('member.rma.request');
 });
 

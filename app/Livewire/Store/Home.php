@@ -156,13 +156,8 @@ class Home extends Component
     public $trackingResult = null;
     public function trackService() {
         $this->validate(['trackingNumber' => 'required']);
-        $ticket = \App\Models\ServiceTicket::where('ticket_number', $this->trackingNumber)->first();
-        if ($ticket) { 
-            // Redirect to dedicated tracking page for full details
-            return redirect()->route('track-service', ['search_ticket' => $this->trackingNumber]);
-        } else { 
-            $this->addError('trackingNumber', 'Nomor tiket tidak ditemukan.'); 
-        }
+        // Redirect to full tracking page
+        return redirect()->route('track-service', ['search_ticket' => $this->trackingNumber]);
     }
 
     public function openProduct($id) {
