@@ -8,15 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Quotation extends Model
 {
-    protected $fillable = [
-        'quote_number',
-        'customer_id',
-        'user_id',
-        'valid_until',
-        'total_amount',
-        'status',
-        'notes',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'valid_until' => 'date',
@@ -28,13 +20,18 @@ class Quotation extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function sales(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     public function items(): HasMany
     {
         return $this->hasMany(QuotationItem::class);
+    }
+
+    public function convertedOrder(): BelongsTo
+    {
+        return $this->belongsTo(Order::class, 'converted_order_id');
     }
 }

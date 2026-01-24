@@ -102,6 +102,25 @@ return [
             ]
         ],
         [
+            'title' => 'BISNIS & KORPORAT (B2B)',
+            'items' => [
+                [
+                    'label' => 'Penawaran Harga',
+                    'route' => 'quotations.index',
+                    'icon'  => 'newspaper', // Reuse newspaper or similar
+                    'roles' => ['admin', 'owner'],
+                    'permission' => 'order.view',
+                ],
+                [
+                    'label' => 'Piutang & Invoice',
+                    'route' => 'finance.receivables',
+                    'icon'  => 'banknotes',
+                    'roles' => ['admin', 'owner'],
+                    'permission' => 'report.finance',
+                ],
+            ]
+        ],
+        [
             'title' => 'SUMBER DAYA MANUSIA',
             'items' => [
                 [

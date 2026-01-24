@@ -8,7 +8,6 @@ use App\Models\Quotation;
 use App\Models\QuotationItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -17,59 +16,73 @@ use Livewire\Attributes\Title;
 #[Title('Buat Penawaran Harga - Yala Computer')]
 class Create extends Component
 {
-    public $quote_number;
+    // Header Data
     public $customer_id;
     public $valid_until;
     public $notes;
-    
-    public $cart = []; // ['product_id', 'name', 'price', 'qty', 'subtotal']
-    public $search = '';
+    public $terms;
+
+    // Items Data
+    public $items = []; // [product_id, qty, price, subtotal]
+
+    // Search Logic
+    public $searchProduct = '';
+    public $searchResults = [];
 
     public function mount()
     {
-        $this->quote_number = 'QT-' . date('Ymd') . '-' . strtoupper(Str::random(4));
-        $this->valid_until = date('Y-m-d', strtotime('+7 days'));
+        $this->valid_until = now()->addDays(14)->format('Y-m-d');
+        $this->terms = "1. Harga dapat berubah sewaktu-waktu.\n2. Pembayaran DP 50% untuk PO diatas 10jt.\n3. Barang yang sudah dibeli tidak dapat ditukar kecuali cacat pabrik.";
+        $this->addItem(); // Start with 1 empty row
     }
 
-    public function addToCart($productId)
+    public function addItem()
     {
-        $product = Product::find($productId);
-        if (!$product) return;
-
-        foreach ($this->cart as $key => $item) {
-            if ($item['product_id'] == $productId) {
-                $this->cart[$key]['qty']++;
-                $this->cart[$key]['subtotal'] = $this->cart[$key]['qty'] * $this->cart[$key]['price'];
-                return;
-            }
-        }
-
-        $this->cart[] = [
-            'product_id' => $product->id,
-            'name' => $product->name,
-            'price' => $product->sell_price,
+        $this->items[] = [
+            'product_id' => '',
+            'product_name' => '',
             'qty' => 1,
-            'subtotal' => $product->sell_price
+            'price' => 0,
+            'subtotal' => 0
         ];
     }
 
-    public function updateQty($index, $qty)
+    public function removeItem($index)
     {
-        if (isset($this->cart[$index])) {
-            $this->cart[$index]['qty'] = max(1, intval($qty));
-            $this->cart[$index]['subtotal'] = $this->cart[$index]['qty'] * $this->cart[$index]['price'];
+        unset($this->items[$index]);
+        $this->items = array_values($this->items);
+    }
+
+    public function updateProductSearch($query)
+    {
+        $this->searchProduct = $query;
+        if (strlen($query) > 2) {
+            $this->searchResults = Product::where('name', 'like', "%{$query}%")
+                ->orWhere('sku', 'like', "%{$query}%")
+                ->take(5)->get();
+        } else {
+            $this->searchResults = [];
         }
     }
 
-    public function remove($index)
+    public function selectProduct($index, $productId)
     {
-        unset($this->cart[$index]);
-        $this->cart = array_values($this->cart);
+        $product = Product::find($productId);
+        if ($product) {
+            $this->items[$index]['product_id'] = $product->id;
+            $this->items[$index]['product_name'] = $product->name;
+            $this->items[$index]['price'] = $product->sell_price;
+            $this->calculateRow($index);
+        }
+        $this->searchResults = [];
+        $this->searchProduct = '';
     }
 
-    public function getTotalProperty()
+    public function calculateRow($index)
     {
-        return array_sum(array_column($this->cart, 'subtotal'));
+        $qty = (int) $this->items[$index]['qty'];
+        $price = (float) $this->items[$index]['price'];
+        $this->items[$index]['subtotal'] = $qty * $price;
     }
 
     public function save()
@@ -77,23 +90,28 @@ class Create extends Component
         $this->validate([
             'customer_id' => 'required',
             'valid_until' => 'required|date',
-            'cart' => 'required|array|min:1'
+            'items.*.product_id' => 'required',
+            'items.*.qty' => 'required|numeric|min:1',
         ]);
 
         DB::transaction(function () {
-            $quote = Quotation::create([
-                'quote_number' => $this->quote_number,
+            $total = array_sum(array_column($this->items, 'subtotal'));
+
+            $quotation = Quotation::create([
+                'quotation_number' => 'Q-' . date('Ymd') . '-' . rand(100, 999),
                 'customer_id' => $this->customer_id,
                 'user_id' => Auth::id(),
                 'valid_until' => $this->valid_until,
-                'total_amount' => $this->total,
-                'status' => 'draft',
-                'notes' => $this->notes
+                'total_amount' => $total,
+                'status' => 'sent', // Assume sent immediately
+                'approval_status' => 'pending',
+                'notes' => $this->notes,
+                'terms_and_conditions' => $this->terms
             ]);
 
-            foreach ($this->cart as $item) {
+            foreach ($this->items as $item) {
                 QuotationItem::create([
-                    'quotation_id' => $quote->id,
+                    'quotation_id' => $quotation->id,
                     'product_id' => $item['product_id'],
                     'quantity' => $item['qty'],
                     'price' => $item['price']
@@ -107,13 +125,7 @@ class Create extends Component
 
     public function render()
     {
-        $products = [];
-        if (strlen($this->search) > 2) {
-            $products = Product::where('name', 'like', '%' . $this->search . '%')->take(5)->get();
-        }
-
         return view('livewire.quotations.create', [
-            'products' => $products,
             'customers' => Customer::all()
         ]);
     }
