@@ -172,10 +172,24 @@ return [
             'items' => [
                 [
                     'label' => 'Laporan Laba Rugi',
-                    'route' => 'finance.profit-loss',
+                    'route' => 'reports.finance',
                     'icon'  => 'chart-pie',
                     'roles' => ['owner'],
                     'permission' => 'report.finance',
+                ],
+                [
+                    'label' => 'Laporan Penjualan',
+                    'route' => 'reports.sales',
+                    'icon'  => 'receipt',
+                    'roles' => ['admin', 'owner'],
+                    'permission' => 'report.sales',
+                ],
+                [
+                    'label' => 'Laporan Stok & Mutasi',
+                    'route' => 'reports.stock',
+                    'icon'  => 'clipboard-check',
+                    'roles' => ['admin', 'owner', 'warehouse'],
+                    'permission' => 'stock.view',
                 ],
                 [
                     'label' => 'Pengaturan Toko',

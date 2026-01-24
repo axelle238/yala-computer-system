@@ -145,6 +145,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // HR & Analytics
     Route::get('/analytics', \App\Livewire\Reports\Index::class)->name('reports.index');
+    Route::get('/reports/finance', \App\Livewire\Reports\FinanceReport::class)->name('reports.finance'); // New
+    Route::get('/reports/stock', \App\Livewire\Reports\StockReport::class)->name('reports.stock'); // New
+    Route::get('/reports/sales', \App\Livewire\Reports\SalesReport::class)->name('reports.sales'); // New
+    
     Route::get('/shift', \App\Livewire\Shift\Manager::class)->name('shift.manager'); 
     Route::get('/reimbursement', \App\Livewire\Employees\Reimbursement::class)->name('employees.reimbursement'); 
 
