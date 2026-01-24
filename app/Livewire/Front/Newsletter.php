@@ -13,14 +13,17 @@ class Newsletter extends Component
     {
         $this->validate(['email' => 'required|email']);
 
-        if (Subscriber::where('email', $this->email)->exists()) {
-            $this->dispatch('notify', message: 'Email sudah terdaftar!', type: 'info');
-            return;
+        $subscriber = Subscriber::firstOrCreate(
+            ['email' => $this->email],
+            ['is_active' => true]
+        );
+
+        if (!$subscriber->wasRecentlyCreated && !$subscriber->is_active) {
+            $subscriber->update(['is_active' => true]);
         }
 
-        Subscriber::create(['email' => $this->email]);
         $this->email = '';
-        $this->dispatch('notify', message: 'Berhasil berlangganan newsletter!', type: 'success');
+        $this->dispatch('notify', message: 'Terima kasih telah berlangganan newsletter kami!', type: 'success');
     }
 
     public function render()
