@@ -9,21 +9,16 @@ class Task extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'due_date' => 'datetime',
+        'due_date' => 'date',
     ];
-
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
 
     public function assignee()
     {
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
-    public function related()
+    public function creator()
     {
-        return $this->morphTo();
+        return $this->belongsTo(User::class, 'assigned_by');
     }
 }

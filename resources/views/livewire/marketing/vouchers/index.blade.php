@@ -1,73 +1,134 @@
-<div class="space-y-8 animate-fade-in-up">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="p-6">
+    <div class="flex justify-between items-center mb-6">
         <div>
-            <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
-                Voucher <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-rose-500">Manager</span>
-            </h2>
-            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Buat kode promo dan diskon dinamis.</p>
+            <h1 class="text-2xl font-bold text-gray-800">Manajemen Voucher & Promo</h1>
+            <p class="text-gray-500">Buat kode diskon untuk meningkatkan penjualan.</p>
         </div>
-        
-        <div class="flex gap-3">
-            <input wire:model.live.debounce.300ms="search" type="text" class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm" placeholder="Cari kode...">
-            <a href="{{ route('marketing.vouchers.create') }}" class="px-6 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-lg shadow-rose-500/30 transition-all flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                Buat Voucher
-            </a>
-        </div>
+        <button wire:click="create" class="px-4 py-2 bg-pink-600 text-white font-bold rounded-lg hover:bg-pink-700 shadow-lg">
+            + Buat Voucher Baru
+        </button>
     </div>
 
-    <!-- Voucher Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @forelse($vouchers as $voucher)
-            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-                <!-- Status Stripe -->
-                <div class="absolute top-0 left-0 w-1 h-full {{ $voucher->is_active ? 'bg-emerald-500' : 'bg-slate-300' }}"></div>
+    @if($showForm)
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-lg mb-6 max-w-4xl">
+            <h3 class="font-bold text-lg mb-4">{{ $voucherId ? 'Edit Voucher' : 'Voucher Baru' }}</h3>
+            <form wire:submit.prevent="save" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg font-mono font-black text-slate-700 dark:text-slate-200 tracking-wider border border-dashed border-slate-300 dark:border-slate-600">
-                            {{ $voucher->code }}
-                        </div>
-                        <div class="flex gap-2">
-                            <button wire:click="toggleStatus({{ $voucher->id }})" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors {{ $voucher->is_active ? 'text-emerald-500' : 'text-slate-400' }}">
-                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                            </button>
-                            <button wire:click="delete({{ $voucher->id }})" class="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 text-slate-400 hover:text-rose-500 transition-colors" wire:confirm="Hapus voucher ini?">
-                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                            </button>
-                        </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Kode Voucher</label>
+                    <div class="flex gap-2">
+                        <input wire:model="code" type="text" class="w-full rounded-lg border-gray-300 font-mono font-bold text-lg uppercase tracking-wider" placeholder="CONTOH: RAMADHAN2026">
+                        <button type="button" wire:click="generateCode" class="px-4 py-2 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200">Generate</button>
                     </div>
-
-                    <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-1">{{ $voucher->name }}</h3>
-                    <p class="text-xs text-slate-500 line-clamp-2 mb-4">{{ $voucher->description }}</p>
-
-                    <div class="flex items-center gap-4 mb-4 text-sm">
-                        <div class="flex items-center gap-1.5 text-rose-600 font-bold">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            @if($voucher->type == 'fixed')
-                                Rp {{ number_format($voucher->amount/1000) }}K OFF
-                            @else
-                                {{ $voucher->amount }}% OFF
-                            @endif
-                        </div>
-                        <div class="text-slate-400 text-xs">
-                            Min. {{ number_format($voucher->min_spend/1000) }}K
-                        </div>
-                    </div>
-
-                    <div class="pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center text-xs text-slate-500">
-                        <span>Terpakai: <strong class="text-slate-700 dark:text-slate-300">{{ $voucher->usages_count }}</strong> / {{ $voucher->usage_limit ?? '∞' }}</span>
-                        <span>Exp: {{ $voucher->end_date ? $voucher->end_date->format('d M Y') : 'Selamanya' }}</span>
-                    </div>
+                    @error('code') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
-            </div>
-        @empty
-            <div class="col-span-full py-12 text-center text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
-                <p>Belum ada voucher aktif.</p>
-            </div>
-        @endforelse
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tipe Diskon</label>
+                    <select wire:model.live="type" class="w-full rounded-lg border-gray-300">
+                        <option value="fixed">Nominal Tetap (Rp)</option>
+                        <option value="percent">Persentase (%)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nilai Diskon</label>
+                    <input wire:model="discount_value" type="number" class="w-full rounded-lg border-gray-300">
+                </div>
+
+                @if($type === 'percent')
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Maksimal Diskon (Rp)</label>
+                        <input wire:model="max_discount_amount" type="number" class="w-full rounded-lg border-gray-300" placeholder="Kosongkan jika unlimited">
+                    </div>
+                @endif
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Minimal Belanja</label>
+                    <input wire:model="min_spend" type="number" class="w-full rounded-lg border-gray-300">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Batas Penggunaan (Kuota)</label>
+                    <input wire:model="usage_limit" type="number" class="w-full rounded-lg border-gray-300">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Mulai Berlaku</label>
+                    <input wire:model="start_date" type="datetime-local" class="w-full rounded-lg border-gray-300">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Berakhir Pada</label>
+                    <input wire:model="end_date" type="datetime-local" class="w-full rounded-lg border-gray-300">
+                </div>
+
+                <div class="md:col-span-2 flex items-center gap-2">
+                    <input wire:model="is_active" type="checkbox" class="rounded border-gray-300 text-pink-600 focus:ring-pink-500">
+                    <span class="text-sm font-bold text-gray-700">Aktifkan Voucher Ini</span>
+                </div>
+
+                <div class="md:col-span-2 flex justify-end gap-2 border-t pt-4">
+                    <button type="button" wire:click="$set('showForm', false)" class="px-4 py-2 text-gray-600 font-bold hover:bg-gray-100 rounded-lg">Batal</button>
+                    <button type="submit" class="px-6 py-2 bg-pink-600 text-white font-bold rounded-lg hover:bg-pink-700">Simpan Voucher</button>
+                </div>
+            </form>
+        </div>
+    @endif
+
+    <!-- List -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <table class="w-full text-left text-sm text-gray-600">
+            <thead class="bg-gray-50 uppercase text-xs font-semibold text-gray-700">
+                <tr>
+                    <th class="px-6 py-4">Kode Voucher</th>
+                    <th class="px-6 py-4">Nilai</th>
+                    <th class="px-6 py-4">Ketentuan</th>
+                    <th class="px-6 py-4">Periode</th>
+                    <th class="px-6 py-4 text-center">Terpakai</th>
+                    <th class="px-6 py-4 text-center">Status</th>
+                    <th class="px-6 py-4 text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                @forelse($vouchers as $v)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 font-mono font-bold text-lg text-gray-800">{{ $v->code }}</td>
+                        <td class="px-6 py-4 font-bold text-pink-600">
+                            {{ $v->type === 'fixed' ? 'Rp '.number_format($v->discount_value) : $v->discount_value.'%' }}
+                        </td>
+                        <td class="px-6 py-4 text-xs">
+                            <div>Min. Belanja: Rp {{ number_format($v->min_spend) }}</div>
+                            @if($v->max_discount_amount)
+                                <div>Max Diskon: Rp {{ number_format($v->max_discount_amount) }}</div>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 text-xs">
+                            <div>{{ $v->start_date->format('d/m/y') }}</div>
+                            <div class="text-gray-400">s/d</div>
+                            <div>{{ $v->end_date->format('d/m/y') }}</div>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            {{ $v->used_count }} / {{ $v->usage_limit }}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <button wire:click="toggleStatus({{ $v->id }})" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors {{ $v->is_active ? 'bg-green-500' : 'bg-gray-300' }}">
+                                <span class="translate-x-1 inline-block h-4 w-4 transform rounded-full bg-white transition-transform {{ $v->is_active ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                            </button>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <button wire:click="edit({{ $v->id }})" class="text-blue-600 hover:underline">Edit</button>
+                            <span class="text-gray-300 mx-1">|</span>
+                            <button wire:click="delete({{ $v->id }})" class="text-red-500 hover:underline">Hapus</button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-400">Belum ada voucher.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+        <div class="p-4 border-t border-gray-100">{{ $vouchers->links() }}</div>
     </div>
-    
-    {{ $vouchers->links() }}
 </div>
