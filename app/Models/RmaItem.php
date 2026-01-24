@@ -6,26 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class RmaItem extends Model
 {
-    protected $fillable = [
-        'rma_id',
-        'product_id',
-        'quantity',
-        'condition',
-        'problem_description',
-        'evidence_files', // New
-    ];
+    protected $guarded = [];
 
     protected $casts = [
-        'evidence_files' => 'array', // New
+        'evidence_files' => 'array',
     ];
+
+    public function rma()
+    {
+        return $this->belongsTo(Rma::class);
+    }
 
     public function product()
     {
         return $this->belongsTo(Product::class);
-    }
-
-    public function replacementProduct()
-    {
-        return $this->belongsTo(Product::class, 'replacement_product_id');
     }
 }

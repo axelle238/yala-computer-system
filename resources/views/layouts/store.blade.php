@@ -103,6 +103,8 @@
                             <a href="{{ route('member.dashboard') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Dashboard</a>
                             <a href="{{ route('member.profile') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Pengaturan Profil</a>
                             <a href="{{ route('member.orders') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Riwayat Pesanan</a>
+                            <a href="{{ route('member.quotations') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Penawaran Saya (B2B)</a>
+                            <a href="{{ route('member.rma.request') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Klaim Garansi (RMA)</a>
                             <a href="{{ route('member.referrals') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Referral & Cuan</a>
                             <div class="border-t border-white/10"></div>
                             <form method="POST" action="{{ route('logout') }}">

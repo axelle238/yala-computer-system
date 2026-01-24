@@ -142,9 +142,14 @@
                                         <span class="font-black text-lg text-blue-600 dark:text-blue-400 font-mono">
                                             Rp {{ number_format($product->sell_price, 0, ',', '.') }}
                                         </span>
-                                        <a href="{{ route('product.detail', $product->id) }}" class="p-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-blue-600 hover:text-white transition-colors">
-                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                                        </a>
+                                        <div class="flex gap-1">
+                                            <button wire:click="addToCompare({{ $product->id }})" class="p-2 bg-slate-50 dark:bg-slate-700/50 text-slate-400 hover:text-blue-600 rounded-lg transition-colors" title="Bandingkan">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                                            </button>
+                                            <button wire:click="addToCart({{ $product->id }})" class="p-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-blue-600 hover:text-white transition-colors">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -154,6 +159,18 @@
                     <div class="mt-8">
                         {{ $products->links() }}
                     </div>
+
+                    <!-- Compare Float Bar -->
+                    @if(session()->has('compare_products') && count(session('compare_products')) > 0)
+                        <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-up">
+                            <div class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-4 border border-slate-700">
+                                <span class="font-bold text-sm">{{ count(session('compare_products')) }} Produk Dipilih</span>
+                                <a href="{{ route('product.compare') }}" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-full text-xs font-bold transition-colors">
+                                    Bandingkan Sekarang
+                                </a>
+                            </div>
+                        </div>
+                    @endif
                 @else
                     <div class="flex flex-col items-center justify-center py-20 text-center">
                         <div class="w-24 h-24 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
