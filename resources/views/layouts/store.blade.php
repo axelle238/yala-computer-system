@@ -80,8 +80,12 @@
                 <livewire:store.global-search />
             </div>
 
-            <!-- Mobile Menu Toggle -->
+            <!-- Desktop Icons -->
             <div class="hidden md:flex items-center gap-4">
+                
+                <!-- Mini Cart (Global) -->
+                <livewire:store.mini-cart />
+
                 @auth
                     <!-- Notifications -->
                     <livewire:store.navbar.notifications />
