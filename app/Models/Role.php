@@ -6,5 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
-    //
+    protected $table = 'roles_v2';
+    protected $guarded = [];
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'role_has_permissions', 'role_id', 'permission_id');
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'role_v2_id');
+    }
 }

@@ -18,25 +18,26 @@
     <!-- Navigation -->
     <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-8 custom-scrollbar">
         @foreach(config('nav.menu') as $group)
-            {{-- Role Check for Group --}}
+            {{-- Role & Permission Check for Group --}}
             @php
-                $hasAccess = false;
+                $hasGroupAccess = false;
                 foreach($group['items'] as $item) {
-                    if(in_array(auth()->user()->role, $item['roles'])) {
-                        $hasAccess = true;
+                    // Check Role Legacy OR Permission DB
+                    if(in_array(auth()->user()->role, $item['roles']) || (isset($item['permission']) && auth()->user()->hasPermissionTo($item['permission']))) {
+                        $hasGroupAccess = true;
                         break;
                     }
                 }
             @endphp
 
-            @if($hasAccess)
+            @if($hasGroupAccess)
                 <div>
                     <h3 class="px-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">
                         {{ $group['title'] }}
                     </h3>
                     <div class="space-y-1">
                         @foreach($group['items'] as $item)
-                            @if(in_array(auth()->user()->role, $item['roles']))
+                            @if(in_array(auth()->user()->role, $item['roles']) || (isset($item['permission']) && auth()->user()->hasPermissionTo($item['permission'])))
                                 <a href="{{ route($item['route']) }}" 
                                    @if(isset($item['target'])) target="{{ $item['target'] }}" @endif
                                    class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all group
@@ -45,7 +46,6 @@
                                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' 
                                    }}">
                                     
-                                    {{-- Icon Mapping (Simple Switch) --}}
                                     <span class="w-5 h-5 flex-shrink-0 {{ request()->routeIs($item['route'].'*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-slate-600' }}">
                                         @include('components.icons.' . $item['icon'])
                                     </span>

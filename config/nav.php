@@ -10,6 +10,7 @@ return [
                     'route' => 'dashboard',
                     'icon'  => 'home',
                     'roles' => ['admin', 'owner', 'technician', 'cashier', 'warehouse'],
+                    'permission' => 'dashboard.view',
                 ],
                 [
                     'label' => 'Layar Toko (Front)',
@@ -28,36 +29,42 @@ return [
                     'route' => 'transactions.create',
                     'icon'  => 'pos',
                     'roles' => ['admin', 'owner', 'cashier'],
+                    'permission' => 'pos.access',
                 ],
                 [
                     'label' => 'Shift & Saldo',
                     'route' => 'finance.cash-register',
                     'icon'  => 'cash-register',
                     'roles' => ['admin', 'owner', 'cashier'],
+                    'permission' => 'pos.access',
                 ],
                 [
                     'label' => 'Riwayat Transaksi',
                     'route' => 'transactions.index',
                     'icon'  => 'receipt',
                     'roles' => ['admin', 'owner', 'cashier'],
+                    'permission' => 'order.view',
                 ],
                 [
                     'label' => 'Servis & Perbaikan',
                     'route' => 'services.index',
                     'icon'  => 'wrench',
                     'roles' => ['admin', 'owner', 'technician'],
+                    'permission' => 'service.view',
                 ],
                 [
                     'label' => 'Papan Kanban Servis',
                     'route' => 'services.kanban',
                     'icon'  => 'kanban',
                     'roles' => ['admin', 'owner', 'technician'],
+                    'permission' => 'service.view',
                 ],
                 [
                     'label' => 'Garansi & RMA',
                     'route' => 'rma.index',
                     'icon'  => 'shield-check',
                     'roles' => ['admin', 'owner', 'technician', 'warehouse'],
+                    'permission' => 'order.refund',
                 ],
             ]
         ],
@@ -69,24 +76,28 @@ return [
                     'route' => 'products.index',
                     'icon'  => 'box',
                     'roles' => ['admin', 'owner', 'warehouse'],
+                    'permission' => 'product.view',
                 ],
                 [
                     'label' => 'Audit Stok (Opname)',
                     'route' => 'warehouses.stock-opname',
                     'icon'  => 'clipboard-check',
                     'roles' => ['admin', 'owner', 'warehouse'],
+                    'permission' => 'stock.opname',
                 ],
                 [
                     'label' => 'Pembelian (PO)',
                     'route' => 'purchase-orders.index',
                     'icon'  => 'shopping-cart',
                     'roles' => ['admin', 'owner', 'warehouse'],
+                    'permission' => 'stock.adjust',
                 ],
                 [
                     'label' => 'Penerimaan (GRN)',
                     'route' => 'purchase-orders.receive',
                     'icon'  => 'truck-loading',
                     'roles' => ['admin', 'owner', 'warehouse'],
+                    'permission' => 'stock.adjust',
                 ],
             ]
         ],
@@ -98,18 +109,28 @@ return [
                     'route' => 'employees.index',
                     'icon'  => 'users',
                     'roles' => ['admin', 'owner', 'hr'],
+                    'permission' => 'employee.view',
+                ],
+                [
+                    'label' => 'Jabatan (Role)',
+                    'route' => 'employees.roles',
+                    'icon'  => 'shield-check', // Reuse shield for roles
+                    'roles' => ['admin', 'owner'],
+                    'permission' => 'role.manage',
                 ],
                 [
                     'label' => 'Absensi',
                     'route' => 'employees.attendance',
                     'icon'  => 'clock',
-                    'roles' => ['admin', 'owner', 'hr', 'technician', 'cashier', 'warehouse'], // All can see own attendance typically, or limit to admin
+                    'roles' => ['admin', 'owner', 'hr', 'technician', 'cashier', 'warehouse'],
+                    'permission' => 'employee.view',
                 ],
                 [
                     'label' => 'Penggajian (Payroll)',
                     'route' => 'employees.payroll-manager',
                     'icon'  => 'banknotes',
                     'roles' => ['admin', 'owner', 'hr'],
+                    'permission' => 'employee.manage',
                 ],
             ]
         ],
@@ -119,26 +140,30 @@ return [
                 [
                     'label' => 'Pesan Pembeli',
                     'route' => 'customers.inbox',
-                    'icon'  => 'chat-bubble-left-right', // Need to create icon
+                    'icon'  => 'chat-bubble-left-right',
                     'roles' => ['admin', 'owner', 'cashier'],
+                    'permission' => 'pos.access',
                 ],
                 [
                     'label' => 'Manajemen Pelanggan',
                     'route' => 'customers.index',
                     'icon'  => 'user-group',
                     'roles' => ['admin', 'owner', 'cashier'],
+                    'permission' => 'pos.access',
                 ],
                 [
                     'label' => 'Banner Promo',
                     'route' => 'banners.index',
                     'icon'  => 'photo',
                     'roles' => ['admin', 'owner'],
+                    'permission' => 'setting.edit',
                 ],
                 [
                     'label' => 'Berita & Artikel',
                     'route' => 'admin.news.index',
                     'icon'  => 'newspaper',
                     'roles' => ['admin', 'owner'],
+                    'permission' => 'setting.edit',
                 ],
             ]
         ],
@@ -149,19 +174,22 @@ return [
                     'label' => 'Laporan Laba Rugi',
                     'route' => 'finance.profit-loss',
                     'icon'  => 'chart-pie',
-                    'roles' => ['owner'], // Sensitive
+                    'roles' => ['owner'],
+                    'permission' => 'report.finance',
                 ],
                 [
                     'label' => 'Pengaturan Toko',
                     'route' => 'settings.index',
                     'icon'  => 'cog',
                     'roles' => ['admin', 'owner'],
+                    'permission' => 'setting.edit',
                 ],
                 [
                     'label' => 'Audit Log',
                     'route' => 'activity-logs.index',
                     'icon'  => 'fingerprint',
                     'roles' => ['admin', 'owner'],
+                    'permission' => 'setting.view',
                 ],
             ]
         ],

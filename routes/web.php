@@ -86,7 +86,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/employees/attendance', \App\Livewire\Employees\Attendance::class)->name('employees.attendance');
     Route::get('/employees/payroll-manager', \App\Livewire\Employees\PayrollManager::class)->name('employees.payroll-manager');
     Route::get('/employees', \App\Livewire\Employees\Index::class)->name('employees.index');
-    Route::get('/employees/roles', \App\Livewire\Employees\Roles::class)->name('employees.roles');
+    Route::get('/employees/roles', \App\Livewire\Employees\Roles::class)->name('employees.roles'); // New RBAC
     Route::get('/employees/create', \App\Livewire\Employees\Form::class)->name('employees.create');
     Route::get('/employees/{id}/edit', \App\Livewire\Employees\Form::class)->name('employees.edit');
     Route::get('/payroll', \App\Livewire\Employees\Payroll::class)->name('employees.payroll');

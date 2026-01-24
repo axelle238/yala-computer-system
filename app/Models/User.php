@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'role_v2_id', // New RBAC
         'access_rights',
         'base_salary',
         'join_date',
@@ -67,9 +68,33 @@ class User extends Authenticatable
 
     // --- Helper Methods untuk Role & Permission ---
 
+    public function roleV2()
+    {
+        return $this->belongsTo(Role::class, 'role_v2_id');
+    }
+
+    public function hasPermissionTo($permission)
+    {
+        // 1. Super Admin Bypass
+        if ($this->isAdmin() || $this->roleV2?->slug === 'super-admin') {
+            return true;
+        }
+
+        // 2. Check Database Permissions (RBAC V2)
+        if ($this->roleV2) {
+            return $this->roleV2->permissions->contains('name', $permission);
+        }
+
+        // 3. Fallback to Legacy Enum/Array (RBAC V1)
+        if ($this->isAdmin()) return true;
+        if ($this->isOwner()) return in_array($permission, ['view_dashboard', 'view_reports']);
+        
+        return in_array($permission, $this->access_rights ?? []);
+    }
+
     public function isAdmin()
     {
-        return $this->role === 'admin';
+        return $this->role === 'admin' || $this->roleV2?->slug === 'admin';
     }
 
     public function isOwner()
