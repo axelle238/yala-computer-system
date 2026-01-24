@@ -73,6 +73,9 @@
             <!-- Mobile Menu Toggle -->
             <div class="hidden md:flex items-center gap-4">
                 @auth
+                    <!-- Notifications -->
+                    <livewire:components.notification-dropdown />
+
                     <div class="relative group">
                         <button class="flex items-center gap-2 text-sm font-bold text-slate-300 hover:text-white transition-colors">
                             <span>{{ auth()->user()->name }}</span>

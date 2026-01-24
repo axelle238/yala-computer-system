@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 
 #[Layout('layouts.auth')]
 #[Title('Daftar Akun Baru - Yala Computer')]
@@ -17,6 +18,9 @@ class Register extends Component
     public $email = '';
     public $password = '';
     public $password_confirmation = '';
+    
+    #[Url(as: 'ref')]
+    public $referralCode = '';
 
     public function register()
     {
@@ -26,11 +30,20 @@ class Register extends Component
             'password' => 'required|min:6|confirmed',
         ]);
 
+        $referrerId = null;
+        if ($this->referralCode) {
+            $referrer = User::where('referral_code', $this->referralCode)->first();
+            if ($referrer) {
+                $referrerId = $referrer->id;
+            }
+        }
+
         $user = User::create([
             'name' => $this->name,
             'email' => $this->email,
             'password' => Hash::make($this->password),
-            'role' => 'customer', // Ensure we check this role elsewhere
+            'role' => 'customer',
+            'referrer_id' => $referrerId,
         ]);
 
         Auth::login($user);

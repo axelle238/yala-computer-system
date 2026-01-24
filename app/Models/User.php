@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use App\Traits\LogsActivity;
 
 class User extends Authenticatable
@@ -25,7 +26,9 @@ class User extends Authenticatable
         'access_rights',
         'base_salary',
         'join_date',
-        'points', // Added
+        'points',
+        'referral_code',
+        'referrer_id',
     ];
 
     /**
@@ -51,6 +54,15 @@ class User extends Authenticatable
             'access_rights' => 'array',
             'join_date' => 'date',
         ];
+    }
+
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            if (empty($user->referral_code)) {
+                $user->referral_code = strtoupper(Str::random(8));
+            }
+        });
     }
 
     // --- Helper Methods untuk Role & Permission ---
@@ -99,6 +111,18 @@ class User extends Authenticatable
     public function savedBuilds()
     {
         return $this->hasMany(SavedBuild::class);
+    }
+
+    // --- Referral System ---
+
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'referrer_id');
+    }
+
+    public function referrals()
+    {
+        return $this->hasMany(User::class, 'referrer_id');
     }
 
     // --- Gamification Logic ---

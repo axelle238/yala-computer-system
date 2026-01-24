@@ -67,6 +67,35 @@
             <!-- Left Column: Services & Builds -->
             <div class="lg:col-span-2 space-y-8 animate-fade-in-up delay-100">
                 
+                <!-- Referral Program (New) -->
+                <div class="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                    
+                    <div class="flex justify-between items-start relative z-10">
+                        <div>
+                            <h2 class="font-bold text-lg mb-1 flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                                Program Referral
+                            </h2>
+                            <p class="text-indigo-100 text-sm mb-4">Ajak teman belanja dan dapatkan Poin reward!</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-3xl font-black">{{ $user->referrals()->count() }}</span>
+                            <p class="text-xs text-indigo-200 uppercase font-bold">Teman Bergabung</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/10 rounded-xl p-4 border border-white/20 backdrop-blur-sm relative z-10">
+                        <label class="text-xs text-indigo-200 uppercase font-bold mb-1 block">Kode Referral Anda</label>
+                        <div class="flex items-center justify-between gap-4">
+                            <code class="font-mono text-xl font-bold tracking-widest">{{ $user->referral_code }}</code>
+                            <button onclick="navigator.clipboard.writeText('{{ url('/customer/register?ref=' . $user->referral_code) }}'); alert('Link disalin!')" class="px-3 py-1 bg-white text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-50 transition-colors">
+                                Salin Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Active Services -->
                 @if($activeServices->isNotEmpty())
                     <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
