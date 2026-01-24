@@ -165,6 +165,10 @@ class Home extends Component
         }
     }
 
+    public function openProduct($id) {
+        return redirect()->route('product.detail', $id);
+    }
+
     #[Computed]
     public function getCartTotalProperty() {
         $total = 0;
