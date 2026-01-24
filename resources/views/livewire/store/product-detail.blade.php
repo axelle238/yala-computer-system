@@ -1,3 +1,13 @@
+@push('meta')
+    <meta property="og:title" content="{{ $product->name }} - Yala Computer">
+    <meta property="og:description" content="{{ \Illuminate\Support\Str::limit(strip_tags($product->description), 160) }}">
+    <meta property="og:image" content="{{ asset('storage/' . $product->image_path) }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:type" content="product">
+    <meta property="product:price:amount" content="{{ $product->sell_price }}">
+    <meta property="product:price:currency" content="IDR">
+@endpush
+
 <div class="min-h-screen pt-24 pb-12 relative overflow-hidden">
     <!-- Background Elements -->
     <div class="absolute inset-0 z-0">

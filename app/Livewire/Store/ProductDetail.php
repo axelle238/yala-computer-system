@@ -57,6 +57,10 @@ class ProductDetail extends Component
 
         return view('livewire.store.product-detail', [
             'relatedProducts' => $relatedProducts
-        ])->title($this->product->name . ' - Yala Computer');
+        ])
+        ->layout('layouts.store', [
+            'title' => $this->product->name . ' - Yala Computer',
+            'description' => \Illuminate\Support\Str::limit(strip_tags($this->product->description), 160)
+        ]);
     }
 }

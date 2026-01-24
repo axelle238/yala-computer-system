@@ -4,8 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ $title ?? 'Yala Computer - Toko Komputer & Rakit PC Terbaik Jakarta' }}</title>
-    <meta name="description" content="Pusat belanja komputer, laptop, dan jasa rakit PC murah terbaik di Jakarta.">
+    <meta name="description" content="{{ $description ?? 'Pusat belanja komputer, laptop, dan jasa rakit PC murah terbaik di Jakarta.' }}">
     <meta name="keywords" content="Beli Komputer, Rakit PC Jakarta, Laptop Murah Jakarta, Toko Komputer Terbaik, Yala Computer">
+    
+    <!-- Dynamic Meta Tags -->
+    @stack('meta')
+
     <link rel="icon" href="{{ \App\Models\Setting::get('store_favicon') ? asset('storage/' . \App\Models\Setting::get('store_favicon')) : asset('favicon.ico') }}">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -99,6 +103,7 @@
                             <a href="{{ route('member.dashboard') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Dashboard</a>
                             <a href="{{ route('member.profile') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Pengaturan Profil</a>
                             <a href="{{ route('member.orders') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Riwayat Pesanan</a>
+                            <a href="{{ route('member.referrals') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Referral & Cuan</a>
                             <div class="border-t border-white/10"></div>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
