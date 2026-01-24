@@ -37,6 +37,7 @@ Route::view('/terms-of-service', 'store.terms-of-service')->name('terms-of-servi
 // Customer Auth
 Route::get('/customer/login', \App\Livewire\Store\Auth\Login::class)->name('customer.login')->middleware('guest');
 Route::get('/customer/register', \App\Livewire\Store\Auth\Register::class)->name('customer.register')->middleware('guest');
+Route::get('/customer/forgot-password', \App\Livewire\Store\Auth\ForgotPassword::class)->name('customer.forgot-password')->middleware('guest'); // New
 
 // Admin/Staff Login
 Route::get('/login', Login::class)->name('login')->middleware('guest');
