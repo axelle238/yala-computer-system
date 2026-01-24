@@ -1,89 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cetak Label</title>
     <style>
-        body { font-family: sans-serif; margin: 0; padding: 0; }
         @media print {
-            .no-print { display: none; }
-            body { background: white; }
+            @page { margin: 0; }
+            body { margin: 0; -webkit-print-color-adjust: exact; }
         }
-        .container {
+        body { font-family: 'Arial', sans-serif; }
+        
+        /* A4 Sticker Sheet (Example: 3x7 grid) */
+        .page-a4 {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 10mm;
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
-            padding: 10px;
+            align-content: flex-start;
+            gap: 5mm;
+            box-sizing: border-box;
         }
-        .label {
-            width: 50mm;
-            height: 30mm;
-            border: 1px dashed #ccc; /* Helper border, remove for production if needed */
+        
+        .label-card {
+            width: 60mm;
+            height: 40mm;
+            border: 1px dashed #ccc;
+            padding: 2mm;
             box-sizing: border-box;
             display: flex;
-            flex-col: column;
+            flex-col;
             align-items: center;
             justify-content: center;
             text-align: center;
             page-break-inside: avoid;
-            overflow: hidden;
-            padding: 2px;
         }
-        .label-name {
-            font-size: 9px;
-            font-weight: bold;
-            max-height: 22px;
-            overflow: hidden;
-            line-height: 1.1;
-            margin-bottom: 2px;
-        }
-        .label-price {
-            font-size: 10px;
-            font-weight: bold;
-        }
-        .barcode-container {
-            height: 25px; /* Adjust based on generator */
-            width: 90%;
-            background: #eee; /* Placeholder for real barcode */
-            margin-bottom: 2px;
+
+        .label-thermal {
+            width: 100mm;
+            height: 150mm;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 8px;
+            text-align: center;
+            page-break-after: always;
         }
-    </style>
-    <!-- Use a JS barcode library -->
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-</head>
-<body>
-    <div class="no-print" style="padding: 20px; background: #f0f0f0; text-align: center;">
-        <button onclick="window.print()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">PRINT SEKARANG</button>
-    </div>
 
-    <div class="container">
-        @foreach($queue as $item)
-            @for($i = 0; $i < $item['qty_to_print']; $i++)
-                <div class="label">
-                    <div class="label-name">{{ $item['name'] }}</div>
-                    <svg class="barcode"
-                        jsbarcode-format="CODE128"
-                        jsbarcode-value="{{ $item['barcode'] }}"
-                        jsbarcode-textmargin="0"
-                        jsbarcode-fontoptions="bold"
-                        jsbarcode-width="1.5"
-                        jsbarcode-height="25"
-                        jsbarcode-displayValue="true"
-                        jsbarcode-fontSize="10">
-                    </svg>
-                    <div class="label-price">Rp {{ number_format($item['price'], 0, ',', '.') }}</div>
+        .barcode {
+            font-family: 'Libre Barcode 128', cursive;
+            font-size: 30px;
+            margin: 5px 0;
+        }
+        
+        .sku { font-size: 10px; font-weight: bold; }
+        .name { font-size: 12px; margin-bottom: 5px; max-height: 2.4em; overflow: hidden; }
+        .price { font-size: 16px; font-weight: bold; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap" rel="stylesheet">
+</head>
+<body onload="window.print()">
+
+    @if($paper == 'a4')
+        <div class="page-a4">
+            @foreach($items as $item)
+                @for($i = 0; $i < $item->print_qty; $i++)
+                    <div class="label-card">
+                        <div class="name">{{ $item->name }}</div>
+                        <div class="barcode">{{ $item->sku }}</div>
+                        <div class="sku">{{ $item->sku }}</div>
+                        @if($type == 'price_tag')
+                            <div class="price">Rp {{ number_format($item->sell_price, 0, ',', '.') }}</div>
+                        @endif
+                    </div>
+                @endfor
+            @endforeach
+        </div>
+    @else
+        @foreach($items as $item)
+            @for($i = 0; $i < $item->print_qty; $i++)
+                <div class="label-thermal">
+                    <h2 style="font-size: 18px; margin: 0 0 10px;">{{ config('app.name') }}</h2>
+                    <div class="name" style="font-size: 16px; font-weight: bold;">{{ $item->name }}</div>
+                    <div class="barcode" style="font-size: 60px;">{{ $item->sku }}</div>
+                    <div class="sku" style="font-size: 14px;">{{ $item->sku }}</div>
+                    @if($type == 'price_tag')
+                        <div class="price" style="font-size: 32px; margin-top: 10px;">Rp {{ number_format($item->sell_price, 0, ',', '.') }}</div>
+                    @endif
                 </div>
             @endfor
         @endforeach
-    </div>
+    @endif
 
-    <script>
-        JsBarcode(".barcode").init();
-    </script>
 </body>
 </html>

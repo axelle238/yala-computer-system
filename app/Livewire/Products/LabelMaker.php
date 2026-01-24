@@ -3,89 +3,92 @@
 namespace App\Livewire\Products;
 
 use App\Models\Product;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.app')]
-#[Title('Cetak Label Barcode - Yala Computer')]
+#[Title('Cetak Label & Barcode - Yala Computer')]
 class LabelMaker extends Component
 {
     public $search = '';
-    public $queue = []; // ['product_id', 'name', 'price', 'sku', 'qty_to_print']
+    public $queue = []; // [product_id => qty]
+    
+    // Label Settings
+    public $labelType = 'price_tag'; // price_tag, barcode_sticker, qr_mini
+    public $paperSize = 'a4'; // a4, thermal_100x150
 
-    public function updatedSearch()
+    public function mount()
     {
-        // Simple search logic
+        $this->queue = Session::get('label_print_queue', []);
     }
 
-    public function printLabels()
+    public function addToQueue($id)
     {
-        if (empty($this->queue)) return;
-
-        $key = 'print_queue_' . Str::random(10);
-        Cache::put($key, $this->queue, 60); // Simpan 1 menit
-
-        return redirect()->route('print.labels', ['key' => $key]);
-    }
-
-    public function addProduct($id)
-    {
-        $product = Product::find($id);
-        if (!$product) return;
-
-        // Check exists
-        foreach ($this->queue as $key => $item) {
-            if ($item['product_id'] == $id) {
-                $this->queue[$key]['qty_to_print']++;
-                return;
-            }
+        if (isset($this->queue[$id])) {
+            $this->queue[$id]++;
+        } else {
+            $this->queue[$id] = 1;
         }
-
-        $this->queue[] = [
-            'product_id' => $product->id,
-            'name' => $product->name,
-            'price' => $product->sell_price,
-            'sku' => $product->sku,
-            'barcode' => $product->barcode ?? $product->sku,
-            'qty_to_print' => 1
-        ];
-        
-        $this->search = '';
+        Session::put('label_print_queue', $this->queue);
+        $this->dispatch('notify', message: 'Ditambahkan ke antrian cetak.', type: 'success');
     }
 
-    public function remove($index)
+    public function removeFromQueue($id)
     {
-        unset($this->queue[$index]);
-        $this->queue = array_values($this->queue);
+        unset($this->queue[$id]);
+        Session::put('label_print_queue', $this->queue);
     }
 
-    public function updateQty($index, $qty)
+    public function updateQty($id, $qty)
     {
-        if (isset($this->queue[$index])) {
-            $this->queue[$index]['qty_to_print'] = max(1, intval($qty));
+        if ($qty > 0) {
+            $this->queue[$id] = $qty;
+        } else {
+            unset($this->queue[$id]);
         }
+        Session::put('label_print_queue', $this->queue);
     }
 
     public function clearQueue()
     {
         $this->queue = [];
+        Session::forget('label_print_queue');
+        $this->dispatch('notify', message: 'Antrian dibersihkan.', type: 'success');
+    }
+
+    public function print()
+    {
+        if (empty($this->queue)) {
+            $this->dispatch('notify', message: 'Antrian kosong!', type: 'error');
+            return;
+        }
+
+        // Redirect to print controller logic (stream PDF/HTML)
+        return redirect()->route('print.labels', [
+            'type' => $this->labelType,
+            'paper' => $this->paperSize
+        ]);
     }
 
     public function render()
     {
         $products = [];
         if (strlen($this->search) > 2) {
-            $products = Product::where('name', 'like', '%' . $this->search . '%')
-                ->orWhere('sku', 'like', '%' . $this->search . '%')
-                ->take(5)
-                ->get();
+            $products = Product::where('name', 'like', '%'.$this->search.'%')
+                ->orWhere('sku', 'like', '%'.$this->search.'%')
+                ->take(10)->get();
+        }
+
+        $queueItems = [];
+        if (!empty($this->queue)) {
+            $queueItems = Product::whereIn('id', array_keys($this->queue))->get();
         }
 
         return view('livewire.products.label-maker', [
-            'products' => $products
+            'products' => $products,
+            'queueItems' => $queueItems
         ]);
     }
 }

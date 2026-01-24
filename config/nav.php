@@ -106,6 +106,13 @@ return [
                     'roles' => ['admin', 'owner', 'warehouse'],
                     'permission' => 'stock.adjust',
                 ],
+                [
+                    'label' => 'Cetak Label',
+                    'route' => 'products.labels',
+                    'icon'  => 'qr-code', // Need icon
+                    'roles' => ['admin', 'owner', 'warehouse'],
+                    'permission' => 'product.view',
+                ],
             ]
         ],
         [
@@ -195,6 +202,13 @@ return [
                     'label' => 'Berita & Artikel',
                     'route' => 'admin.news.index',
                     'icon'  => 'newspaper',
+                    'roles' => ['admin', 'owner'],
+                    'permission' => 'setting.edit',
+                ],
+                [
+                    'label' => 'Reputasi & Ulasan',
+                    'route' => 'reviews.manager',
+                    'icon'  => 'star', // Need icon
                     'roles' => ['admin', 'owner'],
                     'permission' => 'setting.edit',
                 ],

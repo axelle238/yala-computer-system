@@ -6,53 +6,54 @@ use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\ServiceTicket;
 use App\Models\Setting;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class PrintController extends Controller
 {
-    // ...
-
     public function labels(Request $request)
     {
-        $key = $request->query('key');
-        $queue = Cache::get($key);
-
-        if (!$queue) {
-            abort(404, 'Data cetak kadaluarsa.');
+        $queue = Session::get('label_print_queue', []);
+        
+        if (empty($queue)) {
+            return redirect()->back()->with('error', 'Antrian cetak kosong.');
         }
 
-        return view('print.labels', compact('queue'));
+        $items = Product::whereIn('id', array_keys($queue))->get()->map(function($product) use ($queue) {
+            $product->print_qty = $queue[$product->id];
+            return $product;
+        });
+
+        $type = $request->query('type', 'price_tag');
+        $paper = $request->query('paper', 'a4');
+
+        return view('print.labels', compact('items', 'type', 'paper'));
     }
-}
+
     public function transaction($id)
     {
-        // Ambil transaksi utama untuk mendapatkan referensi
         $mainTransaction = InventoryTransaction::with(['product', 'user'])->findOrFail($id);
         
-        // Jika ada referensi, ambil semua item dalam satu struk/invoice
         if ($mainTransaction->reference_number && $mainTransaction->reference_number !== '-') {
             $transactions = InventoryTransaction::with(['product'])
                 ->where('reference_number', $mainTransaction->reference_number)
                 ->get();
         } else {
-            // Jika tidak ada referensi (transaksi tunggal/manual), jadikan array tunggal
             $transactions = collect([$mainTransaction]);
         }
 
-        $shopName = Setting::get('shop_name', 'Yala Computer');
-        $shopAddress = Setting::get('shop_address', 'Jakarta');
+        $shopName = Setting::get('store_name', 'Yala Computer');
+        $shopAddress = Setting::get('address', 'Jakarta');
         $shopPhone = Setting::get('whatsapp_number', '-');
 
-        // Pass collection 'transactions' instead of single 'transaction'
         return view('print.transaction', compact('transactions', 'mainTransaction', 'shopName', 'shopAddress', 'shopPhone'));
     }
 
     public function service($id)
     {
         $ticket = ServiceTicket::findOrFail($id);
-        $shopName = Setting::get('shop_name', 'Yala Computer');
-        $shopAddress = Setting::get('shop_address', 'Jakarta');
+        $shopName = Setting::get('store_name', 'Yala Computer');
+        $shopAddress = Setting::get('address', 'Jakarta');
         $shopPhone = Setting::get('whatsapp_number', '-');
 
         return view('print.service', compact('ticket', 'shopName', 'shopAddress', 'shopPhone'));
@@ -61,6 +62,11 @@ class PrintController extends Controller
     public function productLabel($id)
     {
         $product = Product::findOrFail($id);
-        return view('print.label', compact('product'));
+        // Single item print fallback
+        return view('print.labels', [
+            'items' => collect([$product])->map(fn($p) => $p->print_qty = 1),
+            'type' => 'price_tag',
+            'paper' => 'thermal_100x150'
+        ]);
     }
 }

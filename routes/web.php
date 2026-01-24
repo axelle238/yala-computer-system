@@ -134,6 +134,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     // Marketing
     Route::get('/marketing/flash-sale', \App\Livewire\Marketing\FlashSale\Index::class)->name('marketing.flash-sale.index');
     Route::get('/marketing/flash-sale/create', \App\Livewire\Marketing\FlashSale\Form::class)->name('marketing.flash-sale.create');
+    Route::get('/marketing/reviews', \App\Livewire\Marketing\Reviews\Manager::class)->name('reviews.manager'); // New
     
     // Vouchers (New)
     Route::get('/marketing/vouchers', \App\Livewire\Marketing\Vouchers\Index::class)->name('marketing.vouchers.index');
