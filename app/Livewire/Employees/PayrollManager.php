@@ -56,8 +56,9 @@ class PayrollManager extends Component
         $endOfMonth = Carbon::createFromDate($this->year, $this->month, 1)->endOfMonth();
 
         // Get Global Settings
-        $mealAllowance = (float) Setting::get('salary_meal_allowance', 25000); // Uang makan harian
-        $overtimeRate = (float) Setting::get('salary_overtime_rate', 20000); // Per jam
+        $globalMealAllowance = (float) Setting::get('salary_meal_allowance', 25000); 
+        $overtimeRate = (float) Setting::get('salary_overtime_rate', 20000); 
+        $latePenaltyRate = (float) Setting::get('salary_late_penalty_rate', 1000); // Per minute penalty
 
         $preview = [];
 
@@ -67,27 +68,34 @@ class PayrollManager extends Component
                 ->whereBetween('date', [$startOfMonth, $endOfMonth])
                 ->get();
             
-            $daysPresent = $attendances->where('status', 'present')->count();
+            $daysPresent = $attendances->where('status', 'present')->count() + $attendances->where('status', 'late')->count();
             $totalOvertimeHours = $attendances->sum('overtime_hours');
+            $totalLateMinutes = $attendances->sum('late_minutes');
 
-            // 2. Allowances Calculation
-            $transportAllowance = 0; // Bisa ambil dari user->transport_allowance kalau ada column
-            $mealTotal = $daysPresent * $mealAllowance;
-            $totalAllowance = $mealTotal + $transportAllowance;
+            // 2. Allowances Calculation (Priority: User Specific > Global)
+            $userMealRate = $user->meal_allowance > 0 ? $user->meal_allowance : $globalMealAllowance;
+            $userTransportRate = $user->transport_allowance ?? 0;
+            
+            $mealTotal = $daysPresent * $userMealRate;
+            $transportTotal = $daysPresent * $userTransportRate;
+            $totalAllowance = $mealTotal + $transportTotal;
 
             // 3. Overtime Calculation
             $overtimePay = $totalOvertimeHours * $overtimeRate;
 
-            // 4. Commissions (Unpaid ones up to end of selected month)
+            // 4. Commissions
             $commissions = Commission::where('user_id', $user->id)
                 ->where('is_paid', false)
                 ->where('created_at', '<=', $endOfMonth)
                 ->sum('amount');
 
-            // 5. Total
+            // 5. Deductions (Late Penalty)
+            $latePenalty = $totalLateMinutes * $latePenaltyRate;
+            $totalDeductions = $latePenalty; 
+
+            // 6. Net Calculation
             $gross = $user->base_salary + $totalAllowance + $overtimePay + $commissions;
-            $deductions = 0; // Future: Late penalty, Cashbon
-            $net = $gross - $deductions;
+            $net = max(0, $gross - $totalDeductions);
 
             $preview[] = [
                 'user_id' => $user->id,
@@ -95,17 +103,22 @@ class PayrollManager extends Component
                 'role' => $user->role,
                 'base_salary' => $user->base_salary,
                 'days_present' => $daysPresent,
-                'meal_allowance' => $mealTotal,
+                'total_allowance' => $totalAllowance,
                 'overtime_hours' => $totalOvertimeHours,
                 'overtime_pay' => $overtimePay,
                 'commission' => $commissions,
-                'deductions' => $deductions,
+                'deductions' => $totalDeductions,
                 'net_salary' => $net,
                 'details' => [
-                    'meal_rate' => $mealAllowance,
+                    'meal_rate' => $userMealRate,
+                    'transport_rate' => $userTransportRate,
                     'ot_rate' => $overtimeRate,
+                    'late_rate' => $latePenaltyRate,
                     'days' => $daysPresent,
-                    'ot_hours' => $totalOvertimeHours
+                    'ot_hours' => $totalOvertimeHours,
+                    'late_minutes' => $totalLateMinutes,
+                    'transport_total' => $transportTotal,
+                    'meal_total' => $mealTotal
                 ]
             ];
         }
@@ -121,22 +134,20 @@ class PayrollManager extends Component
             $period = sprintf('%02d-%d', $this->month, $this->year);
 
             foreach ($this->previewData as $data) {
-                // Create Payroll Record
                 Payroll::create([
                     'user_id' => $data['user_id'],
                     'period_month' => $period,
                     'pay_date' => now(),
                     'base_salary' => $data['base_salary'],
-                    'total_allowance' => $data['meal_allowance'], // Simpifikasi ke total
+                    'total_allowance' => $data['total_allowance'],
                     'overtime_pay' => $data['overtime_pay'],
                     'total_commission' => $data['commission'],
                     'deductions' => $data['deductions'],
                     'net_salary' => $data['net_salary'],
-                    'status' => 'paid', // Auto paid for simplicity in this flow
+                    'status' => 'paid',
                     'details' => $data['details']
                 ]);
 
-                // Mark Commissions as Paid
                 if ($data['commission'] > 0) {
                     Commission::where('user_id', $data['user_id'])
                         ->where('is_paid', false)

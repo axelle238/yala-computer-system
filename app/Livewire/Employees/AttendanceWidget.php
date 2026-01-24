@@ -29,17 +29,42 @@ class AttendanceWidget extends Component
     {
         if ($this->todayAttendance) return;
 
-        // Logic Keterlambatan (Misal jam masuk 09:00)
+        $user = Auth::user();
+        
+        // 1. Determine Shift
+        // Check dynamic schedule first
+        $schedule = \App\Models\EmployeeShift::where('user_id', $user->id)
+            ->where('date', date('Y-m-d'))
+            ->with('shift')
+            ->first();
+        
+        $shift = $schedule ? $schedule->shift : $user->shift;
+        
+        // Default if no shift assigned: 09:00 - 17:00
+        $startTime = $shift ? Carbon::parse($shift->start_time) : Carbon::parse('09:00:00');
+        $lateTolerance = $shift ? $shift->late_tolerance : 15;
+
+        // 2. Calculate Late
+        $clockInTime = now();
+        // Create Carbon instance for shift start on TODAY
+        $shiftStartDateTime = Carbon::parse(date('Y-m-d') . ' ' . $startTime->format('H:i:s'));
+        
+        $lateMinutes = 0;
         $status = 'present';
-        if (now()->format('H:i') > '09:15') {
+
+        if ($clockInTime->gt($shiftStartDateTime->addMinutes($lateTolerance))) {
             $status = 'late';
+            // Recalculate late minutes from original start time (without tolerance buffer usually, or with? let's count from start time)
+            $lateMinutes = $clockInTime->diffInMinutes($shiftStartDateTime->subMinutes($lateTolerance)); 
         }
 
         Attendance::create([
-            'user_id' => Auth::id(),
+            'user_id' => $user->id,
+            'shift_id' => $shift ? $shift->id : null,
             'date' => date('Y-m-d'),
-            'clock_in' => now(),
+            'clock_in' => $clockInTime,
             'status' => $status,
+            'late_minutes' => $lateMinutes,
             'ip_address' => request()->ip()
         ]);
 
@@ -51,9 +76,27 @@ class AttendanceWidget extends Component
     {
         if (!$this->todayAttendance || $this->todayAttendance->clock_out) return;
 
+        $clockOutTime = now();
         $this->todayAttendance->update([
-            'clock_out' => now()
+            'clock_out' => $clockOutTime
         ]);
+
+        // Calculate Overtime
+        // Needs Shift End Time
+        $shift = $this->todayAttendance->shift;
+        if ($shift) {
+            $shiftEndDateTime = Carbon::parse(date('Y-m-d') . ' ' . $shift->end_time);
+            
+            if ($clockOutTime->gt($shiftEndDateTime)) {
+                $overtimeMinutes = $clockOutTime->diffInMinutes($shiftEndDateTime);
+                $overtimeHours = round($overtimeMinutes / 60, 2); // Decimal hours
+                
+                // Only count significant overtime (e.g. > 30 mins)
+                if ($overtimeMinutes > 30) {
+                     $this->todayAttendance->update(['overtime_hours' => $overtimeHours]);
+                }
+            }
+        }
 
         $this->dispatch('notify', message: 'Berhasil Clock Out. Hati-hati di jalan!', type: 'success');
         $this->refreshData();

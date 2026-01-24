@@ -54,6 +54,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'access_rights' => 'array',
             'join_date' => 'date',
+            'transport_allowance' => 'decimal:2',
+            'meal_allowance' => 'decimal:2',
         ];
     }
 
@@ -67,6 +69,21 @@ class User extends Authenticatable
     }
 
     // --- Helper Methods untuk Role & Permission ---
+
+    public function shift()
+    {
+        return $this->belongsTo(Shift::class);
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function leaveRequests()
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
 
     public function roleV2()
     {
