@@ -23,7 +23,7 @@
                             <p class="text-lg text-slate-200 mb-8 font-light max-w-xl">{{ $banner->description }}</p>
                             @if($banner->link_url)
                                 <a href="{{ $banner->link_url }}" class="inline-block px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-black rounded-none skew-x-[-10deg] transition-transform hover:translate-x-2">
-                                    <span class="skew-x-[10deg] inline-block uppercase tracking-widest">Lihat Penawaran</span>
+                                    <span class="skew-x-[10deg] inline-block uppercase tracking-widest">{{ $banner->button_text ?? 'Lihat Penawaran' }}</span>
                                 </a>
                             @endif
                         </div>

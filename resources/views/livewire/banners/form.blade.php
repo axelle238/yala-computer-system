@@ -48,9 +48,16 @@
 
                 <div class="grid grid-cols-2 gap-6">
                     <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Teks Tombol (Opsional)</label>
+                        <input wire:model="button_text" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-blue-500" placeholder="Contoh: Beli Sekarang">
+                    </div>
+                    <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Link URL (Opsional)</label>
                         <input wire:model="link_url" type="url" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-blue-500" placeholder="https://...">
                     </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Urutan Tampil</label>
                         <input wire:model="order" type="number" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-blue-500">

@@ -19,6 +19,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ $title ?? 'Sistem Manajemen Yala Computer' }}</title>
+    <link rel="icon" href="{{ \App\Models\Setting::get('store_favicon') ? asset('storage/' . \App\Models\Setting::get('store_favicon')) : asset('favicon.ico') }}">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -75,12 +76,16 @@
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-50 w-72 glass-sidebar transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col h-full shadow-2xl md:shadow-none flex-shrink-0">
             <!-- Brand -->
             <div class="h-24 flex items-center gap-3 px-6 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
-                <div class="relative w-12 h-12">
-                    <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-xl transform rotate-6 animate-pulse"></div>
-                    <div class="absolute inset-0 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center border border-slate-100 dark:border-slate-700 shadow-lg">
-                        <span class="font-tech font-black text-2xl text-transparent bg-clip-text bg-gradient-to-tr from-cyan-600 to-blue-600">Y</span>
+                @if(\App\Models\Setting::get('store_logo'))
+                    <img src="{{ asset('storage/' . \App\Models\Setting::get('store_logo')) }}" class="w-12 h-12 object-contain bg-white rounded-lg p-1">
+                @else
+                    <div class="relative w-12 h-12">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-xl transform rotate-6 animate-pulse"></div>
+                        <div class="absolute inset-0 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center border border-slate-100 dark:border-slate-700 shadow-lg">
+                            <span class="font-tech font-black text-2xl text-transparent bg-clip-text bg-gradient-to-tr from-cyan-600 to-blue-600">Y</span>
+                        </div>
                     </div>
-                </div>
+                @endif
                 <div>
                     <h1 class="font-tech font-bold text-xl text-slate-900 dark:text-white leading-none tracking-tight">{{ \App\Models\Setting::get('admin_title', 'YALA SYSTEM') }}</h1>
                     <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Management Core</p>

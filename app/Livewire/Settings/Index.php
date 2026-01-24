@@ -3,6 +3,7 @@
 namespace App\Livewire\Settings;
 
 use App\Models\Setting;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
@@ -14,9 +15,14 @@ class Index extends Component
 {
     use WithFileUploads;
 
-    // General
+    // Appearance (Branding)
     public $store_name;
-    public $logo;
+    public $logo; // Uploaded file
+    public $current_logo; // Existing path
+    public $favicon; // Uploaded file
+    public $current_favicon; // Existing path
+
+    // General
     public $whatsapp_number;
     public $address;
     
@@ -42,6 +48,9 @@ class Index extends Component
     public function mount()
     {
         $this->store_name = Setting::get('store_name', 'Yala Computer');
+        $this->current_logo = Setting::get('store_logo');
+        $this->current_favicon = Setting::get('store_favicon');
+
         $this->whatsapp_number = Setting::get('whatsapp_number', '6281234567890');
         $this->address = Setting::get('address', 'Jl. Teknologi No. 1');
         
@@ -66,9 +75,34 @@ class Index extends Component
 
     public function save()
     {
+        // Handle Logo Upload
         if ($this->logo) {
-            $path = $this->logo->store('logo', 'public');
+            $this->validate(['logo' => 'image|max:1024']); // 1MB Max
+            
+            // Delete old logo
+            if ($this->current_logo) {
+                Storage::disk('public')->delete($this->current_logo);
+            }
+            
+            $path = $this->logo->store('uploads/branding', 'public');
             Setting::set('store_logo', $path);
+            $this->current_logo = $path;
+            $this->logo = null; // Reset input
+        }
+
+        // Handle Favicon Upload
+        if ($this->favicon) {
+            $this->validate(['favicon' => 'image|max:512|mimes:ico,png,jpg']); 
+            
+            // Delete old favicon
+            if ($this->current_favicon) {
+                Storage::disk('public')->delete($this->current_favicon);
+            }
+            
+            $path = $this->favicon->store('uploads/branding', 'public');
+            Setting::set('store_favicon', $path);
+            $this->current_favicon = $path;
+            $this->favicon = null; // Reset input
         }
 
         Setting::set('store_name', $this->store_name);
@@ -93,7 +127,10 @@ class Index extends Component
         
         Setting::set('maintenance_mode', $this->maintenance_mode);
 
-        $this->dispatch('notify', message: 'Pengaturan disimpan!', type: 'success');
+        $this->dispatch('notify', message: 'Pengaturan berhasil disimpan!', type: 'success');
+        
+        // Refresh page to apply branding changes (optional, but good for favicon)
+        // return redirect(request()->header('Referer'));
     }
 
     public function render()

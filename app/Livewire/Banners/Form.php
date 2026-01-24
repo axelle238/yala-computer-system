@@ -19,6 +19,7 @@ class Form extends Component
 
     public $title;
     public $description;
+    public $button_text; // New Field
     public $image; // Temporary upload
     public $existingImage;
     public $link_url;
@@ -31,6 +32,7 @@ class Form extends Component
             $this->banner = Banner::findOrFail($id);
             $this->title = $this->banner->title;
             $this->description = $this->banner->description;
+            $this->button_text = $this->banner->button_text; // New Field
             $this->existingImage = $this->banner->image_path;
             $this->link_url = $this->banner->link_url;
             $this->is_active = $this->banner->is_active;
@@ -60,6 +62,7 @@ class Form extends Component
         $data = [
             'title' => $this->title,
             'description' => $this->description,
+            'button_text' => $this->button_text, // New Field
             'image_path' => $imagePath,
             'link_url' => $this->link_url,
             'is_active' => $this->is_active,

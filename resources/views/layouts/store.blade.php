@@ -6,6 +6,7 @@
     <title>{{ $title ?? 'Yala Computer - Toko Komputer & Rakit PC Terbaik Jakarta' }}</title>
     <meta name="description" content="Pusat belanja komputer, laptop, dan jasa rakit PC murah terbaik di Jakarta.">
     <meta name="keywords" content="Beli Komputer, Rakit PC Jakarta, Laptop Murah Jakarta, Toko Komputer Terbaik, Yala Computer">
+    <link rel="icon" href="{{ \App\Models\Setting::get('store_favicon') ? asset('storage/' . \App\Models\Setting::get('store_favicon')) : asset('favicon.ico') }}">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
@@ -41,12 +42,16 @@
         <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
             <!-- Logo -->
             <a href="/" class="group flex items-center gap-3">
-                <div class="relative w-10 h-10">
-                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg transform rotate-6 group-hover:rotate-12 transition-transform duration-300 shadow-[0_0_20px_rgba(6,182,212,0.5)]"></div>
-                    <div class="absolute inset-0 bg-slate-900 rounded-lg flex items-center justify-center border border-white/20 transform -rotate-3 group-hover:rotate-0 transition-transform duration-300">
-                        <span class="font-tech font-black text-xl text-cyan-400">Y</span>
+                @if(\App\Models\Setting::get('store_logo'))
+                    <img src="{{ asset('storage/' . \App\Models\Setting::get('store_logo')) }}" class="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300">
+                @else
+                    <div class="relative w-10 h-10">
+                        <div class="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg transform rotate-6 group-hover:rotate-12 transition-transform duration-300 shadow-[0_0_20px_rgba(6,182,212,0.5)]"></div>
+                        <div class="absolute inset-0 bg-slate-900 rounded-lg flex items-center justify-center border border-white/20 transform -rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                            <span class="font-tech font-black text-xl text-cyan-400">Y</span>
+                        </div>
                     </div>
-                </div>
+                @endif
                 <div class="flex flex-col">
                     <span class="font-tech font-bold text-xl text-white tracking-tight uppercase leading-none">{{ \App\Models\Setting::get('store_name', 'YALA COMPUTER') }}</span>
                     <span class="text-[8px] font-bold text-cyan-400 uppercase tracking-[0.3em] leading-none mt-1 group-hover:text-cyan-300 transition-colors">Future Tech Store</span>

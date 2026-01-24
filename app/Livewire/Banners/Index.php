@@ -7,14 +7,20 @@ use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
+use Illuminate\Support\Facades\Storage;
+
 #[Layout('layouts.app')]
 #[Title('Manajemen Banner - Yala Computer')]
 class Index extends Component
 {
     public function delete($id)
     {
-        Banner::findOrFail($id)->delete();
-        session()->flash('success', 'Banner berhasil dihapus.');
+        $banner = Banner::findOrFail($id);
+        if ($banner->image_path) {
+            Storage::disk('public')->delete($banner->image_path);
+        }
+        $banner->delete();
+        $this->dispatch('notify', message: 'Banner berhasil dihapus.', type: 'success');
     }
 
     public function toggleActive($id)
