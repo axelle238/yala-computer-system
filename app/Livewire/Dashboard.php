@@ -5,57 +5,44 @@ namespace App\Livewire;
 use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\ServiceTicket;
+use App\Models\Order;
 use App\Services\BusinessIntelligence;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.admin')]
 #[Title('Executive Dashboard - Yala Computer')]
 class Dashboard extends Component
 {
     public function render()
     {
         $bi = new BusinessIntelligence();
+        $month = now()->month;
+        $year = now()->year;
 
-        // 1. Core Stats (Cached 60s)
-        $stats = Cache::remember('dashboard_core_stats', 60, function () {
+        // 1. Core Stats (Cached 60s for performance)
+        $stats = Cache::remember('dashboard_core_stats', 60, function () use ($month, $year, $bi) {
+            $pl = $bi->getProfitLoss($month, $year);
+            
             return [
-                'totalValue' => Product::where('is_active', true)->sum(DB::raw('stock_quantity * buy_price')),
-                'monthlyRevenue' => \App\Models\Order::where('status', 'completed')
-                    ->whereMonth('created_at', now()->month)
-                    ->sum('total_amount'),
-                'lowStock' => Product::whereColumn('stock_quantity', '<=', 'min_stock_alert')->count(),
-                'activeTickets' => ServiceTicket::whereNotIn('status', ['completed', 'cancelled', 'picked_up'])->count(),
+                'revenue' => $pl['revenue']['total'],
+                'net_profit' => $pl['net_profit'],
+                'active_tickets' => ServiceTicket::whereNotIn('status', ['cancelled', 'picked_up'])->count(),
+                'orders_today' => Order::whereDate('created_at', today())->count(),
             ];
         });
 
-        // 2. Business Intelligence Data (Cached 5 mins)
-        $analytics = Cache::remember('dashboard_bi_data', 300, function () use ($bi) {
-            return [
-                'salesTrend' => $bi->getSalesTrend(),
-                'topProducts' => $bi->getTopProducts(),
-                'forecast' => $bi->getInventoryForecast()->take(5), // Top 5 critical items
-                'technicians' => $bi->getEmployeePerformance(),
-            ];
+        // 2. BI Analysis (Cached 5 mins)
+        $analysis = Cache::remember('dashboard_analysis', 300, function () use ($bi) {
+            return $bi->getStockAnalysis(); // returns fast_moving, low_stock, dead_stock
         });
-
-        // 3. Recent Activity (Realtime)
-        $recentTransactions = InventoryTransaction::with(['product', 'user'])->latest()->take(5)->get();
-
-        // 4. Operational Data (Realtime)
-        $operational = [
-            'unassignedServices' => ServiceTicket::whereNull('technician_id')->whereNotIn('status', ['cancelled', 'picked_up'])->count(),
-            'pendingOpnames' => \App\Models\StockOpname::where('status', 'pending_approval')->count(),
-            'pendingPO' => \App\Models\PurchaseOrder::where('status', 'pending')->count(),
-            'criticalStockList' => Product::whereColumn('stock_quantity', '<=', 'min_stock_alert')->take(5)->get(),
-        ];
 
         return view('livewire.dashboard', [
             'stats' => $stats,
-            'analytics' => $analytics,
-            'recentTransactions' => $recentTransactions,
-            'operational' => $operational,
+            'analysis' => $analysis,
         ]);
     }
 }

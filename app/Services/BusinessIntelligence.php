@@ -2,109 +2,144 @@
 
 namespace App\Services;
 
+use App\Models\CashTransaction;
+use App\Models\InventoryTransaction;
 use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Product;
 use App\Models\ServiceTicket;
-use App\Models\User;
+use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class BusinessIntelligence
 {
     /**
-     * Get Sales Trend for Chart (Last 12 Months)
+     * Menghitung Laporan Laba Rugi (Profit & Loss)
      */
-    public function getSalesTrend()
+    public function getProfitLoss($month, $year)
     {
-        $data = Order::select(
-            DB::raw('sum(total_amount) as revenue'), 
-            DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month_year"),
-            DB::raw('YEAR(created_at) as year, MONTH(created_at) as month')
-        )
-        ->where('status', 'completed')
-        ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
-        ->groupBy('year', 'month', 'month_year')
-        ->orderBy('year', 'asc')
-        ->orderBy('month', 'asc')
-        ->get();
+        $start = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $end = Carbon::createFromDate($year, $month, 1)->endOfMonth();
 
-        return $data;
-    }
+        // 1. REVENUE (Pendapatan Kotor)
+        // Dari Penjualan Langsung (POS/Online)
+        $salesRevenue = Order::where('status', 'completed')
+            ->whereBetween('paid_at', [$start, $end])
+            ->sum('total_amount');
 
-    /**
-     * Get Top Selling Products
-     */
-    public function getTopProducts($limit = 5)
-    {
-        return OrderItem::select('product_id', DB::raw('sum(quantity) as total_qty'))
-            ->whereHas('order', fn($q) => $q->where('status', 'completed'))
-            ->groupBy('product_id')
-            ->orderByDesc('total_qty')
-            ->with('product')
-            ->take($limit)
-            ->get();
-    }
-
-    /**
-     * Inventory Forecasting using Simple Moving Average (SMA)
-     * Predict days until stockout based on last 30 days sales.
-     */
-    public function getInventoryForecast()
-    {
-        $products = Product::where('stock_quantity', '>', 0)->get();
-        $forecasts = [];
-
-        foreach ($products as $product) {
-            // Sales in last 30 days
-            $soldLast30Days = OrderItem::where('product_id', $product->id)
-                ->whereHas('order', function($q) {
-                    $q->where('status', 'completed')
-                      ->where('created_at', '>=', now()->subDays(30));
-                })
-                ->sum('quantity');
-
-            $dailyRunRate = $soldLast30Days / 30;
-
-            if ($dailyRunRate > 0) {
-                $daysUntilEmpty = $product->stock_quantity / $dailyRunRate;
-                
-                // Only alert if stockout is imminent (< 14 days)
-                if ($daysUntilEmpty < 14) {
-                    $forecasts[] = [
-                        'product' => $product,
-                        'daily_usage' => round($dailyRunRate, 2),
-                        'days_left' => round($daysUntilEmpty),
-                    ];
-                }
-            }
-        }
-
-        return collect($forecasts)->sortBy('days_left');
-    }
-
-    /**
-     * Employee Performance Metrics
-     */
-    public function getEmployeePerformance()
-    {
-        // Sales Performance (Based on orders handled/referred if we had that, or just completed orders if they are sales)
-        // For now, let's use Service Technicians performance
+        // Dari Servis (Yang dibayar terpisah/non-order flow)
+        // Asumsi: Servis yang sudah picked_up dianggap lunas (revenue diakui saat selesai)
+        // Perhatian: Jika pembayaran servis masuk ke CashTransaction sebagai 'service_payment', kita bisa ambil dari sana untuk akurasi cash basis.
+        // Mari gunakan CashTransaction untuk pendekatan 'Cash Basis' yang lebih riil.
         
-        $technicians = User::where('role', 'technician')->orWhere('role', 'admin')->get()->map(function($user) {
-            $ticketsCompleted = ServiceTicket::where('technician_id', $user->id)
-                ->where('status', 'completed')
-                ->whereMonth('updated_at', now()->month)
-                ->count();
-            
-            return [
-                'name' => $user->name,
-                'role' => $user->role,
-                'metric' => 'Tickets Closed',
-                'value' => $ticketsCompleted
-            ];
-        })->sortByDesc('value');
+        $incomeTransactions = CashTransaction::where('type', 'in')
+            ->whereBetween('created_at', [$start, $end])
+            ->get();
 
-        return $technicians;
+        $totalRevenue = $incomeTransactions->sum('amount');
+        $revenueDetails = $incomeTransactions->groupBy('category')->map(fn($row) => $row->sum('amount'));
+
+        // 2. COGS (Harga Pokok Penjualan) - Biaya Modal Barang yang Terjual
+        // Kita hitung dari Inventory Transaction tipe 'out' pada periode ini
+        $cogs = InventoryTransaction::where('type', 'out')
+            ->whereBetween('created_at', [$start, $end])
+            ->select(DB::raw('SUM(quantity * cogs) as total_cogs'))
+            ->value('total_cogs') ?? 0;
+
+        // 3. GROSS PROFIT (Laba Kotor)
+        $grossProfit = $totalRevenue - $cogs;
+
+        // 4. OPERATING EXPENSES (Beban Operasional)
+        // Gaji, Listrik, Air, dll (Cash Transaction OUT)
+        $expenses = CashTransaction::where('type', 'out')
+            ->whereBetween('created_at', [$start, $end])
+            ->get();
+        
+        $totalExpenses = $expenses->sum('amount');
+        $expenseDetails = $expenses->groupBy('category')->map(fn($row) => $row->sum('amount'));
+
+        // 5. NET PROFIT (Laba Bersih)
+        $netProfit = $grossProfit - $totalExpenses;
+
+        return [
+            'period' => $start->format('F Y'),
+            'revenue' => [
+                'total' => $totalRevenue,
+                'breakdown' => $revenueDetails,
+            ],
+            'cogs' => $cogs,
+            'gross_profit' => $grossProfit,
+            'expenses' => [
+                'total' => $totalExpenses,
+                'breakdown' => $expenseDetails,
+            ],
+            'net_profit' => $netProfit,
+            'margin_percentage' => $totalRevenue > 0 ? ($netProfit / $totalRevenue) * 100 : 0
+        ];
+    }
+
+    /**
+     * Analisis Performa Teknisi
+     */
+    public function getTechnicianStats($month, $year)
+    {
+        $start = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $end = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+
+        return ServiceTicket::with('technician')
+            ->whereBetween('updated_at', [$start, $end]) // Use updated_at or finished_at
+            ->whereIn('status', ['ready', 'picked_up'])
+            ->select('technician_id', DB::raw('count(*) as total_tickets'), DB::raw('sum(final_cost) as total_revenue'))
+            ->groupBy('technician_id')
+            ->get()
+            ->map(function ($stat) {
+                return [
+                    'name' => $stat->technician->name ?? 'Unassigned',
+                    'tickets' => $stat->total_tickets,
+                    'revenue' => $stat->total_revenue,
+                ];
+            });
+    }
+
+    /**
+     * Analisis Stok (Fast vs Slow Moving)
+     * Limit: Top 10
+     */
+    public function getStockAnalysis()
+    {
+        // Fast Moving (Berdasarkan qty keluar 30 hari terakhir)
+        $fastMoving = InventoryTransaction::where('type', 'out')
+            ->where('created_at', '>=', Carbon::now()->subDays(30))
+            ->select('product_id', DB::raw('SUM(quantity) as total_sold'))
+            ->groupBy('product_id')
+            ->orderByDesc('total_sold')
+            ->limit(10)
+            ->with('product')
+            ->get();
+
+        // Low Stock Alert
+        $lowStock = Product::where('is_active', true)
+            ->whereColumn('stock_quantity', '<=', 'min_stock_alert')
+            ->where('stock_quantity', '>', 0) // Masih ada tapi dikit
+            ->limit(10)
+            ->get();
+
+        // Dead Stock (Barang ada stok, tapi tidak ada transaksi keluar 90 hari)
+        // Query ini agak berat, kita simplifikasi: Ambil barang stok > 0 yang tidak ada di inventory transaction out 90 hari
+        $activeProductIds = InventoryTransaction::where('type', 'out')
+            ->where('created_at', '>=', Carbon::now()->subDays(90))
+            ->pluck('product_id')
+            ->toArray();
+
+        $deadStock = Product::whereNotIn('id', $activeProductIds)
+            ->where('stock_quantity', '>', 0)
+            ->where('is_active', true)
+            ->limit(10)
+            ->get();
+
+        return [
+            'fast_moving' => $fastMoving,
+            'low_stock' => $lowStock,
+            'dead_stock' => $deadStock,
+        ];
     }
 }
