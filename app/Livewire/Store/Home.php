@@ -55,7 +55,7 @@ class Home extends Component
     public function render()
     {
         $banners = Banner::where('is_active', true)
-            ->orderBy('order_index')
+            ->orderBy('order')
             ->get();
 
         $categories = Category::withCount('products')

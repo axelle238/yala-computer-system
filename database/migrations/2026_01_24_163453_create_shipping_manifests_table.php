@@ -8,21 +8,25 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('shipping_manifests', function (Blueprint $table) {
-            $table->id();
-            $table->string('manifest_number')->unique(); // MNF-20260124-001
-            $table->string('courier_name'); // JNE, J&T, SiCepat
-            $table->foreignId('created_by')->constrained('users');
-            $table->string('status')->default('draft'); // draft, generated, picked_up
-            $table->timestamp('pickup_time')->nullable();
-            $table->text('notes')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('shipping_manifests')) {
+            Schema::create('shipping_manifests', function (Blueprint $table) {
+                $table->id();
+                $table->string('manifest_number')->unique(); // MNF-20260124-001
+                $table->string('courier_name'); // JNE, J&T, SiCepat
+                $table->foreignId('created_by')->constrained('users');
+                $table->string('status')->default('draft'); // draft, generated, picked_up
+                $table->timestamp('pickup_time')->nullable();
+                $table->text('notes')->nullable();
+                $table->timestamps();
+            });
+        }
 
         // Add manifest_id to orders table (nullable)
-        Schema::table('orders', function (Blueprint $table) {
-            $table->foreignId('shipping_manifest_id')->nullable()->constrained()->onDelete('set null');
-        });
+        if (!Schema::hasColumn('orders', 'shipping_manifest_id')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->foreignId('shipping_manifest_id')->nullable()->constrained()->onDelete('set null');
+            });
+        }
     }
 
     public function down(): void

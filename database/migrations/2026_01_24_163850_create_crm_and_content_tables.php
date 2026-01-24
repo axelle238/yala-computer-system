@@ -9,15 +9,17 @@ return new class extends Migration
     public function up(): void
     {
         // 1. Loyalty Logs (History Point)
-        Schema::create('loyalty_logs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->integer('points'); // Bisa positif (earn) atau negatif (redeem)
-            $table->string('type'); // purchase, referral, adjustment, redemption
-            $table->string('description')->nullable();
-            $table->string('reference_id')->nullable(); // Order ID or other ref
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('loyalty_logs')) {
+            Schema::create('loyalty_logs', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                $table->integer('points'); // Bisa positif (earn) atau negatif (redeem)
+                $table->string('type'); // purchase, referral, adjustment, redemption
+                $table->string('description')->nullable();
+                $table->string('reference_id')->nullable(); // Order ID or other ref
+                $table->timestamps();
+            });
+        }
 
         // 2. Add Referral Code to Users (if not exists)
         Schema::table('users', function (Blueprint $table) {
@@ -30,25 +32,29 @@ return new class extends Migration
         });
 
         // 3. FAQ Categories
-        Schema::create('faq_categories', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->integer('order_index')->default(0);
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('faq_categories')) {
+            Schema::create('faq_categories', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('slug')->unique();
+                $table->integer('order_index')->default(0);
+                $table->boolean('is_active')->default(true);
+                $table->timestamps();
+            });
+        }
 
         // 4. FAQs
-        Schema::create('faqs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('faq_category_id')->constrained()->onDelete('cascade');
-            $table->string('question');
-            $table->text('answer');
-            $table->boolean('is_published')->default(true);
-            $table->integer('order_index')->default(0);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('faqs')) {
+            Schema::create('faqs', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('faq_category_id')->constrained()->onDelete('cascade');
+                $table->string('question');
+                $table->text('answer');
+                $table->boolean('is_published')->default(true);
+                $table->integer('order_index')->default(0);
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void

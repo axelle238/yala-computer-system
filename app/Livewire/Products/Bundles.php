@@ -4,109 +4,142 @@ namespace App\Livewire\Products;
 
 use App\Models\Product;
 use App\Models\ProductBundle;
+use App\Models\ProductBundleItem;
 use Livewire\Component;
+use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Illuminate\Support\Str;
 
-#[Layout('layouts.app')]
-#[Title('Kelola Paket Produk (Bundling) - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Kelola Bundle Produk - Yala Computer')]
 class Bundles extends Component
 {
+    use WithPagination, WithFileUploads;
+
+    public $viewMode = 'list'; // list, create, edit
     public $search = '';
-    public $selectedParentId = null;
-    public $childSearch = '';
-    
+
     // Form
-    public $bundleItems = []; // [['child_id', 'name', 'qty']]
+    public $bundleId;
+    public $name;
+    public $description;
+    public $price;
+    public $image;
+    public $isActive = true;
+    
+    public $bundleItems = []; // [['product_id', 'qty']]
+    
+    // Search Product for Bundle
+    public $searchProduct = '';
+    public $searchResults = [];
 
-    public function selectParent($id)
+    public function updatedSearchProduct()
     {
-        $this->selectedParentId = $id;
-        $this->loadBundleItems();
-    }
-
-    public function loadBundleItems()
-    {
-        $this->bundleItems = [];
-        $bundles = ProductBundle::with('childProduct')->where('parent_product_id', $this->selectedParentId)->get();
-        foreach ($bundles as $b) {
-            $this->bundleItems[] = [
-                'child_id' => $b->child_product_id,
-                'name' => $b->childProduct->name,
-                'qty' => $b->quantity
-            ];
+        if (strlen($this->searchProduct) > 2) {
+            $this->searchResults = Product::where('name', 'like', '%' . $this->searchProduct . '%')->take(5)->get();
         }
     }
 
-    public function addChild($id)
+    public function addProductToBundle($id)
     {
         $product = Product::find($id);
-        if (!$product) return;
-
-        // Check duplicate
-        foreach ($this->bundleItems as $item) {
-            if ($item['child_id'] == $id) return;
+        if ($product) {
+            $this->bundleItems[] = [
+                'product_id' => $product->id,
+                'name' => $product->name,
+                'qty' => 1,
+                'price' => $product->sell_price
+            ];
         }
-
-        $this->bundleItems[] = [
-            'child_id' => $product->id,
-            'name' => $product->name,
-            'qty' => 1
-        ];
-        
-        $this->childSearch = '';
+        $this->searchProduct = '';
+        $this->searchResults = [];
     }
 
-    public function removeChild($index)
+    public function removeProductFromBundle($index)
     {
         unset($this->bundleItems[$index]);
         $this->bundleItems = array_values($this->bundleItems);
     }
 
-    public function updateQty($index, $qty)
-    {
-        $this->bundleItems[$index]['qty'] = max(1, intval($qty));
-    }
-
     public function save()
     {
-        if (!$this->selectedParentId) return;
+        $this->validate([
+            'name' => 'required',
+            'price' => 'required|numeric',
+            'bundleItems' => 'required|array|min:1'
+        ]);
 
-        $parent = Product::find($this->selectedParentId);
-        
-        // Update Flag
-        $parent->update(['is_bundle' => count($this->bundleItems) > 0]);
+        $data = [
+            'name' => $this->name,
+            'slug' => Str::slug($this->name),
+            'description' => $this->description,
+            'price' => $this->price,
+            'is_active' => $this->isActive,
+        ];
 
-        // Sync Relations
-        ProductBundle::where('parent_product_id', $this->selectedParentId)->delete();
+        if ($this->image) {
+            $data['image_path'] = $this->image->store('bundles', 'public');
+        }
+
+        if ($this->bundleId) {
+            $bundle = ProductBundle::find($this->bundleId);
+            $bundle->update($data);
+            $bundle->items()->delete();
+        } else {
+            $bundle = ProductBundle::create($data);
+        }
 
         foreach ($this->bundleItems as $item) {
-            ProductBundle::create([
-                'parent_product_id' => $this->selectedParentId,
-                'child_product_id' => $item['child_id'],
+            ProductBundleItem::create([
+                'product_bundle_id' => $bundle->id,
+                'product_id' => $item['product_id'],
                 'quantity' => $item['qty']
             ]);
         }
 
-        $this->dispatch('notify', message: 'Konfigurasi Paket Berhasil Disimpan!', type: 'success');
+        $this->dispatch('notify', message: 'Bundle saved successfully.', type: 'success');
+        $this->viewMode = 'list';
+    }
+
+    public function edit($id)
+    {
+        $bundle = ProductBundle::with('items.product')->find($id);
+        $this->bundleId = $bundle->id;
+        $this->name = $bundle->name;
+        $this->description = $bundle->description;
+        $this->price = $bundle->price;
+        $this->isActive = $bundle->is_active;
+        
+        $this->bundleItems = [];
+        foreach ($bundle->items as $item) {
+            $this->bundleItems[] = [
+                'product_id' => $item->product_id,
+                'name' => $item->product->name,
+                'qty' => $item->quantity,
+                'price' => $item->product->sell_price
+            ];
+        }
+        
+        $this->viewMode = 'edit';
+    }
+
+    public function create()
+    {
+        $this->reset(['bundleId', 'name', 'description', 'price', 'image', 'bundleItems']);
+        $this->viewMode = 'create';
     }
 
     public function render()
     {
-        $products = Product::where('name', 'like', '%' . $this->search . '%')
-            ->orderBy('name')
+        $bundles = ProductBundle::withCount('items')
+            ->where('name', 'like', '%' . $this->search . '%')
+            ->latest()
             ->paginate(10);
 
-        $childProducts = [];
-        if (strlen($this->childSearch) > 2) {
-            $childProducts = Product::where('name', 'like', '%' . $this->childSearch . '%')
-                ->where('id', '!=', $this->selectedParentId) // Prevent recursive bundle
-                ->take(5)->get();
-        }
-
         return view('livewire.products.bundles', [
-            'products' => $products,
-            'childCandidates' => $childProducts
+            'bundles' => $bundles
         ]);
     }
 }

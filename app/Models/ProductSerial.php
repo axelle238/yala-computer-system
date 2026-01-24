@@ -13,13 +13,8 @@ class ProductSerial extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function goodsReceive()
+    public function warehouse()
     {
-        return $this->belongsTo(GoodsReceive::class);
-    }
-
-    public function order()
-    {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Warehouse::class);
     }
 }
