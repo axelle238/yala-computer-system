@@ -5,6 +5,7 @@ namespace App\Livewire\Store;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Services\Payment\MidtransService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -36,7 +37,6 @@ class Checkout extends Component
     public $discountAmount = 0;
     public $grandTotal = 0;
 
-    // ... (Cities array remains same) ...
     public $cities = [
         'Jakarta' => 10000,
         'Bogor' => 15000,
@@ -61,10 +61,7 @@ class Checkout extends Component
         }
 
         if (Auth::check()) {
-            // Load saved addresses
             $this->savedAddresses = \App\Models\UserAddress::where('user_id', Auth::id())->get();
-            
-            // Auto-fill primary address
             $primary = $this->savedAddresses->where('is_primary', true)->first();
             if ($primary) {
                 $this->selectAddress($primary->id);
@@ -83,8 +80,7 @@ class Checkout extends Component
             $this->name = $addr->recipient_name;
             $this->phone = $addr->phone_number;
             $this->address = $addr->address_line;
-            $this->city = $addr->city; // This triggers updatedCity -> calculateTotals logic if wired correctly? 
-            // Manual trigger because direct assignment might not fire updated hook in all Livewire versions instantly
+            $this->city = $addr->city;
             $this->calculateTotals();
         }
     }
@@ -112,10 +108,7 @@ class Checkout extends Component
         $this->calculateTotals();
     }
 
-    public function updatedCity()
-    {
-        $this->calculateTotals();
-    }
+    public function updatedCity() { $this->calculateTotals(); }
 
     public function updatedPointsToRedeem()
     {
@@ -123,34 +116,23 @@ class Checkout extends Component
             $this->pointsToRedeem = 0;
             return;
         }
-
         $maxPoints = Auth::user()->points;
-        if ($this->pointsToRedeem > $maxPoints) {
-            $this->pointsToRedeem = $maxPoints;
-        }
-        if ($this->pointsToRedeem < 0) {
-            $this->pointsToRedeem = 0;
-        }
+        if ($this->pointsToRedeem > $maxPoints) $this->pointsToRedeem = $maxPoints;
+        if ($this->pointsToRedeem < 0) $this->pointsToRedeem = 0;
         
         $this->calculateTotals();
     }
 
     public function calculateTotals()
     {
-        // 1. Shipping
         $baseCost = $this->cities[$this->city] ?? 0;
-        // Mock weight multiplier: assume standard 1kg package for simplicity or sum weights if available
         $this->shippingCost = $baseCost;
-
-        // 2. Discount (1 Point = Rp 1)
         $this->discountAmount = $this->pointsToRedeem;
-
-        // 3. Grand Total
         $this->grandTotal = $this->subtotal + $this->shippingCost - $this->discountAmount;
         if ($this->grandTotal < 0) $this->grandTotal = 0;
     }
 
-    public function placeOrder()
+    public function placeOrder(MidtransService $paymentService)
     {
         $this->validate([
             'name' => 'required|string',
@@ -162,11 +144,10 @@ class Checkout extends Component
 
         if (empty($this->cartItems)) return;
 
-        DB::transaction(function () {
-            // 1. Create Order
+        $order = DB::transaction(function () {
             $order = Order::create([
                 'order_number' => 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
-                'user_id' => Auth::id(), // Nullable if guest
+                'user_id' => Auth::id(),
                 'guest_name' => $this->name,
                 'guest_whatsapp' => $this->phone,
                 'shipping_address' => $this->address,
@@ -176,12 +157,11 @@ class Checkout extends Component
                 'points_redeemed' => $this->pointsToRedeem,
                 'discount_amount' => $this->discountAmount,
                 'total_amount' => $this->grandTotal,
-                'status' => 'pending', // Pending Payment
+                'status' => 'pending',
                 'payment_status' => 'unpaid',
                 'notes' => 'Checkout via Website',
             ]);
 
-            // 2. Create Items & Deduct Stock
             foreach ($this->cartItems as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -189,33 +169,31 @@ class Checkout extends Component
                     'quantity' => $item['qty'],
                     'price' => $item['product']->sell_price,
                 ]);
-
-                // Deduct Stock
                 $item['product']->decrement('stock_quantity', $item['qty']);
             }
 
-            // 3. Deduct User Points
             if (Auth::check() && $this->pointsToRedeem > 0) {
                 Auth::user()->decrement('points', $this->pointsToRedeem);
             }
 
-            // 4. Award Points (Earn 1% of total)
-            if (Auth::check()) {
-                $pointsEarned = floor($this->subtotal * 0.01);
-                // Can be added immediately or after payment confirmed. 
-                // Let's add immediately but maybe logic elsewhere better. 
-                // For safety, let's NOT add earned points yet, waiting for 'completed' status.
-            }
-
-            // 5. Clear Cart
             Session::forget('cart');
-            
-            // Redirect to Success/Payment
-            // For now, redirect to Order Success page
-            return redirect()->route('order.success', $order->id);
+            return $order;
         });
 
-        return redirect()->route('home'); // Fallback
+        // Get Snap Token
+        try {
+            $snapData = $paymentService->getSnapToken($order);
+            $order->update([
+                'snap_token' => $snapData['token'],
+                'payment_url' => $snapData['redirect_url']
+            ]);
+
+            $this->dispatch('trigger-payment', token: $snapData['token'], orderId: $order->id);
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: 'Payment Gateway Error: ' . $e->getMessage(), type: 'error');
+            // If failed, redirect to success page anyway (manual payment fallback)
+            return redirect()->route('order.success', $order->id);
+        }
     }
 
     public function render()

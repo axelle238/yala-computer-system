@@ -11,6 +11,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 
+    <!-- Midtrans Snap -->
+    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
         h1, h2, h3, h4, h5, h6, .font-tech { font-family: 'Exo 2', sans-serif; }
@@ -161,6 +164,31 @@
     </footer>
 
     <x-notification />
+    <livewire:store.chat-widget />
     @livewireScripts
+
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.on('trigger-payment', (event) => {
+                const token = event.token; // Access first param
+                const orderId = event.orderId;
+
+                snap.pay(token, {
+                    onSuccess: function(result) {
+                        window.location.href = "/order-success/" + orderId;
+                    },
+                    onPending: function(result) {
+                        window.location.href = "/order-success/" + orderId;
+                    },
+                    onError: function(result) {
+                        alert("Pembayaran Gagal!");
+                    },
+                    onClose: function() {
+                        alert('Anda menutup popup pembayaran.');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

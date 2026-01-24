@@ -117,6 +117,12 @@ return [
             'title' => 'MARKETING & KONTEN',
             'items' => [
                 [
+                    'label' => 'Pesan Pembeli',
+                    'route' => 'customers.inbox',
+                    'icon'  => 'chat-bubble-left-right', // Need to create icon
+                    'roles' => ['admin', 'owner', 'cashier'],
+                ],
+                [
                     'label' => 'Manajemen Pelanggan',
                     'route' => 'customers.index',
                     'icon'  => 'user-group',

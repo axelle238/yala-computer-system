@@ -94,6 +94,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     
     // CRM
     Route::get('/customers', \App\Livewire\Customers\Index::class)->name('customers.index');
+    Route::get('/customers/inbox', \App\Livewire\Admin\Inbox::class)->name('customers.inbox'); // New Chat
     Route::get('/customers/create', \App\Livewire\Customers\Form::class)->name('customers.create');
     Route::get('/customers/{id}/edit', \App\Livewire\Customers\Form::class)->name('customers.edit');
 
