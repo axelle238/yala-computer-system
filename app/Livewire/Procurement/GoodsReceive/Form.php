@@ -140,6 +140,35 @@ class Form extends Component
             return;
         }
 
+        // Strict SN Validation
+        foreach ($this->items as $pid => $data) {
+            $qty = (int) $data['receiving_now'];
+            if ($qty > 0 && !empty($data['serials'])) {
+                // Check count
+                if (count($data['serials']) > $qty) {
+                    $this->addError("items.$pid", "Jumlah SN (" . count($data['serials']) . ") melebihi Qty Terima ($qty).");
+                    return;
+                }
+                
+                // Check uniqueness in DB
+                $existingSNs = ProductSerial::where('product_id', $pid)
+                    ->whereIn('serial_number', $data['serials'])
+                    ->pluck('serial_number')
+                    ->toArray();
+
+                if (!empty($existingSNs)) {
+                    $this->dispatch('notify', message: "Serial Number berikut sudah terdaftar untuk produk ini: " . implode(', ', $existingSNs), type: 'error');
+                    return;
+                }
+
+                // Check duplicates in input itself
+                if (count($data['serials']) !== count(array_unique($data['serials']))) {
+                    $this->dispatch('notify', message: "Ada duplikasi Serial Number pada input.", type: 'error');
+                    return;
+                }
+            }
+        }
+
         DB::transaction(function () {
             // 1. Create Header
             $grn = GoodsReceive::create([
@@ -184,13 +213,12 @@ class Form extends Component
                 // Insert Serial Numbers
                 if (!empty($data['serials'])) {
                     foreach ($data['serials'] as $sn) {
-                        ProductSerial::firstOrCreate(
-                            ['product_id' => $pid, 'serial_number' => $sn], // Prevent dupes logic
-                            [
-                                'goods_receive_id' => $grn->id,
-                                'status' => 'available'
-                            ]
-                        );
+                        ProductSerial::create([
+                            'product_id' => $pid, 
+                            'serial_number' => $sn,
+                            'goods_receive_id' => $grn->id,
+                            'status' => 'available'
+                        ]);
                     }
                 }
             }
@@ -203,9 +231,8 @@ class Form extends Component
                     ->where('product_id', $poItem->product_id)
                     ->sum('qty_received');
                 
-                // Note: We just added the current receive, so re-querying inside transaction should see it if we committed, 
-                // but we are inside transaction. The query above sees committed rows.
-                // Wait, inside transaction, queries see changes made within transaction.
+                // Note: The above query sees committed data if outside transaction, but here we are inside. 
+                // However, we just inserted into GoodsReceiveItem, so it SHOULD be visible to the same transaction connection.
                 
                 if ($totalReceived < $poItem->quantity) {
                     $allCompleted = false;
@@ -215,7 +242,7 @@ class Form extends Component
 
             $this->selectedPo->update([
                 'delivery_status' => $allCompleted ? 'received' : 'partial',
-                'status' => $allCompleted ? 'completed' : 'approved' // If received, maybe mark completed? Usually Payment marks completed, but delivery is separate. Let's stick to delivery_status.
+                'status' => $allCompleted ? 'received' : 'ordered'
             ]);
         });
 
@@ -225,9 +252,12 @@ class Form extends Component
 
     public function render()
     {
-        // Get Open POs (Approved but not fully received)
-        $purchaseOrders = PurchaseOrder::where('status', 'approved')
-            ->where('delivery_status', '!=', 'received')
+        // Get Open POs (Ordered but not fully received)
+        $purchaseOrders = PurchaseOrder::where('status', 'ordered')
+            ->where(function($q) {
+                $q->where('delivery_status', '!=', 'received')
+                  ->orWhereNull('delivery_status');
+            })
             ->with('supplier')
             ->get();
 

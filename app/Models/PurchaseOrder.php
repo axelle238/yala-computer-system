@@ -11,7 +11,15 @@ class PurchaseOrder extends Model
     use LogsActivity;
 
     protected $fillable = [
-        'po_number', 'supplier_id', 'status', 'order_date', 'total_amount', 'notes', 'created_by'
+        'po_number', 
+        'supplier_id', 
+        'status', 
+        'delivery_status', 
+        'order_date', 
+        'total_amount', 
+        'payment_status',
+        'notes', 
+        'created_by'
     ];
 
     protected $casts = [

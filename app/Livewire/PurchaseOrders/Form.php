@@ -8,6 +8,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\Supplier;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -83,6 +84,22 @@ class Form extends Component
 
     public function save()
     {
+        // Jika sudah Ordered/Received, tidak boleh edit Items, hanya header (notes/date)
+        if ($this->po && in_array($this->po->status, ['ordered', 'received', 'partial'])) {
+             $this->validate([
+                'notes' => 'nullable|string',
+                'order_date' => 'required|date',
+            ]);
+            
+            $this->po->update([
+                'notes' => $this->notes,
+                'order_date' => $this->order_date,
+            ]);
+            
+            session()->flash('success', 'Info PO diperbarui. Item tidak dapat diubah karena status sudah berjalan.');
+            return redirect()->route('purchase-orders.index');
+        }
+
         $this->validate([
             'supplier_id' => 'required',
             'order_date' => 'required|date',
@@ -90,67 +107,46 @@ class Form extends Component
             'items.*.qty' => 'required|integer|min:1',
         ]);
 
-        $data = [
-            'po_number' => $this->po_number,
-            'supplier_id' => $this->supplier_id,
-            'order_date' => $this->order_date,
-            'notes' => $this->notes,
-            'status' => $this->status,
-            'total_amount' => $this->getTotalProperty(),
-            'created_by' => auth()->id(),
-        ];
+        DB::transaction(function () {
+            $data = [
+                'po_number' => $this->po_number,
+                'supplier_id' => $this->supplier_id,
+                'order_date' => $this->order_date,
+                'notes' => $this->notes,
+                'status' => $this->status, // User can select draft or ordered initially
+                'total_amount' => $this->getTotalProperty(),
+                'created_by' => auth()->id(),
+            ];
 
-        if ($this->po) {
-            $this->po->update($data);
-            $this->po->items()->delete(); // Reset items (simple update logic)
-        } else {
-            $this->po = PurchaseOrder::create($data);
-        }
+            if ($this->po) {
+                $this->po->update($data);
+                $this->po->items()->delete(); 
+            } else {
+                $this->po = PurchaseOrder::create($data);
+            }
 
-        foreach ($this->items as $item) {
-            PurchaseOrderItem::create([
-                'purchase_order_id' => $this->po->id,
-                'product_id' => $item['product_id'],
-                'quantity_ordered' => $item['qty'],
-                'buy_price' => $item['price'],
-                'subtotal' => $item['qty'] * $item['price'],
-            ]);
-        }
+            foreach ($this->items as $item) {
+                PurchaseOrderItem::create([
+                    'purchase_order_id' => $this->po->id,
+                    'product_id' => $item['product_id'],
+                    'quantity_ordered' => $item['qty'],
+                    'buy_price' => $item['price'],
+                    'subtotal' => $item['qty'] * $item['price'],
+                ]);
+            }
+        });
 
         session()->flash('success', 'Purchase Order berhasil disimpan.');
         return redirect()->route('purchase-orders.index');
     }
-
-    public function receiveStock()
+    
+    public function markAsOrdered()
     {
-        if (!$this->po || $this->status !== 'ordered') return;
-
-        // Logic Terima Barang: Update Inventory
-        foreach ($this->po->items as $item) {
-            $product = Product::find($item->product_id);
-            $newStock = $product->stock_quantity + $item->quantity_ordered;
-            
-            // Update Master Stok
-            $product->update([
-                'stock_quantity' => $newStock,
-                'buy_price' => $item->buy_price // Update harga beli terbaru
-            ]);
-
-            // Catat di Inventory Transaction
-            InventoryTransaction::create([
-                'product_id' => $product->id,
-                'user_id' => auth()->id(),
-                'type' => 'in',
-                'quantity' => $item->quantity_ordered,
-                'remaining_stock' => $newStock,
-                'reference_number' => $this->po->po_number,
-                'notes' => 'Penerimaan PO',
-            ]);
+        if ($this->po && $this->po->status === 'draft') {
+            $this->po->update(['status' => 'ordered']);
+            $this->status = 'ordered';
+            session()->flash('success', 'PO disetujui & dikirim ke Supplier (Status: Ordered).');
         }
-
-        $this->po->update(['status' => 'received']);
-        session()->flash('success', 'Stok berhasil diterima dan diperbarui!');
-        return redirect()->route('purchase-orders.index');
     }
 
     public function render()
