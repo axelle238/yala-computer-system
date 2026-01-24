@@ -59,6 +59,7 @@
                     ['label' => 'Katalog', 'route' => 'home'],
                     ['label' => 'Rakit PC', 'route' => 'pc-builder'],
                     ['label' => 'Komparasi', 'route' => 'product.compare'],
+                    ['label' => 'Komunitas', 'route' => 'community.index'],
                     ['label' => 'Berita', 'route' => 'news.index'],
                     ['label' => 'Garansi', 'route' => 'warranty-check']
                 ] as $item)

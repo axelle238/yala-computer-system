@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Route;
 // Public Storefront
 Route::get('/', StoreHome::class)->name('home');
 Route::get('/product/{id}', \App\Livewire\Store\ProductDetail::class)->name('product.detail');
-Route::get('/compare', \App\Livewire\Store\Comparison::class)->name('product.compare'); // New
+Route::get('/compare', \App\Livewire\Store\Comparison::class)->name('product.compare');
+Route::get('/community', \App\Livewire\Community\Gallery::class)->name('community.index'); // New
 Route::get('/berita', \App\Livewire\Store\News\Index::class)->name('news.index');
 Route::get('/berita/{slug}', \App\Livewire\Store\News\Show::class)->name('news.show');
 Route::get('/rakit-pc', \App\Livewire\Store\PcBuilder::class)->name('pc-builder');

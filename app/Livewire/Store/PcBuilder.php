@@ -49,7 +49,15 @@ class PcBuilder extends Component
             $this->selection[$key] = null;
         }
 
-        // Load saved build if requested (logic could be added here via query param)
+        // Load Cloned Build
+        if (session()->has('cloned_build')) {
+            $this->selection = session()->get('cloned_build');
+            $this->buildName = session()->get('cloned_build_name', 'My New Custom PC');
+            $this->recalculate();
+            
+            // Clear session (Flash data behavior)
+            session()->forget(['cloned_build', 'cloned_build_name']);
+        }
     }
 
     // --- Modal Selection Logic ---

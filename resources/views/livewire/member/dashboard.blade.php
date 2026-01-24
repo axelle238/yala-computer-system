@@ -1,28 +1,65 @@
 <div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12">
     <div class="container mx-auto px-4 lg:px-8">
-        <!-- Profile Header -->
-        <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200 dark:border-slate-700 mb-8 flex flex-col md:flex-row items-center gap-6 animate-fade-in-up">
-            <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-3xl font-bold text-white shadow-lg">
-                {{ substr($user->name, 0, 1) }}
-            </div>
-            <div class="flex-1 text-center md:text-left">
-                <h1 class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white">{{ $user->name }}</h1>
-                <p class="text-slate-500">{{ $user->email }}</p>
-                <div class="mt-2 flex flex-wrap justify-center md:justify-start gap-2">
-                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold uppercase">Member</span>
-                    <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold">Bergabung {{ $user->created_at->format('M Y') }}</span>
+        
+        <!-- Profile Header with Gamification -->
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200 dark:border-slate-700 mb-8 flex flex-col md:flex-row items-center gap-6 animate-fade-in-up relative overflow-hidden">
+            <!-- Background Glow -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+
+            <div class="relative w-24 h-24">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg">
+                    {{ substr($user->name, 0, 1) }}
+                </div>
+                <!-- Level Badge -->
+                <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-slate-900 rounded-full border-4 border-slate-800 flex items-center justify-center {{ $user->level['color'] }}" title="{{ $user->level['name'] }}">
+                    @if($user->level['icon'] == 'crown') <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2l2.5 5 4.5.5-3.5 3 1 4.5L10 12.5 5.5 15l1-4.5-3.5-3 4.5-.5L10 2z"/></svg> 
+                    @elseif($user->level['icon'] == 'lightning-bolt') <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" /></svg>
+                    @elseif($user->level['icon'] == 'star') <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                    @else <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+                    @endif
                 </div>
             </div>
-            <div class="flex gap-3">
+
+            <div class="flex-1 w-full text-center md:text-left">
+                <div class="flex flex-col md:flex-row items-center gap-3 mb-1">
+                    <h1 class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white">{{ $user->name }}</h1>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase {{ $user->level['bg'] }} {{ $user->level['color'] }} border border-current opacity-80">
+                        {{ $user->level['name'] }} Member
+                    </span>
+                </div>
+                <p class="text-slate-500 mb-4">{{ $user->email }}</p>
+                
+                <!-- Level Progress -->
+                @php $progress = $user->next_level_progress; @endphp
+                @if($progress['target'] > 0)
+                    <div class="w-full max-w-md">
+                        <div class="flex justify-between text-xs font-bold text-slate-400 mb-1">
+                            <span>Level Progress</span>
+                            <span>Kurang Rp {{ number_format($progress['remaining'], 0, ',', '.') }} untuk naik level</span>
+                        </div>
+                        <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all duration-1000" style="width: {{ $progress['percent'] }}%"></div>
+                        </div>
+                    </div>
+                @else
+                    <div class="text-sm font-bold text-amber-400 flex items-center gap-1 justify-center md:justify-start">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                        Max Level Reached!
+                    </div>
+                @endif
+            </div>
+
+            <div class="flex flex-col gap-3 w-full md:w-auto">
                  <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="px-6 py-2 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl transition-colors text-sm">
+                    <button type="submit" class="w-full px-6 py-3 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl transition-colors text-sm">
                         Keluar
                     </button>
                 </form>
             </div>
         </div>
 
+        <!-- Dashboard Grid (Same as before but wrapped) -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Left Column: Services & Builds -->
             <div class="lg:col-span-2 space-y-8 animate-fade-in-up delay-100">
@@ -56,7 +93,7 @@
                 <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <h2 class="font-bold text-lg text-slate-800 dark:text-white mb-4 flex items-center gap-2">
                         <svg class="w-5 h-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>
-                        Rakitan Tersimpan (Saved Builds)
+                        Rakitan Tersimpan
                     </h2>
                     @if($savedBuilds->isEmpty())
                         <div class="text-center py-8 text-slate-400 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
@@ -74,11 +111,18 @@
                                     <p class="text-xs text-slate-500 mb-4">{{ count($build->components) }} Komponen • {{ $build->created_at->format('d M Y') }}</p>
                                     
                                     <div class="flex gap-2">
-                                        {{-- Logic untuk Edit/Load build bisa ditambahkan nanti, sementara Delete --}}
                                         <button wire:click="deleteBuild({{ $build->id }})" wire:confirm="Hapus rakitan ini?" class="flex-1 py-2 bg-white dark:bg-slate-800 border border-rose-200 text-rose-500 rounded-lg text-xs font-bold hover:bg-rose-50 transition-colors">
                                             Hapus
                                         </button>
-                                        {{-- <button class="flex-1 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">Load</button> --}}
+                                        {{-- Publish Button (New Feature) --}}
+                                        @if(!$build->is_public)
+                                            {{-- Note: Actual logic to toggle public needed in Component --}}
+                                            <button disabled class="flex-1 py-2 bg-white dark:bg-slate-800 border border-slate-200 text-slate-400 rounded-lg text-xs font-bold cursor-not-allowed">
+                                                Private
+                                            </button>
+                                        @else
+                                            <span class="flex-1 py-2 text-center text-xs font-bold text-emerald-500 border border-emerald-500/20 bg-emerald-500/10 rounded-lg">Published</span>
+                                        @endif
                                     </div>
                                 </div>
                             @endforeach
@@ -109,8 +153,6 @@
                                     <span class="text-xs text-slate-500">{{ $order->created_at->format('d M Y') }}</span>
                                     <span class="font-bold text-slate-900 dark:text-white text-sm">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
                                 </div>
-                                {{-- Link to detail if needed --}}
-                                {{-- <a href="#" class="block mt-2 text-center text-xs font-bold text-blue-600 hover:underline">Lihat Detail</a> --}}
                             </div>
                         @empty
                             <div class="text-center py-8 text-slate-400">

@@ -25,6 +25,7 @@ class User extends Authenticatable
         'access_rights',
         'base_salary',
         'join_date',
+        'points', // Added
     ];
 
     /**
@@ -98,5 +99,48 @@ class User extends Authenticatable
     public function savedBuilds()
     {
         return $this->hasMany(SavedBuild::class);
+    }
+
+    // --- Gamification Logic ---
+
+    public function getTotalSpentAttribute()
+    {
+        // Cache or calculate on fly. For now, on fly.
+        return $this->orders()->where('status', 'completed')->sum('total_amount');
+    }
+
+    public function getLevelAttribute()
+    {
+        $spent = $this->total_spent;
+
+        if ($spent > 50000000) return ['name' => 'Legend', 'color' => 'text-amber-400', 'bg' => 'bg-amber-400/10', 'icon' => 'crown'];
+        if ($spent > 20000000) return ['name' => 'Pro', 'color' => 'text-purple-400', 'bg' => 'bg-purple-400/10', 'icon' => 'lightning-bolt'];
+        if ($spent > 5000000)  return ['name' => 'Enthusiast', 'color' => 'text-cyan-400', 'bg' => 'bg-cyan-400/10', 'icon' => 'star'];
+        
+        return ['name' => 'Newbie', 'color' => 'text-slate-400', 'bg' => 'bg-slate-400/10', 'icon' => 'user'];
+    }
+
+    public function getNextLevelProgressAttribute()
+    {
+        $spent = $this->total_spent;
+        $levels = [
+            5000000 => 5000000,
+            20000000 => 20000000,
+            50000000 => 50000000,
+        ];
+
+        foreach ($levels as $limit => $target) {
+            if ($spent < $limit) {
+                $prevLimit = $limit === 5000000 ? 0 : ($limit === 20000000 ? 5000000 : 20000000);
+                $progress = ($spent - $prevLimit) / ($target - $prevLimit) * 100;
+                return [
+                    'percent' => min(100, max(0, $progress)),
+                    'target' => $target,
+                    'remaining' => $target - $spent
+                ];
+            }
+        }
+
+        return ['percent' => 100, 'target' => 0, 'remaining' => 0]; // Max level
     }
 }
