@@ -4,180 +4,200 @@ namespace App\Livewire\Warehouses;
 
 use App\Models\InventoryTransaction;
 use App\Models\Product;
-use App\Models\StockOpname as OpnameModel;
+use App\Models\StockOpname as StockOpnameModel;
 use App\Models\StockOpnameItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Layout;
 
 #[Layout('layouts.admin')]
-#[Title('Stock Opname (Audit) - Yala Computer')]
+#[Title('Stock Opname (Audit Gudang)')]
 class StockOpname extends Component
 {
     use WithPagination;
 
-    public $viewMode = 'list'; // list, create, show
-    
-    // Create Mode
-    public $opnameDate;
-    public $notes;
-    public $searchProduct = '';
-    public $items = []; // [product_id => [system, physical, diff, notes]]
+    // View State
+    public $activeOpname = null; // Jika ada sesi yang sedang berjalan
+    public $viewMode = 'list'; // list, create, counting, review
 
-    // Show Mode
-    public $selectedOpname;
+    // Create Input
+    public $notes = '';
+
+    // Counting Input
+    public $counts = []; // [item_id => physical_qty]
 
     public function mount()
     {
-        $this->opnameDate = date('Y-m-d');
+        $this->checkActiveOpname();
     }
 
-    public function toggleMode($mode)
+    public function checkActiveOpname()
     {
-        $this->viewMode = $mode;
-        if ($mode === 'create') {
-            $this->items = [];
-            $this->notes = '';
-            $this->opnameDate = date('Y-m-d');
+        // Cari status counting atau review milik user ini (atau global jika warehouse logic diterapkan)
+        $this->activeOpname = StockOpnameModel::whereIn('status', ['counting', 'review'])
+            ->latest()
+            ->first();
+
+        if ($this->activeOpname) {
+            $this->viewMode = $this->activeOpname->status;
+            // Load counts for binding
+            foreach ($this->activeOpname->items as $item) {
+                $this->counts[$item->id] = $item->physical_stock; 
+            }
         }
     }
 
-    public function updatedSearchProduct()
-    {
-        // Handled in render, just triggers refresh
-    }
+    // --- Actions ---
 
-    public function addProduct($productId)
+    public function startNewOpname()
     {
-        $product = Product::find($productId);
-        if ($product && !isset($this->items[$productId])) {
-            $this->items[$productId] = [
-                'id' => $product->id,
-                'name' => $product->name,
-                'sku' => $product->sku,
-                'system' => $product->stock_quantity,
-                'physical' => $product->stock_quantity, // Default to match
-                'diff' => 0,
-                'notes' => ''
-            ];
+        // Pastikan tidak ada opname berjalan
+        if (StockOpnameModel::whereIn('status', ['counting', 'review'])->exists()) {
+            $this->addError('global', 'Ada proses Stock Opname yang belum selesai. Selesaikan dulu.');
+            return;
         }
-        $this->searchProduct = '';
-    }
-
-    public function updatePhysical($productId, $val)
-    {
-        if (isset($this->items[$productId])) {
-            $this->items[$productId]['physical'] = (int) $val;
-            $this->items[$productId]['diff'] = $this->items[$productId]['physical'] - $this->items[$productId]['system'];
-        }
-    }
-
-    public function removeItem($productId)
-    {
-        unset($this->items[$productId]);
-    }
-
-    public function save()
-    {
-        $this->validate([
-            'opnameDate' => 'required|date',
-            'items' => 'required|array|min:1'
-        ]);
 
         DB::transaction(function () {
-            $opname = OpnameModel::create([
-                'opname_number' => 'SO-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
+            // 1. Create Header
+            $opname = StockOpnameModel::create([
+                'opname_number' => 'SO-' . date('Ymd') . '-' . rand(100, 999),
+                'opname_date' => now(),
                 'creator_id' => Auth::id(),
-                'opname_date' => $this->opnameDate,
-                'status' => 'pending_approval', 
+                'warehouse_id' => 1, // Default warehouse
+                'status' => 'counting',
                 'notes' => $this->notes,
             ]);
 
-            foreach ($this->items as $pid => $data) {
+            // 2. Snapshot Stock (Hanya Barang Fisik)
+            // Asumsi: Produk fisik adalah yang tidak berkategori 'Services' (seperti logika Workbench)
+            $products = Product::whereHas('category', function ($q) {
+                $q->where('slug', '!=', 'services');
+            })->get();
+
+            foreach ($products as $product) {
                 StockOpnameItem::create([
                     'stock_opname_id' => $opname->id,
-                    'product_id' => $pid,
-                    'system_stock' => $data['system'],
-                    'physical_stock' => $data['physical'],
-                    'difference' => $data['diff'],
-                    'notes' => $data['notes'] ?? '',
+                    'product_id' => $product->id,
+                    'system_stock' => $product->stock_quantity,
+                    'physical_stock' => null, // Belum dihitung
+                    'difference' => 0,
                 ]);
             }
+
+            $this->activeOpname = $opname;
+            $this->viewMode = 'counting';
         });
 
-        $this->dispatch('notify', message: 'Stock Opname berhasil disimpan & menunggu persetujuan.', type: 'success');
-        $this->toggleMode('list');
+        session()->flash('success', 'Sesi Stock Opname dimulai. Silakan mulai menghitung.');
     }
 
-    public function show($id)
+    public function saveCounts()
     {
-        $this->selectedOpname = OpnameModel::with(['items.product', 'creator', 'approver'])->findOrFail($id);
-        $this->viewMode = 'show';
-    }
-
-    public function approve()
-    {
-        if (!$this->selectedOpname) return;
-        // Basic check, ideally use Policy/Role
-        if (!Auth::check()) return; 
+        if (!$this->activeOpname) return;
 
         DB::transaction(function () {
-            foreach ($this->selectedOpname->items as $item) {
-                if ($item->difference != 0) {
-                    // Update Product Stock
-                    $product = Product::find($item->product_id);
-                    $oldStock = $product->stock_quantity;
-                    $product->stock_quantity = $item->physical_stock; // Set exact
-                    $product->save();
+            foreach ($this->counts as $itemId => $qty) {
+                if ($qty === '' || $qty === null) continue; // Skip empty inputs
 
-                    // Create Adjustment Transaction
-                    InventoryTransaction::create([
-                        'product_id' => $item->product_id,
-                        'user_id' => Auth::id(),
-                        'warehouse_id' => 1, // Default Main Warehouse
-                        'type' => 'adjustment',
-                        'quantity' => $item->difference, // + or -
-                        'unit_price' => 0, // Adjustment has no sales value usually
-                        'cogs' => $product->cost_price ?? 0,
-                        'remaining_stock' => $item->physical_stock,
-                        'reference_number' => $this->selectedOpname->opname_number,
-                        'notes' => 'Stock Opname Adjustment: ' . $item->notes,
+                $item = StockOpnameItem::find($itemId);
+                if ($item && $item->stock_opname_id == $this->activeOpname->id) {
+                    $item->update([
+                        'physical_stock' => $qty,
+                        'difference' => $qty - $item->system_stock,
                     ]);
                 }
             }
+        });
 
-            $this->selectedOpname->update([
-                'status' => 'approved', 
-                'approver_id' => Auth::id()
+        session()->flash('success', 'Hasil hitung disimpan.');
+    }
+
+    public function finishCounting()
+    {
+        $this->saveCounts();
+        
+        // Cek apakah semua item sudah diisi (opsional, bisa partial)
+        // $uncounted = $this->activeOpname->items()->whereNull('physical_stock')->count();
+        
+        $this->activeOpname->update(['status' => 'review']);
+        $this->viewMode = 'review';
+        $this->activeOpname->refresh();
+    }
+
+    public function finalizeAdjustment()
+    {
+        if (!$this->activeOpname || $this->activeOpname->status !== 'review') return;
+
+        DB::transaction(function () {
+            // 1. Process Adjustments
+            $itemsWithDiff = $this->activeOpname->items()
+                ->whereNotNull('physical_stock')
+                ->where('difference', '!=', 0)
+                ->get();
+
+            foreach ($itemsWithDiff as $item) {
+                $product = Product::find($item->product_id);
+                
+                // Update Stock
+                // Jika difference positif (Fisik > Sistem) -> Tambah Stok
+                // Jika difference negatif (Fisik < Sistem) -> Kurang Stok
+                
+                // Adjustment Transaction
+                InventoryTransaction::create([
+                    'product_id' => $product->id,
+                    'user_id' => Auth::id(),
+                    'warehouse_id' => 1,
+                    'type' => 'adjustment',
+                    'quantity' => abs($item->difference), // Selalu positif di quantity transaction?
+                    // Atau simpan signed quantity? Biasanya inventory log quantity itu magnitude pergerakan.
+                    // Tapi type 'adjustment' perlu tahu arahnya.
+                    // Mari kita lihat definisi InventoryTransaction seeder/migration sebelumnya.
+                    // Usually 'in'/'out' handles direction. For adjustment, we can use +/- logic if flexible, 
+                    // or better: map to IN/OUT based on sign.
+                    
+                    // Logic: Difference +5 means we found 5 more. That is 'in' (adjustment in).
+                    // Difference -5 means 5 missing. That is 'out' (adjustment out).
+                    
+                    'type' => $item->difference > 0 ? 'in' : 'out', 
+                    
+                    'remaining_stock' => $item->physical_stock, // Stok akhir harus sama dengan fisik
+                    'unit_price' => $product->buy_price, 
+                    'reference_number' => $this->activeOpname->opname_number,
+                    'notes' => 'Stock Opname Adjustment: ' . ($item->difference > 0 ? "Found excess" : "Missing/Lost"),
+                ]);
+
+                $product->stock_quantity = $item->physical_stock;
+                $product->save();
+            }
+
+            // 2. Close Opname
+            $this->activeOpname->update([
+                'status' => 'completed',
+                'approver_id' => Auth::id(), // Auto approve by creator for now
             ]);
         });
 
-        $this->dispatch('notify', message: 'Opname disetujui & stok diperbarui.', type: 'success');
-        $this->toggleMode('list');
+        session()->flash('success', 'Stock Opname selesai! Stok telah disesuaikan.');
+        $this->reset(['activeOpname', 'viewMode', 'counts']);
+    }
+
+    public function cancelOpname()
+    {
+        if ($this->activeOpname) {
+            $this->activeOpname->update(['status' => 'cancelled']);
+        }
+        $this->reset(['activeOpname', 'viewMode', 'counts']);
     }
 
     public function render()
     {
-        $opnames = [];
-        $searchProducts = [];
-
-        if ($this->viewMode === 'list') {
-            $opnames = OpnameModel::with('creator')->latest()->paginate(10);
-        }
-
-        if ($this->viewMode === 'create' && strlen($this->searchProduct) > 2) {
-            $searchProducts = Product::where('name', 'like', '%' . $this->searchProduct . '%')
-                ->orWhere('sku', 'like', '%' . $this->searchProduct . '%')
-                ->take(5)->get();
-        }
-
+        $history = StockOpnameModel::with('creator')->latest()->paginate(10);
+        
         return view('livewire.warehouses.stock-opname', [
-            'opnames' => $opnames,
-            'searchProducts' => $searchProducts
+            'history' => $history
         ]);
     }
 }

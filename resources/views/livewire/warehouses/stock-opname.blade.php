@@ -1,181 +1,215 @@
-<div class="p-6">
+<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Stock Opname (Audit Stok)</h1>
-        @if($viewMode === 'list')
-            <button wire:click="toggleMode('create')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
-                + Mulai Opname Baru
-            </button>
-        @else
-            <button wire:click="toggleMode('list')" class="px-4 py-2 text-gray-600 hover:text-gray-900">
-                &larr; Kembali ke List
-            </button>
-        @endif
+        <h2 class="text-2xl font-bold text-slate-800">Audit Stok (Stock Opname)</h2>
     </div>
 
-    @if($viewMode === 'list')
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <table class="w-full text-left text-sm text-gray-600">
-                <thead class="bg-gray-50 uppercase text-xs font-semibold text-gray-700">
-                    <tr>
-                        <th class="px-6 py-4">No. Dokumen</th>
-                        <th class="px-6 py-4">Tanggal</th>
-                        <th class="px-6 py-4">Dibuat Oleh</th>
-                        <th class="px-6 py-4">Status</th>
-                        <th class="px-6 py-4 text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse($opnames as $opname)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 font-mono font-medium text-gray-900">{{ $opname->opname_number }}</td>
-                            <td class="px-6 py-4">{{ $opname->opname_date->format('d M Y') }}</td>
-                            <td class="px-6 py-4">{{ $opname->creator->name }}</td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-1 rounded-full text-xs font-bold uppercase 
-                                    {{ $opname->status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-yellow-100 text-yellow-700' }}">
-                                    {{ $opname->status }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <button wire:click="show({{ $opname->id }})" class="text-blue-600 hover:text-blue-800 font-bold hover:underline">
-                                    Detail
-                                </button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-gray-400">Belum ada data Stock Opname.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-            <div class="p-4">
-                {{ $opnames->links() }}
-            </div>
+    <!-- Flash Messages -->
+    @if (session()->has('success'))
+        <div class="mb-4 bg-emerald-100 border border-emerald-400 text-emerald-700 px-4 py-3 rounded relative">
+            {{ session('success') }}
         </div>
+    @endif
 
-    @elseif($viewMode === 'create')
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Opname</label>
-                    <input type="date" wire:model="opnameDate" class="w-full rounded-lg border-gray-300">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
-                    <input type="text" wire:model="notes" class="w-full rounded-lg border-gray-300" placeholder="Contoh: Audit Tahunan Q1">
-                </div>
+    @if($errors->has('global'))
+        <div class="mb-4 bg-rose-100 border border-rose-400 text-rose-700 px-4 py-3 rounded relative">
+            {{ $errors->first('global') }}
+        </div>
+    @endif
+
+    <!-- MODE: LIST (HISTORY) -->
+    @if($viewMode == 'list')
+        <div class="bg-white shadow rounded-xl p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-slate-700">Riwayat Audit</h3>
+                <button wire:click="startNewOpname" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2 font-bold shadow-lg">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    Mulai Audit Baru
+                </button>
             </div>
-
-            <div class="mb-6 relative">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Scan / Cari Produk</label>
-                <input type="text" wire:model.live.debounce.300ms="searchProduct" class="w-full rounded-lg border-gray-300" placeholder="Ketik Nama atau SKU...">
-                @if(!empty($searchProducts))
-                    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                        @foreach($searchProducts as $product)
-                            <button wire:click="addProduct({{ $product->id }})" class="w-full text-left px-4 py-2 hover:bg-gray-50 border-b border-gray-100 last:border-0">
-                                <span class="font-bold">{{ $product->name }}</span>
-                                <span class="text-xs text-gray-500 ml-2">({{ $product->sku }}) - Stok: {{ $product->stock_quantity }}</span>
-                            </button>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-
-            <div class="overflow-x-auto mb-6">
-                <table class="w-full text-sm text-left">
-                    <thead class="bg-gray-50 text-gray-700 border-b">
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
                         <tr>
-                            <th class="py-2 px-3">Produk</th>
-                            <th class="py-2 px-3 w-32 text-center">Stok Sistem</th>
-                            <th class="py-2 px-3 w-32 text-center">Fisik (Hitung)</th>
-                            <th class="py-2 px-3 w-32 text-center">Selisih</th>
-                            <th class="py-2 px-3">Catatan Item</th>
-                            <th class="py-2 px-3 w-10"></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">No. Dokumen</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Tanggal</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Dibuat Oleh</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y">
-                        @foreach($items as $pid => $item)
+                    <tbody class="divide-y divide-slate-200">
+                        @forelse($history as $opname)
                             <tr>
-                                <td class="py-2 px-3">
-                                    <div class="font-medium text-gray-900">{{ $item['name'] }}</div>
-                                    <div class="text-xs text-gray-500">{{ $item['sku'] }}</div>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">
+                                    {{ $opname->opname_number }}
                                 </td>
-                                <td class="py-2 px-3 text-center text-gray-500 bg-gray-50">
-                                    {{ $item['system'] }}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                    {{ $opname->opname_date->format('d M Y') }}
                                 </td>
-                                <td class="py-2 px-3">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                    {{ $opname->creator->name }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    @if($opname->status == 'completed')
+                                        <span class="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full">Selesai</span>
+                                    @elseif($opname->status == 'cancelled')
+                                        <span class="px-2 py-1 bg-slate-100 text-slate-800 text-xs font-bold rounded-full">Batal</span>
+                                    @else
+                                        <span class="px-2 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full animate-pulse">Berjalan</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                                    @if(in_array($opname->status, ['counting', 'review']))
+                                        <button wire:click="checkActiveOpname" class="text-indigo-600 font-bold hover:underline">Lanjutkan</button>
+                                    @else
+                                        <span class="text-slate-400">Arsip</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">Belum ada riwayat stock opname.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+                <div class="px-6 py-3 border-t border-slate-200">
+                    {{ $history->links() }}
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- MODE: COUNTING (INPUT) -->
+    @if($viewMode == 'counting')
+        <div class="bg-white shadow rounded-xl overflow-hidden border border-slate-200">
+            <div class="bg-indigo-600 p-6 flex justify-between items-center text-white">
+                <div>
+                    <h3 class="text-xl font-bold">Proses Penghitungan Fisik</h3>
+                    <p class="text-indigo-100 text-sm">Nomor: {{ $activeOpname->opname_number }}</p>
+                </div>
+                <div class="flex gap-2">
+                    <button wire:click="saveCounts" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded text-sm font-bold">Simpan Sementara</button>
+                    <button wire:click="finishCounting" class="bg-white text-indigo-700 px-4 py-2 rounded text-sm font-bold shadow hover:bg-slate-100">Selesai Hitung &rarr;</button>
+                </div>
+            </div>
+            
+            <div class="p-6 bg-yellow-50 border-b border-yellow-100 text-yellow-800 text-sm">
+                <span class="font-bold">Instruksi:</span> Masukkan jumlah fisik barang yang ada di gudang. Kosongkan jika belum dihitung. Sistem akan otomatis menghitung selisih.
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Produk</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Stok Sistem</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase w-48">Stok Fisik (Input)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        @foreach($activeOpname->items as $item)
+                            <tr class="hover:bg-slate-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="font-bold text-slate-800">{{ $item->product->name }}</div>
+                                    <div class="text-xs text-slate-500">{{ $item->product->sku }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-mono text-slate-600">
+                                    {{ $item->system_stock }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     <input type="number" 
-                                           value="{{ $item['physical'] }}"
-                                           wire:change="updatePhysical({{ $pid }}, $event.target.value)"
-                                           class="w-full text-center border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 font-bold {{ $item['diff'] != 0 ? 'text-blue-600' : '' }}">
-                                </td>
-                                <td class="py-2 px-3 text-center font-bold {{ $item['diff'] < 0 ? 'text-red-600' : ($item['diff'] > 0 ? 'text-emerald-600' : 'text-gray-400') }}">
-                                    {{ $item['diff'] > 0 ? '+' : '' }}{{ $item['diff'] }}
-                                </td>
-                                <td class="py-2 px-3">
-                                    <input type="text" wire:model="items.{{ $pid }}.notes" class="w-full text-xs border-gray-200 rounded" placeholder="Alasan...">
-                                </td>
-                                <td class="py-2 px-3 text-center">
-                                    <button wire:click="removeItem({{ $pid }})" class="text-red-500 hover:text-red-700">&times;</button>
+                                           wire:model="counts.{{ $item->id }}" 
+                                           class="w-full text-center font-bold text-slate-800 border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                                           placeholder="0">
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
-
-            <div class="flex justify-end">
-                <button wire:click="save" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-500/30">
-                    Simpan & Submit Opname
-                </button>
-            </div>
         </div>
+        <div class="mt-4 text-center">
+            <button wire:click="cancelOpname" class="text-rose-500 text-sm hover:underline">Batalkan Sesi Ini</button>
+        </div>
+    @endif
 
-    @elseif($viewMode === 'show' && $selectedOpname)
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex justify-between items-start mb-6">
+    <!-- MODE: REVIEW (ADJUSTMENT) -->
+    @if($viewMode == 'review')
+        <div class="bg-white shadow rounded-xl overflow-hidden border border-slate-200">
+            <div class="bg-slate-800 p-6 flex justify-between items-center text-white">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-800">{{ $selectedOpname->opname_number }}</h2>
-                    <p class="text-gray-500 text-sm">Tanggal: {{ $selectedOpname->opname_date->format('d M Y') }} | Oleh: {{ $selectedOpname->creator->name }}</p>
+                    <h3 class="text-xl font-bold">Review & Finalisasi</h3>
+                    <p class="text-slate-400 text-sm">Periksa selisih sebelum melakukan penyesuaian stok otomatis.</p>
                 </div>
-                <div>
-                    @if($selectedOpname->status === 'pending_approval')
-                        <button wire:click="approve" wire:confirm="Setujui Opname ini? Stok akan diperbarui otomatis." class="px-6 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 shadow-lg">
-                            Setujui & Update Stok
-                        </button>
-                    @else
-                        <div class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg font-bold text-sm border border-gray-200">
-                            Sudah Disetujui
-                        </div>
-                    @endif
+                <div class="flex gap-2">
+                    <button wire:click="$set('viewMode', 'counting')" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded text-sm">Kembali Hitung</button>
+                    <button wire:click="finalizeAdjustment" class="bg-emerald-500 text-white px-6 py-2 rounded text-sm font-bold shadow hover:bg-emerald-600" onclick="confirm('Stok sistem akan diubah mengikuti jumlah fisik. Lanjutkan?') || event.stopImmediatePropagation()">
+                        Finalisasi & Sesuaikan Stok
+                    </button>
                 </div>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left">
-                    <thead class="bg-gray-50 text-gray-700 border-b">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
                         <tr>
-                            <th class="py-3 px-4">Produk</th>
-                            <th class="py-3 px-4 text-center">Stok Sistem</th>
-                            <th class="py-3 px-4 text-center">Stok Fisik</th>
-                            <th class="py-3 px-4 text-center">Selisih</th>
-                            <th class="py-3 px-4">Catatan</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Produk</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Sistem</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Fisik</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Selisih</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Estimasi Nilai</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y">
-                        @foreach($selectedOpname->items as $item)
-                            <tr class="{{ $item->difference != 0 ? 'bg-yellow-50/50' : '' }}">
-                                <td class="py-3 px-4 font-medium">{{ $item->product->name }}</td>
-                                <td class="py-3 px-4 text-center text-gray-500">{{ $item->system_stock }}</td>
-                                <td class="py-3 px-4 text-center font-bold">{{ $item->physical_stock }}</td>
-                                <td class="py-3 px-4 text-center font-bold {{ $item->difference < 0 ? 'text-red-600' : ($item->difference > 0 ? 'text-emerald-600' : 'text-gray-400') }}">
-                                    {{ $item->difference > 0 ? '+' : '' }}{{ $item->difference }}
+                    <tbody class="divide-y divide-slate-200">
+                        @php $totalLoss = 0; @endphp
+                        @foreach($activeOpname->items as $item)
+                            @if($item->physical_stock === null) @continue @endif
+                            
+                            @php 
+                                $diff = $item->physical_stock - $item->system_stock;
+                                $value = $diff * $item->product->buy_price;
+                                $totalLoss += $value;
+                            @endphp
+
+                            <tr class="{{ $diff < 0 ? 'bg-rose-50' : ($diff > 0 ? 'bg-emerald-50' : '') }}">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="font-bold text-slate-800">{{ $item->product->name }}</div>
+                                    <div class="text-xs text-slate-500">{{ $item->product->sku }}</div>
                                 </td>
-                                <td class="py-3 px-4 text-gray-500 italic">{{ $item->notes }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-slate-600">
+                                    {{ $item->system_stock }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-slate-900">
+                                    {{ $item->physical_stock }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    @if($diff == 0)
+                                        <span class="text-slate-400 font-bold">-</span>
+                                    @elseif($diff > 0)
+                                        <span class="text-emerald-600 font-bold">+{{ $diff }}</span>
+                                    @else
+                                        <span class="text-rose-600 font-bold">{{ $diff }}</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                    <span class="{{ $value < 0 ? 'text-rose-600' : ($value > 0 ? 'text-emerald-600' : 'text-slate-400') }}">
+                                        Rp {{ number_format($value, 0, ',', '.') }}
+                                    </span>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
+                    <tfoot class="bg-slate-50 border-t border-slate-200">
+                        <tr>
+                            <td colspan="4" class="px-6 py-4 text-right font-bold text-slate-700">Total Selisih Nilai Aset:</td>
+                            <td class="px-6 py-4 text-right font-bold {{ $totalLoss < 0 ? 'text-rose-700' : 'text-emerald-700' }}">
+                                Rp {{ number_format($totalLoss, 0, ',', '.') }}
+                            </td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>

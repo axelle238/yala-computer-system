@@ -11,7 +11,7 @@ class StockOpname extends Model
         'warehouse_id',
         'creator_id',
         'approver_id',
-        'status',
+        'status', // draft, counting, review, completed, cancelled
         'opname_date',
         'notes',
     ];
@@ -19,6 +19,11 @@ class StockOpname extends Model
     protected $casts = [
         'opname_date' => 'date',
     ];
+
+    public function items()
+    {
+        return $this->hasMany(StockOpnameItem::class);
+    }
 
     public function creator()
     {
@@ -28,10 +33,5 @@ class StockOpname extends Model
     public function approver()
     {
         return $this->belongsTo(User::class, 'approver_id');
-    }
-
-    public function items()
-    {
-        return $this->hasMany(StockOpnameItem::class);
     }
 }
