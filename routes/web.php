@@ -12,8 +12,7 @@ Route::get('/', StoreHome::class)->name('home');
 Route::get('/catalog', \App\Livewire\Store\Catalog::class)->name('store.catalog'); 
 Route::get('/product/{id}', \App\Livewire\Store\ProductDetail::class)->name('product.detail');
 Route::get('/bundle/{slug}', \App\Livewire\Store\BundleDetail::class)->name('store.bundle.detail'); // New
-Route::get('/compare', \App\Livewire\Store
-Comparison::class)->name('product.compare');
+Route::get('/compare', \App\Livewire\Store\Comparison::class)->name('product.compare');
 Route::get('/community', \App\Livewire\Community\Gallery::class)->name('community.index'); 
 Route::get('/berita', \App\Livewire\Store\News\Index::class)->name('news.index');
 Route::get('/berita/{slug}', \App\Livewire\Store\News\Show::class)->name('news.show');
