@@ -55,6 +55,7 @@ Route::prefix('member')->middleware('auth')->group(function () {
     Route::get('/service/booking', \App\Livewire\Service\Booking::class)->name('service.booking'); 
     Route::get('/orders', \App\Livewire\Member\Orders::class)->name('member.orders');
     Route::get('/orders/{id}', \App\Livewire\Member\OrderDetail::class)->name('member.orders.show'); 
+    Route::get('/quotations', \App\Livewire\Member\Quotations::class)->name('member.quotations'); // New
     Route::get('/profile', \App\Livewire\Member\ProfileSettings::class)->name('member.profile'); // New
     Route::get('/referrals', \App\Livewire\Member\Referrals::class)->name('member.referrals'); // New
     Route::get('/loyalty', \App\Livewire\Member\LoyaltyPoints::class)->name('member.loyalty'); // New
@@ -187,8 +188,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // B2B & Finance
     Route::get('/quotations', \App\Livewire\Quotations\Index::class)->name('quotations.index');
-    Route::get('/quotations/create', \App\Livewire\Quotations\Create::class)->name('quotations.create');
-    Route::get('/quotations/{id}', \App\Livewire\Quotations\Show::class)->name('quotations.show');
+    Route::get('/quotations/create', \App\Livewire\Quotations\Form::class)->name('quotations.create'); // Updated
+    Route::get('/quotations/{id}/edit', \App\Livewire\Quotations\Form::class)->name('quotations.edit'); // Updated to Form
     Route::get('/finance/cash-register', \App\Livewire\Finance\CashRegisterManager::class)->name('finance.cash-register');
     Route::get('/finance/receivables', \App\Livewire\Finance\Receivables::class)->name('finance.receivables');
     Route::get('/finance/profit-loss', \App\Livewire\Finance\ProfitLoss::class)->name('finance.profit-loss'); 

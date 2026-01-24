@@ -5,78 +5,78 @@ namespace App\Livewire\Quotations;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Quotation;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
 
-#[Layout('layouts.app')]
-#[Title('Detail Quotation - Yala Computer')]
+#[Layout('layouts.store')]
+#[Title('Detail Penawaran - Yala Computer')]
 class Show extends Component
 {
-    public Quotation $quote;
+    public Quotation $quotation;
 
     public function mount($id)
     {
-        $this->quote = Quotation::with(['items.product', 'customer', 'sales'])->findOrFail($id);
+        $this->quotation = Quotation::with(['items', 'user'])->findOrFail($id);
+        
+        // Security: Ensure user owns this quote OR is admin
+        if (!auth()->user()->hasRole('admin') && $this->quotation->user_id !== auth()->id()) {
+            abort(403);
+        }
     }
 
-    public function markAsSent()
+    public function acceptQuote()
     {
-        $this->quote->update(['status' => 'sent']);
-        session()->flash('success', 'Status updated to Sent.');
-    }
-
-    public function markAsAccepted()
-    {
-        $this->quote->update(['status' => 'accepted']);
-        session()->flash('success', 'Status updated to Accepted.');
-    }
-
-    public function markAsRejected()
-    {
-        $this->quote->update(['status' => 'rejected']);
-        session()->flash('success', 'Status updated to Rejected.');
-    }
-
-    public function convertToOrder()
-    {
-        if ($this->quote->status === 'converted') {
+        if ($this->quotation->approval_status !== 'approved') {
             return;
         }
 
+        if ($this->quotation->converted_order_id) {
+             $this->dispatch('notify', message: 'Penawaran ini sudah diproses.', type: 'warning');
+             return;
+        }
+
         DB::transaction(function () {
-            // Create Order
+            // Convert to Order
             $order = Order::create([
                 'order_number' => 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
-                'guest_name' => $this->quote->customer->name,
-                'guest_whatsapp' => $this->quote->customer->phone,
-                'total_amount' => $this->quote->total_amount,
+                'user_id' => $this->quotation->user_id,
                 'status' => 'pending',
                 'payment_status' => 'unpaid',
-                'notes' => 'Converted from Quotation ' . $this->quote->quote_number,
-                // 'user_id' could be the sales rep or left null
-                'user_id' => auth()->id(), 
+                'total_amount' => $this->quotation->total_amount,
+                'notes' => 'Converted from Quote #' . $this->quotation->quotation_number,
+                'shipping_address' => 'Silakan update alamat', // Placeholder
+                'shipping_city' => 'Jakarta', // Placeholder
+                'shipping_courier' => 'jne',
+                'shipping_cost' => 0,
             ]);
 
-            // Create Order Items
-            foreach ($this->quote->items as $item) {
+            foreach ($this->quotation->items as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
-                    'product_id' => $item->product_id,
+                    'product_id' => $item->product_id, // Nullable if custom item?
                     'quantity' => $item->quantity,
-                    'price' => $item->price,
-                    'subtotal' => $item->quantity * $item->price,
+                    'price' => $item->unit_price,
                 ]);
             }
 
-            // Update Quote Status
-            $this->quote->update(['status' => 'converted']);
+            $this->quotation->update([
+                'converted_order_id' => $order->id,
+                'status' => 'converted' // If status enum exists
+            ]);
+
+            return $order;
         });
 
-        session()->flash('success', 'Quotation berhasil dikonversi menjadi Order!');
-        return redirect()->route('orders.index');
+        $this->dispatch('notify', message: 'Penawaran diterima! Pesanan telah dibuat.', type: 'success');
+        return redirect()->route('member.orders');
+    }
+
+    public function printPdf()
+    {
+        $this->dispatch('notify', message: 'Fitur Print PDF sedang disiapkan.', type: 'info');
     }
 
     public function render()

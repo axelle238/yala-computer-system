@@ -8,7 +8,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.admin')]
 #[Title('Daftar Penawaran (B2B) - Yala Computer')]
 class Index extends Component
 {
@@ -18,9 +18,9 @@ class Index extends Component
 
     public function render()
     {
-        $quotes = Quotation::with('customer')
-            ->where('quote_number', 'like', '%' . $this->search . '%')
-            ->orWhereHas('customer', function($q) {
+        $quotes = Quotation::with('user')
+            ->where('quotation_number', 'like', '%' . $this->search . '%')
+            ->orWhereHas('user', function($q) {
                 $q->where('name', 'like', '%' . $this->search . '%');
             })
             ->latest()
@@ -28,9 +28,9 @@ class Index extends Component
 
         return view('livewire.quotations.index', [
             'quotes' => $quotes,
-            'sentCount' => Quotation::where('status', 'sent')->count(),
-            'draftCount' => Quotation::where('status', 'draft')->count(),
-            'convertedCount' => Quotation::where('status', 'converted')->count(),
+            'pendingCount' => Quotation::where('approval_status', 'pending')->count(),
+            'approvedCount' => Quotation::where('approval_status', 'approved')->count(),
+            'convertedCount' => Quotation::whereNotNull('converted_order_id')->count(),
         ]);
     }
 }
