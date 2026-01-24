@@ -37,6 +37,11 @@ class ServiceTicket extends Model
         return $this->hasMany(ServiceItem::class);
     }
 
+    public function histories()
+    {
+        return $this->hasMany(ServiceHistory::class)->latest();
+    }
+
     // Helper untuk label status warna-warni
     public function getStatusLabelAttribute()
     {

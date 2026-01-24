@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Services;
 
+use App\Models\ServiceHistory;
 use App\Models\ServiceTicket;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -23,9 +24,18 @@ class Index extends Component
     public function updateStatus($ticketId, $newStatus)
     {
         $ticket = ServiceTicket::find($ticketId);
-        if ($ticket && array_key_exists($newStatus, $this->statuses)) {
+        if ($ticket && array_key_exists($newStatus, $this->statuses) && $ticket->status !== $newStatus) {
+            $oldStatus = $ticket->status;
             $ticket->update(['status' => $newStatus]);
             
+            // Log History
+            ServiceHistory::create([
+                'service_ticket_id' => $ticket->id,
+                'user_id' => auth()->id(),
+                'status' => $newStatus,
+                'notes' => "Status diperbarui via Kanban Board (dari " . ucfirst($oldStatus) . ")",
+            ]);
+
             // Notify
             $this->dispatch('notify', message: "Status tiket #{$ticket->ticket_number} diperbarui!", type: 'success');
         }

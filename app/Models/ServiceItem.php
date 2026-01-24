@@ -14,6 +14,9 @@ class ServiceItem extends Model
         'cost',
         'price',
         'note',
+        'is_stock_deducted',
+        'serial_number',
+        'warranty_duration',
     ];
 
     public function ticket()
