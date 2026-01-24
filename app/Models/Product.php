@@ -33,7 +33,8 @@ class Product extends Model
         'barcode',
         'description',
         'specifications',
-        'warranty_duration', // New
+        'weight', // New
+        'warranty_duration',
         'buy_price',
         'sell_price',
         'stock_quantity',

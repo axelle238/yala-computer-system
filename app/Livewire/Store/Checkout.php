@@ -161,8 +161,16 @@ class Checkout extends Component
 
     public function calculateTotals()
     {
+        $totalWeight = 0;
+        foreach ($this->cartItems as $item) {
+            $w = $item['product']->weight > 0 ? $item['product']->weight : 1000;
+            $totalWeight += ($w * $item['qty']);
+        }
+        $totalWeightKg = ceil($totalWeight / 1000);
+        if ($totalWeightKg < 1) $totalWeightKg = 1;
+
         $baseCost = $this->cities[$this->city] ?? 0;
-        $this->shippingCost = $baseCost;
+        $this->shippingCost = $baseCost * $totalWeightKg;
         
         // 1. Calculate Voucher Discount
         if ($this->appliedVoucher) {
