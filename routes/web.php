@@ -48,7 +48,8 @@ Route::prefix('member')->middleware('auth')->group(function () {
     Route::get('/addresses', \App\Livewire\Member\Addresses::class)->name('member.addresses'); 
     Route::get('/service/booking', \App\Livewire\Service\Booking::class)->name('service.booking'); 
     Route::get('/orders', \App\Livewire\Member\Orders::class)->name('member.orders');
-    Route::get('/orders/{id}', \App\Livewire\Member\OrderDetail::class)->name('member.orders.show'); // New
+    Route::get('/orders/{id}', \App\Livewire\Member\OrderDetail::class)->name('member.orders.show'); 
+    Route::get('/profile', \App\Livewire\Member\ProfileSettings::class)->name('member.profile'); // New
     Route::get('/rma/request', \App\Livewire\Member\RmaRequest::class)->name('member.rma.request');
 });
 
