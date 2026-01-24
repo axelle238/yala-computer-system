@@ -73,6 +73,13 @@ return [
                     'roles' => ['admin', 'owner', 'technician', 'warehouse'],
                     'permission' => 'order.refund',
                 ],
+                [
+                    'label' => 'Produksi Rakitan',
+                    'route' => 'assembly.manager',
+                    'icon'  => 'cpu-chip', // Need icon
+                    'roles' => ['admin', 'owner', 'technician'],
+                    'permission' => 'service.view',
+                ],
             ]
         ],
         [
@@ -244,6 +251,13 @@ return [
                     'icon'  => 'cog',
                     'roles' => ['admin', 'owner'],
                     'permission' => 'setting.edit',
+                ],
+                [
+                    'label' => 'Knowledge Base',
+                    'route' => 'knowledge.index',
+                    'icon'  => 'book-open', // Need icon
+                    'roles' => ['admin', 'owner', 'technician', 'hr'],
+                    'permission' => 'dashboard.view', // General access
                 ],
                 [
                     'label' => 'Audit Log',

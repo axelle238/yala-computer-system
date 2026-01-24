@@ -110,6 +110,12 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/services', \App\Livewire\Services\Index::class)->name('services.index');
     Route::get('/services/create', \App\Livewire\Services\Form::class)->name('services.create');
     Route::get('/services/{id}/edit', \App\Livewire\Services\Form::class)->name('services.edit');
+    
+    // PC Assembly (New)
+    Route::get('/assembly', \App\Livewire\Assembly\Manager::class)->name('assembly.manager');
+
+    // Knowledge Base (New)
+    Route::get('/knowledge', \App\Livewire\Knowledge\Index::class)->name('knowledge.index');
 
     // Purchase Requisitions
     Route::get('/purchase-requisitions', \App\Livewire\PurchaseRequisitions\Index::class)->name('purchase-requisitions.index');
