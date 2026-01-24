@@ -14,6 +14,7 @@ Route::get('/compare', \App\Livewire\Store\Comparison::class)->name('product.com
 Route::get('/community', \App\Livewire\Community\Gallery::class)->name('community.index'); // New
 Route::get('/berita', \App\Livewire\Store\News\Index::class)->name('news.index');
 Route::get('/berita/{slug}', \App\Livewire\Store\News\Show::class)->name('news.show');
+Route::get('/help-center', \App\Livewire\Store\HelpCenter::class)->name('help.center'); // New
 Route::get('/rakit-pc', \App\Livewire\Store\PcBuilder::class)->name('pc-builder');
 Route::get('/garansi', \App\Livewire\Store\WarrantyCheck::class)->name('warranty-check');
 Route::get('/track-service', \App\Livewire\Front\TrackService::class)->name('track-service'); // New Tracking
