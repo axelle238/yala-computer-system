@@ -3,6 +3,8 @@
 namespace App\Livewire\Finance;
 
 use App\Models\Expense;
+use App\Models\Order;
+use App\Models\Payroll;
 use App\Models\InventoryTransaction;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -18,8 +20,8 @@ class ProfitLoss extends Component
 
     public function mount()
     {
-        $this->month = now()->month;
-        $this->year = now()->year;
+        $this->month = date('m');
+        $this->year = date('Y');
     }
 
     public function render()
@@ -27,90 +29,54 @@ class ProfitLoss extends Component
         $startDate = Carbon::createFromDate($this->year, $this->month, 1)->startOfMonth();
         $endDate = Carbon::createFromDate($this->year, $this->month, 1)->endOfMonth();
 
-        // 1. Product Revenue (Penjualan Barang)
-        $productRevenue = InventoryTransaction::where('type', 'out')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->sum(InventoryTransaction::raw('quantity * unit_price'));
-
-        // 2. Product COGS (HPP Barang)
-        $productCOGS = InventoryTransaction::where('type', 'out')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->sum(InventoryTransaction::raw('quantity * cogs'));
-
-        // 3. Service Revenue (Jasa Perbaikan)
-        // Kita hitung dari Tiket yang SELESAI di bulan ini.
-        // Revenue Jasa = Total Tagihan - Total Sparepart
-        $finishedTickets = \App\Models\ServiceTicket::with('items')
-            ->where('status', 'picked_up') // Hanya yang sudah lunas/diambil
-            ->whereBetween('updated_at', [$startDate, $endDate])
+        // 1. REVENUE (Pendapatan)
+        // Penjualan yang sudah Selesai (Completed)
+        $orders = Order::with('items.product')
+            ->where('status', 'completed')
+            ->whereBetween('updated_at', [$startDate, $endDate]) // Pakai updated_at karena completed date
             ->get();
 
-        $serviceRevenue = 0;
-        foreach ($finishedTickets as $ticket) {
-            $partsCost = $ticket->items->sum(fn($i) => $i->price * $i->quantity);
-            // Jasa = Final Cost - Harga Part Jual
-            $labor = max(0, $ticket->final_cost - $partsCost);
-            $serviceRevenue += $labor;
-            
-            // Note: Sparepart yang terjual di service sudah masuk ke 'productRevenue' dan 'productCOGS' 
-            // LEWAT mekanisme InventoryTransaction 'out' yang kita buat otomatis di Services\Form.php.
-            // Jadi disini kita HANYA menghitung komponen JASA murni agar tidak double counting.
+        $totalRevenue = $orders->sum('total_amount');
+
+        // 2. COGS (Harga Pokok Penjualan)
+        // Hitung total harga beli dari item yang terjual
+        // Idealnya pakai FIFO/Average dari InventoryTransaction, tapi untuk MVP kita pakai harga beli saat ini atau history
+        // Kita gunakan InventoryTransaction type 'out' (Sales) di periode ini untuk akurasi HPP historis jika ada data COGS di sana
+        // Jika tidak, kita hitung manual dari Order Items * Buy Price Product saat ini (Simplifikasi)
+        
+        $cogs = 0;
+        foreach ($orders as $order) {
+            foreach ($order->items as $item) {
+                // Best effort: Get transaction linked or use current buy price
+                // Since we don't link specific transaction to order item yet, use current product buy price
+                $buyPrice = $item->product->buy_price ?? 0;
+                $cogs += ($buyPrice * $item->quantity);
+            }
         }
 
-        // 4. Gross Profit
-        $grossProfit = ($productRevenue - $productCOGS) + $serviceRevenue;
+        $grossProfit = $totalRevenue - $cogs;
 
-        // 5. Expenses (Beban Operasional)
-        // Pastikan kolom tanggal di tabel expenses konsisten (saya pakai expense_date atau created_at)
-        // Cek schema expenses dulu, kalau belum ada saya default created_at
-        $expenses = Expense::whereBetween('created_at', [$startDate, $endDate])->get();
-        $totalExpenses = $expenses->sum('amount');
+        // 3. EXPENSES (Biaya Operasional)
+        $operationalExpenses = Expense::whereBetween('expense_date', [$startDate, $endDate])->sum('amount');
+        
+        // Gaji Karyawan
+        $payrollExpenses = Payroll::where('period_month', sprintf('%02d-%d', $this->month, $this->year))->sum('net_salary');
 
-        // 6. Net Profit (Laba Bersih)
+        $totalExpenses = $operationalExpenses + $payrollExpenses;
+
+        // 4. NET PROFIT
         $netProfit = $grossProfit - $totalExpenses;
 
-        // 7. Trend Data (Daily Net Profit for Chart)
-        $trendData = [];
-        $daysInMonth = $startDate->daysInMonth;
-        for ($i = 1; $i <= $daysInMonth; $i++) {
-            $dayDate = Carbon::createFromDate($this->year, $this->month, $i);
-            
-            $dayProdRev = InventoryTransaction::where('type', 'out')
-                ->whereDate('created_at', $dayDate)
-                ->sum(InventoryTransaction::raw('quantity * unit_price'));
-                
-            $dayProdCOGS = InventoryTransaction::where('type', 'out')
-                ->whereDate('created_at', $dayDate)
-                ->sum(InventoryTransaction::raw('quantity * cogs'));
-            
-            // Daily Service Revenue
-            $dayServiceRev = 0;
-            // Optimasi: query service per hari (bisa berat jika traffic tinggi, tapi oke untuk level ini)
-            $dayTickets = \App\Models\ServiceTicket::with('items')
-                ->where('status', 'picked_up')
-                ->whereDate('updated_at', $dayDate)
-                ->get();
-            foreach ($dayTickets as $t) {
-                $dayServiceRev += max(0, $t->final_cost - $t->items->sum(fn($i) => $i->price * $i->quantity));
-            }
-
-            $dayExpense = Expense::whereDate('created_at', $dayDate)->sum('amount');
-            
-            $trendData[] = [
-                'day' => $i,
-                'profit' => (($dayProdRev - $dayProdCOGS) + $dayServiceRev) - $dayExpense
-            ];
-        }
-
         return view('livewire.finance.profit-loss', [
-            'productRevenue' => $productRevenue,
-            'serviceRevenue' => $serviceRevenue,
-            'cogs' => $productCOGS,
+            'revenue' => $totalRevenue,
+            'cogs' => $cogs,
             'grossProfit' => $grossProfit,
-            'expenses' => $expenses,
-            'totalExpenses' => $totalExpenses,
-            'netProfit' => $netProfit,
-            'trendData' => $trendData
+            'expenses' => [
+                'operational' => $operationalExpenses,
+                'payroll' => $payrollExpenses,
+                'total' => $totalExpenses
+            ],
+            'netProfit' => $netProfit
         ]);
     }
 }

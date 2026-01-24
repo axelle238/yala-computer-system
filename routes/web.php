@@ -151,6 +151,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/quotations/create', \App\Livewire\Quotations\Create::class)->name('quotations.create');
     Route::get('/quotations/{id}', \App\Livewire\Quotations\Show::class)->name('quotations.show');
     Route::get('/finance/receivables', \App\Livewire\Finance\Receivables::class)->name('finance.receivables');
+    Route::get('/finance/profit-loss', \App\Livewire\Finance\ProfitLoss::class)->name('finance.profit-loss'); // New
 
     // System Maintenance
     Route::get('/system/health', \App\Livewire\System\Health::class)->name('system.health');
