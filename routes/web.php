@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public Storefront
 Route::get('/', StoreHome::class)->name('home');
+Route::get('/catalog', \App\Livewire\Store\Catalog::class)->name('store.catalog'); // New
 Route::get('/product/{id}', \App\Livewire\Store\ProductDetail::class)->name('product.detail');
 Route::get('/compare', \App\Livewire\Store\Comparison::class)->name('product.compare');
 Route::get('/community', \App\Livewire\Community\Gallery::class)->name('community.index'); 
