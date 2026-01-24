@@ -2,94 +2,88 @@
 
 namespace App\Livewire\Shift;
 
-use App\Models\CashRegister;
-use App\Models\Order;
-use Illuminate\Support\Facades\Auth;
+use App\Models\EmployeeShift;
+use App\Models\Shift;
+use App\Models\User;
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.app')]
-#[Title('Manajemen Shift Kasir - Yala Computer')]
+#[Title('Jadwal Shift Kerja - Yala Computer')]
 class Manager extends Component
 {
-    public $opening_amount = 0;
-    public $closing_amount = 0;
-    public $note;
+    public $startOfWeek;
+    public $dates = [];
     
-    public ?CashRegister $activeRegister = null;
+    // State
+    public $selectedShiftId;
 
     public function mount()
     {
-        $this->activeRegister = CashRegister::where('user_id', Auth::id())
-            ->where('status', 'open')
-            ->first();
+        $this->startOfWeek = now()->startOfWeek();
+        $this->generateDates();
+        
+        $firstShift = Shift::first();
+        if ($firstShift) {
+            $this->selectedShiftId = $firstShift->id;
+        }
     }
 
-    public function openRegister()
+    public function nextWeek()
     {
-        $this->validate([
-            'opening_amount' => 'required|numeric|min:0'
-        ]);
-
-        CashRegister::create([
-            'user_id' => Auth::id(),
-            'opened_at' => now(),
-            'opening_cash' => $this->opening_amount,
-            'status' => 'open'
-        ]);
-
-        return redirect()->route('transactions.create');
+        $this->startOfWeek->addWeek();
+        $this->generateDates();
     }
 
-    public function closeRegister()
+    public function prevWeek()
     {
-        if (!$this->activeRegister) return;
+        $this->startOfWeek->subWeek();
+        $this->generateDates();
+    }
 
-        $this->validate([
-            'closing_amount' => 'required|numeric|min:0'
+    public function generateDates()
+    {
+        $this->dates = [];
+        for ($i = 0; $i < 7; $i++) {
+            $this->dates[] = $this->startOfWeek->copy()->addDays($i);
+        }
+    }
+
+    public function assignShift($userId, $dateStr)
+    {
+        $date = Carbon::parse($dateStr);
+        
+        // Remove existing
+        EmployeeShift::where('user_id', $userId)->where('date', $date)->delete();
+
+        // Add new if not 'Off' (assuming Off is just deleting or specific ID)
+        // Let's assume we always create record
+        EmployeeShift::create([
+            'user_id' => $userId,
+            'shift_id' => $this->selectedShiftId,
+            'date' => $date
         ]);
 
-        // Hitung Expected Cash
-        // Opening + (Cash Sales) - (Cash Refunds/Expenses if any)
-        // Untuk sekarang kita hitung dari Order yang payment_method = 'cash' dan register_id ini
-        $cashSales = Order::where('cash_register_id', $this->activeRegister->id)
-            ->where('payment_method', 'cash')
-            ->sum('total_amount');
-
-        $expected = $this->activeRegister->opening_cash + $cashSales;
-        $variance = $this->closing_amount - $expected;
-
-        $this->activeRegister->update([
-            'closed_at' => now(),
-            'closing_cash' => $this->closing_amount,
-            'expected_cash' => $expected,
-            'variance' => $variance,
-            'status' => 'closed',
-            'note' => $this->note
-        ]);
-
-        return redirect()->route('dashboard')->with('success', 'Shift berhasil ditutup. Laporan Z-Report disimpan.');
+        $this->dispatch('notify', message: 'Jadwal diperbarui.');
     }
 
     public function render()
     {
-        // Hitung statistik real-time untuk shift aktif
-        $stats = [];
-        if ($this->activeRegister) {
-            $sales = Order::where('cash_register_id', $this->activeRegister->id)
-                ->selectRaw('payment_method, sum(total_amount) as total, count(*) as count')
-                ->groupBy('payment_method')
-                ->get();
-            
-            $stats['total_sales'] = $sales->sum('total');
-            $stats['transaction_count'] = $sales->sum('count');
-            $stats['cash_in_drawer'] = $this->activeRegister->opening_cash + ($sales->where('payment_method', 'cash')->first()->total ?? 0);
-            $stats['breakdown'] = $sales;
-        }
+        $users = User::whereIn('role', ['technician', 'sales', 'staff'])->get();
+        $shifts = Shift::all();
+
+        // Eager load schedules
+        $schedules = EmployeeShift::whereIn('user_id', $users->pluck('id'))
+            ->whereBetween('date', [$this->dates[0], end($this->dates)])
+            ->get()
+            ->groupBy('user_id');
 
         return view('livewire.shift.manager', [
-            'stats' => $stats
+            'users' => $users,
+            'shifts' => $shifts,
+            'schedules' => $schedules
         ]);
     }
 }

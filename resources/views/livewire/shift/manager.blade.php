@@ -1,84 +1,80 @@
-<div class="max-w-2xl mx-auto py-12">
-    @if(!$activeRegister)
-        <!-- Open Register Form -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700">
-            <div class="p-8 text-center bg-slate-900 text-white">
-                <div class="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">🔓</div>
-                <h1 class="text-2xl font-black font-tech uppercase">Buka Shift Kasir</h1>
-                <p class="text-slate-400 mt-2">Masukkan modal awal (uang tunai) di laci kasir untuk memulai transaksi.</p>
-            </div>
-            
-            <div class="p-8 space-y-6">
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">Modal Awal (Cash)</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 font-bold">Rp</span>
-                        <input wire:model="opening_amount" type="number" class="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-2xl font-black font-mono focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all" placeholder="0">
-                    </div>
-                    @error('opening_amount') <span class="text-rose-500 text-sm mt-1">{{ $message }}</span> @enderror
-                </div>
-
-                <button wire:click="openRegister" class="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-lg shadow-lg shadow-emerald-500/30 transition-all transform hover:-translate-y-1">
-                    BUKA REGISTER & MULAI JUALAN
-                </button>
-            </div>
+<div class="space-y-8 animate-fade-in-up">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
+                Shift <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-500">Manager</span>
+            </h2>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Pengaturan jadwal kerja mingguan.</p>
         </div>
-    @else
-        <!-- Close Register & Stats -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700">
-            <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-emerald-50 dark:bg-emerald-900/20">
-                <div class="flex items-center gap-3">
-                    <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <div>
-                        <h2 class="font-bold text-emerald-800 dark:text-emerald-400">SHIFT AKTIF</h2>
-                        <p class="text-xs text-emerald-600 dark:text-emerald-500">Dibuka: {{ $activeRegister->opened_at->format('d M H:i') }}</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <span class="block text-xs font-bold text-slate-500 uppercase">Cash in Drawer</span>
-                    <span class="font-mono font-black text-xl text-slate-800 dark:text-white">Rp {{ number_format($stats['cash_in_drawer'], 0, ',', '.') }}</span>
-                </div>
-            </div>
+        
+        <div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+            <button wire:click="prevWeek" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <span class="font-bold text-slate-700 dark:text-white text-sm w-32 text-center">
+                {{ $dates[0]->format('d M') }} - {{ end($dates)->format('d M') }}
+            </span>
+            <button wire:click="nextWeek" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </button>
+        </div>
+    </div>
 
-            <div class="p-6 grid grid-cols-2 gap-4">
-                <div class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
-                    <span class="text-xs text-slate-500 font-bold uppercase">Total Penjualan</span>
-                    <div class="text-lg font-black text-slate-800 dark:text-white mt-1">Rp {{ number_format($stats['total_sales'], 0, ',', '.') }}</div>
-                </div>
-                <div class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
-                    <span class="text-xs text-slate-500 font-bold uppercase">Jumlah Transaksi</span>
-                    <div class="text-lg font-black text-slate-800 dark:text-white mt-1">{{ $stats['transaction_count'] }}</div>
-                </div>
-            </div>
+    <!-- Shift Tools -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-wrap gap-4 items-center">
+        <span class="text-xs font-bold uppercase text-slate-500 mr-2">Pilih Shift:</span>
+        @foreach($shifts as $shift)
+            <button wire:click="$set('selectedShiftId', {{ $shift->id }})" 
+                    class="px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all {{ $selectedShiftId === $shift->id ? 'bg-orange-500 text-white shadow-lg ring-2 ring-orange-200' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200' }}">
+                {{ $shift->name }} ({{ \Carbon\Carbon::parse($shift->start_time)->format('H:i') }}-{{ \Carbon\Carbon::parse($shift->end_time)->format('H:i') }})
+            </button>
+        @endforeach
+    </div>
 
-            <div class="px-6 pb-6">
-                <h3 class="font-bold text-sm mb-3">Rincian Pembayaran</h3>
-                <div class="space-y-2">
-                    @foreach($stats['breakdown'] as $row)
-                        <div class="flex justify-between text-sm">
-                            <span class="capitalize text-slate-600 dark:text-slate-400">{{ $row->payment_method }}</span>
-                            <span class="font-mono font-bold">Rp {{ number_format($row->total, 0, ',', '.') }}</span>
-                        </div>
+    <!-- Schedule Grid -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-900 text-slate-500 text-xs uppercase font-bold">
+                        <th class="p-4 border-b border-r border-slate-200 dark:border-slate-700 w-48 sticky left-0 bg-slate-50 dark:bg-slate-900 z-10">Karyawan</th>
+                        @foreach($dates as $date)
+                            <th class="p-4 border-b border-slate-200 dark:border-slate-700 text-center min-w-[100px] {{ $date->isToday() ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600' : '' }}">
+                                {{ $date->format('D') }}<br>
+                                <span class="text-lg">{{ $date->format('d') }}</span>
+                            </th>
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                    @foreach($users as $user)
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                            <td class="p-4 border-r border-slate-100 dark:border-slate-700 sticky left-0 bg-white dark:bg-slate-800 z-10">
+                                <div class="font-bold text-slate-900 dark:text-white">{{ $user->name }}</div>
+                                <div class="text-[10px] text-slate-500 uppercase">{{ $user->role }}</div>
+                            </td>
+                            @foreach($dates as $date)
+                                @php
+                                    $schedule = $schedules[$user->id] ?? collect();
+                                    $shift = $schedule->where('date', $date)->first();
+                                @endphp
+                                <td class="p-2 border-r border-slate-50 dark:border-slate-800 text-center relative group cursor-pointer {{ $date->isToday() ? 'bg-orange-50/30' : '' }}"
+                                    wire:click="assignShift({{ $user->id }}, '{{ $date->format('Y-m-d') }}')">
+                                    
+                                    @if($shift)
+                                        <div class="inline-block px-2 py-1 rounded text-[10px] font-bold uppercase bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 w-full truncate">
+                                            {{ $shift->shift->name }}
+                                        </div>
+                                    @else
+                                        <div class="h-6 w-full rounded border-2 border-dashed border-slate-200 dark:border-slate-700 group-hover:border-orange-300 transition-colors"></div>
+                                    @endif
+                                </td>
+                            @endforeach
+                        </tr>
                     @endforeach
-                </div>
-            </div>
-
-            <div class="p-6 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 space-y-4">
-                <h3 class="font-black text-rose-600 dark:text-rose-400 uppercase tracking-wide">Tutup Shift (Z-Report)</h3>
-                
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Total Uang Fisik (Hitung Manual)</label>
-                    <input wire:model="closing_amount" type="number" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-800 font-mono font-bold" placeholder="Masukkan jumlah uang di laci...">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Catatan (Opsional)</label>
-                    <textarea wire:model="note" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-800 text-sm" rows="2"></textarea>
-                </div>
-
-                <button wire:click="closeRegister" wire:confirm="Yakin ingin menutup shift? Pastikan uang fisik sudah dihitung dengan benar." class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold shadow-lg shadow-rose-500/20">
-                    TUTUP SHIFT & CETAK LAPORAN
-                </button>
-            </div>
+                </tbody>
+            </table>
         </div>
-    @endif
+    </div>
 </div>

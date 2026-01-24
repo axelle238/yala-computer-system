@@ -144,7 +144,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // HR & Analytics
     Route::get('/analytics', \App\Livewire\Reports\Index::class)->name('reports.index');
-    Route::get('/shift', \App\Livewire\Shift\Manager::class)->name('shift.open');
+    Route::get('/shift', \App\Livewire\Shift\Manager::class)->name('shift.manager'); // Updated name
+    Route::get('/reimbursement', \App\Livewire\Employees\Reimbursement::class)->name('employees.reimbursement'); // Next step
 
     // B2B & Finance
     Route::get('/quotations', \App\Livewire\Quotations\Index::class)->name('quotations.index');
