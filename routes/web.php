@@ -125,8 +125,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // Warehouse
     Route::get('/warehouses/transfer', \App\Livewire\Warehouses\Transfer::class)->name('warehouses.transfer');
-    Route::get('/warehouses/stock-opname', \App\Livewire\Warehouses\StockOpname::class)->name('warehouses.stock-opname');
-
+    Route::get('/warehouses/stock-opname', \App\Livewire\Warehouses\StockOpname::class)->name('warehouses.stock-opname'); // New
+    
     // Marketing
     Route::get('/marketing/flash-sale', \App\Livewire\Marketing\FlashSale\Index::class)->name('marketing.flash-sale.index');
     Route::get('/marketing/flash-sale/create', \App\Livewire\Marketing\FlashSale\Form::class)->name('marketing.flash-sale.create');

@@ -1,143 +1,139 @@
-<div class="space-y-6 animate-fade-in-up">
+<div class="space-y-8 animate-fade-in-up">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
             <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
-                Stock <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">Opname</span>
+                Stock <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-500">Opname</span>
             </h2>
-            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Penyesuaian stok fisik dan sistem.</p>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Audit dan penyesuaian stok fisik berkala.</p>
         </div>
         
-        <!-- Search -->
-        <div class="flex gap-3 bg-white dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm w-full md:w-auto">
-            <input wire:model.live.debounce.300ms="search" type="text" class="bg-transparent border-none text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-0 placeholder-slate-400 w-full md:w-64" placeholder="Cari barang...">
-            <div class="w-px bg-slate-200 dark:bg-slate-700 my-1"></div>
-            <select wire:model.live="category" class="bg-transparent border-none text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-0 cursor-pointer">
-                <option value="">Semua Kategori</option>
-                @foreach($categories as $cat)
-                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                @endforeach
-            </select>
-        </div>
+        <button wire:click="toggleMode('{{ $viewMode === 'list' ? 'create' : 'list' }}')" class="px-6 py-3 {{ $viewMode === 'list' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300' }} text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2">
+            @if($viewMode === 'list')
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                Mulai Opname Baru
+            @else
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+                Lihat Riwayat
+            @endif
+        </button>
     </div>
 
-    <!-- Data Table -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-                <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 font-bold uppercase text-xs">
+    @if($viewMode === 'create')
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm animate-fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Tanggal Opname</label>
+                    <input type="date" wire:model="opnameDate" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Cari Produk (Scan Barcode/Nama)</label>
+                    <div class="relative">
+                        <input type="text" wire:model.live.debounce.300ms="searchProduct" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl pl-10" placeholder="Ketik nama atau SKU...">
+                        <svg class="w-5 h-5 text-slate-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        
+                        @if(!empty($searchProducts))
+                            <div class="absolute z-10 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden">
+                                @foreach($searchProducts as $p)
+                                    <button wire:click="addProduct({{ $p->id }})" class="w-full text-left px-4 py-3 hover:bg-amber-50 dark:hover:bg-slate-700 border-b border-slate-100 last:border-0 flex justify-between items-center">
+                                        <div>
+                                            <span class="font-bold text-sm text-slate-800 dark:text-white">{{ $p->name }}</span>
+                                            <span class="text-xs text-slate-500 block">{{ $p->sku }}</span>
+                                        </div>
+                                        <span class="text-xs font-mono bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded">Stok: {{ $p->stock_quantity }}</span>
+                                    </button>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 mb-6">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-50 dark:bg-slate-900 text-slate-500 uppercase font-bold text-xs">
+                        <tr>
+                            <th class="px-4 py-3">Produk</th>
+                            <th class="px-4 py-3 text-center w-32">Stok Sistem</th>
+                            <th class="px-4 py-3 text-center w-32">Stok Fisik</th>
+                            <th class="px-4 py-3 text-center w-32">Selisih</th>
+                            <th class="px-4 py-3">Catatan</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                        @forelse($items as $pid => $item)
+                            <tr class="hover:bg-amber-50/30 dark:hover:bg-amber-900/10 transition-colors">
+                                <td class="px-4 py-3">
+                                    <span class="font-bold text-slate-800 dark:text-white">{{ $item['name'] }}</span>
+                                    <span class="text-xs text-slate-500 block">{{ $item['sku'] }}</span>
+                                </td>
+                                <td class="px-4 py-3 text-center font-mono">{{ $item['system'] }}</td>
+                                <td class="px-4 py-3">
+                                    <input type="number" wire:change="updatePhysical({{ $pid }}, $event.target.value)" value="{{ $item['physical'] }}" class="w-full text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1 font-bold">
+                                </td>
+                                <td class="px-4 py-3 text-center font-bold {{ $item['diff'] < 0 ? 'text-rose-500' : ($item['diff'] > 0 ? 'text-emerald-500' : 'text-slate-400') }}">
+                                    {{ $item['diff'] > 0 ? '+' : '' }}{{ $item['diff'] }}
+                                </td>
+                                <td class="px-4 py-3">
+                                    <input type="text" wire:model="items.{{ $pid }}.notes" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1 text-xs" placeholder="Keterangan...">
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-4 py-12 text-center text-slate-400 italic">Belum ada item yang ditambahkan. Scan atau cari produk di atas.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end">
+                <button wire:click="save" class="px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg transition-all">Simpan Laporan Opname</button>
+            </div>
+        </div>
+    @else
+        <!-- List Mode -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden animate-fade-in">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-slate-50 dark:bg-slate-900 text-slate-500 uppercase font-bold text-xs">
                     <tr>
-                        <th class="px-6 py-4">Produk Info</th>
-                        <th class="px-6 py-4">Kategori</th>
-                        <th class="px-6 py-4 text-center">Stok Sistem</th>
-                        <th class="px-6 py-4 w-48 text-center">Stok Fisik (Real)</th>
-                        <th class="px-6 py-4 w-32 text-center">Aksi</th>
+                        <th class="px-6 py-4">No. Opname</th>
+                        <th class="px-6 py-4">Tanggal</th>
+                        <th class="px-6 py-4">Pembuat</th>
+                        <th class="px-6 py-4 text-center">Status</th>
+                        <th class="px-6 py-4 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                    @forelse($products as $product)
-                        <tr class="hover:bg-amber-50/30 dark:hover:bg-amber-900/10 transition-colors group">
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-500 dark:text-slate-300">
-                                        @if($product->image_path)
-                                            <img src="{{ asset('storage/' . $product->image_path) }}" class="w-full h-full object-contain p-1">
-                                        @else
-                                            {{ substr($product->name, 0, 2) }}
-                                        @endif
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-slate-900 dark:text-white line-clamp-1">{{ $product->name }}</p>
-                                        <span class="text-[10px] font-mono text-slate-400">{{ $product->sku }}</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-xs font-bold text-slate-500 uppercase tracking-wider">{{ $product->category->name }}</span>
+                    @forelse($opnames as $op)
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                            <td class="px-6 py-4 font-mono font-bold text-slate-700 dark:text-slate-300">{{ $op->opname_number }}</td>
+                            <td class="px-6 py-4 text-slate-600 dark:text-slate-400">{{ $op->opname_date->format('d M Y') }}</td>
+                            <td class="px-6 py-4 font-bold">{{ $op->creator->name }}</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="px-2 py-1 rounded text-[10px] font-bold uppercase {{ $op->status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
+                                    {{ $op->status }}
+                                </span>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <span class="font-mono font-bold text-slate-700 dark:text-slate-300 text-lg">{{ $product->stock_quantity }}</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <input 
-                                    wire:model="adjustments.{{ $product->id }}" 
-                                    type="number" 
-                                    class="w-full text-center font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-amber-500 focus:border-amber-500 transition-all placeholder-slate-300"
-                                    placeholder="{{ $product->stock_quantity }}"
-                                    min="0"
-                                >
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                @if(isset($adjustments[$product->id]) && $adjustments[$product->id] !== '')
-                                    <button 
-                                        wire:click="saveAdjustment({{ $product->id }})" 
-                                        class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1 w-full"
-                                    >
-                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                        Simpan
-                                    </button>
+                                @if($op->status === 'submitted' && (auth()->user()->isAdmin() || auth()->user()->isOwner()))
+                                    <button wire:click="approve({{ $op->id }})" wire:confirm="Setujui Opname? Stok akan diupdate permanen." class="px-3 py-1 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700">Approve</button>
+                                @else
+                                    <span class="text-xs text-slate-400">-</span>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-slate-400">Barang tidak ditemukan.</td>
+                            <td colspan="5" class="px-6 py-12 text-center text-slate-400">Belum ada riwayat stock opname.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
+            <div class="p-4 border-t border-slate-100 dark:border-slate-700">
+                {{ $opnames->links() }}
+            </div>
         </div>
-        <div class="p-4 border-t border-slate-100 dark:border-slate-700">
-            {{ $products->links() }}
-        </div>
-    </div>
-
-    <!-- History Section -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-slate-200 dark:border-slate-700">
-            <h3 class="font-bold text-lg text-slate-900 dark:text-white">Riwayat Penyesuaian Terakhir</h3>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-                <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 font-bold uppercase text-xs">
-                    <tr>
-                        <th class="px-6 py-4">Waktu</th>
-                        <th class="px-6 py-4">Produk</th>
-                        <th class="px-6 py-4">User</th>
-                        <th class="px-6 py-4">Catatan</th>
-                        <th class="px-6 py-4 text-right">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                    @forelse($history as $log)
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                            <td class="px-6 py-4 text-slate-500 text-xs">
-                                {{ $log->created_at->format('d M Y H:i') }}
-                            </td>
-                            <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">
-                                {{ $log->product->name }}
-                            </td>
-                            <td class="px-6 py-4 text-slate-600 dark:text-slate-300">
-                                {{ $log->user->name ?? 'System' }}
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-1 rounded text-xs font-bold {{ str_contains($log->notes, 'Surplus') ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600' }}">
-                                    {{ $log->notes }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <button wire:click="deleteAdjustment({{ $log->id }})" class="text-rose-500 hover:text-rose-700 font-bold text-xs underline">
-                                    Batalkan
-                                </button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-8 text-center text-slate-400">Belum ada riwayat penyesuaian.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+    @endif
 </div>

@@ -2,110 +2,153 @@
 
 namespace App\Livewire\Warehouses;
 
-use App\Models\Category;
 use App\Models\InventoryTransaction;
 use App\Models\Product;
+use App\Models\StockOpname as OpnameModel;
+use App\Models\StockOpnameItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.app')]
-#[Title('Stock Opname - Yala Computer')]
+#[Title('Stock Opname (Audit) - Yala Computer')]
 class StockOpname extends Component
 {
-    use WithPagination;
+    public $viewMode = 'list'; // list, create, show
+    
+    // Create Mode
+    public $opnameDate;
+    public $notes;
+    public $searchProduct = '';
+    public $items = []; // [product_id => [system, physical, diff, notes]]
 
-    public $search = '';
-    public $category = '';
-    public $adjustments = []; // [product_id => real_stock]
+    // Show Mode
+    public $selectedOpname;
 
     public function mount()
     {
-        // No init logic needed for now
+        $this->opnameDate = date('Y-m-d');
     }
 
-    public function saveAdjustment($productId)
+    public function toggleMode($mode)
     {
-        if (!isset($this->adjustments[$productId])) return;
-
-        $realStock = intval($this->adjustments[$productId]);
-        $product = Product::find($productId);
-
-        if (!$product) return;
-
-        $diff = $realStock - $product->stock_quantity;
-
-        if ($diff == 0) {
-            $this->dispatch('notify', message: 'Stok sudah sesuai.', type: 'info');
-            return;
+        $this->viewMode = $mode;
+        if ($mode === 'create') {
+            $this->items = [];
+            $this->notes = '';
         }
+    }
 
-        DB::transaction(function () use ($product, $realStock, $diff) {
-            $product->update(['stock_quantity' => $realStock]);
+    public function addProduct($productId)
+    {
+        $product = Product::find($productId);
+        if ($product && !isset($this->items[$productId])) {
+            $this->items[$productId] = [
+                'name' => $product->name,
+                'sku' => $product->sku,
+                'system' => $product->stock_quantity,
+                'physical' => $product->stock_quantity, // Default to match
+                'diff' => 0,
+                'notes' => ''
+            ];
+        }
+    }
 
-            InventoryTransaction::create([
-                'product_id' => $product->id,
-                'user_id' => Auth::id(),
-                'type' => 'adjustment',
-                'quantity' => $diff, // Signed quantity
-                'remaining_stock' => $realStock,
-                'notes' => 'Stock Opname: ' . ($diff > 0 ? "Surplus +$diff" : "Defisit $diff"),
-                'reference_number' => 'SO-' . date('Ymd'),
+    public function updatePhysical($productId, $val)
+    {
+        if (isset($this->items[$productId])) {
+            $this->items[$productId]['physical'] = (int) $val;
+            $this->items[$productId]['diff'] = $this->items[$productId]['physical'] - $this->items[$productId]['system'];
+        }
+    }
+
+    public function save()
+    {
+        $this->validate([
+            'opnameDate' => 'required|date',
+            'items' => 'required|array|min:1'
+        ]);
+
+        DB::transaction(function () {
+            $opname = OpnameModel::create([
+                'opname_number' => 'SO-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
+                'creator_id' => Auth::id(),
+                'opname_date' => $this->opnameDate,
+                'status' => 'submitted', // Auto submit for simplicity now
+                'notes' => $this->notes,
             ]);
+
+            foreach ($this->items as $pid => $data) {
+                StockOpnameItem::create([
+                    'stock_opname_id' => $opname->id,
+                    'product_id' => $pid,
+                    'system_stock' => $data['system'],
+                    'physical_stock' => $data['physical'],
+                    'difference' => $data['diff'],
+                    'notes' => $data['notes'] ?? '',
+                ]);
+            }
         });
 
-        $this->dispatch('notify', message: 'Stok berhasil disesuaikan!', type: 'success');
-        unset($this->adjustments[$productId]);
+        $this->dispatch('notify', message: 'Stock Opname berhasil disimpan.', type: 'success');
+        $this->toggleMode('list');
     }
 
-    public function deleteAdjustment($transactionId)
+    public function approve($id)
     {
-        $transaction = InventoryTransaction::find($transactionId);
-        
-        if (!$transaction || $transaction->type !== 'adjustment') {
-            $this->dispatch('notify', message: 'Transaksi tidak valid.', type: 'error');
-            return;
-        }
+        if (!Auth::user()->isAdmin() && !Auth::user()->isOwner()) return;
 
-        $product = Product::find($transaction->product_id);
-        
-        if ($product) {
-            // Revert stock: Subtract the transaction quantity
-            // If we added 5 (qty=5), we subtract 5.
-            // If we removed 5 (qty=-5), we subtract -5 (add 5).
-            $product->decrement('stock_quantity', $transaction->quantity);
-            
-            $transaction->delete();
-            $this->dispatch('notify', message: 'Penyesuaian dibatalkan.', type: 'success');
-        }
+        $opname = OpnameModel::with('items')->findOrFail($id);
+        if ($opname->status === 'approved') return;
+
+        DB::transaction(function () use ($opname) {
+            foreach ($opname->items as $item) {
+                if ($item->difference != 0) {
+                    // Update Product Stock
+                    $product = Product::find($item->product_id);
+                    $product->stock_quantity = $item->physical_stock;
+                    $product->save();
+
+                    // Create Adjustment Transaction
+                    InventoryTransaction::create([
+                        'product_id' => $item->product_id,
+                        'user_id' => Auth::id(),
+                        'type' => 'adjustment',
+                        'quantity' => $item->difference, // Can be negative
+                        'remaining_stock' => $item->physical_stock,
+                        'reference_number' => $opname->opname_number,
+                        'notes' => 'Stock Opname Adjustment',
+                    ]);
+                }
+            }
+
+            $opname->update(['status' => 'approved', 'approver_id' => Auth::id()]);
+        });
+
+        $this->dispatch('notify', message: 'Opname disetujui & stok diperbarui.', type: 'success');
     }
 
     public function render()
     {
-        $products = Product::with('category')
-            ->when($this->search, function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('sku', 'like', '%' . $this->search . '%');
-            })
-            ->when($this->category, function($q) {
-                $q->where('category_id', $this->category);
-            })
-            ->orderBy('name')
-            ->paginate(20);
+        $opnames = [];
+        $searchProducts = [];
 
-        $history = InventoryTransaction::with('product', 'user')
-            ->where('type', 'adjustment')
-            ->latest()
-            ->take(10)
-            ->get();
+        if ($this->viewMode === 'list') {
+            $opnames = OpnameModel::with('creator')->latest()->paginate(10);
+        }
+
+        if ($this->viewMode === 'create' && strlen($this->searchProduct) > 2) {
+            $searchProducts = Product::where('name', 'like', '%' . $this->searchProduct . '%')
+                ->orWhere('sku', 'like', '%' . $this->searchProduct . '%')
+                ->take(5)->get();
+        }
 
         return view('livewire.warehouses.stock-opname', [
-            'products' => $products,
-            'categories' => Category::all(),
-            'history' => $history
+            'opnames' => $opnames,
+            'searchProducts' => $searchProducts
         ]);
     }
 }

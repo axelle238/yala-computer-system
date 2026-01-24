@@ -15,6 +15,18 @@ class Order extends Model
         'status',
         'payment_status',
         'notes',
+        'shipping_address',
+        'shipping_city',
+        'shipping_courier',
+        'shipping_cost',
+        'shipping_tracking_number', // New
+        'shipped_at', // New
+        'points_redeemed',
+        'discount_amount',
+    ];
+
+    protected $casts = [
+        'shipped_at' => 'datetime',
     ];
 
     public function items()
