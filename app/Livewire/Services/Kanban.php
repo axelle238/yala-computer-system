@@ -3,18 +3,22 @@
 namespace App\Livewire\Services;
 
 use App\Models\ServiceTicket;
+use App\Models\ServiceTicketProgress;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.admin')]
 #[Title('Service Kanban Board')]
 class Kanban extends Component
 {
     public $statuses = [
-        'pending' => 'Pending',
-        'diagnosing' => 'Diagnosing',
-        'waiting_part' => 'Waiting Part',
-        'repairing' => 'Repairing',
-        'ready' => 'Ready for Pickup',
+        'pending' => 'Menunggu',
+        'diagnosing' => 'Sedang Diagnosa',
+        'waiting_part' => 'Tunggu Sparepart',
+        'repairing' => 'Dalam Perbaikan',
+        'ready' => 'Siap Diambil',
     ];
 
     public function updateStatus($ticketId, $newStatus)
@@ -26,22 +30,30 @@ class Kanban extends Component
             return;
         }
 
+        if ($ticket->status === $newStatus) return;
+
         $oldStatus = $ticket->status;
         $ticket->update(['status' => $newStatus]);
         
-        // Log activity is handled by Trait usually, but we can add specific flash message
-        $this->dispatch('notify', message: "Ticket #{$ticket->ticket_number} moved to " . ucfirst(str_replace('_', ' ', $newStatus)));
+        // CONSISTENCY: Create Progress Log
+        ServiceTicketProgress::create([
+            'service_ticket_id' => $ticket->id,
+            'status_label' => $newStatus,
+            'description' => "Status diperbarui via Kanban Board dari " . ucfirst(str_replace('_', ' ', $oldStatus)) . " ke " . ucfirst(str_replace('_', ' ', $newStatus)),
+            'technician_id' => Auth::id() ?? 1, // Fallback to admin if not logged in (should be auth)
+            'is_public' => true,
+        ]);
+
+        $this->dispatch('notify', message: "Ticket #{$ticket->ticket_number} dipindahkan ke " . $this->statuses[$newStatus] ?? $newStatus);
     }
 
     public function render()
     {
         // Get all active tickets grouped by status
-        // We exclude 'picked_up' and 'cancelled' from the main board to keep it clean, 
-        // or maybe show 'ready' as the last column.
-        
         $tickets = ServiceTicket::whereIn('status', array_keys($this->statuses))
-            ->with(['technician', 'items'])
-            ->orderBy('created_at') // FIFO
+            ->with(['technician', 'customerMember'])
+            ->orderBy('priority', 'desc') // Asumsi ada priority field, atau created_at
+            ->orderBy('created_at', 'asc')
             ->get()
             ->groupBy('status');
 
