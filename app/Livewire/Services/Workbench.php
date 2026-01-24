@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Services;
 
+use App\Models\CashRegister;
+use App\Models\CashTransaction;
 use App\Models\Product;
 use App\Models\ServiceTicket;
 use App\Models\ServiceTicketPart;
@@ -32,6 +34,11 @@ class Workbench extends Component
     public $customPrice = 0;
     public $serialNumberOut = '';
 
+    // Payment Logic
+    public $showPaymentModal = false;
+    public $paymentMethod = 'cash'; // cash, transfer
+    public $paymentNote = '';
+
     public function mount($id)
     {
         $this->ticket = ServiceTicket::with([
@@ -47,7 +54,7 @@ class Workbench extends Component
     public function updatedPartSearch()
     {
         if (strlen($this->partSearch) > 2) {
-            $this->searchResults = Product::with('category') // Load category for logic
+            $this->searchResults = Product::with('category')
                 ->where('name', 'like', '%' . $this->partSearch . '%')
                 ->orWhere('sku', 'like', '%' . $this->partSearch . '%')
                 ->limit(5)
@@ -69,7 +76,6 @@ class Workbench extends Component
 
     private function isTracked($product)
     {
-        // Logic: Track inventory UNLESS category is 'services'
         if ($product->category && $product->category->slug === 'services') {
             return false;
         }
@@ -93,7 +99,6 @@ class Workbench extends Component
         }
 
         DB::transaction(function () use ($isTracked) {
-            // 1. Deduct Stock & Log
             if ($isTracked) {
                 $this->selectedProduct->decrement('stock_quantity', $this->quantity);
                 
@@ -103,7 +108,7 @@ class Workbench extends Component
                     'warehouse_id' => 1,
                     'type' => 'out',
                     'quantity' => $this->quantity,
-                    'unit_price' => $this->customPrice, // Harga Jual
+                    'unit_price' => $this->customPrice,
                     'cogs' => $this->selectedProduct->buy_price ?? 0,
                     'remaining_stock' => $this->selectedProduct->stock_quantity, 
                     'reference_number' => $this->ticket->ticket_number,
@@ -111,7 +116,6 @@ class Workbench extends Component
                 ]);
             }
 
-            // 2. Add to ServiceTicketPart
             ServiceTicketPart::create([
                 'service_ticket_id' => $this->ticket->id,
                 'product_id' => $this->selectedProduct->id,
@@ -137,7 +141,6 @@ class Workbench extends Component
             $product = Product::with('category')->find($part->product_id);
             $isTracked = $product && $this->isTracked($product);
 
-            // 1. Restore Stock
             if ($isTracked) {
                 $product->increment('stock_quantity', $part->quantity);
 
@@ -145,7 +148,7 @@ class Workbench extends Component
                     'product_id' => $product->id,
                     'user_id' => Auth::id() ?? 1,
                     'warehouse_id' => 1,
-                    'type' => 'in', // Return
+                    'type' => 'in',
                     'quantity' => $part->quantity,
                     'unit_price' => $part->price_per_unit,
                     'cogs' => $product->buy_price ?? 0,
@@ -155,7 +158,6 @@ class Workbench extends Component
                 ]);
             }
 
-            // 2. Delete Item
             $part->delete();
         });
 
@@ -201,6 +203,61 @@ class Workbench extends Component
         $this->currentStatus = $newStatus;
         $this->ticket->refresh();
         session()->flash('success', 'Status tiket diperbarui.');
+    }
+
+    public function processPayment()
+    {
+        // 1. Cek Kasir Aktif
+        $activeRegister = CashRegister::where('user_id', Auth::id())
+            ->where('status', 'open')
+            ->latest()
+            ->first();
+        
+        if (!$activeRegister) {
+            $this->addError('payment', 'Anda belum membuka sesi kasir! Silakan buka kasir di menu Keuangan.');
+            return;
+        }
+
+        // 2. Hitung Total
+        $total = $this->ticket->parts->sum('subtotal');
+        if ($total <= 0) {
+            $this->addError('payment', 'Total tagihan Rp 0. Pastikan sudah input jasa/sparepart.');
+            return;
+        }
+
+        DB::transaction(function () use ($activeRegister, $total) {
+            // Catat Transaksi Masuk
+            CashTransaction::create([
+                'cash_register_id' => $activeRegister->id,
+                'transaction_number' => 'PAY-' . date('ymd') . '-' . $this->ticket->id,
+                'type' => 'in',
+                'category' => 'service_payment', // Kategori Pendapatan Servis
+                'amount' => $total,
+                'description' => "Pembayaran Servis Tiket #{$this->ticket->ticket_number}. " . $this->paymentNote,
+                'reference_id' => $this->ticket->id,
+                'reference_type' => ServiceTicket::class,
+                'created_by' => Auth::id(),
+            ]);
+
+            // Update Status Tiket
+            $this->ticket->status = 'picked_up';
+            $this->ticket->final_cost = $total;
+            $this->ticket->save();
+
+            // Log Progress
+            ServiceTicketProgress::create([
+                'service_ticket_id' => $this->ticket->id,
+                'status_label' => 'picked_up',
+                'description' => "Pembayaran diterima (Rp " . number_format($total) . ") via " . ucfirst($this->paymentMethod) . ". Unit diambil.",
+                'technician_id' => Auth::id(),
+                'is_public' => true,
+            ]);
+        });
+
+        $this->showPaymentModal = false;
+        $this->currentStatus = 'picked_up';
+        $this->ticket->refresh();
+        session()->flash('success', 'Pembayaran berhasil diproses. Tiket selesai.');
     }
 
     public function render()

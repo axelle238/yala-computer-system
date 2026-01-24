@@ -13,6 +13,12 @@
         
         <!-- Global Actions -->
         <div class="flex gap-3">
+            @if($ticket->status !== 'picked_up' && $ticket->status !== 'cancelled')
+                <button wire:click="$set('showPaymentModal', true)" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition shadow-sm flex items-center gap-2 font-bold">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    Bayar & Selesai
+                </button>
+            @endif
             <button onclick="window.print()" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition shadow-sm flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                 Cetak Tanda Terima
@@ -22,6 +28,53 @@
             </a>
         </div>
     </div>
+    
+    <!-- PAYMENT MODAL -->
+    @if($showPaymentModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+                <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Proses Pembayaran
+                </h3>
+                
+                <div class="bg-slate-50 p-4 rounded-lg mb-4 border border-slate-200">
+                    <div class="text-sm text-slate-500 mb-1">Total Tagihan</div>
+                    <div class="text-3xl font-bold text-slate-800">Rp {{ number_format($ticket->parts->sum('subtotal'), 0, ',', '.') }}</div>
+                </div>
+
+                <div class="space-y-4">
+                    @if($errors->has('payment'))
+                        <div class="bg-rose-100 border border-rose-400 text-rose-700 px-3 py-2 rounded text-sm">
+                            {{ $errors->first('payment') }}
+                        </div>
+                    @endif
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Metode Pembayaran</label>
+                        <select wire:model="paymentMethod" class="w-full rounded-lg border-slate-300">
+                            <option value="cash">Tunai (Cash)</option>
+                            <option value="transfer">Transfer Bank</option>
+                            <option value="qris">QRIS</option>
+                            <option value="debit">Kartu Debit</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Catatan Pembayaran (Opsional)</label>
+                        <textarea wire:model="paymentNote" class="w-full rounded-lg border-slate-300" rows="2" placeholder="Contoh: Transfer ke BCA a.n Yala"></textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-2 mt-6">
+                        <button wire:click="$set('showPaymentModal', false)" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
+                        <button wire:click="processPayment" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-bold shadow-lg shadow-emerald-500/30">
+                            Konfirmasi Bayar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         

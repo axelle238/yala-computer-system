@@ -3,21 +3,25 @@
 namespace App\Livewire\Finance;
 
 use App\Models\CashRegister;
-use App\Models\Order;
+use App\Models\CashTransaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Layout;
 
-#[Title('Manajemen Kasir & Shift - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Manajemen Kasir & Keuangan')]
 class CashRegisterManager extends Component
 {
     use WithPagination;
 
     // View State
-    public $viewMode = 'dashboard'; // dashboard, open_modal, close_modal, history_detail
     public $activeRegister = null;
+    public $showOpenModal = false;
+    public $showCloseModal = false;
+    public $showTransactionModal = false;
 
     // Open Register Inputs
     public $openingCash = 0;
@@ -26,10 +30,12 @@ class CashRegisterManager extends Component
     // Close Register Inputs
     public $closingCash = 0;
     public $closeNote = '';
-    public $calculatedStats = [];
-
-    // Detail View
-    public $selectedRegisterId = null;
+    
+    // Manual Transaction Inputs
+    public $trxType = 'out'; // in / out
+    public $trxCategory = 'expense'; // expense, sales, service, etc
+    public $trxAmount = 0;
+    public $trxDescription = '';
 
     public function mount()
     {
@@ -42,29 +48,20 @@ class CashRegisterManager extends Component
             ->where('status', 'open')
             ->latest()
             ->first();
-
-        // If active, calculate stats immediately for dashboard
-        if ($this->activeRegister) {
-            $this->calculateCurrentStats();
-        }
     }
 
-    public function calculateCurrentStats()
+    // --- Computed Properties for Dashboard ---
+    
+    public function getCurrentBalanceProperty()
     {
-        if (!$this->activeRegister) return;
+        if (!$this->activeRegister) return 0;
+        return $this->activeRegister->system_balance;
+    }
 
-        $orders = Order::where('cash_register_id', $this->activeRegister->id)
-            ->where('status', 'completed')
-            ->get();
-
-        $this->calculatedStats = [
-            'total_sales' => $orders->sum('total_amount'),
-            'cash_sales' => $orders->where('payment_method', 'cash')->sum('total_amount'),
-            'transfer_sales' => $orders->where('payment_method', 'transfer')->sum('total_amount'),
-            'qris_sales' => $orders->where('payment_method', 'qris')->sum('total_amount'),
-            'transaction_count' => $orders->count(),
-            'expected_cash_in_drawer' => $this->activeRegister->opening_cash + $orders->where('payment_method', 'cash')->sum('total_amount'),
-        ];
+    public function getTodayTransactionsProperty()
+    {
+        if (!$this->activeRegister) return collect();
+        return $this->activeRegister->transactions()->latest()->get();
     }
 
     // --- Actions ---
@@ -83,16 +80,9 @@ class CashRegisterManager extends Component
             'note' => $this->openNote,
         ]);
 
-        $this->dispatch('notify', message: 'Shift Kasir Berhasil Dibuka!', type: 'success');
-        $this->reset(['openingCash', 'openNote']);
+        session()->flash('success', 'Shift Kasir Berhasil Dibuka!');
+        $this->reset(['openingCash', 'openNote', 'showOpenModal']);
         $this->checkActiveRegister();
-        $this->viewMode = 'dashboard';
-    }
-
-    public function prepareClose()
-    {
-        $this->calculateCurrentStats();
-        $this->viewMode = 'close_modal';
     }
 
     public function closeRegister()
@@ -103,7 +93,7 @@ class CashRegisterManager extends Component
 
         if (!$this->activeRegister) return;
 
-        $expected = $this->calculatedStats['expected_cash_in_drawer'];
+        $expected = $this->currentBalance;
         $variance = $this->closingCash - $expected;
 
         $this->activeRegister->update([
@@ -112,41 +102,54 @@ class CashRegisterManager extends Component
             'expected_cash' => $expected,
             'variance' => $variance,
             'status' => 'closed',
-            'note' => $this->closeNote . ($variance != 0 ? " [Selisih: " . number_format($variance) . "]" : ""),
+            'note' => $this->closeNote . ($variance != 0 ? " [Selisih: " . number_format($variance, 0, ',', '.') . "]" : ""),
         ]);
 
-        $this->dispatch('notify', message: 'Shift Kasir Ditutup. Laporan tersimpan.', type: 'success');
-        $this->reset(['closingCash', 'closeNote']);
+        session()->flash('success', 'Shift Kasir Ditutup. Laporan tersimpan.');
+        $this->reset(['closingCash', 'closeNote', 'showCloseModal']);
         $this->activeRegister = null;
-        $this->viewMode = 'dashboard';
     }
 
-    public function viewDetail($id)
+    public function saveTransaction()
     {
-        $this->selectedRegisterId = $id;
-        $this->viewMode = 'history_detail';
+        if (!$this->activeRegister) return;
+
+        $this->validate([
+            'trxAmount' => 'required|numeric|min:1',
+            'trxDescription' => 'required|string|min:3',
+            'trxCategory' => 'required',
+        ]);
+
+        // Cek saldo cukup jika pengeluaran
+        if ($this->trxType == 'out' && $this->trxAmount > $this->currentBalance) {
+            $this->addError('trxAmount', 'Saldo kas tidak mencukupi!');
+            return;
+        }
+
+        CashTransaction::create([
+            'cash_register_id' => $this->activeRegister->id,
+            'transaction_number' => 'TRX-' . date('ymd') . '-' . rand(1000, 9999),
+            'type' => $this->trxType,
+            'category' => $this->trxCategory,
+            'amount' => $this->trxAmount,
+            'description' => $this->trxDescription,
+            'created_by' => Auth::id(),
+        ]);
+
+        session()->flash('success', 'Transaksi berhasil dicatat.');
+        $this->reset(['trxAmount', 'trxDescription', 'showTransactionModal']);
+        $this->checkActiveRegister(); // Refresh
     }
 
     public function render()
     {
-        // History Data
         $history = CashRegister::with('user')
-            ->where('user_id', Auth::id()) // Or remove this if admin wants to see all
+            ->where('user_id', Auth::id())
             ->latest()
-            ->paginate(10);
-            
-        // Detail Data
-        $detailRegister = null;
-        $detailOrders = [];
-        if ($this->selectedRegisterId) {
-            $detailRegister = CashRegister::find($this->selectedRegisterId);
-            $detailOrders = Order::where('cash_register_id', $this->selectedRegisterId)->get();
-        }
+            ->paginate(5);
 
         return view('livewire.finance.cash-register-manager', [
-            'history' => $history,
-            'detailRegister' => $detailRegister,
-            'detailOrders' => $detailOrders
+            'history' => $history
         ]);
     }
 }
