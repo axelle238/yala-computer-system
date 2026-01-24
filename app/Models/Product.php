@@ -41,6 +41,7 @@ class Product extends Model
         'min_stock_alert',
         'image_path',
         'is_active',
+        'has_serial_number',
     ];
 
     /**
@@ -53,7 +54,13 @@ class Product extends Model
         'buy_price' => 'decimal:2',
         'sell_price' => 'decimal:2',
         'is_active' => 'boolean',
+        'has_serial_number' => 'boolean',
     ];
+
+    public function serials()
+    {
+        return $this->hasMany(ProductSerial::class);
+    }
 
     /**
      * Get the category that owns the product.

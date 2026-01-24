@@ -139,7 +139,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // Purchase Orders (Procurement)
     Route::get('/purchase-orders', \App\Livewire\PurchaseOrders\Index::class)->name('purchase-orders.index');
-    Route::get('/purchase-orders/receive', \App\Livewire\Procurement\GoodsReceive\Form::class)->name('purchase-orders.receive');
+    Route::get('/purchase-orders/receive', \App\Livewire\Procurement\GoodsReceive\Create::class)->name('purchase-orders.receive');
     Route::get('/purchase-orders/create', \App\Livewire\PurchaseOrders\Form::class)->name('purchase-orders.create');
     Route::get('/purchase-orders/{id}/edit', \App\Livewire\PurchaseOrders\Form::class)->name('purchase-orders.edit');
     Route::get('/purchase-orders/{po}', \App\Livewire\PurchaseOrders\Show::class)->name('purchase-orders.show');
