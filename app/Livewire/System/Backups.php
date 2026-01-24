@@ -2,67 +2,78 @@
 
 namespace App\Livewire\System;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.app')]
-#[Title('Backup Manager - Yala Computer')]
+#[Title('Database Backups - Yala Computer')]
 class Backups extends Component
 {
-    public function render()
+    public function getBackupsProperty()
     {
-        // List files in storage/app/backups
-        $files = collect(Storage::files('backups'))
-            ->map(function ($file) {
-                return [
-                    'name' => basename($file),
-                    'size' => Storage::size($file),
-                    'last_modified' => Storage::lastModified($file),
-                    'path' => $file
-                ];
-            })
-            ->sortByDesc('last_modified');
+        $files = Storage::files('backups');
+        $backups = [];
+        
+        foreach ($files as $file) {
+            $backups[] = [
+                'name' => basename($file),
+                'path' => $file,
+                'size' => $this->formatBytes(Storage::size($file)),
+                'date' => date('Y-m-d H:i:s', Storage::lastModified($file)),
+            ];
+        }
 
-        return view('livewire.system.backups', [
-            'backups' => $files
-        ]);
+        return collect($backups)->sortByDesc('date');
     }
 
     public function createBackup()
     {
-        // Simple Database Dump Logic
-        // Note: This relies on mysqldump being in PATH. If not, it fails silently or with error.
-        
-        $filename = 'backup-' . date('Y-m-d-H-i-s') . '.sql';
-        $path = storage_path('app/backups/' . $filename);
-        
-        // Ensure directory exists
-        if (!file_exists(storage_path('app/backups'))) {
-            mkdir(storage_path('app/backups'), 0755, true);
-        }
-
-        $dbName = env('DB_DATABASE');
-        $dbUser = env('DB_USERNAME');
-        $dbPass = env('DB_PASSWORD');
-        $dbHost = env('DB_HOST');
-
-        // Command for Windows (XAMPP usually has mysqldump) or Linux
-        // Warning: Using password in command line is not secure for production logs, but okay for internal tool MVP.
-        $command = "mysqldump --user={$dbUser} --password={$dbPass} --host={$dbHost} {$dbName} > \"{$path}\"" ;
-        
-try {
-            exec($command, $output, $returnVar);
+        try {
+            $filename = 'backup-' . date('Y-m-d-His') . '.sql';
+            $path = storage_path('app/backups/' . $filename);
             
-            if ($returnVar === 0 && file_exists($path) && filesize($path) > 0) {
-                $this->dispatch('notify', message: 'Backup database berhasil dibuat!', type: 'success');
-            } else {
-                $this->dispatch('notify', message: 'Gagal membuat backup. Pastikan mysqldump terinstall.', type: 'error');
+            // Ensure directory exists
+            if (!Storage::exists('backups')) {
+                Storage::makeDirectory('backups');
             }
-        } catch (
-Exception $e) {
-            $this->dispatch('notify', message: 'Error: ' . $e->getMessage(), type: 'error');
+
+            // Simple PHP MySQL Dump Logic
+            $tables = DB::select('SHOW TABLES');
+            $content = "-- Database Backup: " . config('app.name') . "\n";
+            $content .= "-- Date: " . date('Y-m-d H:i:s') . "\n\n";
+            $content .= "SET FOREIGN_KEY_CHECKS=0;\n\n";
+
+            foreach ($tables as $tableObj) {
+                $table = reset($tableObj);
+                
+                // Create Table Structure
+                $createTable = DB::select("SHOW CREATE TABLE `$table`")[0]->{'Create Table'};
+                $content .= "DROP TABLE IF EXISTS `$table`;\n";
+                $content .= $createTable . ";\n\n";
+
+                // Insert Data
+                $rows = DB::table($table)->get();
+                foreach ($rows as $row) {
+                    $values = array_map(function ($value) {
+                        if (is_null($value)) return "NULL";
+                        return "'" . addslashes($value) . "'";
+                    }, (array) $row);
+                    
+                    $content .= "INSERT INTO `$table` VALUES (" . implode(", ", $values) . ");\n";
+                }
+                $content .= "\n";
+            }
+
+            $content .= "SET FOREIGN_KEY_CHECKS=1;\n";
+
+            Storage::put('backups/' . $filename, $content);
+            
+            $this->dispatch('notify', message: 'Backup database berhasil dibuat!', type: 'success');
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: 'Gagal membuat backup: ' . $e->getMessage(), type: 'error');
         }
     }
 
@@ -75,5 +86,20 @@ Exception $e) {
     {
         Storage::delete($path);
         $this->dispatch('notify', message: 'File backup dihapus.', type: 'success');
+    }
+
+    private function formatBytes($bytes, $precision = 2) 
+    { 
+        $units = ['B', 'KB', 'MB', 'GB', 'TB']; 
+        $bytes = max($bytes, 0); 
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
+        $pow = min($pow, count($units) - 1); 
+        $bytes /= pow(1024, $pow); 
+        return round($bytes, $precision) . ' ' . $units[$pow]; 
+    }
+
+    public function render()
+    {
+        return view('livewire.system.backups');
     }
 }

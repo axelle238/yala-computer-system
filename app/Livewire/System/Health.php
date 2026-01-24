@@ -2,50 +2,104 @@
 
 namespace App\Livewire\System;
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.app')]
-#[Title('System Health - Yala Computer')]
+#[Title('Kesehatan Sistem & Log - Yala Computer')]
 class Health extends Component
 {
-    public function render()
+    public $activeTab = 'health'; // health, logs, cache
+    
+    // Log Viewer Data
+    public $logContent = [];
+    public $logFile = 'laravel.log';
+
+    public function mount()
     {
-        // 1. Database Check
+        $this->readLogs();
+    }
+
+    // --- Actions ---
+
+    public function runCommand($command)
+    {
         try {
-            DB::connection()->getPdo();
-            $dbStatus = 'OK';
-            $dbSize = DB::table('information_schema.tables')
-                ->selectRaw('SUM(data_length + index_length) / 1024 / 1024 as size')
-                ->where('table_schema', env('DB_DATABASE', 'yala_computer'))
-                ->value('size');
+            Artisan::call($command);
+            $output = Artisan::output();
+            $this->dispatch('notify', message: "Perintah '$command' sukses! Output: " . substr($output, 0, 100), type: 'success');
         } catch (\Exception $e) {
-            $dbStatus = 'ERROR: ' . $e->getMessage();
-            $dbSize = 0;
+            $this->dispatch('notify', message: "Gagal: " . $e->getMessage(), type: 'error');
+        }
+    }
+
+    public function clearLogs()
+    {
+        $path = storage_path('logs/' . $this->logFile);
+        if (File::exists($path)) {
+            File::put($path, '');
+            $this->readLogs();
+            $this->dispatch('notify', message: 'Log berhasil dibersihkan.', type: 'success');
+        }
+    }
+
+    public function readLogs()
+    {
+        $path = storage_path('logs/' . $this->logFile);
+        if (!File::exists($path)) {
+            $this->logContent = ['Log file not found.'];
+            return;
         }
 
-        // 2. Storage Check
-        $storageStatus = is_writable(storage_path()) ? 'Writable' : 'Not Writable';
-        $diskFree = disk_free_space(base_path()) / 1024 / 1024 / 1024; // GB
-        $diskTotal = disk_total_space(base_path()) / 1024 / 1024 / 1024; // GB
+        // Read last 1000 lines for performance
+        $content = File::get($path);
+        
+        // Split and reverse to show newest first
+        $lines = explode("\n", $content);
+        $lines = array_reverse(array_filter($lines));
+        $this->logContent = array_slice($lines, 0, 200); // Take top 200
+    }
 
-        // 3. Cache Check
-        $cacheStatus = Cache::store()->getStore() instanceof \Illuminate\Cache\ArrayStore ? 'Array (Non-Persistent)' : 'Active';
+    // --- Metrics ---
 
-        // 4. Server Info
-        $serverInfo = [
-            'php_version' => phpversion(),
-            'server_os' => php_uname('s') . ' ' . php_uname('r'),
-            'laravel_version' => app()->version(),
-            'timezone' => config('app.timezone'),
+    public function getSystemInfoProperty()
+    {
+        return [
+            'php' => phpversion(),
+            'laravel' => app()->version(),
+            'server' => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
+            'db_connection' => $this->checkDatabase(),
+            'disk_free' => $this->formatBytes(disk_free_space(base_path())),
+            'disk_total' => $this->formatBytes(disk_total_space(base_path())),
         ];
+    }
 
-        return view('livewire.system.health', compact(
-            'dbStatus', 'dbSize', 'storageStatus', 'diskFree', 'diskTotal', 'cacheStatus', 'serverInfo'
-        ));
+    private function checkDatabase()
+    {
+        try {
+            DB::connection()->getPdo();
+            return 'Terhubung (' . DB::connection()->getDatabaseName() . ')';
+        } catch (\Exception $e) {
+            return 'Error: ' . $e->getMessage();
+        }
+    }
+
+    private function formatBytes($bytes, $precision = 2) 
+    { 
+        $units = ['B', 'KB', 'MB', 'GB', 'TB']; 
+        $bytes = max($bytes, 0); 
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
+        $pow = min($pow, count($units) - 1); 
+        $bytes /= pow(1024, $pow); 
+        return round($bytes, $precision) . ' ' . $units[$pow]; 
+    }
+
+    public function render()
+    {
+        return view('livewire.system.health');
     }
 }

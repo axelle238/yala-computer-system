@@ -232,11 +232,18 @@ return [
                     'permission' => 'setting.view',
                 ],
                 [
-                    'label' => 'Manajemen Aset',
-                    'route' => 'assets.index',
-                    'icon'  => 'cube-transparent', // Need to create icon
-                    'roles' => ['admin', 'owner'],
-                    'permission' => 'setting.edit', // Or specific permission
+                    'label' => 'Kesehatan Sistem',
+                    'route' => 'system.health',
+                    'icon'  => 'server', // Need icon
+                    'roles' => ['admin'], // Admin only
+                    'permission' => 'setting.manage', // High privilege
+                ],
+                [
+                    'label' => 'Backup Database',
+                    'route' => 'system.backups',
+                    'icon'  => 'database', // Need icon
+                    'roles' => ['admin'],
+                    'permission' => 'setting.manage',
                 ],
             ]
         ],
