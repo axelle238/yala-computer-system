@@ -3,11 +3,11 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
             <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
-                <span x-text="tab === 'executive' ? 'Executive' : 'Operational'"></span> <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-500">Dashboard</span>
+                <span x-text="tab === 'executive' ? 'Eksekutif' : 'Operasional'"></span> <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-500">Dashboard</span>
             </h2>
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">
-                <span x-show="tab === 'executive'">Business Intelligence & Strategic Overview.</span>
-                <span x-show="tab === 'operational'">Day-to-day Management & Action Items.</span>
+                <span x-show="tab === 'executive'">Analisis Bisnis & Tinjauan Strategis.</span>
+                <span x-show="tab === 'operational'">Manajemen Harian & Tindakan Cepat.</span>
             </p>
         </div>
         
@@ -17,12 +17,12 @@
                 <button @click="tab = 'executive'" 
                     :class="tab === 'executive' ? 'bg-white dark:bg-slate-700 shadow text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
                     class="px-4 py-2 rounded-md text-sm font-bold transition-all">
-                    Executive
+                    Eksekutif
                 </button>
                 <button @click="tab = 'operational'" 
                     :class="tab === 'operational' ? 'bg-white dark:bg-slate-700 shadow text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
                     class="px-4 py-2 rounded-md text-sm font-bold transition-all flex items-center gap-2">
-                    Operational
+                    Operasional
                     @if(($operational['unassignedServices'] + $operational['pendingOpnames'] + $operational['pendingPO']) > 0)
                         <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
                     @endif
@@ -30,7 +30,7 @@
             </div>
             
             <div class="text-right hidden md:block">
-                <p class="text-xs font-bold uppercase text-slate-400">Last Updated</p>
+                <p class="text-xs font-bold uppercase text-slate-400">Terakhir Update</p>
                 <p class="font-mono font-bold text-slate-700 dark:text-slate-200">{{ now()->format('d M H:i') }}</p>
             </div>
         </div>
@@ -43,33 +43,33 @@
             <!-- Revenue -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
                 <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl -mr-6 -mt-6 group-hover:bg-emerald-500/20 transition-all"></div>
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Monthly Revenue</p>
-                <h3 class="text-2xl font-black font-tech text-emerald-600 mt-2">Rp {{ number_format($stats['monthlyRevenue'] / 1000000, 1, ',', '.') }}M</h3>
-                <p class="text-xs text-slate-400 mt-1">Omzet bulan ini</p>
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Omzet Bulan Ini</p>
+                <h3 class="text-2xl font-black font-tech text-emerald-600 mt-2">Rp {{ number_format($stats['monthlyRevenue'] / 1000000, 1, ',', '.') }} Jt</h3>
+                <p class="text-xs text-slate-400 mt-1">Total pendapatan kotor</p>
             </div>
 
             <!-- Inventory Value -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
                 <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl -mr-6 -mt-6 group-hover:bg-blue-500/20 transition-all"></div>
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Inventory Value</p>
-                <h3 class="text-2xl font-black font-tech text-slate-900 dark:text-white mt-2">Rp {{ number_format($stats['totalValue'] / 1000000, 1, ',', '.') }}M</h3>
-                <p class="text-xs text-slate-400 mt-1">Total aset stok</p>
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Nilai Aset Stok</p>
+                <h3 class="text-2xl font-black font-tech text-slate-900 dark:text-white mt-2">Rp {{ number_format($stats['totalValue'] / 1000000, 1, ',', '.') }} Jt</h3>
+                <p class="text-xs text-slate-400 mt-1">Total modal barang</p>
             </div>
 
             <!-- Active Tickets -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
                 <div class="absolute top-0 right-0 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl -mr-6 -mt-6 group-hover:bg-orange-500/20 transition-all"></div>
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Active Service</p>
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Servis Aktif</p>
                 <h3 class="text-3xl font-black font-tech text-slate-900 dark:text-white mt-2">{{ $stats['activeTickets'] }}</h3>
-                <p class="text-xs text-slate-400 mt-1">Tiket servis berjalan</p>
+                <p class="text-xs text-slate-400 mt-1">Unit sedang dikerjakan</p>
             </div>
 
             <!-- Low Stock -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
                 <div class="absolute top-0 right-0 w-24 h-24 bg-rose-500/10 rounded-full blur-2xl -mr-6 -mt-6 group-hover:bg-rose-500/20 transition-all"></div>
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Critical Stock</p>
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Stok Kritis</p>
                 <h3 class="text-3xl font-black font-tech text-rose-500 mt-2">{{ $stats['lowStock'] }}</h3>
-                <p class="text-xs text-slate-400 mt-1">Produk perlu restock</p>
+                <p class="text-xs text-slate-400 mt-1">Perlu restock segera</p>
             </div>
         </div>
 
@@ -101,16 +101,16 @@
                     <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
                         <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
                             <svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                            AI Stock Forecast
+                            Prediksi Habis Stok (AI Forecast)
                         </h3>
-                        <span class="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-lg font-bold">Risk: High</span>
+                        <span class="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-lg font-bold">Resiko Tinggi</span>
                     </div>
                     <table class="w-full text-left text-sm">
                         <thead class="bg-slate-50 dark:bg-slate-900 text-slate-500 font-bold uppercase text-xs">
                             <tr>
                                 <th class="px-6 py-4">Produk</th>
                                 <th class="px-6 py-4 text-center">Stok Kini</th>
-                                <th class="px-6 py-4 text-center">Avg. Sales/Day</th>
+                                <th class="px-6 py-4 text-center">Rata2 Jual/Hari</th>
                                 <th class="px-6 py-4 text-center">Estimasi Habis</th>
                             </tr>
                         </thead>
@@ -154,7 +154,7 @@
                 <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-lg">
                     <h3 class="font-bold mb-6 flex items-center gap-2">
                         <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                        Top Technician (Bulan Ini)
+                        Top Teknisi (Bulan Ini)
                     </h3>
                     <div class="space-y-4">
                         @foreach($analytics['technicians'] as $tech)
@@ -165,7 +165,7 @@
                                 </div>
                                 <div class="text-right">
                                     <p class="font-mono font-bold text-yellow-400">{{ $tech['value'] }}</p>
-                                    <p class="text-[10px] text-slate-500 uppercase">Tiket</p>
+                                    <p class="text-[10px] text-slate-500 uppercase">Tiket Selesai</p>
                                 </div>
                             </div>
                         @endforeach
@@ -190,8 +190,8 @@
                         <span class="bg-rose-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">{{ $operational['unassignedServices'] }} Pending</span>
                     @endif
                 </div>
-                <h3 class="font-bold text-slate-800 dark:text-white text-lg">Unassigned Tickets</h3>
-                <p class="text-sm text-slate-500 mt-1">Service tickets needing technician assignment.</p>
+                <h3 class="font-bold text-slate-800 dark:text-white text-lg">Tiket Servis Baru</h3>
+                <p class="text-sm text-slate-500 mt-1">Servis masuk yang belum dapat teknisi.</p>
             </a>
 
             <!-- Pending PO -->
@@ -201,11 +201,11 @@
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                     </div>
                     @if($operational['pendingPO'] > 0)
-                        <span class="bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full">{{ $operational['pendingPO'] }} Approval</span>
+                        <span class="bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full">{{ $operational['pendingPO'] }} Menunggu</span>
                     @endif
                 </div>
-                <h3 class="font-bold text-slate-800 dark:text-white text-lg">Pending Purchase Orders</h3>
-                <p class="text-sm text-slate-500 mt-1">Procurement orders waiting for approval.</p>
+                <h3 class="font-bold text-slate-800 dark:text-white text-lg">Persetujuan PO</h3>
+                <p class="text-sm text-slate-500 mt-1">Pesanan pembelian ke supplier.</p>
             </a>
 
             <!-- Pending Opname -->
@@ -218,8 +218,8 @@
                         <span class="bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-full">{{ $operational['pendingOpnames'] }} Review</span>
                     @endif
                 </div>
-                <h3 class="font-bold text-slate-800 dark:text-white text-lg">Stock Adjustment</h3>
-                <p class="text-sm text-slate-500 mt-1">Inventory counts needing verification.</p>
+                <h3 class="font-bold text-slate-800 dark:text-white text-lg">Audit Stok (Opname)</h3>
+                <p class="text-sm text-slate-500 mt-1">Hasil hitung stok butuh validasi.</p>
             </a>
         </div>
 
@@ -229,9 +229,9 @@
                 <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
                     <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
                         <svg class="w-5 h-5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                        Critical Low Stock
+                        Stok Menipis / Kritis
                     </h3>
-                    <a href="{{ route('products.index') }}" class="text-xs text-indigo-600 font-bold hover:underline">View All</a>
+                    <a href="{{ route('products.index') }}" class="text-xs text-indigo-600 font-bold hover:underline">Lihat Semua</a>
                 </div>
                 <table class="w-full text-left text-sm">
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
@@ -243,7 +243,7 @@
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200">
-                                        {{ $product->stock_quantity }} Remaining
+                                        Sisa: {{ $product->stock_quantity }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right">
@@ -252,7 +252,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="px-6 py-8 text-center text-slate-400">All stock levels are healthy.</td>
+                                <td colspan="3" class="px-6 py-8 text-center text-slate-400">Stok aman terkendali.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -261,34 +261,34 @@
 
             <!-- Quick Access / Shortcuts -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
-                <h3 class="font-bold text-slate-800 dark:text-white mb-6">Quick Actions</h3>
+                <h3 class="font-bold text-slate-800 dark:text-white mb-6">Akses Cepat</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <a href="{{ route('services.kanban') }}" class="flex flex-col items-center justify-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 hover:bg-indigo-50 hover:border-indigo-200 dark:hover:bg-indigo-900/20 dark:hover:border-indigo-500/50 transition text-center group">
                         <span class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center mb-2 group-hover:scale-110 transition">
                             <svg class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
                         </span>
-                        <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">Service Board</span>
+                        <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">Papan Servis</span>
                     </a>
                     
                     <a href="{{ route('transactions.create') }}" class="flex flex-col items-center justify-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 hover:bg-emerald-50 hover:border-emerald-200 dark:hover:bg-emerald-900/20 dark:hover:border-emerald-500/50 transition text-center group">
                         <span class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center mb-2 group-hover:scale-110 transition">
                             <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                         </span>
-                        <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">New Sale</span>
+                        <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">Transaksi Baru</span>
                     </a>
 
                     <a href="{{ route('employees.attendance') }}" class="flex flex-col items-center justify-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 dark:hover:border-blue-500/50 transition text-center group">
                         <span class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center mb-2 group-hover:scale-110 transition">
                             <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </span>
-                        <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">Attendance</span>
+                        <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">Absensi</span>
                     </a>
 
                     <a href="{{ route('purchase-requisitions.create') }}" class="flex flex-col items-center justify-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20 dark:hover:border-orange-500/50 transition text-center group">
                         <span class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center mb-2 group-hover:scale-110 transition">
                             <svg class="w-5 h-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                         </span>
-                        <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">Request Item</span>
+                        <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">Request Barang</span>
                     </a>
                 </div>
             </div>
