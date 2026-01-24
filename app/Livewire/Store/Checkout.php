@@ -247,6 +247,20 @@ class Checkout extends Component
                 $item['product']->decrement('stock_quantity', $item['qty']);
             }
 
+            // Handle PC Assembly Request
+            if (Session::has('pc_assembly_data')) {
+                $assemblyData = Session::get('pc_assembly_data');
+                
+                \App\Models\PcAssembly::create([
+                    'order_id' => $order->id,
+                    'build_name' => $assemblyData['build_name'],
+                    'status' => 'queued',
+                    'specs_snapshot' => json_encode($assemblyData['specs']),
+                ]);
+
+                Session::forget('pc_assembly_data');
+            }
+
             if (Auth::check() && $this->pointsToRedeem > 0) {
                 Auth::user()->decrement('points', $this->pointsToRedeem);
             }

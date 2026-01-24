@@ -119,19 +119,52 @@
                             <input type="text" wire:model.blur="buildName" class="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500">
                         </div>
 
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-slate-500 font-bold">Estimasi Daya</span>
-                            <span class="font-mono font-bold text-slate-900 dark:text-white flex items-center gap-1">
-                                <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" /></svg>
-                                {{ $estimatedWattage }} Watt
-                            </span>
+                        <!-- Wattage Meter -->
+                        <div class="mb-6 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold uppercase text-slate-500">Estimasi Daya</span>
+                                <span class="font-mono font-bold text-slate-900 dark:text-white">{{ $estimatedWattage }} Watt</span>
+                            </div>
+                            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                                @php
+                                    $percent = min(($estimatedWattage / 850) * 100, 100);
+                                    $color = 'bg-emerald-500';
+                                    if($estimatedWattage > 500) $color = 'bg-yellow-500';
+                                    if($estimatedWattage > 750) $color = 'bg-red-500';
+                                @endphp
+                                <div class="{{ $color }} h-2.5 rounded-full transition-all duration-500" style="width: {{ $percent }}%"></div>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-2 text-right">Disarankan PSU minimal {{ $estimatedWattage + 100 }}W</p>
+                        </div>
+
+                        <!-- Assembly Service Option -->
+                        <div class="mb-6">
+                            <label class="flex items-start gap-3 p-3 border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 rounded-xl cursor-pointer hover:bg-blue-100 transition-colors">
+                                <input type="checkbox" wire:model.live="addAssemblyService" class="mt-1 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                                <div>
+                                    <span class="block font-bold text-slate-800 dark:text-white text-sm">Rakitkan PC Ini (+Rp 150.000)</span>
+                                    <span class="block text-xs text-slate-500 mt-1">Termasuk perakitan profesional, cable management rapi, update BIOS, dan instalasi Windows (Trial).</span>
+                                </div>
+                            </label>
                         </div>
 
                         <div class="border-t border-slate-100 dark:border-slate-700 pt-6 pb-2">
-                            <p class="text-slate-500 text-sm font-bold uppercase mb-1">Total Estimasi Harga</p>
-                            <h2 class="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-                                Rp {{ number_format($totalPrice, 0, ',', '.') }}
-                            </h2>
+                            <div class="flex justify-between items-center mb-2 text-sm text-slate-500">
+                                <span>Subtotal Part</span>
+                                <span>Rp {{ number_format($addAssemblyService ? $totalPrice - 150000 : $totalPrice, 0, ',', '.') }}</span>
+                            </div>
+                            @if($addAssemblyService)
+                                <div class="flex justify-between items-center mb-4 text-sm text-blue-600 font-bold">
+                                    <span>Jasa Rakit</span>
+                                    <span>Rp 150.000</span>
+                                </div>
+                            @endif
+                            <div class="flex justify-between items-center">
+                                <p class="text-slate-500 text-sm font-bold uppercase mb-1">Total Estimasi</p>
+                                <h2 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+                                    Rp {{ number_format($totalPrice, 0, ',', '.') }}
+                                </h2>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3 mt-8">

@@ -24,6 +24,7 @@ class PcBuilder extends Component
     public $selection = []; 
     public $totalPrice = 0;
     public $estimatedWattage = 0;
+    public $addAssemblyService = false; // New
     
     // Status Messages
     public $compatibilityIssues = [];
@@ -105,6 +106,11 @@ class PcBuilder extends Component
 
     // --- Calculation & Logic ---
 
+    public function updatedAddAssemblyService()
+    {
+        $this->recalculate();
+    }
+
     public function recalculate()
     {
         $this->totalPrice = 0;
@@ -116,7 +122,12 @@ class PcBuilder extends Component
             }
         }
 
-        // 2. Compatibility Service
+        // 2. Assembly Fee
+        if ($this->addAssemblyService) {
+            $this->totalPrice += 150000;
+        }
+
+        // 3. Compatibility Service
         $service = new PcCompatibilityService();
         $result = $service->checkCompatibility($this->selection);
 
@@ -156,20 +167,45 @@ class PcBuilder extends Component
             if ($item) {
                 $id = $item['id'];
                 if (isset($cart[$id])) {
-                    $cart[$id]['quantity']++;
+                    $cart[$id]['quantity']++; // Warning: Simple increment might not be desired for PC parts
                 } else {
-                    $cart[$id] = [
-                        'name' => $item['name'],
-                        'price' => $item['price'],
-                        'quantity' => 1,
-                        'image' => $item['image']
-                    ];
+                    $cart[$id] = 1; // Correct format based on Checkout.php: $cart[$id] = $qty
                 }
                 $count++;
             }
         }
 
         if ($count > 0) {
+            // Handle Assembly Service
+            if ($this->addAssemblyService) {
+                // Find or Create Service Product
+                $serviceProduct = Product::firstOrCreate(
+                    ['sku' => 'SVC-ASSEMBLY'],
+                    [
+                        'name' => 'Jasa Rakit PC Professional',
+                        'slug' => 'jasa-rakit-pc-professional',
+                        'description' => 'Jasa perakitan, instalasi OS (Trial), dan cable management premium.',
+                        'sell_price' => 150000,
+                        'cost_price' => 0,
+                        'stock_quantity' => 9999,
+                        'category_id' => 1, // Fallback ID
+                        'is_active' => true,
+                        'track_inventory' => false
+                    ]
+                );
+                
+                $cart[$serviceProduct->id] = 1;
+
+                // Save Build Metadata for Checkout/Assembly Manager
+                session()->put('pc_assembly_data', [
+                    'build_name' => $this->buildName,
+                    'specs' => $this->selection,
+                    'wattage' => $this->estimatedWattage
+                ]);
+            } else {
+                session()->forget('pc_assembly_data');
+            }
+
             session()->put('cart', $cart);
             $this->dispatch('cart-updated'); // Event for Cart Badge
             return redirect()->route('cart');

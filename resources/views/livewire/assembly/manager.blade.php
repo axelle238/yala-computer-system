@@ -1,124 +1,189 @@
-<div class="space-y-8 animate-fade-in-up">
-    <!-- Header -->
-    <div class="flex justify-between items-center">
+<div class="p-6">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <div>
-            <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
-                PC <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-500">Assembly</span>
-            </h2>
-            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Pipeline produksi rakitan komputer.</p>
+            <h1 class="text-2xl font-bold text-gray-800">PC Assembly Manager</h1>
+            <p class="text-gray-500">Manage custom PC builds and assembly workflows.</p>
         </div>
-        <button wire:click="$set('showCreateModal', true)" class="px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-            Job Baru
-        </button>
+        <div class="flex gap-2">
+            <select wire:model.live="statusFilter" class="rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500">
+                <option value="">All Status</option>
+                <option value="queued">Queued</option>
+                <option value="picking">Picking Parts</option>
+                <option value="building">Building</option>
+                <option value="testing">Testing (QC)</option>
+                <option value="completed">Completed</option>
+            </select>
+            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search Order / Customer..." class="rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500">
+        </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="flex gap-2 border-b border-slate-200 dark:border-slate-700 pb-1 overflow-x-auto">
-        @foreach(['queued' => 'Menunggu (Antrian)', 'building' => 'Sedang Dirakit', 'testing' => 'Testing & QC', 'completed' => 'Selesai'] as $key => $label)
-            <button wire:click="$set('activeTab', '{{ $key }}')" 
-                class="px-4 py-2 text-sm font-bold whitespace-nowrap transition-all {{ $activeTab === $key ? 'text-violet-600 border-b-2 border-violet-500' : 'text-slate-500 hover:text-slate-800' }}">
-                {{ $label }}
-            </button>
-        @endforeach
-    </div>
-
-    <!-- Kanban Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        @forelse($assemblies as $job)
-            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all p-6 flex flex-col h-full relative overflow-hidden group">
-                <!-- Status Stripe -->
-                <div class="absolute top-0 left-0 w-1 h-full 
-                    {{ $job->status === 'queued' ? 'bg-slate-400' : '' }}
-                    {{ $job->status === 'building' ? 'bg-blue-500' : '' }}
-                    {{ $job->status === 'testing' ? 'bg-amber-500' : '' }}
-                    {{ $job->status === 'completed' ? 'bg-emerald-500' : '' }}
-                "></div>
-
-                <div class="flex justify-between items-start mb-4 pl-3">
-                    <div>
-                        <span class="text-xs font-mono text-slate-400">Order #{{ $job->order->order_number }}</span>
-                        <h3 class="font-bold text-lg text-slate-800 dark:text-white leading-tight">{{ $job->build_name }}</h3>
-                    </div>
-                    @if($job->status === 'queued')
-                        <button wire:click="takeJob({{ $job->id }})" class="px-3 py-1 bg-violet-100 text-violet-700 rounded-lg text-xs font-bold hover:bg-violet-200 transition">
-                            Ambil Job
-                        </button>
-                    @endif
-                </div>
-
-                <div class="bg-slate-50 dark:bg-slate-900 rounded-xl p-3 mb-4 border border-slate-100 dark:border-slate-700 flex-1">
-                    <p class="text-xs font-bold text-slate-500 uppercase mb-1">Spesifikasi Singkat:</p>
-                    <p class="text-xs text-slate-700 dark:text-slate-300 line-clamp-4">{{ $job->specs_snapshot }}</p>
-                </div>
-
-                <div class="pl-3 space-y-3">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600">
-                            {{ substr($job->technician->name ?? '?', 0, 1) }}
-                        </div>
-                        <span class="text-xs font-bold text-slate-600 dark:text-slate-400">
-                            {{ $job->technician->name ?? 'Belum ada teknisi' }}
-                        </span>
-                    </div>
-
-                    <!-- Action Controls -->
-                    @if($job->technician_id == auth()->id() || auth()->user()->isAdmin())
-                        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
-                            @if($job->status === 'building')
-                                <button wire:click="updateStatus({{ $job->id }}, 'testing')" class="col-span-2 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold transition">
-                                    Mulai Testing (QC)
-                                </button>
-                            @elseif($job->status === 'testing')
-                                <button wire:click="updateStatus({{ $job->id }}, 'completed')" class="col-span-2 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition">
-                                    Selesai Rakit
-                                </button>
+    <!-- Kanban / List View -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <table class="w-full text-left text-sm text-gray-600">
+            <thead class="bg-gray-50 uppercase text-xs font-semibold text-gray-700">
+                <tr>
+                    <th class="px-6 py-4">Order Info</th>
+                    <th class="px-6 py-4">Build Name</th>
+                    <th class="px-6 py-4">Technician</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4">Date</th>
+                    <th class="px-6 py-4 text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                @forelse($assemblies as $assembly)
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-gray-900">{{ $assembly->order->order_number }}</div>
+                            <div class="text-xs">{{ $assembly->order->guest_name }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                {{ $assembly->build_name ?? 'Custom Build' }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            @if($assembly->technician)
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
+                                        {{ substr($assembly->technician->name, 0, 1) }}
+                                    </div>
+                                    {{ $assembly->technician->name }}
+                                </div>
+                            @else
+                                <span class="text-gray-400 italic">Unassigned</span>
                             @endif
-                        </div>
-                        
-                        <!-- Benchmark Input (Expandable) -->
-                        <div x-data="{ open: false }">
-                            <button @click="open = !open" wire:click="loadAssemblyData({{ $job->id }})" class="text-[10px] text-slate-400 hover:text-violet-500 w-full text-center mt-2">
-                                + Input Catatan & Benchmark
+                        </td>
+                        <td class="px-6 py-4">
+                            @php
+                                $colors = [
+                                    'queued' => 'bg-gray-100 text-gray-600',
+                                    'picking' => 'bg-yellow-100 text-yellow-700',
+                                    'building' => 'bg-blue-100 text-blue-700',
+                                    'testing' => 'bg-purple-100 text-purple-700',
+                                    'completed' => 'bg-emerald-100 text-emerald-700',
+                                    'cancelled' => 'bg-red-100 text-red-700',
+                                ];
+                            @endphp
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase {{ $colors[$assembly->status] ?? 'bg-gray-100' }}">
+                                {{ $assembly->status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            {{ $assembly->created_at->format('d M Y') }}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <button wire:click="openDetail({{ $assembly->id }})" class="text-blue-600 hover:text-blue-800 font-medium text-xs">
+                                Manage
                             </button>
-                            <div x-show="open" class="mt-2 space-y-2">
-                                <input type="text" wire:model="benchmarkScore" class="w-full text-xs px-2 py-1 border rounded" placeholder="Score (e.g. Time Spy 15000)">
-                                <textarea wire:model="technicianNotes" class="w-full text-xs px-2 py-1 border rounded" placeholder="Catatan..."></textarea>
-                                <button wire:click="saveNotes({{ $job->id }})" class="w-full py-1 bg-slate-200 text-slate-600 text-[10px] font-bold rounded hover:bg-slate-300">Simpan</button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+                            No active assembly orders found.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+        <div class="p-4 border-t border-gray-100">
+            {{ $assemblies->links() }}
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    @if($showDetail && $selectedAssembly)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">{{ $selectedAssembly->build_name }}</h2>
+                        <p class="text-sm text-gray-500">Order #{{ $selectedAssembly->order->order_number }}</p>
+                    </div>
+                    <button wire:click="closeDetail" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+
+                <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Left: Status & Actions -->
+                    <div class="space-y-6">
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Current Status</label>
+                            <div class="grid grid-cols-1 gap-2">
+                                <button wire:click="updateStatus('picking')" class="w-full text-left px-4 py-3 rounded-lg border {{ $selectedAssembly->status === 'picking' ? 'bg-yellow-50 border-yellow-500 text-yellow-700 ring-1 ring-yellow-500' : 'border-gray-200 hover:bg-white' }}">
+                                    <span class="font-bold block">1. Picking Parts</span>
+                                    <span class="text-xs opacity-75">Kumpulkan komponen di gudang</span>
+                                </button>
+                                <button wire:click="updateStatus('building')" class="w-full text-left px-4 py-3 rounded-lg border {{ $selectedAssembly->status === 'building' ? 'bg-blue-50 border-blue-500 text-blue-700 ring-1 ring-blue-500' : 'border-gray-200 hover:bg-white' }}">
+                                    <span class="font-bold block">2. Assembly</span>
+                                    <span class="text-xs opacity-75">Perakitan & Cable Management</span>
+                                </button>
+                                <button wire:click="updateStatus('testing')" class="w-full text-left px-4 py-3 rounded-lg border {{ $selectedAssembly->status === 'testing' ? 'bg-purple-50 border-purple-500 text-purple-700 ring-1 ring-purple-500' : 'border-gray-200 hover:bg-white' }}">
+                                    <span class="font-bold block">3. QC & Testing</span>
+                                    <span class="text-xs opacity-75">Install OS, Update BIOS, Stress Test</span>
+                                </button>
+                                <button wire:click="updateStatus('completed')" class="w-full text-left px-4 py-3 rounded-lg border {{ $selectedAssembly->status === 'completed' ? 'bg-emerald-50 border-emerald-500 text-emerald-700 ring-1 ring-emerald-500' : 'border-gray-200 hover:bg-white' }}">
+                                    <span class="font-bold block">4. Completed</span>
+                                    <span class="text-xs opacity-75">Siap kirim/ambil</span>
+                                </button>
                             </div>
                         </div>
-                    @endif
-                </div>
-            </div>
-        @empty
-            <div class="col-span-full py-12 text-center text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
-                <p>Tidak ada pekerjaan rakitan di tahap ini.</p>
-            </div>
-        @endforelse
-    </div>
 
-    {{ $assemblies->links() }}
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Benchmark Score (3DMark/Cinebench)</label>
+                            <input type="text" wire:model="benchmarkScore" class="w-full rounded-lg border-gray-300 text-sm" placeholder="e.g. CB R23: 15000 pts">
+                        </div>
 
-    <!-- Create Modal -->
-    @if($showCreateModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in">
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700">
-                <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">Buat Job Rakitan Baru</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Pilih Order (Lunas)</label>
-                        <select wire:model="selectedOrderId" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm">
-                            <option value="">-- Pilih Order --</option>
-                            @foreach($eligibleOrders as $ord)
-                                <option value="{{ $ord->id }}">{{ $ord->order_number }} - {{ $ord->guest_name }} (Rp {{ number_format($ord->total_amount) }})</option>
-                            @endforeach
-                        </select>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Technician Notes</label>
+                            <textarea wire:model="technicianNotes" rows="4" class="w-full rounded-lg border-gray-300 text-sm" placeholder="Catatan internal..."></textarea>
+                        </div>
+                        
+                        <button wire:click="saveNotes" class="w-full py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 font-bold text-sm">Save Notes</button>
                     </div>
-                    <p class="text-xs text-slate-400">Hanya pesanan dengan status pembayaran 'PAID' dan belum masuk antrian rakitan yang muncul di sini.</p>
-                </div>
-                <div class="mt-6 flex justify-end gap-3">
-                    <button wire:click="$set('showCreateModal', false)" class="px-4 py-2 text-slate-500 font-bold text-sm">Batal</button>
-                    <button wire:click="createFromOrder" class="px-6 py-2 bg-violet-600 text-white font-bold rounded-xl shadow-lg hover:bg-violet-700 transition">Buat Job</button>
+
+                    <!-- Right: Specs & Checklist -->
+                    <div class="md:col-span-2 space-y-6">
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-4">Build Specifications</h3>
+                            <div class="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+                                <table class="w-full text-sm">
+                                    <tbody class="divide-y divide-gray-200">
+                                        @foreach($specs as $key => $item)
+                                            @if($item)
+                                                <tr class="bg-white">
+                                                    <td class="px-4 py-3 font-medium text-gray-500 w-1/3 capitalize">
+                                                        {{ str_replace('_', ' ', $key) }}
+                                                    </td>
+                                                    <td class="px-4 py-3 font-bold text-gray-900">
+                                                        {{ is_array($item) ? ($item['name'] ?? 'Unknown') : $item }}
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-blue-50 text-blue-800 rounded-xl text-sm border border-blue-100">
+                            <h4 class="font-bold mb-2 flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                Standard Operating Procedure (SOP)
+                            </h4>
+                            <ul class="list-disc list-inside space-y-1 ml-1 opacity-80">
+                                <li>Pastikan komponen sesuai dengan order.</li>
+                                <li>Gunakan sarung tangan antistatis / gelang ESD.</li>
+                                <li>Update BIOS ke versi stabil terbaru.</li>
+                                <li>Enable XMP/EXPO profil RAM.</li>
+                                <li>Cable management bagian belakang harus rapi (gunakan zip ties).</li>
+                                <li>Pastikan airflow kipas benar (Front/Bottom: Intake, Top/Rear: Exhaust).</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
