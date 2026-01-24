@@ -8,13 +8,16 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+use Livewire\WithFileUploads;
+
 class ProductReviews extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public $productId;
     public $rating = 5;
     public $comment = '';
+    public $photos = []; // New
     
     // State
     public $canReview = false;
@@ -45,9 +48,9 @@ class ProductReviews extends Component
             return;
         }
 
-        // 2. Cek apakah pernah beli dan status completed
+        // 2. Cek apakah pernah beli dan status received/completed
         $hasBought = Order::where('user_id', $userId)
-            ->where('status', 'completed')
+            ->whereIn('status', ['received', 'completed']) // Updated status check
             ->whereHas('items', function ($q) {
                 $q->where('product_id', $this->productId);
             })
@@ -61,11 +64,17 @@ class ProductReviews extends Component
         $this->validate([
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'required|string|min:5|max:500',
+            'photos.*' => 'image|max:2048', // 2MB Max
         ]);
 
         if (!$this->canReview) {
             $this->dispatch('notify', message: 'Anda tidak memenuhi syarat untuk mereview produk ini.', type: 'error');
             return;
+        }
+
+        $imagePaths = [];
+        foreach ($this->photos as $photo) {
+            $imagePaths[] = $photo->store('reviews', 'public');
         }
 
         Review::create([
@@ -74,14 +83,14 @@ class ProductReviews extends Component
             'reviewer_name' => Auth::user()->name,
             'rating' => $this->rating,
             'comment' => $this->comment,
-            'is_approved' => true, // Auto-approve, bisa diubah logicnya nanti
+            'images' => $imagePaths, // Casted to array in model
+            'is_approved' => true,
         ]);
 
         $this->dispatch('notify', message: 'Terima kasih! Ulasan Anda telah diterbitkan.', type: 'success');
         
         // Reset & Re-check
-        $this->comment = '';
-        $this->rating = 5;
+        $this->reset(['comment', 'rating', 'photos']);
         $this->checkReviewEligibility();
     }
 

@@ -13,7 +13,16 @@ class Review extends Model
         'reviewer_name',
         'rating',
         'comment',
+        'images', // New
         'is_approved',
+        'reply',
+        'replied_at',
+    ];
+
+    protected $casts = [
+        'is_approved' => 'boolean',
+        'images' => 'array', // New
+        'replied_at' => 'datetime',
     ];
 
     public function product(): BelongsTo
