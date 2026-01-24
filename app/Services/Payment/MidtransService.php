@@ -14,7 +14,7 @@ class MidtransService
     public function __construct()
     {
         // Prioritize Database Settings, Fallback to .env
-        $this->serverKey = Setting::get('midtrans_server_key', config('services.midtrans.server_key'));
+        $this->serverKey = Setting::get('midtrans_server_key') ?: config('services.midtrans.server_key');
         $this->isProduction = (bool) Setting::get('midtrans_is_production', config('services.midtrans.is_production', false));
         
         $this->apiUrl = $this->isProduction 
@@ -24,6 +24,10 @@ class MidtransService
 
     public function getSnapToken($order)
     {
+        if (empty($this->serverKey)) {
+            throw new \Exception('Midtrans Server Key is not configured in Settings or .env');
+        }
+
         // Payload Construction
         $params = [
             'transaction_details' => [

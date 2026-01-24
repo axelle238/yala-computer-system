@@ -5,7 +5,8 @@ namespace App\Livewire\Store;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\Voucher; // New Import
+use App\Models\Voucher;
+use App\Models\VoucherUsage;
 use App\Services\Payment\MidtransService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -26,10 +27,12 @@ class Checkout extends Component
     public $city;
     public $courier = 'jne'; // jne, jnt, sicepat
     public $pointsToRedeem = 0;
+    public $paymentMethod = 'midtrans'; // midtrans, transfer_manual (Visual logic)
+    public $orderNotes = '';
     
     // Voucher Logic
     public $voucherCode = '';
-    public $appliedVoucher = null; // Voucher Model Instance
+    public $appliedVoucher = null; 
     public $voucherDiscount = 0;
 
     // Address Book Logic
@@ -43,6 +46,7 @@ class Checkout extends Component
     public $discountAmount = 0;
     public $grandTotal = 0;
 
+    // Static Data
     public $cities = [
         'Jakarta' => 10000,
         'Bogor' => 15000,
@@ -62,6 +66,7 @@ class Checkout extends Component
     public function mount()
     {
         $this->loadCart();
+        
         if (empty($this->cartItems)) {
             return redirect()->route('home');
         }
@@ -91,6 +96,16 @@ class Checkout extends Component
         }
     }
 
+    public function clearAddressSelection()
+    {
+        $this->selectedAddressId = null;
+        $this->name = Auth::check() ? Auth::user()->name : '';
+        $this->phone = Auth::check() ? (Auth::user()->phone ?? '') : '';
+        $this->address = '';
+        $this->city = '';
+        $this->calculateTotals();
+    }
+
     public function loadCart()
     {
         $cart = Session::get('cart', []);
@@ -115,6 +130,7 @@ class Checkout extends Component
     }
 
     public function updatedCity() { $this->calculateTotals(); }
+    public function updatedCourier() { $this->calculateTotals(); }
 
     public function applyVoucher()
     {
@@ -127,7 +143,6 @@ class Checkout extends Component
             return;
         }
 
-        // Validate Rules
         if (!$voucher->isValidForUser(Auth::id(), $this->subtotal)) {
             $this->addError('voucherCode', 'Voucher tidak dapat digunakan (Min. belanja / Kuota habis).');
             return;
@@ -161,6 +176,7 @@ class Checkout extends Component
 
     public function calculateTotals()
     {
+        // 1. Shipping
         $totalWeight = 0;
         foreach ($this->cartItems as $item) {
             $w = $item['product']->weight > 0 ? $item['product']->weight : 1000;
@@ -172,13 +188,11 @@ class Checkout extends Component
         $baseCost = $this->cities[$this->city] ?? 0;
         $this->shippingCost = $baseCost * $totalWeightKg;
         
-        // 1. Calculate Voucher Discount
+        // 2. Voucher
         if ($this->appliedVoucher) {
-            // Re-validate just in case subtotal changed below min spend
             if ($this->subtotal >= $this->appliedVoucher->min_spend) {
                 $this->voucherDiscount = $this->appliedVoucher->calculateDiscount($this->subtotal);
             } else {
-                // Auto remove if no longer valid
                 $this->appliedVoucher = null; 
                 $this->voucherDiscount = 0;
             }
@@ -186,10 +200,10 @@ class Checkout extends Component
             $this->voucherDiscount = 0;
         }
 
-        // 2. Points Discount
+        // 3. Points
         $this->discountAmount = $this->pointsToRedeem;
 
-        // 3. Grand Total (Subtotal + Shipping - Voucher - Points)
+        // 4. Grand Total
         $this->grandTotal = $this->subtotal + $this->shippingCost - $this->voucherDiscount - $this->discountAmount;
         if ($this->grandTotal < 0) $this->grandTotal = 0;
     }
@@ -197,9 +211,9 @@ class Checkout extends Component
     public function placeOrder(MidtransService $paymentService)
     {
         $this->validate([
-            'name' => 'required|string',
-            'phone' => 'required|string',
-            'address' => 'required|string',
+            'name' => 'required|string|min:3',
+            'phone' => 'required|string|min:8',
+            'address' => 'required|string|min:10',
             'city' => 'required|string',
             'courier' => 'required|string',
         ]);
@@ -217,18 +231,17 @@ class Checkout extends Component
                 'shipping_courier' => $this->courier,
                 'shipping_cost' => $this->shippingCost,
                 'points_redeemed' => $this->pointsToRedeem,
-                'discount_amount' => $this->discountAmount, // Points Discount
+                'discount_amount' => $this->discountAmount,
                 'voucher_code' => $this->appliedVoucher?->code,
                 'voucher_discount' => $this->voucherDiscount,
                 'total_amount' => $this->grandTotal,
                 'status' => 'pending',
                 'payment_status' => 'unpaid',
-                'notes' => 'Checkout via Website',
+                'notes' => $this->orderNotes ?? 'Checkout via Website',
             ]);
 
-            // Save Voucher Usage
             if ($this->appliedVoucher) {
-                \App\Models\VoucherUsage::create([
+                VoucherUsage::create([
                     'voucher_id' => $this->appliedVoucher->id,
                     'user_id' => Auth::id(),
                     'order_id' => $order->id,
@@ -247,6 +260,10 @@ class Checkout extends Component
                 $item['product']->decrement('stock_quantity', $item['qty']);
             }
 
+            if (Auth::check() && $this->pointsToRedeem > 0) {
+                Auth::user()->decrement('points', $this->pointsToRedeem);
+            }
+
             // Handle PC Assembly Request
             if (Session::has('pc_assembly_data')) {
                 $assemblyData = Session::get('pc_assembly_data');
@@ -259,10 +276,6 @@ class Checkout extends Component
                 ]);
 
                 Session::forget('pc_assembly_data');
-            }
-
-            if (Auth::check() && $this->pointsToRedeem > 0) {
-                Auth::user()->decrement('points', $this->pointsToRedeem);
             }
 
             Session::forget('cart');
@@ -279,8 +292,7 @@ class Checkout extends Component
 
             $this->dispatch('trigger-payment', token: $snapData['token'], orderId: $order->id);
         } catch (\Exception $e) {
-            $this->dispatch('notify', message: 'Payment Gateway Error: ' . $e->getMessage(), type: 'error');
-            // If failed, redirect to success page anyway (manual payment fallback)
+            $this->dispatch('notify', message: 'Payment Error: ' . $e->getMessage(), type: 'error');
             return redirect()->route('order.success', $order->id);
         }
     }
