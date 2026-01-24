@@ -146,6 +146,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // Online Orders (Sales)
     Route::get('/orders', \App\Livewire\Orders\Index::class)->name('orders.index');
+    Route::get('/pos', \App\Livewire\Sales\PointOfSale::class)->name('sales.pos'); // New POS
     Route::get('/orders/logistics', \App\Livewire\Logistics\Manager::class)->name('logistics.manager'); // New
     Route::get('/orders/{id}', \App\Livewire\Orders\Show::class)->name('orders.show');
 
