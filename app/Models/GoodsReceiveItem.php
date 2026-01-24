@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class GoodsReceiveItem extends Model
 {
-    protected $guarded = [];
+    protected $fillable = [
+        'goods_receive_id',
+        'product_id',
+        'qty_ordered_snapshot',
+        'qty_received',
+    ];
 
     public function product()
     {

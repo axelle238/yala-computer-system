@@ -4,9 +4,10 @@ namespace App\Livewire\Procurement\GoodsReceive;
 
 use App\Models\GoodsReceive;
 use App\Models\GoodsReceiveItem;
+use App\Models\InventoryTransaction;
 use App\Models\Product;
-use App\Models\ProductSerial;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -14,212 +15,165 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.admin')]
-#[Title('Goods Receive (Penerimaan Barang)')]
+#[Title('Receive Goods')]
 class Create extends Component
 {
-    public $purchaseOrderId;
-    public $poNumber;
-    public $notes;
-    public $receiveDate;
+    public $poId;
+    public $purchaseOrder;
     
-    // Data Structure: 
-    // [productId => ['name' => '...', 'ordered' => 10, 'received_prev' => 0, 'receiving' => 0, 'has_sn' => true, 'serials' => ['SN1', 'SN2']]]
-    public $poItems = []; 
+    // Form Inputs
+    public $grnNumber;
+    public $supplierDoNumber;
+    public $receivedDate;
+    public $notes;
+    
+    // Items Grid
+    public $items = []; // [product_id => [name, ordered, received_prev, input_now]]
 
-    public function mount($poId = null)
+    public function mount()
     {
-        $this->receiveDate = date('Y-m-d');
-        if ($poId) {
-            $this->purchaseOrderId = $poId;
-            $this->loadPoItems();
+        $this->grnNumber = 'GRN-' . date('Ymd') . '-' . rand(100, 999);
+        $this->receivedDate = date('Y-m-d');
+        
+        if (request()->has('po_id')) {
+            $this->poId = request()->query('po_id');
+            $this->loadPo();
         }
     }
 
-    public function updatedPurchaseOrderId()
+    public function updatedPoId()
     {
-        $this->loadPoItems();
+        $this->loadPo();
     }
 
-    public function loadPoItems()
+    public function loadPo()
     {
-        $po = PurchaseOrder::with(['items.product', 'supplier'])->find($this->purchaseOrderId);
-        
-        if (!$po) {
-            $this->poItems = [];
+        $this->purchaseOrder = PurchaseOrder::with(['items.product', 'supplier'])->find($this->poId);
+
+        if (!$this->purchaseOrder) {
+            $this->items = [];
             return;
         }
 
-        $this->poNumber = $po->po_number;
-        $this->poItems = [];
-
-        foreach ($po->items as $item) {
-            $remaining = $item->quantity_ordered - $item->quantity_received;
-            if ($remaining <= 0) continue; // Skip fully received items
-
-            $this->poItems[$item->product_id] = [
-                'product_id' => $item->product_id,
-                'name' => $item->product->name,
-                'sku' => $item->product->sku,
-                'qty_ordered' => $item->quantity_ordered,
-                'qty_received_prev' => $item->quantity_received,
-                'qty_receiving' => 0, // Default 0 to prevent accidental receive
-                'has_serial_number' => (bool) $item->product->has_serial_number,
-                'serials' => [], // Array of strings
+        $this->items = [];
+        foreach ($this->purchaseOrder->items as $poItem) {
+            $remaining = max(0, $poItem->quantity_ordered - $poItem->quantity_received);
+            
+            $this->items[] = [
+                'po_item_id' => $poItem->id,
+                'product_id' => $poItem->product_id,
+                'product_name' => $poItem->product->name,
+                'sku' => $poItem->product->sku,
+                'qty_ordered' => $poItem->quantity_ordered,
+                'qty_received_prev' => $poItem->quantity_received,
+                'qty_input' => $remaining,
+                'max_input' => $remaining,
             ];
-        }
-    }
-
-    // Helper to generate empty serial inputs when quantity changes
-    public function updatedPoItems($value, $key)
-    {
-        // Parse key like: 5.qty_receiving (product_id 5)
-        $parts = explode('.', $key);
-        if (count($parts) < 2) return;
-        
-        $productId = $parts[0];
-        $field = $parts[1];
-
-        if ($field === 'qty_receiving') {
-            $item = $this->poItems[$productId];
-            if ($item['has_serial_number']) {
-                $qty = (int) $value;
-                // Resize serials array
-                $currentSerials = $item['serials'];
-                // Adjust array size: if qty increased, add empty strings. If decreased, slice.
-                if ($qty > count($currentSerials)) {
-                    for ($i = count($currentSerials); $i < $qty; $i++) {
-                        $currentSerials[] = '';
-                    }
-                } elseif ($qty < count($currentSerials)) {
-                    $currentSerials = array_slice($currentSerials, 0, $qty);
-                }
-                $this->poItems[$productId]['serials'] = $currentSerials;
-            }
         }
     }
 
     public function save()
     {
         $this->validate([
-            'purchaseOrderId' => 'required|exists:purchase_orders,id',
-            'receiveDate' => 'required|date',
-            'poItems.*.qty_receiving' => 'required|numeric|min:0',
-            // Nested validation for serials is tricky in Livewire dynamic arrays, doing manual check below
+            'poId' => 'required|exists:purchase_orders,id',
+            'grnNumber' => 'required|unique:goods_receives,grn_number',
+            'receivedDate' => 'required|date',
+            'supplierDoNumber' => 'required|string',
+            'items.*.qty_input' => 'required|integer|min:0',
         ]);
 
-        // Manual Validation logic
-        foreach ($this->poItems as $pid => $item) {
-            $qty = (int) $item['qty_receiving'];
-            if ($qty > 0 && $item['has_serial_number']) {
-                if (count(array_filter($item['serials'])) < $qty) {
-                    $this->addError("poItems.$pid.serials", "Serial Number wajib diisi lengkap untuk {$item['name']}");
-                    return;
-                }
-                // Check duplicates in input
-                if (count(array_unique($item['serials'])) < count($item['serials'])) {
-                    $this->addError("poItems.$pid.serials", "Serial Number duplikat terdeteksi di input {$item['name']}");
-                    return;
-                }
-                // Check database duplicates
-                $existing = ProductSerial::whereIn('serial_number', $item['serials'])
-                    ->where('product_id', $pid)
-                    ->exists();
-                if ($existing) {
-                    $this->addError("poItems.$pid.serials", "Salah satu Serial Number sudah ada di sistem untuk produk {$item['name']}");
-                    return;
-                }
-            }
-            
-            // Check over-receiving
-            $remaining = $item['qty_ordered'] - $item['qty_received_prev'];
-            if ($qty > $remaining) {
-                $this->addError("poItems.$pid.qty_receiving", "Jumlah terima melebihi pesanan ({$remaining})");
-                return;
-            }
+        $totalReceived = collect($this->items)->sum('qty_input');
+        if ($totalReceived <= 0) {
+            $this->addError('global', 'Minimal satu barang harus diterima.');
+            return;
         }
 
-        // Process Saving
         DB::transaction(function () {
             // 1. Create Header
             $gr = GoodsReceive::create([
-                'receive_number' => 'GR-' . date('Ymd') . '-' . rand(1000, 9999),
-                'purchase_order_id' => $this->purchaseOrderId,
-                'received_date' => $this->receiveDate,
-                'received_by' => Auth::id(),
-                'notes' => $this->notes
+                'purchase_order_id' => $this->purchaseOrder->id,
+                'grn_number' => $this->grnNumber,
+                'supplier_do_number' => $this->supplierDoNumber,
+                'received_date' => $this->receivedDate,
+                'notes' => $this->notes,
+                'received_by' => Auth::id() ?? 1,
+                'status' => 'finalized', 
             ]);
 
-            $poFullyReceived = true;
+            // 2. Process Items
+            foreach ($this->items as $itemData) {
+                if ($itemData['qty_input'] > 0) {
+                    $qtyReceivedNow = $itemData['qty_input'];
+                    $productId = $itemData['product_id'];
 
-            foreach ($this->poItems as $pid => $item) {
-                $qty = (int) $item['qty_receiving'];
-                if ($qty <= 0) {
-                    // Check if this item still has remaining items to determine PO status
-                    $remaining = $item['qty_ordered'] - $item['qty_received_prev'];
-                    if ($remaining > 0) $poFullyReceived = false;
-                    continue; 
-                }
+                    GoodsReceiveItem::create([
+                        'goods_receive_id' => $gr->id,
+                        'product_id' => $productId,
+                        'qty_ordered_snapshot' => $itemData['qty_ordered'],
+                        'qty_received' => $qtyReceivedNow,
+                    ]);
 
-                // 2. Create Detail
-                $grItem = GoodsReceiveItem::create([
-                    'goods_receive_id' => $gr->id,
-                    'product_id' => $pid,
-                    'quantity_received' => $qty,
-                ]);
+                    $poItem = PurchaseOrderItem::find($itemData['po_item_id']);
+                    $poItem->increment('quantity_received', $qtyReceivedNow);
 
-                // 3. Update Product Stock
-                $product = Product::find($pid);
-                $product->increment('stock_quantity', $qty);
+                    $product = Product::find($productId);
+                    $product->increment('stock_quantity', $qtyReceivedNow);
 
-                // 4. Handle Serials
-                if ($item['has_serial_number']) {
-                    foreach ($item['serials'] as $sn) {
-                        ProductSerial::create([
-                            'product_id' => $pid,
-                            'serial_number' => $sn,
-                            'status' => 'available',
-                            'warehouse_id' => 1, // Default warehouse for now, later make dynamic
-                            'goods_receive_item_id' => $grItem->id,
-                            'cost_price' => $product->buy_price, // Inherit current buy price
-                        ]);
-                    }
-                }
-
-                // 5. Update PO Item received count
-                $poItem = \App\Models\PurchaseOrderItem::where('purchase_order_id', $this->purchaseOrderId)
-                    ->where('product_id', $pid)
-                    ->first();
-                $poItem->increment('quantity_received', $qty);
-
-                // Check if this specific item is fully received
-                if (($poItem->quantity_received + $qty) < $poItem->quantity_ordered) {
-                    $poFullyReceived = false;
+                    InventoryTransaction::create([
+                        'product_id' => $productId,
+                        'user_id' => Auth::id() ?? 1,
+                        'warehouse_id' => 1, 
+                        'type' => 'in',
+                        'quantity' => $qtyReceivedNow,
+                        'remaining_stock' => $product->stock_quantity,
+                        'unit_price' => $product->buy_price, 
+                        'reference_number' => $this->grnNumber,
+                        'notes' => 'Received via PO #' . $this->purchaseOrder->po_number,
+                    ]);
                 }
             }
 
-            // 6. Update PO Status
-            $po = PurchaseOrder::find($this->purchaseOrderId);
-            // Re-check all items from DB to be sure about PO status
-            $po->refresh();
+            // 3. Update PO Delivery Status Logic
+            $this->purchaseOrder->refresh();
+            
             $allReceived = true;
-            foreach($po->items as $pi) {
-                if ($pi->quantity_received < $pi->quantity_ordered) {
+            $anyReceived = false;
+            
+            foreach ($this->purchaseOrder->items as $item) {
+                if ($item->quantity_received > 0) {
+                    $anyReceived = true;
+                }
+                if ($item->quantity_received < $item->quantity_ordered) {
                     $allReceived = false;
-                    break;
                 }
             }
 
-            $po->status = $allReceived ? 'received' : 'ordered'; // If partial, stay ordered (or add 'partial' enum if exists)
-            $po->save();
+            if ($allReceived) {
+                $this->purchaseOrder->status = 'received';
+                $this->purchaseOrder->delivery_status = 'received';
+            } elseif ($anyReceived) {
+                $this->purchaseOrder->status = 'ordered'; // Still open
+                $this->purchaseOrder->delivery_status = 'partial';
+            } else {
+                $this->purchaseOrder->status = 'ordered';
+                $this->purchaseOrder->delivery_status = 'pending';
+            }
+            
+            $this->purchaseOrder->save();
         });
 
-        $this->dispatch('notify', message: 'Penerimaan barang berhasil diproses!', type: 'success');
-        return redirect()->route('admin.procurement.index'); // Adjust route later
+        session()->flash('success', 'Barang berhasil diterima dan stok diperbarui.');
+        return redirect()->route('purchase-orders.show', $this->poId);
     }
 
     public function render()
     {
-        $openPOs = PurchaseOrder::whereIn('status', ['ordered', 'partial'])->get();
+        // Cari PO yang belum fully received
+        $openPOs = PurchaseOrder::whereIn('status', ['ordered'])
+            ->where('delivery_status', '!=', 'received')
+            ->orderBy('id', 'desc')
+            ->get();
+
         return view('livewire.procurement.goods-receive.create', [
             'openPOs' => $openPOs
         ]);
