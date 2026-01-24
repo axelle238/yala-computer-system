@@ -2,36 +2,53 @@
 
 namespace App\Livewire\Store;
 
-use App\Models\ProductAlert as ProductAlertModel;
+use App\Models\ProductAlert;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class ProductAlert extends Component
 {
     public $productId;
-    public $email;
-    public $showModal = false;
-
-    protected $rules = [
-        'email' => 'required|email',
-    ];
+    public $email = '';
+    public $isSubscribed = false;
 
     public function mount($productId)
     {
         $this->productId = $productId;
+        $this->checkSubscription();
     }
 
-    public function notifyMe()
+    public function checkSubscription()
     {
-        $this->validate();
+        if (Auth::check()) {
+            $this->isSubscribed = ProductAlert::where('product_id', $this->productId)
+                ->where('user_id', Auth::id())
+                ->where('is_notified', false)
+                ->exists();
+        } else {
+            // Guest check not possible without email input first, handled in view state
+        }
+    }
 
-        ProductAlertModel::create([
-            'product_id' => $this->productId,
-            'email' => $this->email,
-        ]);
+    public function subscribe()
+    {
+        if (!Auth::check()) {
+            $this->validate(['email' => 'required|email']);
+        }
 
-        $this->showModal = false;
-        $this->dispatch('notify', message: 'Anda akan diberitahu saat produk tersedia!', type: 'success');
-        $this->email = '';
+        ProductAlert::updateOrCreate(
+            [
+                'product_id' => $this->productId,
+                'user_id' => Auth::id(),
+                'email' => Auth::check() ? Auth::user()->email : $this->email,
+            ],
+            [
+                'is_notified' => false
+            ]
+        );
+
+        $this->isSubscribed = true;
+        $this->dispatch('notify', message: 'Anda akan diberitahu saat stok tersedia!', type: 'success');
     }
 
     public function render()

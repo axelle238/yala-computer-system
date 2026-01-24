@@ -4,14 +4,14 @@ namespace App\Livewire\Store;
 
 use App\Models\Product;
 use Livewire\Component;
-use Livewire\Attributes\On;
 
 class QuickView extends Component
 {
+    public $product;
     public $isOpen = false;
-    public $product = null;
 
-    #[On('openQuickView')]
+    protected $listeners = ['openQuickView' => 'open'];
+
     public function open($productId)
     {
         $this->product = Product::find($productId);
@@ -22,14 +22,6 @@ class QuickView extends Component
     {
         $this->isOpen = false;
         $this->product = null;
-    }
-
-    public function addToCart()
-    {
-        if ($this->product) {
-            $this->dispatch('addToCart', productId: $this->product->id);
-            $this->close();
-        }
     }
 
     public function render()

@@ -3,22 +3,26 @@
 namespace App\Livewire\Store;
 
 use App\Models\Product;
-use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 
 class RecentlyViewed extends Component
 {
+    public $products = [];
+
+    public function mount()
+    {
+        $viewedIds = session()->get('recently_viewed', []);
+        
+        if (!empty($viewedIds)) {
+            $this->products = Product::whereIn('id', $viewedIds)
+                ->where('is_active', true)
+                ->take(6)
+                ->get();
+        }
+    }
+
     public function render()
     {
-        $ids = Session::get('recently_viewed', []);
-        $products = Product::whereIn('id', $ids)->take(6)->get();
-
-        if ($products->isEmpty()) {
-            return '<div></div>';
-        }
-
-        return view('livewire.store.recently-viewed', [
-            'products' => $products
-        ]);
+        return view('livewire.store.recently-viewed');
     }
 }
