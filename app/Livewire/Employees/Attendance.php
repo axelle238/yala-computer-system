@@ -2,52 +2,73 @@
 
 namespace App\Livewire\Employees;
 
-use App\Models\Attendance as AttendanceModel;
-use App\Models\User;
-use Carbon\Carbon;
+use App\Models\Attendance;
+use App\Models\Shift;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.admin')]
 #[Title('Absensi Karyawan - Yala Computer')]
 class Attendance extends Component
 {
-    use WithPagination;
-
-    public $dateFilter;
-    public $search = '';
+    public $todayAttendance;
+    public $activeShift;
 
     public function mount()
     {
-        $this->dateFilter = date('Y-m-d');
+        $this->loadData();
+    }
+
+    public function loadData()
+    {
+        $this->todayAttendance = \App\Models\Attendance::where('user_id', Auth::id())
+            ->whereDate('created_at', today())
+            ->first();
+            
+        // Simple logic: Assume user has one fixed shift or pick active based on time
+        // Ideally should check employee_shifts table
+        $this->activeShift = Shift::first(); 
+    }
+
+    public function clockIn()
+    {
+        if ($this->todayAttendance) return;
+
+        \App\Models\Attendance::create([
+            'user_id' => Auth::id(),
+            'shift_id' => $this->activeShift->id ?? null,
+            'clock_in' => now(),
+            'ip_address' => request()->ip(),
+            'notes' => 'Clock In via System',
+        ]);
+
+        $this->dispatch('notify', message: 'Berhasil Clock In!', type: 'success');
+        $this->loadData();
+    }
+
+    public function clockOut()
+    {
+        if (!$this->todayAttendance || $this->todayAttendance->clock_out) return;
+
+        $this->todayAttendance->update([
+            'clock_out' => now(),
+        ]);
+
+        $this->dispatch('notify', message: 'Berhasil Clock Out! Sampai jumpa besok.', type: 'success');
+        $this->loadData();
     }
 
     public function render()
     {
-        $query = AttendanceModel::with('user')
-            ->whereDate('date', $this->dateFilter);
-
-        if ($this->search) {
-            $query->whereHas('user', function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%');
-            });
-        }
-
-        $attendances = $query->orderBy('clock_in')->paginate(20);
-
-        // Statistics for the selected day
-        $totalEmployees = User::where('role', '!=', 'customer')->count();
-        $presentCount = AttendanceModel::whereDate('date', $this->dateFilter)->where('status', 'present')->count();
-        $lateCount = AttendanceModel::whereDate('date', $this->dateFilter)->where('status', 'late')->count();
-        $absentCount = $totalEmployees - ($presentCount + $lateCount); // Rough estimate
+        // History for Admin/HR View
+        $history = \App\Models\Attendance::with(['user', 'shift'])
+            ->latest()
+            ->paginate(10);
 
         return view('livewire.employees.attendance', [
-            'attendances' => $attendances,
-            'presentCount' => $presentCount,
-            'lateCount' => $lateCount,
-            'absentCount' => max(0, $absentCount),
+            'history' => $history
         ]);
     }
 }

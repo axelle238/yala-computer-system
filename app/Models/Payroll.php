@@ -2,26 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Payroll extends Model
 {
-    use HasFactory;
+    protected $guarded = [];
 
-    protected $fillable = [
-        'user_id',
-        'period_month',
-        'pay_date',
-        'base_salary',
-        'total_commission',
-        'deductions',
-        'net_salary',
-        'status',
+    protected $casts = [
+        'paid_at' => 'date',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function commissions()
+    {
+        return $this->hasMany(Commission::class);
     }
 }
