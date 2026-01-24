@@ -199,6 +199,13 @@ return [
                     'permission' => 'pos.access',
                 ],
                 [
+                    'label' => 'Loyalty & Membership',
+                    'route' => 'customers.loyalty',
+                    'icon'  => 'star', // Reuse star
+                    'roles' => ['admin', 'owner'],
+                    'permission' => 'setting.edit',
+                ],
+                [
                     'label' => 'Banner Promo',
                     'route' => 'banners.index',
                     'icon'  => 'photo',

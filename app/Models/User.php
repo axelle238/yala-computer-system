@@ -138,6 +138,37 @@ class User extends Authenticatable
         return $this->hasMany(SavedBuild::class);
     }
 
+    // --- CRM & Loyalty ---
+
+    public function customerGroup()
+    {
+        return $this->belongsTo(CustomerGroup::class);
+    }
+
+    public function interactions()
+    {
+        return $this->hasMany(CustomerInteraction::class, 'user_id');
+    }
+
+    public function loyaltyLogs()
+    {
+        return $this->hasMany(LoyaltyLog::class);
+    }
+
+    public function recalculateLevel()
+    {
+        $totalSpent = $this->orders()->where('status', 'completed')->sum('total_amount');
+        $this->update(['lifetime_value' => $totalSpent]);
+
+        $group = CustomerGroup::where('min_spend', '<=', $totalSpent)
+            ->orderByDesc('min_spend')
+            ->first();
+
+        if ($group && $this->customer_group_id !== $group->id) {
+            $this->update(['customer_group_id' => $group->id]);
+        }
+    }
+
     // --- Referral System ---
 
     public function referrer()
