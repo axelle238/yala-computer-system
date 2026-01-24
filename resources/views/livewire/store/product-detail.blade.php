@@ -133,6 +133,9 @@
 
             <!-- Reviews Component -->
             <livewire:store.product-reviews :productId="$product->id" />
+            
+            <!-- Discussions Component -->
+            <livewire:store.product-discussions :productId="$product->id" />
         </div>
 
         <!-- Related Products -->

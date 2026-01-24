@@ -50,6 +50,9 @@
             </div>
 
             <div class="flex flex-col gap-3 w-full md:w-auto">
+                <a href="{{ route('member.addresses') }}" class="w-full px-6 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors text-sm text-center">
+                    Kelola Alamat
+                </a>
                  <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="w-full px-6 py-3 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl transition-colors text-sm">

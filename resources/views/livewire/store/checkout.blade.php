@@ -18,6 +18,31 @@
                         <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm">1</span>
                         Informasi Pengiriman
                     </h3>
+
+                    <!-- Address Book Selection -->
+                    @auth
+                        @if($savedAddresses->isNotEmpty())
+                            <div class="mb-6">
+                                <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Pilih Alamat Tersimpan</label>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    @foreach($savedAddresses as $addr)
+                                        <div wire:click="selectAddress({{ $addr->id }})" class="cursor-pointer border rounded-xl p-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all {{ $selectedAddressId === $addr->id ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 ring-1 ring-emerald-500' : 'border-slate-200 dark:border-slate-700' }}">
+                                            <div class="flex justify-between items-start">
+                                                <span class="font-bold text-sm text-slate-800 dark:text-white">{{ $addr->label }}</span>
+                                                @if($addr->is_primary) <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded uppercase font-bold">Utama</span> @endif
+                                            </div>
+                                            <p class="text-xs text-slate-500 mt-1 line-clamp-2">{{ $addr->address_line }}, {{ $addr->city }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="relative flex py-5 items-center">
+                                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                                    <span class="flex-shrink-0 mx-4 text-slate-400 text-xs uppercase font-bold">Atau Input Manual</span>
+                                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                                </div>
+                            </div>
+                        @endif
+                    @endauth
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                         <div>

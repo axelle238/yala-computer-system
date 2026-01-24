@@ -24,6 +24,10 @@ class Checkout extends Component
     public $city;
     public $courier = 'jne'; // jne, jnt, sicepat
     public $pointsToRedeem = 0;
+    
+    // Address Book Logic
+    public $savedAddresses = [];
+    public $selectedAddressId = null;
 
     // Computed Data
     public $cartItems = [];
@@ -32,7 +36,7 @@ class Checkout extends Component
     public $discountAmount = 0;
     public $grandTotal = 0;
 
-    // Mock Cities (In real app, fetch from RajaOngkir)
+    // ... (Cities array remains same) ...
     public $cities = [
         'Jakarta' => 10000,
         'Bogor' => 15000,
@@ -57,8 +61,31 @@ class Checkout extends Component
         }
 
         if (Auth::check()) {
-            $this->name = Auth::user()->name;
-            $this->phone = Auth::user()->phone ?? ''; // Assuming phone exists or add later
+            // Load saved addresses
+            $this->savedAddresses = \App\Models\UserAddress::where('user_id', Auth::id())->get();
+            
+            // Auto-fill primary address
+            $primary = $this->savedAddresses->where('is_primary', true)->first();
+            if ($primary) {
+                $this->selectAddress($primary->id);
+            } else {
+                $this->name = Auth::user()->name;
+                $this->phone = Auth::user()->phone ?? '';
+            }
+        }
+    }
+
+    public function selectAddress($id)
+    {
+        $addr = $this->savedAddresses->where('id', $id)->first();
+        if ($addr) {
+            $this->selectedAddressId = $id;
+            $this->name = $addr->recipient_name;
+            $this->phone = $addr->phone_number;
+            $this->address = $addr->address_line;
+            $this->city = $addr->city; // This triggers updatedCity -> calculateTotals logic if wired correctly? 
+            // Manual trigger because direct assignment might not fire updated hook in all Livewire versions instantly
+            $this->calculateTotals();
         }
     }
 
