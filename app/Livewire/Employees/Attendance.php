@@ -2,68 +2,81 @@
 
 namespace App\Livewire\Employees;
 
-use App\Models\Shift;
+use App\Models\Attendance as AttendanceModel;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Livewire\Attributes\Layout;
+use Livewire\WithPagination;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Layout;
 
 #[Layout('layouts.admin')]
-#[Title('Absensi Karyawan - Yala Computer')]
+#[Title('Absensi Harian')]
 class Attendance extends Component
 {
+    use WithPagination;
+
     public $todayAttendance;
-    public $activeShift;
+    public $currentTime;
 
     public function mount()
     {
-        $this->loadData();
+        $this->refreshToday();
+        $this->currentTime = now()->format('H:i');
     }
 
-    public function loadData()
+    public function refreshToday()
     {
-        $this->todayAttendance = \App\Models\Attendance::where('user_id', Auth::id())
-            ->whereDate('created_at', today())
+        $this->todayAttendance = AttendanceModel::where('user_id', Auth::id())
+            ->where('date', date('Y-m-d'))
             ->first();
-            
-        // Simple logic: Assume user has one fixed shift or pick active based on time
-        // Ideally should check employee_shifts table
-        $this->activeShift = Shift::first(); 
     }
 
     public function clockIn()
     {
         if ($this->todayAttendance) return;
 
-        \App\Models\Attendance::create([
+        $now = Carbon::now();
+        
+        // Logika Keterlambatan (Misal masuk jam 09:00)
+        $status = 'present';
+        $limit = Carbon::createFromTime(9, 15, 0); // Toleransi sampai 09:15
+        $lateMinutes = 0;
+
+        if ($now->gt($limit)) {
+            $status = 'late';
+            $lateMinutes = $limit->diffInMinutes($now);
+        }
+
+        AttendanceModel::create([
             'user_id' => Auth::id(),
-            'shift_id' => $this->activeShift->id ?? null,
-            'clock_in' => now(),
+            'date' => date('Y-m-d'),
+            'clock_in' => $now->toTimeString(),
+            'status' => $status,
+            'late_minutes' => $lateMinutes,
             'ip_address' => request()->ip(),
-            'notes' => 'Clock In via System',
         ]);
 
-        $this->dispatch('notify', message: 'Berhasil Clock In!', type: 'success');
-        $this->loadData();
+        session()->flash('success', 'Berhasil Absen Masuk! Semangat bekerja.');
+        $this->refreshToday();
     }
 
     public function clockOut()
     {
-        if (!$this->todayAttendance || $this->todayAttendance->clock_out) return;
+        if (!$this->todayAttendance) return;
 
         $this->todayAttendance->update([
-            'clock_out' => now(),
+            'clock_out' => Carbon::now()->toTimeString(),
         ]);
 
-        $this->dispatch('notify', message: 'Berhasil Clock Out! Sampai jumpa besok.', type: 'success');
-        $this->loadData();
+        session()->flash('success', 'Berhasil Absen Pulang. Hati-hati di jalan!');
+        $this->refreshToday();
     }
 
     public function render()
     {
-        // History for Admin/HR View
-        $history = \App\Models\Attendance::with(['user', 'shift'])
-            ->latest()
+        $history = AttendanceModel::where('user_id', Auth::id())
+            ->orderBy('date', 'desc')
             ->paginate(10);
 
         return view('livewire.employees.attendance', [

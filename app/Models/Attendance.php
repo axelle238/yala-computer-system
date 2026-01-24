@@ -9,8 +9,9 @@ class Attendance extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'clock_in' => 'datetime',
-        'clock_out' => 'datetime',
+        'date' => 'date',
+        'clock_in' => 'timestamp', // Time types are tricky in Laravel sometimes, string/carbon is better
+        'clock_out' => 'timestamp',
     ];
 
     public function user()
@@ -18,8 +19,14 @@ class Attendance extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function shift()
+    // Helper: Hitung durasi kerja (jam)
+    public function getWorkHoursAttribute()
     {
-        return $this->belongsTo(Shift::class);
+        if ($this->clock_in && $this->clock_out) {
+            $in = \Carbon\Carbon::parse($this->clock_in);
+            $out = \Carbon\Carbon::parse($this->clock_out);
+            return $in->diffInHours($out);
+        }
+        return 0;
     }
 }
