@@ -53,6 +53,13 @@ return [
                     'permission' => 'order.view',
                 ],
                 [
+                    'label' => 'Pengiriman & Logistik',
+                    'route' => 'logistics.manager',
+                    'icon'  => 'truck', // Need icon
+                    'roles' => ['admin', 'owner', 'warehouse'],
+                    'permission' => 'order.view',
+                ],
+                [
                     'label' => 'Servis & Perbaikan',
                     'route' => 'services.index',
                     'icon'  => 'wrench',
