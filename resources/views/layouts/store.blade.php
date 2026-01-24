@@ -21,9 +21,14 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
         h1, h2, h3, h4, h5, h6, .font-tech { font-family: 'Exo 2', sans-serif; }
-        .cyber-grid { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; background-color: #020617; background-image: linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px); background-size: 50px 50px; }
-        .cyber-grid::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, transparent 0%, #020617 90%); }
-        .tech-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); position: relative; overflow: hidden; }
+        .cyber-grid { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; background-color: #020617; 
+            background-image: 
+                linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px), 
+                linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px); 
+            background-size: 40px 40px; 
+        }
+        .cyber-grid::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, transparent 0%, #020617 100%); }
+        .tech-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); position: relative; overflow: hidden; }
         
         /* Modern Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
@@ -38,43 +43,46 @@
     <!-- Announcement Bar -->
     @php $announcement = \App\Models\Setting::get('store_announcement_active', false); @endphp
     @if($announcement)
-        <div class="bg-gradient-to-r from-cyan-900 via-blue-900 to-purple-900 text-white text-[10px] font-bold py-2 text-center uppercase tracking-widest border-b border-cyan-500/20 relative z-50">
+        <div class="bg-gradient-to-r from-cyan-950 via-blue-950 to-purple-950 text-cyan-100 text-[10px] font-bold py-2.5 text-center uppercase tracking-[0.2em] border-b border-cyan-500/10 relative z-50 animate-fade-in-down">
             {{ \App\Models\Setting::get('store_announcement_text') }}
         </div>
     @endif
 
     <!-- Modern Header -->
-    <header class="fixed top-0 w-full z-40 transition-all duration-300 border-b border-transparent"
-            :class="{ 'bg-slate-900/80 backdrop-blur-md border-white/10 shadow-lg top-0': scrolled, 'bg-transparent top-0': !scrolled }">
-        <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+    <header class="fixed top-0 w-full z-40 transition-all duration-500 border-b border-transparent"
+            :class="{ 'bg-slate-950/80 backdrop-blur-xl border-white/5 shadow-2xl shadow-cyan-900/5 top-0': scrolled, 'bg-transparent top-0 pt-4': !scrolled }">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center transition-all duration-500" :class="{ 'h-16': scrolled }">
             <!-- Logo -->
-            <a href="/" class="group flex items-center gap-3">
+            <a href="/" class="group flex items-center gap-3 relative">
+                <div class="absolute -inset-2 bg-cyan-500/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 @if(\App\Models\Setting::get('store_logo'))
-                    <img src="{{ asset('storage/' . \App\Models\Setting::get('store_logo')) }}" class="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300">
+                    <img src="{{ asset('storage/' . \App\Models\Setting::get('store_logo')) }}" class="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300 relative z-10">
                 @else
-                    <div class="relative w-10 h-10">
+                    <div class="relative w-10 h-10 z-10">
                         <div class="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg transform rotate-6 group-hover:rotate-12 transition-transform duration-300 shadow-[0_0_20px_rgba(6,182,212,0.5)]"></div>
-                        <div class="absolute inset-0 bg-slate-900 rounded-lg flex items-center justify-center border border-white/20 transform -rotate-3 group-hover:rotate-0 transition-transform duration-300">
-                            <span class="font-tech font-black text-xl text-cyan-400">Y</span>
+                        <div class="absolute inset-0 bg-slate-950 rounded-lg flex items-center justify-center border border-white/10 transform -rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                            <span class="font-tech font-black text-xl text-cyan-400 group-hover:text-white transition-colors">Y</span>
                         </div>
                     </div>
                 @endif
-                <div class="flex flex-col">
-                    <span class="font-tech font-bold text-xl text-white tracking-tight uppercase leading-none">{{ \App\Models\Setting::get('store_name', 'YALA COMPUTER') }}</span>
-                    <span class="text-[8px] font-bold text-cyan-400 uppercase tracking-[0.3em] leading-none mt-1 group-hover:text-cyan-300 transition-colors">Future Tech Store</span>
+                <div class="flex flex-col relative z-10">
+                    <span class="font-tech font-bold text-xl text-white tracking-tight uppercase leading-none group-hover:text-cyan-400 transition-colors duration-300">{{ \App\Models\Setting::get('store_name', 'YALA COMPUTER') }}</span>
+                    <span class="text-[8px] font-bold text-slate-500 uppercase tracking-[0.3em] leading-none mt-1 group-hover:text-cyan-200 transition-colors duration-300">Future Tech Store</span>
                 </div>
             </a>
             
             <!-- Desktop Navigation -->
-            <nav class="hidden lg:flex items-center gap-6">
+            <nav class="hidden lg:flex items-center gap-8">
                 @foreach([
                     ['label' => 'Katalog', 'route' => 'home'],
                     ['label' => 'Rakit PC', 'route' => 'pc-builder'],
                     ['label' => 'Service', 'route' => 'track-service'],
                 ] as $item)
                     <a href="{{ route($item['route']) }}" 
-                       class="text-xs font-bold uppercase tracking-widest transition-colors {{ request()->routeIs($item['route'].'*') ? 'text-cyan-400' : 'text-slate-400 hover:text-white' }}">
+                       class="text-xs font-bold uppercase tracking-widest transition-all duration-300 relative group py-2
+                       {{ request()->routeIs($item['route'].'*') ? 'text-cyan-400' : 'text-slate-400 hover:text-white' }}">
                         {{ $item['label'] }}
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cyan-500 transition-all duration-300 group-hover:w-full {{ request()->routeIs($item['route'].'*') ? 'w-full shadow-[0_0_10px_rgba(6,182,212,0.8)]' : '' }}"></span>
                     </a>
                 @endforeach
             </nav>
