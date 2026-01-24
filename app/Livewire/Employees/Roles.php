@@ -7,86 +7,96 @@ use App\Models\Role;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Illuminate\Support\Str;
 
 #[Layout('layouts.app')]
-#[Title('Manajemen Jabatan & Hak Akses - Yala Computer')]
+#[Title('Manajemen Hak Akses - Yala Computer')]
 class Roles extends Component
 {
     public $roles;
-    public $allPermissions;
+    public $permissions;
     
-    // Form Data
+    // Form
     public $name;
-    public $selectedPermissions = []; // Array of Permission IDs
-    public $roleIdToEdit = null;
-    public $isModalOpen = false;
+    public $slug;
+    public $selectedPermissions = [];
+    public $editingRoleId = null;
+    public $showForm = false;
 
     public function mount()
     {
-        $this->allPermissions = Permission::all()->groupBy('group');
-        $this->loadRoles();
+        $this->loadData();
     }
 
-    public function loadRoles()
+    public function loadData()
     {
-        $this->roles = Role::with('permissions', 'users')->get();
+        $this->roles = Role::with('permissions')->get();
+        $this->permissions = Permission::all();
     }
 
     public function create()
     {
-        $this->reset(['name', 'selectedPermissions', 'roleIdToEdit']);
-        $this->isModalOpen = true;
+        $this->resetForm();
+        $this->showForm = true;
     }
 
     public function edit($id)
     {
         $role = Role::with('permissions')->findOrFail($id);
-        $this->roleIdToEdit = $role->id;
+        $this->editingRoleId = $id;
         $this->name = $role->name;
-        $this->selectedPermissions = $role->permissions->pluck('id')->map(fn($id) => (string) $id)->toArray();
-        $this->isModalOpen = true;
+        $this->slug = $role->slug;
+        $this->selectedPermissions = $role->permissions->pluck('id')->toArray();
+        $this->showForm = true;
+    }
+
+    public function resetForm()
+    {
+        $this->editingRoleId = null;
+        $this->name = '';
+        $this->slug = '';
+        $this->selectedPermissions = [];
     }
 
     public function save()
     {
         $this->validate([
-            'name' => 'required|string|unique:roles_v2,name,' . $this->roleIdToEdit,
+            'name' => 'required|string|max:50',
+            'slug' => 'required|string|max:50|unique:roles,slug,' . $this->editingRoleId,
             'selectedPermissions' => 'array'
         ]);
 
-        if ($this->roleIdToEdit) {
-            $role = Role::findOrFail($this->roleIdToEdit);
+        if ($this->editingRoleId) {
+            $role = Role::find($this->editingRoleId);
             $role->update([
                 'name' => $this->name,
-                'slug' => Str::slug($this->name)
+                'slug' => $this->slug,
             ]);
         } else {
             $role = Role::create([
                 'name' => $this->name,
-                'slug' => Str::slug($this->name)
+                'slug' => $this->slug,
             ]);
         }
 
         $role->permissions()->sync($this->selectedPermissions);
 
-        $this->isModalOpen = false;
-        $this->loadRoles();
-        $this->dispatch('notify', message: 'Jabatan berhasil disimpan!', type: 'success');
+        $this->showForm = false;
+        $this->loadData();
+        $this->dispatch('notify', message: 'Role berhasil disimpan!', type: 'success');
     }
 
     public function delete($id)
     {
-        $role = Role::withCount('users')->findOrFail($id);
-        
-        if ($role->users_count > 0) {
-            $this->dispatch('notify', message: 'Gagal! Masih ada pegawai dengan jabatan ini.', type: 'error');
+        // Prevent deleting core roles
+        $role = Role::find($id);
+        if (in_array($role->slug, ['admin', 'owner'])) {
+            $this->dispatch('notify', message: 'Role utama tidak dapat dihapus.', type: 'error');
             return;
         }
 
         $role->delete();
-        $this->loadRoles();
-        $this->dispatch('notify', message: 'Jabatan dihapus.', type: 'success');
+        $this->loadData();
+        $this->dispatch('notify', message: 'Role dihapus.');
     }
 
     public function render()
