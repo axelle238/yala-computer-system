@@ -117,20 +117,8 @@ class Home extends Component
     public function checkout() {
         if (empty($this->cart)) return;
         
-        // Check Auth - if customer/member, can redirect to internal checkout
-        // For now, keep WhatsApp checkout as fallback or primary
-        
-        $message = "*Halo Yala Computer, saya ingin memesan:*\n\n";
-        $total = 0;
-        $products = Product::whereIn('id', array_keys($this->cart))->get();
-        foreach ($products as $product) {
-            $qty = $this->cart[$product->id];
-            $subtotal = $product->sell_price * $qty;
-            $total += $subtotal;
-            $message .= "📦 *{$product->name}*\n   └ x{$qty} @ Rp " . number_format($product->sell_price, 0, ',', '.') . " = Rp " . number_format($subtotal, 0, ',', '.') . "\n";
-        }
-        $message .= "\n💰 *Total Estimasi: Rp " . number_format($total, 0, ',', '.') . "*\n\n📍 _Mohon info ketersediaan stok dan biaya pengiriman._";
-        return redirect()->away("https://wa.me/" . Setting::get('whatsapp_number', '6281234567890') . "?text=" . urlencode($message));
+        // Redirect to Internal Checkout
+        return redirect()->route('checkout.secure');
     }
 
     // Comparison Logic

@@ -12,14 +12,39 @@ use Livewire\Attributes\Title;
 class ProductDetail extends Component
 {
     public $product;
-    public $cart = [];
-    public $compareList = [];
+    
+    // Add Listeners
+    protected $listeners = ['addToWishlist'];
 
     public function mount($id)
     {
-        $this->product = Product::with('category', 'reviews')->findOrFail($id);
-        $this->cart = Session::get('cart', []);
-        $this->compareList = Session::get('compareList', []); // Assuming compare list is also in session or local storage handling
+        $this->product = Product::with(['category', 'reviews', 'flashSales'])->findOrFail($id);
+    }
+
+    public function addToCart()
+    {
+        $this->dispatch('addToCart', productId: $this->product->id);
+    }
+
+    public function addToWishlist($productId)
+    {
+        if (!auth()->check()) {
+            $this->dispatch('notify', message: 'Silakan login terlebih dahulu.', type: 'error');
+            return;
+        }
+
+        $exists = \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $productId)->first();
+
+        if ($exists) {
+            $exists->delete();
+            $this->dispatch('notify', message: 'Dihapus dari Wishlist.');
+        } else {
+            \App\Models\Wishlist::create([
+                'user_id' => auth()->id(),
+                'product_id' => $productId
+            ]);
+            $this->dispatch('notify', message: 'Ditambahkan ke Wishlist!', type: 'success');
+        }
     }
 
     public function render()

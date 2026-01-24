@@ -17,7 +17,9 @@ Route::get('/rakit-pc', \App\Livewire\Store\PcBuilder::class)->name('pc-builder'
 Route::get('/garansi', \App\Livewire\Store\WarrantyCheck::class)->name('warranty-check');
 Route::get('/track-service', \App\Livewire\Front\TrackService::class)->name('track-service'); // New Tracking
 Route::get('/cart', \App\Livewire\Store\Cart::class)->name('cart');
-Route::get('/checkout', \App\Livewire\Store\Checkout::class)->name('checkout');
+Route::get('/checkout-secure', \App\Livewire\Store\Checkout::class)->name('checkout.secure'); // New
+Route::get('/checkout', \App\Livewire\Store\Checkout::class)->name('checkout'); // Override old
+Route::get('/wishlist', \App\Livewire\Store\Wishlist::class)->name('wishlist'); // New
 Route::get('/order-success/{id}', \App\Livewire\Store\OrderSuccess::class)->name('order.success');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 

@@ -80,7 +80,14 @@
                         <svg class="w-6 h-6 transition-transform group-hover:-translate-y-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                         <span class="uppercase tracking-wider">{{ $product->stock_quantity > 0 ? 'Tambah ke Keranjang' : 'Stok Habis' }}</span>
                     </button>
-                    <!-- Compare Button (Optional) -->
+                    
+                    <!-- Wishlist Button -->
+                    @php
+                        $inWishlist = \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
+                    @endphp
+                    <button wire:click="$dispatch('addToWishlist', {productId: {{ $product->id }}})" class="p-4 rounded-xl border border-white/10 hover:bg-white/5 text-slate-400 hover:text-pink-500 transition-all {{ $inWishlist ? 'text-pink-500 bg-pink-500/10 border-pink-500/30' : '' }}">
+                        <svg class="w-6 h-6 {{ $inWishlist ? 'fill-current' : 'fill-none' }}" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                    </button>
                 </div>
             </div>
         </div>
