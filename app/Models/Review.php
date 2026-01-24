@@ -3,16 +3,26 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Review extends Model
 {
-    use LogsActivity;
+    protected $fillable = [
+        'product_id',
+        'user_id',
+        'reviewer_name',
+        'rating',
+        'comment',
+        'is_approved',
+    ];
 
-    protected $fillable = ['product_id', 'reviewer_name', 'rating', 'comment', 'is_approved'];
-
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

@@ -37,17 +37,20 @@ class Home extends Component
     #[Url(history: true)]
     public $sort = 'latest';
 
-    // Cart State
+    // UI State
     public $isCartOpen = false;
-    public $cart = [];
+    public $showCompareModal = false;
+    public $priceRangeMax = 50000000; // Dynamic max for slider
 
+    // Cart
+    public $cart = [];
+    
     // Feature Toggles
     public $flashSaleEnabled = true;
     public $serviceTrackingEnabled = true;
 
-    // Comparison
+    // Compare List
     public $compareList = [];
-    public $showCompareModal = false;
 
     public function mount()
     {
@@ -55,23 +58,29 @@ class Home extends Component
         $this->compareList = Session::get('compareList', []);
         $this->flashSaleEnabled = (bool) Setting::get('feature_flash_sale', true);
         $this->serviceTrackingEnabled = (bool) Setting::get('feature_service_tracking', true);
+        
+        // Get max price from DB for slider limit
+        $dbMax = Product::max('sell_price');
+        if ($dbMax) {
+            $this->priceRangeMax = ceil($dbMax / 100000) * 100000; // Round up to nearest 100k
+            if ($this->maxPrice > $this->priceRangeMax) $this->maxPrice = $this->priceRangeMax;
+        }
     }
 
-    // ... (Keep existing methods: updatedSearch, updatedCategory, openProduct, toggleCart, addToCart, removeFromCart, updateCartQty, checkout, trackService, comparison methods) ...
     public function updatedSearch() { $this->resetPage(); }
     public function updatedCategory() { $this->resetPage(); }
-    public function openProduct($id) { return redirect()->route('product.detail', $id); }
-    public function toggleCart() { $this->isCartOpen = !$this->isCartOpen; }
+    
+    // Add to Cart Logic
     public function addToCart($productId, $qty = 1) {
         $product = Product::find($productId);
         if (!$product || $product->stock_quantity < 1) {
-            $this->dispatch('notify', message: 'Stok barang habis!');
+            $this->dispatch('notify', message: 'Stok barang habis!', type: 'error');
             return;
         }
         if (isset($this->cart[$productId])) {
             $newQty = $this->cart[$productId] + $qty;
             if ($newQty > $product->stock_quantity) {
-                 $this->dispatch('notify', message: 'Stok tidak mencukupi!');
+                 $this->dispatch('notify', message: 'Stok tidak mencukupi!', type: 'error');
                  return;
             }
             $this->cart[$productId] = $newQty;
@@ -79,10 +88,17 @@ class Home extends Component
             $this->cart[$productId] = $qty;
         }
         Session::put('cart', $this->cart);
-        $this->dispatch('notify', message: 'Produk masuk keranjang!');
+        $this->dispatch('notify', message: 'Produk masuk keranjang!', type: 'success');
+        $this->dispatch('cart-updated');
         $this->isCartOpen = true;
     }
-    public function removeFromCart($productId) { unset($this->cart[$productId]); Session::put('cart', $this->cart); }
+
+    public function removeFromCart($productId) { 
+        unset($this->cart[$productId]); 
+        Session::put('cart', $this->cart);
+        $this->dispatch('cart-updated');
+    }
+
     public function updateCartQty($productId, $change) {
         if (!isset($this->cart[$productId])) return;
         $newQty = $this->cart[$productId] + $change;
@@ -90,12 +106,20 @@ class Home extends Component
         if ($newQty > 0 && $newQty <= $product->stock_quantity) {
             $this->cart[$productId] = $newQty;
             Session::put('cart', $this->cart);
+            $this->dispatch('cart-updated');
         } elseif ($newQty <= 0) {
             $this->removeFromCart($productId);
         }
     }
+
+    public function toggleCart() { $this->isCartOpen = !$this->isCartOpen; }
+
     public function checkout() {
         if (empty($this->cart)) return;
+        
+        // Check Auth - if customer/member, can redirect to internal checkout
+        // For now, keep WhatsApp checkout as fallback or primary
+        
         $message = "*Halo Yala Computer, saya ingin memesan:*\n\n";
         $total = 0;
         $products = Product::whereIn('id', array_keys($this->cart))->get();
@@ -108,33 +132,50 @@ class Home extends Component
         $message .= "\n💰 *Total Estimasi: Rp " . number_format($total, 0, ',', '.') . "*\n\n📍 _Mohon info ketersediaan stok dan biaya pengiriman._";
         return redirect()->away("https://wa.me/" . Setting::get('whatsapp_number', '6281234567890') . "?text=" . urlencode($message));
     }
-    
+
+    // Comparison Logic
+    public function addToCompare($productId) {
+        if (in_array($productId, $this->compareList)) { 
+            $this->dispatch('notify', message: 'Produk sudah ada di perbandingan.', type: 'error'); 
+            return; 
+        }
+        if (count($this->compareList) >= 3) { 
+            $this->dispatch('notify', message: 'Maksimal 3 produk untuk dibandingkan.', type: 'error'); 
+            return; 
+        }
+        $this->compareList[] = $productId;
+        Session::put('compareList', $this->compareList);
+        $this->dispatch('notify', message: 'Ditambahkan ke perbandingan.', type: 'success');
+    }
+
+    public function removeFromCompare($productId) {
+        $this->compareList = array_diff($this->compareList, [$productId]);
+        Session::put('compareList', $this->compareList);
+    }
+
+    public function openCompare() {
+        if (count($this->compareList) < 2) { 
+            $this->dispatch('notify', message: 'Pilih minimal 2 produk untuk dibandingkan.', type: 'warning'); 
+            return; 
+        }
+        $this->showCompareModal = true;
+    }
+
+    public function closeCompare() { $this->showCompareModal = false; }
+
     // Service Tracking
     public $trackingNumber = '';
     public $trackingResult = null;
     public function trackService() {
         $this->validate(['trackingNumber' => 'required']);
         $ticket = \App\Models\ServiceTicket::where('ticket_number', $this->trackingNumber)->first();
-        if ($ticket) { $this->trackingResult = $ticket; } else { $this->addError('trackingNumber', 'Nomor tiket tidak ditemukan.'); $this->trackingResult = null; }
+        if ($ticket) { 
+            // Redirect to dedicated tracking page for full details
+            return redirect()->route('track-service', ['search_ticket' => $this->trackingNumber]);
+        } else { 
+            $this->addError('trackingNumber', 'Nomor tiket tidak ditemukan.'); 
+        }
     }
-
-    // Comparison
-    public function addToCompare($productId) {
-        if (in_array($productId, $this->compareList)) { $this->dispatch('notify', message: 'Produk sudah ada di perbandingan.', type: 'error'); return; }
-        if (count($this->compareList) >= 3) { $this->dispatch('notify', message: 'Maksimal 3 produk.', type: 'error'); return; }
-        $this->compareList[] = $productId;
-        Session::put('compareList', $this->compareList); // Persist
-        $this->dispatch('notify', message: 'Ditambahkan ke perbandingan.');
-    }
-    public function removeFromCompare($productId) {
-        $this->compareList = array_diff($this->compareList, [$productId]);
-        Session::put('compareList', $this->compareList);
-    }
-    public function openCompare() {
-        if (count($this->compareList) < 2) { $this->dispatch('notify', message: 'Pilih minimal 2 produk.', type: 'error'); return; }
-        $this->showCompareModal = true;
-    }
-    public function closeCompare() { $this->showCompareModal = false; }
 
     #[Computed]
     public function getCartTotalProperty() {
@@ -174,7 +215,7 @@ class Home extends Component
             ->when($this->sort === 'latest', fn($q) => $q->latest())
             ->paginate(12);
 
-        $latestNews = Article::where('is_published', true)->latest()->take(3)->get(); // Fetch News
+        $latestNews = Article::where('is_published', true)->latest()->take(3)->get();
 
         return view('livewire.store.home', [
             'products' => $products,

@@ -123,6 +123,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Reviews Component -->
+            <livewire:store.product-reviews :productId="$product->id" />
         </div>
 
         <!-- Related Products -->
