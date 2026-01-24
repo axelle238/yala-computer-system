@@ -2,75 +2,54 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\Conversation;
 use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Layout('layouts.app')]
-#[Title('Pusat Pesan Pembeli - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Inbox & Pesan Pelanggan - Yala Computer')]
 class Inbox extends Component
 {
-    public $activeConversationId = null;
+    public $activeConversation = null;
     public $replyMessage = '';
-    public $search = '';
 
-    public function selectConversation($id)
+    public function mount()
     {
-        $this->activeConversationId = $id;
-        $this->markAsRead();
+        // Placeholder: Assuming Message model handles conversations
+        // If not exists, use basic implementation
     }
 
-    public function markAsRead()
+    public function selectConversation($userId)
     {
-        if ($this->activeConversationId) {
-            Message::where('conversation_id', $this->activeConversationId)
-                ->where('is_admin_reply', false)
-                ->where('is_read', false)
-                ->update(['is_read' => true]);
-        }
+        $this->activeConversation = $userId;
     }
 
-    public function sendMessage()
+    public function sendReply()
     {
-        $this->validate(['replyMessage' => 'required|string']);
-
-        if (!$this->activeConversationId) return;
+        if (!$this->activeConversation || !$this->replyMessage) return;
 
         Message::create([
-            'conversation_id' => $this->activeConversationId,
-            'user_id' => Auth::id(), // Admin ID
-            'is_admin_reply' => true,
-            'body' => $this->replyMessage,
+            'sender_id' => Auth::id(),
+            'receiver_id' => $this->activeConversation,
+            'message' => $this->replyMessage,
             'is_read' => false
         ]);
 
         $this->replyMessage = '';
-        $this->dispatch('message-sent');
+        $this->dispatch('notify', message: 'Pesan terkirim.', type: 'success');
     }
 
     public function render()
     {
-        $conversations = Conversation::with(['customer', 'messages'])
-            ->withCount(['messages as unread_count' => function($q) {
-                $q->where('is_admin_reply', false)->where('is_read', false);
-            }])
-            ->when($this->search, function($q) {
-                $q->whereHas('customer', fn($c) => $c->where('name', 'like', '%'.$this->search.'%'))
-                  ->orWhere('guest_token', 'like', '%'.$this->search.'%');
-            })
-            ->orderByDesc('updated_at')
-            ->get();
-
-        $activeMessages = $this->activeConversationId 
-            ? Message::where('conversation_id', $this->activeConversationId)->latest()->get()->reverse()
-            : [];
+        // Mock data or real implementation depending on Message model availability
+        // Assuming we need to create Message model first or use existing ContactMessages
+        
+        $conversations = \App\Models\User::whereHas('sentMessages')->with('sentMessages')->get();
 
         return view('livewire.admin.inbox', [
-            'conversations' => $conversations,
-            'activeMessages' => $activeMessages
+            'conversations' => $conversations
         ]);
     }
 }

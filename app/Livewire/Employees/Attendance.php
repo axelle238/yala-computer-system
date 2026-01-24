@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Employees;
 
-use App\Models\Attendance;
 use App\Models\Shift;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
