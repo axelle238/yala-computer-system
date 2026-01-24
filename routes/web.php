@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Route;
 
 // Public Storefront
 Route::get('/', StoreHome::class)->name('home');
-Route::get('/catalog', \App\Livewire\Store\Catalog::class)->name('store.catalog'); // New
+Route::get('/catalog', \App\Livewire\Store\Catalog::class)->name('store.catalog'); 
 Route::get('/product/{id}', \App\Livewire\Store\ProductDetail::class)->name('product.detail');
-Route::get('/compare', \App\Livewire\Store\Comparison::class)->name('product.compare');
+Route::get('/bundle/{slug}', \App\Livewire\Store\BundleDetail::class)->name('store.bundle.detail'); // New
+Route::get('/compare', \App\Livewire\Store
+Comparison::class)->name('product.compare');
 Route::get('/community', \App\Livewire\Community\Gallery::class)->name('community.index'); 
 Route::get('/berita', \App\Livewire\Store\News\Index::class)->name('news.index');
 Route::get('/berita/{slug}', \App\Livewire\Store\News\Show::class)->name('news.show');
@@ -50,6 +52,7 @@ Route::prefix('member')->middleware('auth')->group(function () {
     Route::get('/orders', \App\Livewire\Member\Orders::class)->name('member.orders');
     Route::get('/orders/{id}', \App\Livewire\Member\OrderDetail::class)->name('member.orders.show'); 
     Route::get('/profile', \App\Livewire\Member\ProfileSettings::class)->name('member.profile'); // New
+    Route::get('/loyalty', \App\Livewire\Member\LoyaltyPoints::class)->name('member.loyalty'); // New
     Route::get('/rma/request', \App\Livewire\Member\RmaRequest::class)->name('member.rma.request');
 });
 

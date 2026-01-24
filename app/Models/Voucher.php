@@ -12,11 +12,23 @@ class Voucher extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'is_active' => 'boolean',
+        'is_public' => 'boolean',
     ];
 
     public function usages()
     {
         return $this->hasMany(VoucherUsage::class);
+    }
+
+    public function scopeRedeemable($query)
+    {
+        return $query->where('is_active', true)
+                     ->where('is_public', true)
+                     ->where('points_cost', '>', 0)
+                     ->where(function($q) {
+                         $q->whereNull('end_date')
+                           ->orWhere('end_date', '>=', now());
+                     });
     }
 
     public function isValidForUser($userId, $totalSpend)
