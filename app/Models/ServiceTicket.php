@@ -3,8 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Traits\LogsActivity;
 
+/**
+ * Model Tiket Servis
+ */
 class ServiceTicket extends Model
 {
     use LogsActivity;
@@ -33,31 +38,30 @@ class ServiceTicket extends Model
         'completeness' => 'array',
     ];
 
-    public function technician()
+    public function technician(): BelongsTo
     {
         return $this->belongsTo(User::class, 'technician_id');
     }
 
-    public function customerMember()
+    public function customerMember(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // New V2 Relationships
-    public function parts()
+    /**
+     * Relasi ke Suku Cadang Servis (Refactored).
+     */
+    public function parts(): HasMany
     {
-        return $this->hasMany(ServiceTicketPart::class);
+        return $this->hasMany(SukuCadangServis::class, 'id_tiket_servis');
     }
 
-    public function progressLogs()
+    /**
+     * Relasi ke Progres Servis (Refactored).
+     */
+    public function progressLogs(): HasMany
     {
-        return $this->hasMany(ServiceTicketProgress::class)->latest();
-    }
-
-    // Keep backward compatibility if needed, but V2 uses progressLogs
-    public function items()
-    {
-        return $this->hasMany(ServiceItem::class);
+        return $this->hasMany(ProgresServis::class, 'id_tiket_servis')->latest();
     }
 
     // Helper untuk label status warna-warni

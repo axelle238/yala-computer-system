@@ -7,7 +7,7 @@ use App\Models\CashTransaction;
 use App\Models\Product;
 use App\Models\ServiceTicket;
 use App\Models\SukuCadangServis;
-use App\Models\ServiceTicketProgress;
+use App\Models\ProgresServis;
 use App\Models\InventoryTransaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -45,7 +45,7 @@ class Workbench extends Component
     {
         $this->tiket = ServiceTicket::with([
             'parts.produk', 
-            'progressLogs',
+            'progressLogs.teknisi', // Update eager load relation name
             'technician',
             'customerMember'
         ])->findOrFail($id);
@@ -203,12 +203,12 @@ class Workbench extends Component
             'inputCatatan.min' => 'Catatan minimal 3 karakter.',
         ]);
 
-        ServiceTicketProgress::create([
-            'service_ticket_id' => $this->tiket->id,
-            'status_label' => $this->tiket->status,
-            'description' => $this->inputCatatan,
-            'technician_id' => Auth::id() ?? 1,
-            'is_public' => $this->catatanPublik,
+        ProgresServis::create([
+            'id_tiket_servis' => $this->tiket->id,
+            'status' => $this->tiket->status,
+            'deskripsi' => $this->inputCatatan,
+            'id_teknisi' => Auth::id() ?? 1,
+            'is_publik' => $this->catatanPublik,
         ]);
 
         $this->inputCatatan = '';
@@ -227,12 +227,12 @@ class Workbench extends Component
         $this->tiket->status = $statusBaru;
         $this->tiket->save();
 
-        ServiceTicketProgress::create([
-            'service_ticket_id' => $this->tiket->id,
-            'status_label' => $statusBaru,
-            'description' => "Status diubah dari " . ucfirst(str_replace('_', ' ', $statusLama)) . " ke " . ucfirst(str_replace('_', ' ', $statusBaru)),
-            'technician_id' => Auth::id() ?? 1,
-            'is_public' => true,
+        ProgresServis::create([
+            'id_tiket_servis' => $this->tiket->id,
+            'status' => $statusBaru,
+            'deskripsi' => "Status diubah dari " . ucfirst(str_replace('_', ' ', $statusLama)) . " ke " . ucfirst(str_replace('_', ' ', $statusBaru)),
+            'id_teknisi' => Auth::id() ?? 1,
+            'is_publik' => true,
         ]);
 
         $this->statusSaatIni = $statusBaru;
@@ -256,8 +256,7 @@ class Workbench extends Component
             return;
         }
 
-        // 2. Hitung Total Tagihan (Sum dari SukuCadangServis)
-        // Kita perlu menyesuaikan query ini karena nama tabel/model sudah berubah
+        // 2. Hitung Total Tagihan
         $totalTagihan = SukuCadangServis::where('id_tiket_servis', $this->tiket->id)->sum(DB::raw('jumlah * harga_satuan'));
         
         if ($totalTagihan <= 0) {
@@ -285,12 +284,12 @@ class Workbench extends Component
             $this->tiket->save();
 
             // Log Progres Akhir
-            ServiceTicketProgress::create([
-                'service_ticket_id' => $this->tiket->id,
-                'status_label' => 'picked_up',
-                'description' => "Pembayaran diterima sebesar Rp " . number_format($totalTagihan) . " via " . ucfirst($this->metodePembayaran) . ". Unit telah diambil.",
-                'technician_id' => Auth::id(),
-                'is_public' => true,
+            ProgresServis::create([
+                'id_tiket_servis' => $this->tiket->id,
+                'status' => 'picked_up',
+                'deskripsi' => "Pembayaran diterima sebesar Rp " . number_format($totalTagihan) . " via " . ucfirst($this->metodePembayaran) . ". Unit telah diambil.",
+                'id_teknisi' => Auth::id(),
+                'is_publik' => true,
             ]);
         });
 
