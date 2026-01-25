@@ -95,7 +95,7 @@ class User extends Authenticatable
     public function punyaAkses(string $kodeAkses): bool
     {
         // 1. Pemilik/Admin Utama selalu punya akses penuh
-        if ($this->role === 'admin' || ($this->peran && $this->peran->nama === 'Admin')) {
+        if ($this->isAdmin()) {
             return true;
         }
 
@@ -120,5 +120,15 @@ class User extends Authenticatable
         }
 
         return false;
+    }
+
+    /**
+     * Mengecek apakah user adalah Admin.
+     * 
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin' || ($this->peran && $this->peran->nama === 'Admin');
     }
 }
