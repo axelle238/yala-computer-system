@@ -4,6 +4,8 @@ namespace App\Livewire\Warehouses;
 
 use App\Models\InventoryTransaction;
 use App\Models\Product;
+use App\Models\StockOpname as StockOpnameModel;
+use App\Models\StockOpnameItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -18,116 +20,112 @@ class StockOpname extends Component
     use WithPagination;
 
     public $search = '';
-    public $isSessionActive = false;
-    public $tempStock = []; // [product_id => physical_qty]
+    public ?StockOpnameModel $activeOpname = null;
 
     public function mount()
     {
-        // Cek jika ada sesi opname yang tersimpan di session browser (simple persistence)
-        if (session()->has('opname_session_active')) {
-            $this->isSessionActive = true;
-            $this->tempStock = session()->get('opname_data', []);
-        }
-    }
-
-    public function updatedTempStock()
-    {
-        session()->put('opname_data', $this->tempStock);
+        // Cari sesi opname yang sedang berlangsung untuk user ini
+        $this->activeOpname = StockOpnameModel::where('creator_id', Auth::id())
+            ->where('status', 'counting')
+            ->latest()
+            ->first();
     }
 
     public function startSession()
     {
-        $this->isSessionActive = true;
-        $this->tempStock = [];
-        session()->put('opname_session_active', true);
-        session()->put('opname_data', []);
+        // Buat sesi opname baru
+        $this->activeOpname = StockOpnameModel::create([
+            'opname_number' => 'OPN-' . date('Ymd-His'),
+            'warehouse_id' => 1, // Asumsi gudang utama
+            'creator_id' => Auth::id(),
+            'status' => 'counting',
+            'opname_date' => now(),
+        ]);
+
+        // Muat semua produk aktif ke dalam item opname
+        $products = Product::where('is_active', true)->get();
+        $items = [];
+        foreach($products as $product) {
+            $items[] = [
+                'stock_opname_id' => $this->activeOpname->id,
+                'product_id' => $product->id,
+                'system_stock' => $product->stock_quantity,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+        StockOpnameItem::insert($items);
     }
 
     public function cancelSession()
     {
-        $this->isSessionActive = false;
-        $this->tempStock = [];
-        session()->forget(['opname_session_active', 'opname_data']);
+        if ($this->activeOpname) {
+            $this->activeOpname->update(['status' => 'cancelled']);
+            $this->activeOpname = null;
+        }
+    }
+    
+    public function updatePhysicalStock($itemId, $physicalStock)
+    {
+        $item = StockOpnameItem::find($itemId);
+        if ($item && $this->activeOpname && $item->stock_opname_id == $this->activeOpname->id) {
+            $item->update(['physical_stock' => $physicalStock === '' ? null : $physicalStock]);
+        }
     }
 
     public function finalizeOpname()
     {
-        // Validasi
-        if (empty($this->tempStock)) {
-            session()->flash('error', 'Belum ada data stok fisik yang diinput.');
-            return;
-        }
+        if (!$this->activeOpname) return;
 
         DB::transaction(function () {
-            $batchId = 'OPN-' . date('ymd-His');
+            $itemsToAdjust = $this->activeOpname->items()
+                ->whereNotNull('physical_stock')
+                ->whereRaw('physical_stock != system_stock')
+                ->get();
+            
+            foreach ($itemsToAdjust as $item) {
+                $product = $item->product;
+                $variance = $item->variance;
 
-            foreach ($this->tempStock as $productId => $physicalQty) {
-                if ($physicalQty === '' || $physicalQty === null) continue;
+                // Update Stok Produk
+                $product->update(['stock_quantity' => $item->physical_stock]);
 
-                $product = Product::find($productId);
-                if (!$product) continue;
-
-                $systemQty = $product->stock_quantity;
-                $variance = $physicalQty - $systemQty;
-
-                if ($variance != 0) {
-                    // Update Stok Produk
-                    $product->stock_quantity = $physicalQty;
-                    $product->save();
-
-                    // Catat Transaksi
-                    InventoryTransaction::create([
-                        'product_id' => $product->id,
-                        'user_id' => Auth::id(),
-                        'warehouse_id' => 1, // Default warehouse
-                        'type' => 'adjustment',
-                        'quantity' => abs($variance), // Jumlah selisih mutlak
-                        'unit_price' => $product->buy_price, // Pakai harga beli untuk HPP
-                        'cogs' => $product->buy_price,
-                        'remaining_stock' => $physicalQty,
-                        'reference_number' => $batchId,
-                        'notes' => "Stok Opname: System ($systemQty) -> Fisik ($physicalQty). Selisih: $variance",
-                    ]);
-                }
+                // Catat Transaksi
+                InventoryTransaction::create([
+                    'product_id' => $product->id,
+                    'user_id' => Auth::id(),
+                    'warehouse_id' => $this->activeOpname->warehouse_id,
+                    'type' => 'adjustment',
+                    'quantity' => abs($variance),
+                    'remaining_stock' => $item->physical_stock,
+                    'notes' => "Stok Opname #{$this->activeOpname->opname_number}: Selisih {$variance}",
+                    'reference_number' => $this->activeOpname->opname_number,
+                ]);
             }
+
+            // Tandai sesi opname selesai
+            $this->activeOpname->update(['status' => 'completed']);
+            $this->activeOpname = null;
         });
 
         session()->flash('success', 'Stok Opname Selesai! Stok telah disesuaikan.');
-        $this->cancelSession(); // Reset session
     }
 
     public function render()
     {
-        $products = Product::query()
-            ->where('is_active', true)
-            ->where(function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('sku', 'like', '%' . $this->search . '%');
-            })
-            ->orderBy('name')
-            ->paginate(50); // Show more items for opname
-
-        // Hitung Statistik Sesi Ini
-        $stats = [
-            'matched' => 0,
-            'mismatch' => 0,
-            'pending' => 0
-        ];
-
-        // Hitung manual karena pagination (hanya estimasi dari halaman yang diload atau data di tempStock vs All Products - simplifikasi untuk performa UI)
-        // Idealnya query count, tapi karena tempStock ada di Livewire state (array), kita hitung yang ada di array saja
-        foreach ($this->tempStock as $pid => $qty) {
-            $p = Product::find($pid);
-            if ($p) {
-                if ($qty == $p->stock_quantity) $stats['matched']++;
-                else $stats['mismatch']++;
-            }
+        $items = null;
+        if ($this->activeOpname) {
+            $items = StockOpnameItem::where('stock_opname_id', $this->activeOpname->id)
+                ->with('product')
+                ->whereHas('product', function($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                      ->orWhere('sku', 'like', '%' . $this->search . '%');
+                })
+                ->paginate(50);
         }
-        $stats['pending'] = $products->total() - count($this->tempStock);
 
         return view('livewire.warehouses.stock-opname', [
-            'products' => $products,
-            'stats' => $stats
+            'items' => $items
         ]);
     }
 }
