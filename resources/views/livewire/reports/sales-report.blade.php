@@ -1,86 +1,113 @@
-<div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Laporan Penjualan</h1>
-        <div class="flex gap-2">
-            <select wire:model.live="period" class="rounded-lg border-gray-300 text-sm">
-                <option value="today">Hari Ini</option>
-                <option value="this_week">Minggu Ini</option>
-                <option value="this_month">Bulan Ini</option>
-                <option value="custom">Custom</option>
-            </select>
-            @if($period === 'custom')
-                <input type="date" wire:model.live="startDate" class="rounded-lg border-gray-300 text-sm">
-                <input type="date" wire:model.live="endDate" class="rounded-lg border-gray-300 text-sm">
-            @endif
+<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8 animate-fade-in-up">
+    
+    <!-- Header & Filter -->
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <div>
+            <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tight">
+                Sales <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Intelligence</span>
+            </h2>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Analisis performa penjualan, tren, dan produk unggulan.</p>
+        </div>
+        
+        <div class="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
+            <button wire:click="setPeriod('today')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all {{ $period == 'today' ? 'bg-white dark:bg-slate-700 shadow text-blue-600 dark:text-blue-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">Hari Ini</button>
+            <button wire:click="setPeriod('this_week')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all {{ $period == 'this_week' ? 'bg-white dark:bg-slate-700 shadow text-blue-600 dark:text-blue-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">Minggu Ini</button>
+            <button wire:click="setPeriod('this_month')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all {{ $period == 'this_month' ? 'bg-white dark:bg-slate-700 shadow text-blue-600 dark:text-blue-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">Bulan Ini</button>
         </div>
     </div>
 
-    <!-- KPI Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-            <p class="text-xs font-bold text-gray-500 uppercase">Total Pendapatan</p>
-            <h3 class="text-3xl font-black text-indigo-600 mt-2">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h3>
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group">
+            <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:scale-110 transition-transform"></div>
+            <p class="text-xs font-bold uppercase tracking-wider text-blue-100">Total Omset</p>
+            <h3 class="text-3xl font-black font-tech mt-2">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h3>
+            <p class="text-xs text-blue-200 mt-1">Periode terpilih</p>
         </div>
-        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-            <p class="text-xs font-bold text-gray-500 uppercase">Total Transaksi</p>
-            <h3 class="text-3xl font-black text-slate-800 mt-2">{{ $totalOrders }}</h3>
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Jumlah Transaksi</p>
+            <h3 class="text-3xl font-black font-tech text-slate-900 dark:text-white mt-2">{{ number_format($totalOrders) }}</h3>
+            <p class="text-xs text-slate-400 mt-1">Order selesai & diproses</p>
         </div>
-        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-            <p class="text-xs font-bold text-gray-500 uppercase">Rata-rata Order</p>
-            <h3 class="text-3xl font-black text-emerald-600 mt-2">Rp {{ number_format($averageOrderValue, 0, ',', '.') }}</h3>
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Rata-rata Keranjang</p>
+            <h3 class="text-3xl font-black font-tech text-slate-900 dark:text-white mt-2">Rp {{ number_format($avgOrderValue, 0, ',', '.') }}</h3>
+            <p class="text-xs text-slate-400 mt-1">Per transaksi</p>
         </div>
     </div>
 
-    <!-- Chart Placeholder (Visual Representation using CSS bars) -->
-    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm mb-8">
-        <h3 class="font-bold text-gray-800 mb-6">Tren Penjualan</h3>
-        <div class="h-64 flex items-end justify-between gap-2 px-4 border-b border-gray-200 pb-2">
-            @foreach($chartLabels as $index => $label)
-                @php 
-                    $value = $chartValues[$index];
-                    $max = $chartValues->max() > 0 ? $chartValues->max() : 1;
-                    $height = ($value / $max) * 100;
-                @endphp
-                <div class="w-full flex flex-col items-center group">
-                    <div class="w-full bg-indigo-100 rounded-t-sm relative transition-all group-hover:bg-indigo-500" style="height: {{ $height }}%">
-                        <span class="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-                            Rp {{ number_format($value) }}
+    <!-- Charts & Tables -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Daily Trend (CSS Chart) -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+            <h3 class="font-bold text-slate-800 dark:text-white mb-6">Tren Penjualan</h3>
+            
+            <div class="h-64 flex items-end gap-2">
+                @php $maxVal = $dailySales->max('total') ?: 1; @endphp
+                @foreach($dailySales as $day)
+                    <div class="flex-1 flex flex-col items-center group relative">
+                        <div class="w-full bg-blue-500 rounded-t-sm transition-all duration-500 group-hover:bg-indigo-500 relative" 
+                             style="height: {{ ($day->total / $maxVal) * 100 }}%">
+                             
+                             <!-- Tooltip -->
+                             <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap z-10">
+                                Rp {{ number_format($day->total, 0, ',', '.') }}
+                             </div>
+                        </div>
+                        <span class="text-[10px] text-slate-400 mt-2 rotate-45 md:rotate-0 truncate w-full text-center">
+                            {{ \Carbon\Carbon::parse($day->date)->format('d/m') }}
                         </span>
                     </div>
-                    <span class="text-[10px] text-gray-400 mt-2 rotate-45 md:rotate-0">{{ $label }}</span>
-                </div>
-            @endforeach
-        </div>
-    </div>
-
-    <!-- Recent Data Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-4 border-b border-gray-100">
-            <h3 class="font-bold text-gray-800">Transaksi Terakhir (Periode Ini)</h3>
-        </div>
-        <table class="w-full text-left text-sm text-gray-600">
-            <thead class="bg-gray-50 uppercase text-xs font-semibold text-gray-700">
-                <tr>
-                    <th class="px-6 py-4">No. Order</th>
-                    <th class="px-6 py-4">Pelanggan</th>
-                    <th class="px-6 py-4">Tanggal</th>
-                    <th class="px-6 py-4 text-right">Total</th>
-                    <th class="px-6 py-4 text-center">Status</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @foreach($recentOrders as $order)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 font-mono font-bold">{{ $order->order_number }}</td>
-                        <td class="px-6 py-4">{{ $order->guest_name ?? ($order->user->name ?? 'Guest') }}</td>
-                        <td class="px-6 py-4">{{ $order->created_at->format('d M Y H:i') }}</td>
-                        <td class="px-6 py-4 text-right font-bold">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="px-2 py-1 rounded text-xs font-bold uppercase bg-slate-100">{{ $order->status }}</span>
-                        </td>
-                    </tr>
                 @endforeach
-            </tbody>
-        </table>
+                @if($dailySales->isEmpty())
+                    <div class="w-full h-full flex items-center justify-center text-slate-400 text-sm">Belum ada data penjualan.</div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Top Products -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+            <h3 class="font-bold text-slate-800 dark:text-white mb-6">Produk Terlaris</h3>
+            
+            <div class="space-y-4">
+                @foreach($topProducts as $index => $item)
+                    <div class="flex items-center gap-4 group">
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-500 text-xs">
+                            #{{ $index + 1 }}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between mb-1">
+                                <span class="font-bold text-slate-700 dark:text-slate-200 truncate">{{ $item->product->name }}</span>
+                                <span class="text-xs font-bold text-slate-500">{{ $item->total_qty }} Unit</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                                @php $pct = ($item->total_sales / ($totalRevenue ?: 1)) * 100; @endphp
+                                <div class="bg-emerald-500 h-full rounded-full" style="width: {{ $pct }}%"></div>
+                            </div>
+                            <div class="text-[10px] text-slate-400 mt-1 text-right">Rp {{ number_format($item->total_sales, 0, ',', '.') }}</div>
+                        </div>
+                    </div>
+                @endforeach
+                
+                @if($topProducts->isEmpty())
+                    <div class="text-center py-10 text-slate-400 text-sm">Belum ada produk terjual.</div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 lg:col-span-2">
+            <h3 class="font-bold text-slate-800 dark:text-white mb-6">Metode Pembayaran</h3>
+            <div class="flex flex-wrap gap-4">
+                @foreach($paymentStats as $stat)
+                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-700 flex-1 min-w-[150px]">
+                        <p class="text-xs font-bold uppercase text-slate-500 mb-1">{{ ucfirst($stat->payment_method ?: 'Manual') }}</p>
+                        <p class="text-xl font-black text-slate-800 dark:text-white">{{ $stat->total }} <span class="text-sm font-medium text-slate-400">Transaksi</span></p>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
     </div>
 </div>

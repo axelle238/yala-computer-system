@@ -4,66 +4,78 @@ namespace App\Livewire\Products;
 
 use App\Models\Product;
 use Livewire\Component;
-use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
 #[Layout('layouts.admin')]
-#[Title('Cetak Label Barcode')]
+#[Title('Cetak Label Produk')]
 class LabelMaker extends Component
 {
-    // Search
     public $search = '';
     public $searchResults = [];
-
-    // Selected Items
-    public $items = []; // [product_id => qty]
-
-    // Print Config
-    public $paperSize = 'a4'; // a4, thermal_80mm
+    public $selectedProducts = []; // [[id, name, price, qty]]
+    
+    // Print Settings
+    public $paperSize = 'a4'; // a4, thermal
     public $showPrice = true;
-    public $showName = true;
+    public $showBarcode = true;
 
     public function updatedSearch()
     {
         if (strlen($this->search) > 2) {
             $this->searchResults = Product::where('name', 'like', '%' . $this->search . '%')
                 ->orWhere('sku', 'like', '%' . $this->search . '%')
-                ->limit(5)
-                ->get();
+                ->take(5)->get();
         } else {
             $this->searchResults = [];
         }
     }
 
-    public function addItem($id)
+    public function addProduct($id)
     {
-        if (!isset($this->items[$id])) {
-            $this->items[$id] = 1; // Default 1 label
+        $product = Product::find($id);
+        if ($product) {
+            $this->selectedProducts[] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'sku' => $product->sku,
+                'price' => $product->sell_price,
+                'barcode' => $product->barcode ?? $product->sku,
+                'qty' => 1
+            ];
         }
         $this->search = '';
         $this->searchResults = [];
     }
 
-    public function removeItem($id)
+    public function removeProduct($index)
     {
-        unset($this->items[$id]);
+        unset($this->selectedProducts[$index]);
+        $this->selectedProducts = array_values($this->selectedProducts);
     }
 
-    public function updateQty($id, $qty)
+    public function printLabels()
     {
-        if ($qty > 0) {
-            $this->items[$id] = $qty;
-        } else {
-            $this->removeItem($id);
+        if (empty($this->selectedProducts)) {
+            $this->dispatch('notify', message: 'Pilih produk terlebih dahulu.', type: 'error');
+            return;
         }
+
+        // Pass data via Session to a clean print route (simple approach without PDF lib dependency issues)
+        session()->put('print_labels', [
+            'items' => $this->selectedProducts,
+            'settings' => [
+                'size' => $this->paperSize,
+                'price' => $this->showPrice,
+                'barcode' => $this->showBarcode
+            ]
+        ]);
+
+        return redirect()->route('print.labels.preview');
     }
 
     public function render()
     {
-        $products = Product::whereIn('id', array_keys($this->items))->get();
-        
-        return view('livewire.products.label-maker', [
-            'selectedProducts' => $products
-        ]);
+        return view('livewire.products.label-maker');
     }
 }
