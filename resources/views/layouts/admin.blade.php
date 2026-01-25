@@ -41,10 +41,29 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.5); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.8); }
+
+        /* Admin V3 Background */
+        .admin-grid { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; 
+            pointer-events: none;
+        }
+        .dark .admin-grid {
+            background-color: #0f172a; 
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px), 
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px); 
+            background-size: 40px 40px;
+        }
+        .dark .admin-grid::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased transition-colors duration-300 selection:bg-indigo-500 selection:text-white h-screen overflow-hidden font-sans">
     
+    <div class="admin-grid"></div>
+
     <div class="flex h-full w-full">
         <!-- Global Command Palette -->
         <livewire:components.spotlight />
