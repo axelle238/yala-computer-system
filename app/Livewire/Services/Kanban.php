@@ -3,7 +3,7 @@
 namespace App\Livewire\Services;
 
 use App\Models\ServiceTicket;
-use App\Models\ServiceTicketProgress;
+use App\Models\ProgresServis;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\Title;
@@ -13,7 +13,7 @@ use Livewire\Attributes\Layout;
 #[Title('Papan Kanban Servis - Yala Computer')]
 class Kanban extends Component
 {
-    public $statuses = [
+    public $statusTersedia = [
         'pending' => 'Menunggu',
         'diagnosing' => 'Sedang Diagnosa',
         'waiting_part' => 'Tunggu Sparepart',
@@ -21,12 +21,12 @@ class Kanban extends Component
         'ready' => 'Siap Diambil',
     ];
 
-    public function updateStatus($idTiket, $statusBaru)
+    public function perbaruiStatus($idTiket, $statusBaru)
     {
         $tiket = ServiceTicket::findOrFail($idTiket);
         
         // Validasi dasar
-        if (!array_key_exists($statusBaru, $this->statuses) && $statusBaru !== 'picked_up' && $statusBaru !== 'cancelled') {
+        if (!array_key_exists($statusBaru, $this->statusTersedia) && $statusBaru !== 'picked_up' && $statusBaru !== 'cancelled') {
             return;
         }
 
@@ -36,28 +36,28 @@ class Kanban extends Component
         $tiket->update(['status' => $statusBaru]);
         
         // KONSISTENSI: Buat Log Progres
-        ServiceTicketProgress::create([
-            'service_ticket_id' => $tiket->id,
-            'status_label' => $statusBaru,
-            'description' => "Status diperbarui via Papan Kanban dari " . ucfirst(str_replace('_', ' ', $statusLama)) . " ke " . ucfirst(str_replace('_', ' ', $statusBaru)),
-            'technician_id' => Auth::id() ?? 1, // Fallback ke admin jika belum login
-            'is_public' => true,
+        ProgresServis::create([
+            'id_tiket_servis' => $tiket->id,
+            'status' => $statusBaru,
+            'deskripsi' => "Status diperbarui via Papan Kanban dari " . ucfirst(str_replace('_', ' ', $statusLama)) . " ke " . ucfirst(str_replace('_', ' ', $statusBaru)),
+            'id_teknisi' => Auth::id() ?? 1, // Fallback ke admin jika belum login
+            'is_publik' => true,
         ]);
 
-        $this->dispatch('notify', message: "Tiket #{$tiket->ticket_number} dipindahkan ke " . ($this->statuses[$statusBaru] ?? $statusBaru));
+        $this->dispatch('notify', message: "Tiket #{$tiket->ticket_number} dipindahkan ke " . ($this->statusTersedia[$statusBaru] ?? $statusBaru));
     }
 
     public function render()
     {
         // Ambil semua tiket aktif dikelompokkan berdasarkan status
-        $tiket = ServiceTicket::whereIn('status', array_keys($this->statuses))
+        $tiket = ServiceTicket::whereIn('status', array_keys($this->statusTersedia))
             ->with(['technician', 'customerMember'])
             ->orderBy('created_at', 'asc') // Urutkan berdasarkan tanggal dibuat (FIFO)
             ->get()
             ->groupBy('status');
 
         return view('livewire.services.kanban', [
-            'tickets' => $tiket // Tetap gunakan 'tickets' agar view blade tidak error, nanti blade-nya disesuaikan
+            'tiket' => $tiket
         ]);
     }
 }
