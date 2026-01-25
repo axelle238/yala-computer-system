@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-4xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
-                {{ $user ? 'Edit' : 'New' }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Employee</span>
+                {{ $user ? 'Edit' : 'Tambah' }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Karyawan</span>
             </h2>
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Manajemen data pegawai dan hak akses sistem.</p>
         </div>
@@ -17,76 +17,121 @@
         <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-orange-500/10 to-amber-500/10 rounded-bl-full pointer-events-none"></div>
         
         <div class="relative z-10 space-y-8">
-            <h3 class="text-lg font-black text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                <span class="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                </span>
-                Profil Pegawai
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="col-span-2">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Lengkap</label>
-                    <input wire:model="name" type="text" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all font-bold text-slate-800 dark:text-white placeholder-slate-400" placeholder="Nama Pegawai">
-                    @error('name') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email (Login)</label>
-                    <input wire:model="email" type="email" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="email@yalacomputer.com">
-                    @error('email') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password</label>
-                    <input wire:model="password" type="password" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="{{ $user ? 'Isi jika ingin mengubah' : 'Password Login' }}">
-                    @error('password') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Role Akses</label>
-                    <div class="relative">
-                        <select wire:model.live="role" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none cursor-pointer font-medium text-slate-700 dark:text-slate-300">
-                            <option value="">Pilih Role</option>
-                            <option value="admin">Admin System</option>
-                            <option value="owner">Owner / Pemilik</option>
-                            <option value="employee">Employee / Staff</option>
-                            @foreach($roles as $r)
-                                @if(!in_array($r->name, ['admin', 'owner', 'employee']))
-                                    <option value="{{ $r->name }}">{{ ucfirst($r->name) }}</option>
-                                @endif
-                            @endforeach
-                        </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                        </div>
+            <!-- Profil Dasar -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2 pb-4 border-b border-slate-100 dark:border-slate-700">
+                    <span class="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    </span>
+                    Informasi Dasar
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Lengkap</label>
+                        <input wire:model="name" type="text" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all font-bold text-slate-800 dark:text-white placeholder-slate-400" placeholder="Nama Pegawai">
+                        @error('name') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
                     </div>
-                    @error('role') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
-                </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Gaji Pokok</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 font-bold">Rp</span>
-                        <input wire:model="base_salary" type="number" class="block w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all font-mono font-bold text-slate-800 dark:text-white">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email (Login)</label>
+                        <input wire:model="email" type="email" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="email@yalacomputer.com">
+                        @error('email') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password</label>
+                        <input wire:model="password" type="password" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="{{ $user ? 'Isi jika ingin mengubah' : 'Password Login' }}">
+                        @error('password') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>
             </div>
 
-            <!-- Permissions (Only for Employee) -->
-            @if($role === 'employee')
-                <div class="pt-6 border-t border-slate-100 dark:border-slate-700 animate-fade-in-up">
-                    <h4 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Hak Akses Manual</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        @foreach($availablePermissions as $key => $label)
-                            <label class="flex items-center p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:border-orange-200 transition-all">
-                                <input type="checkbox" wire:model="selectedPermissions" value="{{ $key }}" class="w-5 h-5 rounded text-orange-500 focus:ring-orange-500 border-gray-300">
-                                <span class="ml-3 text-sm font-bold text-slate-700 dark:text-slate-300">{{ $label }}</span>
-                            </label>
-                        @endforeach
+            <!-- Peran & Hak Akses -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2 pb-4 border-b border-slate-100 dark:border-slate-700">
+                    <span class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 19l-1 1-1 1-2-2m-4.743 4.743a6 6 0 01-7.743-5.743m7.743 4.743L7 7m0 0a2 2 0 012-2" /></svg>
+                    </span>
+                    Jabatan & Akses
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tipe Akun</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" wire:click="$set('role_type', 'custom')" class="px-4 py-3 rounded-xl border font-bold text-sm transition-all {{ $role_type == 'custom' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400' }}">
+                                Pegawai / Custom
+                            </button>
+                            <button type="button" wire:click="$set('role_type', 'admin')" class="px-4 py-3 rounded-xl border font-bold text-sm transition-all {{ $role_type == 'admin' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400' }}">
+                                Super Admin
+                            </button>
+                        </div>
+                    </div>
+
+                    @if($role_type == 'custom')
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pilih Peran / Jabatan</label>
+                            <div class="relative">
+                                <select wire:model="selected_role_id" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none cursor-pointer font-medium text-slate-700 dark:text-slate-300">
+                                    <option value="">-- Pilih Jabatan --</option>
+                                    @foreach($peranList as $peran)
+                                        <option value="{{ $peran->id }}">{{ $peran->nama }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                </div>
+                            </div>
+                            @error('selected_role_id') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                            <div class="mt-2 text-right">
+                                <a href="{{ route('employees.roles.create') }}" class="text-xs font-bold text-indigo-500 hover:underline">+ Buat Jabatan Baru</a>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Detail Kepegawaian -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2 pb-4 border-b border-slate-100 dark:border-slate-700">
+                    <span class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </span>
+                    Data Kepegawaian & Gaji
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tanggal Bergabung</label>
+                        <input wire:model="join_date" type="date" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-medium text-slate-700 dark:text-slate-300">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Gaji Pokok (Bulanan)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 font-bold">Rp</span>
+                            <input wire:model="base_salary" type="number" class="block w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-mono font-bold text-slate-800 dark:text-white">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Uang Makan (Harian)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 font-bold">Rp</span>
+                            <input wire:model="allowance_daily" type="number" class="block w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-mono font-bold text-slate-800 dark:text-white">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Komisi (%)</label>
+                        <div class="relative">
+                            <input wire:model="commission_percentage" type="number" step="0.1" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-mono font-bold text-slate-800 dark:text-white">
+                            <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 font-bold">%</span>
+                        </div>
                     </div>
                 </div>
-            @endif
+            </div>
 
             <div class="pt-6 border-t border-slate-100 dark:border-slate-700 flex justify-end">
                 <button type="submit" class="px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-orange-500/30 transition-all hover:-translate-y-1 hover:shadow-orange-500/50 flex items-center gap-2">
