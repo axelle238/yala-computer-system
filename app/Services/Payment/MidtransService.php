@@ -5,55 +5,76 @@ namespace App\Services\Payment;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
 
-class MidtransService
+/**
+ * Class LayananMidtrans
+ * 
+ * Menangani integrasi dengan gerbang pembayaran Midtrans.
+ */
+class LayananMidtrans
 {
-    protected $serverKey;
-    protected $isProduction;
-    protected $apiUrl;
+    /**
+     * Kunci server Midtrans.
+     */
+    protected $kunciServer;
+
+    /**
+     * Status lingkungan produksi atau sandbox.
+     */
+    protected $isProduksi;
+
+    /**
+     * URL API Midtrans.
+     */
+    protected $urlApi;
 
     public function __construct()
     {
-        // Prioritize Database Settings, Fallback to .env
-        $this->serverKey = Setting::get('midtrans_server_key') ?: config('services.midtrans.server_key');
-        $this->isProduction = (bool) Setting::get('midtrans_is_production', config('services.midtrans.is_production', false));
+        // Prioritaskan Pengaturan Basis Data, Cadangan ke .env
+        $this->kunciServer = Setting::get('midtrans_server_key') ?: config('services.midtrans.server_key');
+        $this->isProduksi = (bool) Setting::get('midtrans_is_production', config('services.midtrans.is_production', false));
         
-        $this->apiUrl = $this->isProduction 
+        $this->urlApi = $this->isProduksi 
             ? 'https://app.midtrans.com/snap/v1/transactions' 
             : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
     }
 
-    public function getSnapToken($order)
+    /**
+     * Mendapatkan Token Snap Midtrans untuk transaksi pesanan.
+     * 
+     * @param object $pesanan
+     * @return array
+     * @throws \Exception
+     */
+    public function ambilTokenSnap($pesanan)
     {
-        if (empty($this->serverKey)) {
-            throw new \Exception('Midtrans Server Key is not configured in Settings or .env');
+        if (empty($this->kunciServer)) {
+            throw new \Exception('Kunci Server Midtrans belum dikonfigurasi di Pengaturan atau .env');
         }
 
-        // Payload Construction
-        $params = [
+        // Konstruksi Data Transaksi
+        $parameter = [
             'transaction_details' => [
-                'order_id' => $order->order_number . '-' . rand(100,999), // Unique ID per attempt
-                'gross_amount' => (int) $order->total_amount,
+                'order_id' => $pesanan->order_number . '-' . rand(100,999), // ID Unik per percobaan
+                'gross_amount' => (int) $pesanan->total_amount,
             ],
             'customer_details' => [
-                'first_name' => $order->guest_name ?? $order->user->name ?? 'Guest',
-                'email' => $order->user->email ?? 'guest@example.com',
-                'phone' => $order->guest_whatsapp ?? '08123456789',
+                'first_name' => $pesanan->guest_name ?? ($pesanan->user->name ?? 'Pelanggan'),
+                'email' => $pesanan->user->email ?? 'tamu@yalacomputer.id',
+                'phone' => $pesanan->guest_whatsapp ?? ($pesanan->user->phone ?? '08123456789'),
             ],
-            // Optional: Item Details for better invoice in Midtrans
-            // 'item_details' => ... 
         ];
 
-        $response = Http::withBasicAuth($this->serverKey, '')
+        $respon = Http::withBasicAuth($this->kunciServer, '')
             ->withHeaders([
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
             ])
-            ->post($this->apiUrl, $params);
+            ->post($this->urlApi, $parameter);
 
-        if ($response->successful()) {
-            return $response->json(); // Returns ['token' => '...', 'redirect_url' => '...']
+        if ($respon->successful()) {
+            return $respon->json(); // Mengembalikan ['token' => '...', 'redirect_url' => '...']
         }
 
-        throw new \Exception('Midtrans Error: ' . $response->body());
+        throw new \Exception('Kesalahan Midtrans: ' . $respon->body());
     }
 }
