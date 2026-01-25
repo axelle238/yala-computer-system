@@ -14,4 +14,9 @@ class Customer extends Model
     protected $casts = [
         'join_date' => 'date',
     ];
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'guest_whatsapp', 'phone');
+    }
 }

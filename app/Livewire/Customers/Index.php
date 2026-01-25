@@ -24,7 +24,7 @@ class Index extends Component
         $newMembersThisMonth = Customer::whereMonth('join_date', Carbon::now()->month)->count();
         
         // Data List with Lifetime Value (Total Spent)
-        $customers = Customer::withSum('orders as total_spent', 'total_price')
+        $customers = Customer::withSum('orders as total_spent', 'total_amount')
             ->where(function($q) {
                 $q->where('name', 'like', '%' . $this->search . '%')
                   ->orWhere('phone', 'like', '%' . $this->search . '%');
