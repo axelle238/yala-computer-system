@@ -11,133 +11,153 @@ use Livewire\Attributes\Title;
 use Carbon\Carbon;
 
 #[Layout('layouts.admin')]
-#[Title('Manajemen Aset Tetap')]
+#[Title('Manajemen Aset Tetap - Yala Computer')]
 class Index extends Component
 {
     use WithPagination;
     use WithFileUploads;
 
-    public $search = '';
-    public $showForm = false;
-    public $showDepreciationModal = false;
+    public $cari = '';
+    public $tampilkanForm = false;
+    public $tampilkanInfoDepresiasi = false; // Ganti modal jadi area info
 
-    // Form Properties
-    public $assetId;
-    public $name, $serial_number, $purchase_date, $purchase_cost, $useful_life_years, $condition = 'good', $location;
-    public $image;
+    // Properti Form
+    public $idAset;
+    public $nama, $nomorSeri, $tanggalBeli, $biayaBeli, $umurEkonomisTahun, $kondisi = 'good', $lokasi;
+    public $gambar;
 
-    // Calculation Data
-    public $selectedAsset;
-    public $depreciationSchedule = [];
+    // Data Kalkulasi
+    public $asetTerpilih;
+    public $jadwalDepresiasi = [];
 
-    public function create()
+    public function buat()
     {
-        $this->reset(['assetId', 'name', 'serial_number', 'purchase_date', 'purchase_cost', 'useful_life_years', 'condition', 'location', 'image']);
-        $this->showForm = true;
+        $this->reset(['idAset', 'nama', 'nomorSeri', 'tanggalBeli', 'biayaBeli', 'umurEkonomisTahun', 'kondisi', 'lokasi', 'gambar']);
+        $this->tampilkanForm = true;
+        $this->tampilkanInfoDepresiasi = false;
     }
 
-    public function save()
+    public function simpan()
     {
         $this->validate([
-            'name' => 'required|string|min:3',
-            'purchase_date' => 'required|date',
-            'purchase_cost' => 'required|numeric|min:0',
-            'useful_life_years' => 'required|integer|min:1',
+            'nama' => 'required|string|min:3',
+            'tanggalBeli' => 'required|date',
+            'biayaBeli' => 'required|numeric|min:0',
+            'umurEkonomisTahun' => 'required|integer|min:1',
+        ], [
+            'nama.required' => 'Nama aset wajib diisi.',
+            'nama.min' => 'Nama aset minimal 3 karakter.',
+            'tanggalBeli.required' => 'Tanggal pembelian wajib diisi.',
+            'biayaBeli.required' => 'Biaya pembelian wajib diisi.',
+            'umurEkonomisTahun.required' => 'Umur ekonomis wajib diisi.',
         ]);
 
         $path = null;
-        if ($this->image) {
-            $path = $this->image->store('assets', 'public');
+        if ($this->gambar) {
+            $path = $this->gambar->store('assets', 'public');
         }
 
-        CompanyAsset::updateOrCreate(['id' => $this->assetId], [
-            'name' => $this->name,
-            'serial_number' => $this->serial_number,
-            'purchase_date' => $this->purchase_date,
-            'purchase_cost' => $this->purchase_cost,
-            'useful_life_years' => $this->useful_life_years,
-            'condition' => $this->condition,
-            'location' => $this->location,
-            'image_path' => $path,
-            // Calculate current value simply for now (Straight Line)
-            'current_value' => $this->calculateCurrentValue($this->purchase_cost, $this->purchase_date, $this->useful_life_years),
-        ]);
+        $data = [
+            'name' => $this->nama,
+            'serial_number' => $this->nomorSeri,
+            'purchase_date' => $this->tanggalBeli,
+            'purchase_cost' => $this->biayaBeli,
+            'useful_life_years' => $this->umurEkonomisTahun,
+            'condition' => $this->kondisi,
+            'location' => $this->lokasi,
+            // Hitung nilai saat ini (Metode Garis Lurus)
+            'current_value' => $this->hitungNilaiSekarang($this->biayaBeli, $this->tanggalBeli, $this->umurEkonomisTahun),
+        ];
+
+        if ($path) {
+            $data['image_path'] = $path;
+        }
+
+        CompanyAsset::updateOrCreate(['id' => $this->idAset], $data);
 
         $this->dispatch('notify', message: 'Data aset berhasil disimpan.', type: 'success');
-        $this->showForm = false;
+        $this->tampilkanForm = false;
     }
 
-    private function calculateCurrentValue($cost, $date, $years)
+    private function hitungNilaiSekarang($biaya, $tanggal, $tahun)
     {
-        $ageInYears = Carbon::parse($date)->floatDiffInYears(now());
-        if ($ageInYears >= $years) return 0;
+        $usiaTahun = Carbon::parse($tanggal)->floatDiffInYears(now());
+        if ($usiaTahun >= $tahun) return 0;
         
-        $yearlyDepreciation = $cost / $years;
-        $value = $cost - ($yearlyDepreciation * $ageInYears);
+        $depresiasiPerTahun = $biaya / $tahun;
+        $nilai = $biaya - ($depresiasiPerTahun * $usiaTahun);
         
-        return max(0, $value);
+        return max(0, $nilai);
     }
 
-    public function edit($id)
+    public function ubah($id)
     {
-        $asset = CompanyAsset::findOrFail($id);
-        $this->assetId = $asset->id;
-        $this->name = $asset->name;
-        $this->serial_number = $asset->serial_number;
-        $this->purchase_date = $asset->purchase_date->format('Y-m-d');
-        $this->purchase_cost = $asset->purchase_cost;
-        $this->useful_life_years = $asset->useful_life_years;
-        $this->condition = $asset->condition;
-        $this->location = $asset->location;
-        $this->showForm = true;
+        $aset = CompanyAsset::findOrFail($id);
+        $this->idAset = $aset->id;
+        $this->nama = $aset->name;
+        $this->nomorSeri = $aset->serial_number;
+        $this->tanggalBeli = $aset->purchase_date->format('Y-m-d');
+        $this->biayaBeli = $aset->purchase_cost;
+        $this->umurEkonomisTahun = $aset->useful_life_years;
+        $this->kondisi = $aset->condition;
+        $this->lokasi = $aset->location;
+        $this->tampilkanForm = true;
+        $this->tampilkanInfoDepresiasi = false;
     }
 
-    public function showDepreciation($id)
+    public function tampilkanDepresiasi($id)
     {
-        $this->selectedAsset = CompanyAsset::findOrFail($id);
-        $this->generateSchedule();
-        $this->showDepreciationModal = true;
+        $this->asetTerpilih = CompanyAsset::findOrFail($id);
+        $this->buatJadwalDepresiasi();
+        $this->tampilkanInfoDepresiasi = true;
+        $this->tampilkanForm = false;
     }
 
-    private function generateSchedule()
+    public function tutupInfoDepresiasi()
     {
-        $cost = $this->selectedAsset->purchase_cost;
-        $years = $this->selectedAsset->useful_life_years;
-        $yearlyDepreciation = $cost / $years;
-        $purchaseYear = $this->selectedAsset->purchase_date->year;
+        $this->tampilkanInfoDepresiasi = false;
+        $this->asetTerpilih = null;
+    }
 
-        $this->depreciationSchedule = [];
-        $currentVal = $cost;
+    private function buatJadwalDepresiasi()
+    {
+        $biaya = $this->asetTerpilih->purchase_cost;
+        $tahun = $this->asetTerpilih->useful_life_years;
+        $depresiasiPerTahun = $biaya / $tahun;
+        $tahunBeli = $this->asetTerpilih->purchase_date->year;
 
-        for ($i = 0; $i <= $years; $i++) {
-            $year = $purchaseYear + $i;
-            $this->depreciationSchedule[] = [
-                'year' => $year,
-                'start_value' => $currentVal,
-                'depreciation' => $i == 0 ? 0 : $yearlyDepreciation, // Year 0 is purchase
-                'end_value' => $i == 0 ? $cost : max(0, $currentVal - $yearlyDepreciation)
+        $this->jadwalDepresiasi = [];
+        $nilaiSaatIni = $biaya;
+
+        for ($i = 0; $i <= $tahun; $i++) {
+            $tahunJalan = $tahunBeli + $i;
+            $this->jadwalDepresiasi[] = [
+                'tahun' => $tahunJalan,
+                'nilai_awal' => $nilaiSaatIni,
+                'depresiasi' => $i == 0 ? 0 : $depresiasiPerTahun, // Tahun 0 adalah pembelian
+                'nilai_akhir' => $i == 0 ? $biaya : max(0, $nilaiSaatIni - $depresiasiPerTahun)
             ];
-            if ($i > 0) $currentVal -= $yearlyDepreciation;
+            if ($i > 0) $nilaiSaatIni -= $depresiasiPerTahun;
         }
     }
 
-    public function delete($id)
+    public function hapus($id)
     {
         CompanyAsset::destroy($id);
-        $this->dispatch('notify', message: 'Aset dihapus.', type: 'success');
+        $this->dispatch('notify', message: 'Aset telah dihapus.', type: 'success');
     }
 
     public function render()
     {
-        $assets = CompanyAsset::where('name', 'like', '%'.$this->search.'%')
+        $daftarAset = CompanyAsset::where('name', 'like', '%'.$this->cari.'%')
             ->latest()
             ->paginate(10);
 
-        // Recalculate current values on fly for display accuracy
-        foreach($assets as $asset) {
-            $asset->current_value = $this->calculateCurrentValue($asset->purchase_cost, $asset->purchase_date, $asset->useful_life_years);
+        // Hitung ulang nilai saat ini secara real-time untuk tampilan
+        foreach($daftarAset as $aset) {
+            $aset->current_value = $this->hitungNilaiSekarang($aset->purchase_cost, $aset->purchase_date, $aset->useful_life_years);
         }
 
-        return view('livewire.assets.index', ['assets' => $assets]);
+        return view('livewire.assets.index', ['daftarAset' => $daftarAset]);
     }
 }
