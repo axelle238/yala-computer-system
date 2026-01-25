@@ -7,10 +7,10 @@ use App\Models\OrderItem;
 use App\Models\Rma;
 use App\Models\RmaItem;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.store')]
 #[Title('Klaim Garansi (RMA)')]
@@ -20,15 +20,17 @@ class RmaRequest extends Component
 
     // Selection State
     public $selectedOrderId = null;
+
     public $selectedItems = []; // [order_item_id => ['selected' => bool, 'reason' => '', 'condition' => '', 'qty' => 1]]
-    
+
     // Form Data
     public $description = '';
+
     public $evidencePhotos = []; // Temporary upload
 
     public function mount()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
     }
@@ -49,10 +51,11 @@ class RmaRequest extends Component
         ]);
 
         // Filter item yang dicentang
-        $itemsToReturn = array_filter($this->selectedItems, fn($i) => isset($i['selected']) && $i['selected']);
+        $itemsToReturn = array_filter($this->selectedItems, fn ($i) => isset($i['selected']) && $i['selected']);
 
         if (empty($itemsToReturn)) {
             $this->dispatch('notify', message: 'Pilih minimal satu produk untuk diretur.', type: 'error');
+
             return;
         }
 
@@ -70,7 +73,7 @@ class RmaRequest extends Component
         $rma = Rma::create([
             'user_id' => Auth::id(),
             'order_id' => $order->id,
-            'rma_number' => 'RMA-' . date('Ymd') . '-' . rand(100, 999),
+            'rma_number' => 'RMA-'.date('Ymd').'-'.rand(100, 999),
             'reason' => $this->description,
             'status' => Rma::STATUS_REQUESTED,
         ]);
@@ -85,12 +88,13 @@ class RmaRequest extends Component
                     'quantity' => $data['qty'] ?? 1,
                     'problem_description' => $data['reason'] ?? 'Tidak disebutkan',
                     'condition' => $data['condition'] ?? 'Lengkap',
-                    'evidence_files' => !empty($evidencePaths) ? json_encode($evidencePaths) : null,
+                    'evidence_files' => ! empty($evidencePaths) ? json_encode($evidencePaths) : null,
                 ]);
             }
         }
 
-        session()->flash('success', 'Permintaan RMA #' . $rma->rma_number . ' berhasil dikirim. Tim kami akan segera meninjau.');
+        session()->flash('success', 'Permintaan RMA #'.$rma->rma_number.' berhasil dikirim. Tim kami akan segera meninjau.');
+
         return redirect()->route('member.dashboard');
     }
 
@@ -116,7 +120,7 @@ class RmaRequest extends Component
         return view('livewire.member.rma-request', [
             'orders' => $orders,
             'orderItems' => $selectedOrderItems,
-            'rmaHistory' => $rmaHistory
+            'rmaHistory' => $rmaHistory,
         ]);
     }
 }

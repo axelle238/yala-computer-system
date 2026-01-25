@@ -4,11 +4,10 @@ namespace App\Livewire\Reports;
 
 use App\Models\InventoryTransaction;
 use App\Models\Product;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Advanced Analytics - Yala Computer')]
@@ -18,14 +17,14 @@ class Index extends Component
 
     public function render()
     {
-        $startDate = match($this->range) {
+        $startDate = match ($this->range) {
             '7_days' => now()->subDays(7),
             'this_month' => now()->startOfMonth(),
             'last_month' => now()->subMonth()->startOfMonth(),
             'this_year' => now()->startOfYear(),
             default => now()->subDays(30)
         };
-        
+
         $endDate = $this->range === 'last_month' ? now()->subMonth()->endOfMonth() : now();
 
         // 1. Top Selling Products (Pareto)
@@ -45,7 +44,7 @@ class Index extends Component
             ->where('created_at', '>=', now()->subDays(90))
             ->pluck('product_id')
             ->unique();
-            
+
         $deadStocks = Product::whereNotIn('id', $soldProductIds)
             ->where('stock_quantity', '>', 0)
             ->where('is_active', true)
@@ -64,7 +63,7 @@ class Index extends Component
         return view('livewire.reports.index', [
             'topProducts' => $topProducts,
             'deadStocks' => $deadStocks,
-            'categoryPerformance' => $categoryPerformance
+            'categoryPerformance' => $categoryPerformance,
         ]);
     }
 }

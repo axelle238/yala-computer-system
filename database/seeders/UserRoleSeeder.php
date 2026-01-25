@@ -12,7 +12,7 @@ class UserRoleSeeder extends Seeder
         // 1. Update Admin Existing
         User::where('email', 'admin@yala.com')->update([
             'role' => 'admin',
-            'access_rights' => null // Admin has full access implicitly
+            'access_rights' => null, // Admin has full access implicitly
         ]);
 
         // 2. Create Owner
@@ -22,7 +22,7 @@ class UserRoleSeeder extends Seeder
             'name' => 'Bapak Pemilik',
             'password' => bcrypt('password'),
             'role' => 'owner',
-            'access_rights' => null
+            'access_rights' => null,
         ]);
 
         // 3. Create Employee (Contoh: Kasir)
@@ -32,9 +32,9 @@ class UserRoleSeeder extends Seeder
             'name' => 'Andi Kasir',
             'password' => bcrypt('password'),
             'role' => 'employee',
-            'access_rights' => ['create_transaction', 'view_products'] // Hanya bisa transaksi & lihat produk
+            'access_rights' => ['create_transaction', 'view_products'], // Hanya bisa transaksi & lihat produk
         ]);
-        
+
         // 4. Create Employee (Contoh: Gudang)
         User::firstOrCreate([
             'email' => 'gudang@yala.com',
@@ -42,7 +42,7 @@ class UserRoleSeeder extends Seeder
             'name' => 'Budi Gudang',
             'password' => bcrypt('password'),
             'role' => 'employee',
-            'access_rights' => ['manage_products', 'manage_stock', 'view_products'] // Bisa edit produk & stok
+            'access_rights' => ['manage_products', 'manage_stock', 'view_products'], // Bisa edit produk & stok
         ]);
     }
 }

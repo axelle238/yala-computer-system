@@ -12,12 +12,12 @@ class RmaSeeder extends Seeder
     public function run(): void
     {
         $product = Product::where('sku', 'like', 'MOUSE%')->first();
-        if (!$product) {
+        if (! $product) {
             $product = Product::first();
         }
 
         $order = Order::create([
-            'order_number' => 'ORD-RMA-TEST-' . rand(100,999),
+            'order_number' => 'ORD-RMA-TEST-'.rand(100, 999),
             'guest_name' => 'Budi Retur',
             'guest_whatsapp' => '08123456789',
             'total_amount' => $product->sell_price,

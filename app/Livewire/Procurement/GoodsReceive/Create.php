@@ -10,31 +10,35 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Receive Goods')]
 class Create extends Component
 {
     public $poId;
+
     public $purchaseOrder;
-    
+
     // Form Inputs
     public $grnNumber;
+
     public $supplierDoNumber;
+
     public $receivedDate;
+
     public $notes;
-    
+
     // Items Grid
     public $items = []; // [product_id => [name, ordered, received_prev, input_now]]
 
     public function mount()
     {
-        $this->grnNumber = 'GRN-' . date('Ymd') . '-' . rand(100, 999);
+        $this->grnNumber = 'GRN-'.date('Ymd').'-'.rand(100, 999);
         $this->receivedDate = date('Y-m-d');
-        
+
         if (request()->has('po_id')) {
             $this->poId = request()->query('po_id');
             $this->loadPo();
@@ -50,15 +54,16 @@ class Create extends Component
     {
         $this->purchaseOrder = PurchaseOrder::with(['items.product', 'supplier'])->find($this->poId);
 
-        if (!$this->purchaseOrder) {
+        if (! $this->purchaseOrder) {
             $this->items = [];
+
             return;
         }
 
         $this->items = [];
         foreach ($this->purchaseOrder->items as $poItem) {
             $remaining = max(0, $poItem->quantity_ordered - $poItem->quantity_received);
-            
+
             $this->items[] = [
                 'po_item_id' => $poItem->id,
                 'product_id' => $poItem->product_id,
@@ -85,6 +90,7 @@ class Create extends Component
         $totalReceived = collect($this->items)->sum('qty_input');
         if ($totalReceived <= 0) {
             $this->addError('global', 'Minimal satu barang harus diterima.');
+
             return;
         }
 
@@ -97,7 +103,7 @@ class Create extends Component
                 'received_date' => $this->receivedDate,
                 'notes' => $this->notes,
                 'received_by' => Auth::id() ?? 1,
-                'status' => 'finalized', 
+                'status' => 'finalized',
             ]);
 
             // 2. Process Items
@@ -122,23 +128,23 @@ class Create extends Component
                     InventoryTransaction::create([
                         'product_id' => $productId,
                         'user_id' => Auth::id() ?? 1,
-                        'warehouse_id' => 1, 
+                        'warehouse_id' => 1,
                         'type' => 'in',
                         'quantity' => $qtyReceivedNow,
                         'remaining_stock' => $product->stock_quantity,
-                        'unit_price' => $product->buy_price, 
+                        'unit_price' => $product->buy_price,
                         'reference_number' => $this->grnNumber,
-                        'notes' => 'Received via PO #' . $this->purchaseOrder->po_number,
+                        'notes' => 'Received via PO #'.$this->purchaseOrder->po_number,
                     ]);
                 }
             }
 
             // 3. Update PO Delivery Status Logic
             $this->purchaseOrder->refresh();
-            
+
             $allReceived = true;
             $anyReceived = false;
-            
+
             foreach ($this->purchaseOrder->items as $item) {
                 if ($item->quantity_received > 0) {
                     $anyReceived = true;
@@ -158,11 +164,12 @@ class Create extends Component
                 $this->purchaseOrder->status = 'ordered';
                 $this->purchaseOrder->delivery_status = 'pending';
             }
-            
+
             $this->purchaseOrder->save();
         });
 
         session()->flash('success', 'Barang berhasil diterima dan stok diperbarui.');
+
         return redirect()->route('purchase-orders.show', $this->poId);
     }
 
@@ -175,7 +182,7 @@ class Create extends Component
             ->get();
 
         return view('livewire.procurement.goods-receive.create', [
-            'openPOs' => $openPOs
+            'openPOs' => $openPOs,
         ]);
     }
 }

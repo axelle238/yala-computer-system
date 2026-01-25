@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Models\CashTransaction;
 use App\Models\InventoryTransaction;
 use App\Models\Order;
-use App\Models\ServiceTicket;
 use App\Models\Product;
+use App\Models\ServiceTicket;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -30,13 +30,13 @@ class BusinessIntelligence
         // Asumsi: Servis yang sudah picked_up dianggap lunas (revenue diakui saat selesai)
         // Perhatian: Jika pembayaran servis masuk ke CashTransaction sebagai 'service_payment', kita bisa ambil dari sana untuk akurasi cash basis.
         // Mari gunakan CashTransaction untuk pendekatan 'Cash Basis' yang lebih riil.
-        
+
         $incomeTransactions = CashTransaction::where('type', 'in')
             ->whereBetween('created_at', [$start, $end])
             ->get();
 
         $totalRevenue = $incomeTransactions->sum('amount');
-        $revenueDetails = $incomeTransactions->groupBy('category')->map(fn($row) => $row->sum('amount'));
+        $revenueDetails = $incomeTransactions->groupBy('category')->map(fn ($row) => $row->sum('amount'));
 
         // 2. COGS (Harga Pokok Penjualan) - Biaya Modal Barang yang Terjual
         // Kita hitung dari Inventory Transaction tipe 'out' pada periode ini
@@ -53,9 +53,9 @@ class BusinessIntelligence
         $expenses = CashTransaction::where('type', 'out')
             ->whereBetween('created_at', [$start, $end])
             ->get();
-        
+
         $totalExpenses = $expenses->sum('amount');
-        $expenseDetails = $expenses->groupBy('category')->map(fn($row) => $row->sum('amount'));
+        $expenseDetails = $expenses->groupBy('category')->map(fn ($row) => $row->sum('amount'));
 
         // 5. NET PROFIT (Laba Bersih)
         $netProfit = $grossProfit - $totalExpenses;
@@ -73,7 +73,7 @@ class BusinessIntelligence
                 'breakdown' => $expenseDetails,
             ],
             'net_profit' => $netProfit,
-            'margin_percentage' => $totalRevenue > 0 ? ($netProfit / $totalRevenue) * 100 : 0
+            'margin_percentage' => $totalRevenue > 0 ? ($netProfit / $totalRevenue) * 100 : 0,
         ];
     }
 

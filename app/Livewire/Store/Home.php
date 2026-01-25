@@ -7,9 +7,9 @@ use App\Models\Category;
 use App\Models\FlashSale;
 use App\Models\Product;
 use App\Models\Setting;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Yala Computer - Toko Komputer Terlengkap')]
@@ -20,6 +20,7 @@ class Home extends Component
     public function lacakServis()
     {
         $this->validate(['nomorLacak' => 'required|string|min:5']);
+
         return redirect()->route('track-service', ['ticket' => $this->nomorLacak]);
     }
 
@@ -39,9 +40,10 @@ class Home extends Component
     public function tambahKePerbandingan($idProduk)
     {
         $perbandingan = session()->get('comparison_list', []);
-        if (!in_array($idProduk, $perbandingan)) {
-            if(count($perbandingan) >= 4) {
+        if (! in_array($idProduk, $perbandingan)) {
+            if (count($perbandingan) >= 4) {
                 $this->dispatch('notify', message: 'Maksimal 4 produk untuk dibandingkan.', type: 'error');
+
                 return;
             }
             $perbandingan[] = $idProduk;
@@ -63,7 +65,7 @@ class Home extends Component
             ->get();
 
         $flashSaleAktif = Setting::get('flash_sale_active', true); // Toggle global
-        
+
         $daftarFlashSale = FlashSale::with('product')
             ->where('is_active', true)
             ->where('start_time', '<=', now())
@@ -83,7 +85,7 @@ class Home extends Component
             'kategori' => $kategori,
             'produk' => $produk,
             'daftarFlashSale' => $daftarFlashSale,
-            'flashSaleAktif' => $flashSaleAktif
+            'flashSaleAktif' => $flashSaleAktif,
         ]);
     }
 }

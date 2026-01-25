@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('shipping_manifests')) {
+        if (! Schema::hasTable('shipping_manifests')) {
             Schema::create('shipping_manifests', function (Blueprint $table) {
                 $table->id();
                 $table->string('manifest_number')->unique(); // MNF-20260124-001
@@ -22,7 +22,7 @@ return new class extends Migration
         }
 
         // Add manifest_id to orders table (nullable)
-        if (!Schema::hasColumn('orders', 'shipping_manifest_id')) {
+        if (! Schema::hasColumn('orders', 'shipping_manifest_id')) {
             Schema::table('orders', function (Blueprint $table) {
                 $table->foreignId('shipping_manifest_id')->nullable()->constrained()->onDelete('set null');
             });

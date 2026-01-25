@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('goods_receives')) {
+        if (! Schema::hasTable('goods_receives')) {
             Schema::create('goods_receives', function (Blueprint $table) {
                 $table->id();
                 $table->string('grn_number')->unique(); // GRN-YYYYMMDD-XXXX
@@ -20,7 +20,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('goods_receive_items')) {
+        if (! Schema::hasTable('goods_receive_items')) {
             Schema::create('goods_receive_items', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('goods_receive_id')->constrained()->cascadeOnDelete();

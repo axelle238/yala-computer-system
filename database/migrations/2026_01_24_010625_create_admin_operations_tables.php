@@ -43,7 +43,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('stock_opname_items');
         Schema::dropIfExists('stock_opnames');
-        
+
         Schema::table('orders', function (Blueprint $table) {
             $table->dropColumn(['shipping_tracking_number', 'shipped_at']);
         });

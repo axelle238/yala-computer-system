@@ -12,7 +12,9 @@ class ProductDiscussions extends Component
     use WithPagination;
 
     public $productId;
+
     public $message = '';
+
     public $replyToId = null;
 
     public function mount($productId)
@@ -36,7 +38,7 @@ class ProductDiscussions extends Component
             'message' => 'required|string|min:3',
         ]);
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
 

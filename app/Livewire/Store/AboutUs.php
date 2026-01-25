@@ -2,10 +2,9 @@
 
 namespace App\Livewire\Store;
 
-use App\Models\User;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Tentang Kami - Yala Computer')]

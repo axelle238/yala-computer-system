@@ -2,19 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Traits\LogsActivity;
 
 /**
  * Class Product (Produk)
- * 
+ *
  * Entitas pusat dalam sistem inventaris.
  * Menangani tingkat stok, harga, dan spesifikasi teknis.
- * 
- * @package App\Models
  */
 class Product extends Model
 {
@@ -65,8 +63,6 @@ class Product extends Model
 
     /**
      * Dapatkan kategori pemilik produk.
-     *
-     * @return BelongsTo
      */
     public function category(): BelongsTo
     {
@@ -75,8 +71,6 @@ class Product extends Model
 
     /**
      * Dapatkan pemasok yang menyediakan produk.
-     *
-     * @return BelongsTo
      */
     public function supplier(): BelongsTo
     {
@@ -86,8 +80,6 @@ class Product extends Model
     /**
      * Dapatkan transaksi inventaris untuk produk.
      * Digunakan untuk jejak audit dan riwayat.
-     *
-     * @return HasMany
      */
     public function transactions(): HasMany
     {
@@ -106,8 +98,6 @@ class Product extends Model
 
     /**
      * Periksa apakah stok produk di bawah ambang batas peringatan.
-     *
-     * @return bool
      */
     public function stokMenipis(): bool
     {

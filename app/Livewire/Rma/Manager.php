@@ -2,16 +2,15 @@
 
 namespace App\Livewire\Rma;
 
-use App\Models\Rma;
-use App\Models\InventoryTransaction;
 use App\Models\CashRegister;
 use App\Models\CashTransaction;
+use App\Models\Rma;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Manajemen RMA & Garansi')]
@@ -20,19 +19,30 @@ class Manager extends Component
     use WithPagination;
 
     public $statusFilter = '';
+
     public $search = '';
 
     // View State
     public $activeAction = null; // null, 'detail'
+
     public $selectedRma = null;
-    
+
     // Action Inputs
     public $adminNotes = '';
+
     public $resolutionAction = ''; // repair, replace, refund
+
     public $refundAmount = 0; // New Property
 
-    public function updatedStatusFilter() { $this->resetPage(); }
-    public function updatedSearch() { $this->resetPage(); }
+    public function updatedStatusFilter()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
 
     public function openDetailPanel($id)
     {
@@ -48,7 +58,7 @@ class Manager extends Component
         $this->selectedRma = null;
         $this->reset(['adminNotes', 'resolutionAction', 'refundAmount']);
     }
-    
+
     // ...
 
     public function resolveRma()
@@ -68,7 +78,7 @@ class Manager extends Component
                     'admin_notes' => $this->adminNotes,
                     'refund_amount' => $this->resolutionAction === 'refund' ? $this->refundAmount : 0,
                 ]);
-                
+
                 // 2. Inventory Impact (Only for Replace)
 
                 // 3. Refund Logic
@@ -77,17 +87,17 @@ class Manager extends Component
                         ->where('status', 'open')
                         ->first();
 
-                    if (!$activeRegister) {
+                    if (! $activeRegister) {
                         throw new \Exception('Gagal: Anda harus membuka sesi Kasir (Cash Register) terlebih dahulu untuk memproses Refund Tunai.');
                     }
 
                     CashTransaction::create([
                         'cash_register_id' => $activeRegister->id,
-                        'transaction_number' => 'REF-' . time(),
+                        'transaction_number' => 'REF-'.time(),
                         'type' => 'out',
                         'category' => 'refund',
                         'amount' => $this->refundAmount,
-                        'description' => 'Refund RMA #' . $this->selectedRma->rma_number,
+                        'description' => 'Refund RMA #'.$this->selectedRma->rma_number,
                         'reference_type' => Rma::class,
                         'reference_id' => $this->selectedRma->id,
                         'created_by' => Auth::id(),
@@ -99,20 +109,20 @@ class Manager extends Component
             $this->closeDetailPanel();
 
         } catch (\Exception $e) {
-            $this->dispatch('notify', message: 'Error: ' . $e->getMessage(), type: 'error');
+            $this->dispatch('notify', message: 'Error: '.$e->getMessage(), type: 'error');
         }
     }
 
     public function render()
     {
         $rmas = Rma::with('user')
-            ->when($this->statusFilter, fn($q) => $q->where('status', $this->statusFilter))
-            ->when($this->search, fn($q) => $q->where('rma_number', 'like', '%'.$this->search.'%'))
+            ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter))
+            ->when($this->search, fn ($q) => $q->where('rma_number', 'like', '%'.$this->search.'%'))
             ->latest()
             ->paginate(10);
 
         return view('livewire.rma.manager', [
-            'rmas' => $rmas
+            'rmas' => $rmas,
         ]);
     }
 }

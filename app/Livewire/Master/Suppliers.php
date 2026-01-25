@@ -3,10 +3,10 @@
 namespace App\Livewire\Master;
 
 use App\Models\Supplier;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Master Pemasok (Supplier) - Yala Computer')]
@@ -15,13 +15,18 @@ class Suppliers extends Component
     use WithPagination;
 
     public $cari = '';
+
     public $tampilkanForm = false;
 
     // Properti Form
     public $idPemasok;
+
     public $nama;
+
     public $surel;
+
     public $telepon;
+
     public $alamat;
 
     public function buat()
@@ -59,7 +64,7 @@ class Suppliers extends Component
                 'name' => $this->nama,
                 'email' => $this->surel,
                 'phone' => $this->telepon,
-                'address' => $this->alamat
+                'address' => $this->alamat,
             ]
         );
 
@@ -75,7 +80,7 @@ class Suppliers extends Component
 
     public function render()
     {
-        $daftarPemasok = Supplier::where('name', 'like', '%' . $this->cari . '%')
+        $daftarPemasok = Supplier::where('name', 'like', '%'.$this->cari.'%')
             ->latest()
             ->paginate(10);
 

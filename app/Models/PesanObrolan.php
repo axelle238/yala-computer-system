@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Model PesanObrolan
- * 
+ *
  * Merepresentasikan satu pesan dalam sesi obrolan.
  */
 class PesanObrolan extends Model
@@ -21,12 +21,12 @@ class PesanObrolan extends Model
      * Atribut yang dapat diisi massal.
      */
     protected $fillable = [
-        'id_sesi', 
+        'id_sesi',
         'id_pengguna', // Null jika tamu, atau ID Admin/Pelanggan jika login
-        'is_balasan_admin', 
-        'isi', 
-        'lampiran', 
-        'is_dibaca'
+        'is_balasan_admin',
+        'isi',
+        'lampiran',
+        'is_dibaca',
     ];
 
     /**

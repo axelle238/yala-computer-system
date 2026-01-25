@@ -2,29 +2,40 @@
 
 namespace App\Livewire\Expenses;
 
-use App\Models\Expense;
 use App\Models\CashRegister;
 use App\Models\CashTransaction;
-use Livewire\Component;
-use Livewire\WithPagination;
-use Livewire\WithFileUploads;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
+use App\Models\Expense;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Biaya Operasional')]
 class Index extends Component
 {
-    use WithPagination;
     use WithFileUploads;
+    use WithPagination;
 
     public $search = '';
+
     public $showForm = false;
-    
+
     public $expenseId;
-    public $description, $amount, $category = 'operational', $date, $payment_method = 'cash';
+
+    public $description;
+
+    public $amount;
+
+    public $category = 'operational';
+
+    public $date;
+
+    public $payment_method = 'cash';
+
     public $receipt_image;
 
     public function create()
@@ -48,7 +59,7 @@ class Index extends Component
             $path = $this->receipt_image->store('receipts', 'public');
         }
 
-        DB::transaction(function () use ($path) {
+        DB::transaction(function () {
             $expense = Expense::create([
                 'user_id' => Auth::id(),
                 'title' => $this->description,
@@ -69,11 +80,11 @@ class Index extends Component
                 if ($activeRegister) {
                     CashTransaction::create([
                         'cash_register_id' => $activeRegister->id,
-                        'transaction_number' => 'EXP-' . $expense->id,
+                        'transaction_number' => 'EXP-'.$expense->id,
                         'type' => 'out',
                         'category' => 'expense',
                         'amount' => $this->amount,
-                        'description' => 'Biaya: ' . $this->description,
+                        'description' => 'Biaya: '.$this->description,
                         'reference_id' => $expense->id,
                         'reference_type' => Expense::class,
                         'created_by' => Auth::id(),
@@ -95,10 +106,10 @@ class Index extends Component
 
         // Simple Stats
         $monthlyTotal = Expense::whereMonth('expense_date', now()->month)->sum('amount');
-        
+
         return view('livewire.expenses.index', [
             'expenses' => $expenses,
-            'monthlyTotal' => $monthlyTotal
+            'monthlyTotal' => $monthlyTotal,
         ]);
     }
 }

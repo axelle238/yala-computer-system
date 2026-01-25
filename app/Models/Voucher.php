@@ -15,10 +15,18 @@ class Voucher extends Model
 
     public function isValidForUser($userId, $cartTotal)
     {
-        if (!$this->is_active) return false;
-        if (now()->lt($this->start_date) || now()->gt($this->end_date)) return false;
-        if ($this->usage_limit > 0 && $this->used_count >= $this->usage_limit) return false;
-        if ($cartTotal < $this->min_spend) return false;
+        if (! $this->is_active) {
+            return false;
+        }
+        if (now()->lt($this->start_date) || now()->gt($this->end_date)) {
+            return false;
+        }
+        if ($this->usage_limit > 0 && $this->used_count >= $this->usage_limit) {
+            return false;
+        }
+        if ($cartTotal < $this->min_spend) {
+            return false;
+        }
 
         return true;
     }
@@ -32,8 +40,10 @@ class Voucher extends Model
             if ($this->max_discount_amount > 0) {
                 $discount = min($discount, $this->max_discount_amount);
             }
+
             return $discount;
         }
+
         return 0;
     }
 }

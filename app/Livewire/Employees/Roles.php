@@ -3,9 +3,9 @@
 namespace App\Livewire\Employees;
 
 use App\Models\Peran;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Manajemen Peran & Hak Akses - Yala Computer')]
@@ -20,10 +20,12 @@ class Roles extends Component
      * Flag untuk menampilkan form input.
      */
     public $tampilkanForm = false;
-    
+
     // Properti Form
     public $idPeran;
+
     public $nama;
+
     public $hakAksesTerpilih = [];
 
     public function mount()
@@ -65,8 +67,8 @@ class Roles extends Component
     public function simpan()
     {
         $this->validate([
-            'nama' => 'required|min:3|unique:peran,nama,' . $this->idPeran,
-            'hakAksesTerpilih' => 'required|array|min:1'
+            'nama' => 'required|min:3|unique:peran,nama,'.$this->idPeran,
+            'hakAksesTerpilih' => 'required|array|min:1',
         ], [
             'nama.required' => 'Nama peran wajib diisi.',
             'nama.unique' => 'Nama peran sudah digunakan.',
@@ -75,9 +77,9 @@ class Roles extends Component
 
         Peran::updateOrCreate(['id' => $this->idPeran], [
             'nama' => $this->nama,
-            'hak_akses' => $this->hakAksesTerpilih
+            'hak_akses' => $this->hakAksesTerpilih,
         ]);
-        
+
         $this->dispatch('notify', message: 'Peran & Hak Akses berhasil disimpan.', type: 'success');
         $this->tampilkanForm = false;
     }
@@ -90,9 +92,10 @@ class Roles extends Component
         $peran = Peran::find($id);
         if ($peran->pengguna()->exists()) {
             $this->dispatch('notify', message: 'Gagal! Masih ada karyawan yang menggunakan peran ini.', type: 'error');
+
             return;
         }
-        
+
         $peran->delete();
         $this->dispatch('notify', message: 'Peran telah dihapus.', type: 'success');
     }
@@ -100,9 +103,10 @@ class Roles extends Component
     public function render()
     {
         $daftarPeran = Peran::latest()->get();
+
         return view('livewire.employees.roles', [
-            'daftarPeran' => $daftarPeran, 
-            'petaHakAkses' => $this->petaHakAkses
+            'daftarPeran' => $daftarPeran,
+            'petaHakAkses' => $this->petaHakAkses,
         ]);
     }
 }

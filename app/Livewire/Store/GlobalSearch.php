@@ -10,8 +10,11 @@ use Livewire\Component;
 class GlobalSearch extends Component
 {
     public $query = '';
+
     public $results = [];
+
     public $recentSearches = [];
+
     public $isFocused = false;
 
     public function mount()
@@ -23,30 +26,31 @@ class GlobalSearch extends Component
     {
         if (strlen($this->query) < 2) {
             $this->results = [];
+
             return;
         }
 
         // 1. Search Products
-        $products = Product::where('name', 'like', '%' . $this->query . '%')
+        $products = Product::where('name', 'like', '%'.$this->query.'%')
             ->where('is_active', true)
             ->take(5)
             ->get();
 
         // 2. Search Categories
-        $categories = Category::where('name', 'like', '%' . $this->query . '%')
+        $categories = Category::where('name', 'like', '%'.$this->query.'%')
             ->take(3)
             ->get();
 
         $this->results = [
             'products' => $products,
-            'categories' => $categories
+            'categories' => $categories,
         ];
     }
 
     public function selectResult($name, $type, $slug = null)
     {
         // Add to recent
-        if (!in_array($name, $this->recentSearches)) {
+        if (! in_array($name, $this->recentSearches)) {
             array_unshift($this->recentSearches, $name);
             $this->recentSearches = array_slice($this->recentSearches, 0, 5); // Keep last 5
             Session::put('recent_searches', $this->recentSearches);

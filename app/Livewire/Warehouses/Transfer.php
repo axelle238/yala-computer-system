@@ -2,17 +2,17 @@
 
 namespace App\Livewire\Warehouses;
 
-use App\Models\Product;
-use App\Models\Warehouse;
+use App\Models\InventoryTransaction;
 use App\Models\InventoryTransfer;
 use App\Models\InventoryTransferItem;
-use App\Models\InventoryTransaction;
+use App\Models\Product;
+use App\Models\Warehouse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Mutasi Stok Antar Gudang - Yala Computer')]
@@ -21,11 +21,14 @@ class Transfer extends Component
     use WithPagination;
 
     public $tampilkanForm = false;
-    
+
     // Input Form
     public $idGudangAsal;
+
     public $idGudangTujuan;
+
     public $catatan;
+
     public $daftarItem = []; // [[id_produk, qty]]
 
     public function mount()
@@ -74,7 +77,7 @@ class Transfer extends Component
         DB::transaction(function () {
             // 1. Buat Header Transfer
             $transfer = InventoryTransfer::create([
-                'transfer_number' => 'TRF-' . date('Ymd') . '-' . rand(100,999),
+                'transfer_number' => 'TRF-'.date('Ymd').'-'.rand(100, 999),
                 'source_warehouse_id' => $this->idGudangAsal,
                 'destination_warehouse_id' => $this->idGudangTujuan,
                 'status' => 'completed', // Langsung selesai untuk versi ini
@@ -85,7 +88,7 @@ class Transfer extends Component
 
             foreach ($this->daftarItem as $item) {
                 $produk = Product::find($item['id_produk']);
-                
+
                 // 2. Buat Item Transfer
                 InventoryTransferItem::create([
                     'inventory_transfer_id' => $transfer->id,
@@ -100,13 +103,13 @@ class Transfer extends Component
                 // Kurangi Asal
                 $stokAsal = $gudangAsal->products()->where('product_id', $item['id_produk'])->first()->pivot->quantity ?? 0;
                 $gudangAsal->products()->syncWithoutDetaching([
-                    $item['id_produk'] => ['quantity' => max(0, $stokAsal - $item['qty'])]
+                    $item['id_produk'] => ['quantity' => max(0, $stokAsal - $item['qty'])],
                 ]);
 
                 // Tambah Tujuan
                 $stokTujuan = $gudangTujuan->products()->where('product_id', $item['id_produk'])->first()->pivot->quantity ?? 0;
                 $gudangTujuan->products()->syncWithoutDetaching([
-                    $item['id_produk'] => ['quantity' => $stokTujuan + $item['qty']]
+                    $item['id_produk'] => ['quantity' => $stokTujuan + $item['qty']],
                 ]);
 
                 // 4. Catat Riwayat Transaksi
@@ -117,7 +120,7 @@ class Transfer extends Component
                     'type' => 'transfer_out',
                     'quantity' => $item['qty'],
                     'reference_number' => $transfer->transfer_number,
-                    'notes' => 'Mutasi Keluar ke Gudang #' . $gudangTujuan->name,
+                    'notes' => 'Mutasi Keluar ke Gudang #'.$gudangTujuan->name,
                     'remaining_stock' => max(0, $stokAsal - $item['qty']),
                 ]);
 
@@ -128,7 +131,7 @@ class Transfer extends Component
                     'type' => 'transfer_in',
                     'quantity' => $item['qty'],
                     'reference_number' => $transfer->transfer_number,
-                    'notes' => 'Mutasi Masuk dari Gudang #' . $gudangAsal->name,
+                    'notes' => 'Mutasi Masuk dari Gudang #'.$gudangAsal->name,
                     'remaining_stock' => $stokTujuan + $item['qty'],
                 ]);
             }
@@ -144,14 +147,14 @@ class Transfer extends Component
         $riwayatMutasi = InventoryTransfer::with(['source', 'destination', 'user'])
             ->latest()
             ->paginate(10);
-            
+
         $daftarGudang = Warehouse::all();
         $daftarProduk = Product::select('id', 'name', 'sku', 'stock_quantity')->get();
 
         return view('livewire.warehouses.transfer', [
             'riwayatMutasi' => $riwayatMutasi,
             'daftarGudang' => $daftarGudang,
-            'daftarProduk' => $daftarProduk
+            'daftarProduk' => $daftarProduk,
         ]);
     }
 }

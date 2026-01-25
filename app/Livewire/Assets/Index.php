@@ -3,31 +3,48 @@
 namespace App\Livewire\Assets;
 
 use App\Models\CompanyAsset;
-use Livewire\Component;
-use Livewire\WithPagination;
-use Livewire\WithFileUploads;
+use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Carbon\Carbon;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Manajemen Aset Tetap - Yala Computer')]
 class Index extends Component
 {
-    use WithPagination;
     use WithFileUploads;
+    use WithPagination;
 
     public $cari = '';
+
     public $tampilkanForm = false;
+
     public $tampilkanInfoDepresiasi = false; // Ganti modal jadi area info
 
     // Properti Form
     public $idAset;
-    public $nama, $nomorSeri, $tanggalBeli, $biayaBeli, $umurEkonomisTahun, $kondisi = 'good', $lokasi;
+
+    public $nama;
+
+    public $nomorSeri;
+
+    public $tanggalBeli;
+
+    public $biayaBeli;
+
+    public $umurEkonomisTahun;
+
+    public $kondisi = 'good';
+
+    public $lokasi;
+
     public $gambar;
 
     // Data Kalkulasi
     public $asetTerpilih;
+
     public $jadwalDepresiasi = [];
 
     public function buat()
@@ -82,11 +99,13 @@ class Index extends Component
     private function hitungNilaiSekarang($biaya, $tanggal, $tahun)
     {
         $usiaTahun = Carbon::parse($tanggal)->floatDiffInYears(now());
-        if ($usiaTahun >= $tahun) return 0;
-        
+        if ($usiaTahun >= $tahun) {
+            return 0;
+        }
+
         $depresiasiPerTahun = $biaya / $tahun;
         $nilai = $biaya - ($depresiasiPerTahun * $usiaTahun);
-        
+
         return max(0, $nilai);
     }
 
@@ -135,9 +154,11 @@ class Index extends Component
                 'tahun' => $tahunJalan,
                 'nilai_awal' => $nilaiSaatIni,
                 'depresiasi' => $i == 0 ? 0 : $depresiasiPerTahun, // Tahun 0 adalah pembelian
-                'nilai_akhir' => $i == 0 ? $biaya : max(0, $nilaiSaatIni - $depresiasiPerTahun)
+                'nilai_akhir' => $i == 0 ? $biaya : max(0, $nilaiSaatIni - $depresiasiPerTahun),
             ];
-            if ($i > 0) $nilaiSaatIni -= $depresiasiPerTahun;
+            if ($i > 0) {
+                $nilaiSaatIni -= $depresiasiPerTahun;
+            }
         }
     }
 
@@ -154,7 +175,7 @@ class Index extends Component
             ->paginate(10);
 
         // Hitung ulang nilai saat ini secara real-time untuk tampilan
-        foreach($daftarAset as $aset) {
+        foreach ($daftarAset as $aset) {
             $aset->current_value = $this->hitungNilaiSekarang($aset->purchase_cost, $aset->purchase_date, $aset->useful_life_years);
         }
 

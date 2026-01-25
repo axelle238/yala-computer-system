@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Model SukuCadangServis
- * 
+ *
  * Mencatat pemakaian barang/sparepart untuk sebuah tiket servis.
  */
 class SukuCadangServis extends Model

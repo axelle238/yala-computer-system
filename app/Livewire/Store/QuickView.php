@@ -8,6 +8,7 @@ use Livewire\Component;
 class QuickView extends Component
 {
     public $product;
+
     public $isOpen = false;
 
     protected $listeners = ['openQuickView' => 'open'];

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasColumn('saved_builds', 'is_public')) {
+        if (! Schema::hasColumn('saved_builds', 'is_public')) {
             Schema::table('saved_builds', function (Blueprint $table) {
                 $table->boolean('is_public')->default(false);
                 $table->integer('likes_count')->default(0);
@@ -16,7 +16,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('build_likes')) {
+        if (! Schema::hasTable('build_likes')) {
             Schema::create('build_likes', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('saved_build_id')->constrained()->onDelete('cascade');
@@ -26,7 +26,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('build_comments')) {
+        if (! Schema::hasTable('build_comments')) {
             Schema::create('build_comments', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('saved_build_id')->constrained()->onDelete('cascade');

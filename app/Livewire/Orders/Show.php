@@ -6,15 +6,16 @@ use App\Models\InventoryTransaction;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Order Details')]
 class Show extends Component
 {
     public Order $order;
+
     public $tracking_number;
 
     public function mount($id)
@@ -32,7 +33,7 @@ class Show extends Component
                 // Auto verify payment if moving to processing? Or just move status.
                 // Let's assume manual move doesn't auto-pay unless verified button used.
             }
-            
+
             $this->order->update(['status' => $status]);
             $this->dispatch('notify', message: "Order status updated to $status", type: 'success');
         }
@@ -42,22 +43,23 @@ class Show extends Component
     {
         $this->validate(['tracking_number' => 'required|string|min:5']);
         $this->order->update(['shipping_tracking_number' => $this->tracking_number]);
-        $this->dispatch('notify', message: "Nomor resi disimpan.", type: 'success');
+        $this->dispatch('notify', message: 'Nomor resi disimpan.', type: 'success');
     }
 
     public function markAsShipped()
     {
         if (empty($this->tracking_number)) {
             $this->addError('tracking_number', 'Resi wajib diisi sebelum kirim.');
+
             return;
         }
-        
+
         $this->order->update([
             'status' => 'shipped',
-            'shipping_tracking_number' => $this->tracking_number
+            'shipping_tracking_number' => $this->tracking_number,
         ]);
-        
-        $this->dispatch('notify', message: "Order dikirim! Status: Shipped", type: 'success');
+
+        $this->dispatch('notify', message: 'Order dikirim! Status: Shipped', type: 'success');
     }
 
     public function printLabel()
@@ -67,7 +69,9 @@ class Show extends Component
 
     public function verifyPayment()
     {
-        if ($this->order->payment_status === 'paid') return;
+        if ($this->order->payment_status === 'paid') {
+            return;
+        }
 
         DB::transaction(function () {
             $this->order->update([
@@ -82,7 +86,7 @@ class Show extends Component
                 $product = Product::lockForUpdate()->find($item->product_id);
                 if ($product) {
                     $product->decrement('stock_quantity', $item->quantity);
-                    
+
                     InventoryTransaction::create([
                         'product_id' => $product->id,
                         'user_id' => auth()->id(),
@@ -98,13 +102,13 @@ class Show extends Component
             }
         });
 
-        $this->dispatch('notify', message: "Pembayaran diverifikasi. Stok dikurangi.", type: 'success');
+        $this->dispatch('notify', message: 'Pembayaran diverifikasi. Stok dikurangi.', type: 'success');
     }
 
     public function rejectPayment()
     {
         $this->order->update(['payment_status' => 'unpaid']);
-        $this->dispatch('notify', message: "Pembayaran ditolak/di-reset.", type: 'warning');
+        $this->dispatch('notify', message: 'Pembayaran ditolak/di-reset.', type: 'warning');
     }
 
     public function updatePaymentStatus($status)

@@ -30,7 +30,7 @@ class CrmSeeder extends Seeder
         if ($user->orders()->count() == 0) {
             for ($i = 0; $i < 5; $i++) {
                 Order::create([
-                    'order_number' => 'ORD-CRM-' . rand(1000,9999),
+                    'order_number' => 'ORD-CRM-'.rand(1000, 9999),
                     'user_id' => $user->id,
                     'total_amount' => 5000000,
                     'status' => 'completed',
@@ -44,7 +44,7 @@ class CrmSeeder extends Seeder
             PointHistory::create([
                 'user_id' => $user->id,
                 'amount' => 5000,
-                'type' => 'earned', 
+                'type' => 'earned',
                 'description' => 'Bonus Pembelian PC Rakitan',
             ]);
         }

@@ -3,16 +3,18 @@
 namespace App\Livewire\Store\Auth;
 
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.auth')]
 #[Title('Login Pelanggan - Yala Computer')]
 class Login extends Component
 {
     public $email = '';
+
     public $password = '';
+
     public $remember = false;
 
     public function login()
@@ -24,6 +26,7 @@ class Login extends Component
 
         if (Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
             session()->regenerate();
+
             return redirect()->intended(route('home'));
         }
 

@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Model PesanPelanggan
- * 
+ *
  * Digunakan untuk menyimpan pesan yang dikirim oleh pelanggan melalui formulir kontak.
  */
 class PesanPelanggan extends Model
@@ -38,6 +38,8 @@ class PesanPelanggan extends Model
      * Konstanta untuk status pesan.
      */
     const STATUS_BARU = 'baru';
+
     const STATUS_DIBACA = 'dibaca';
+
     const STATUS_DIBALAS = 'dibalas';
 }

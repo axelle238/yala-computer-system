@@ -32,11 +32,13 @@ class AssetSeeder extends Seeder
                 'category' => 'Kendaraan',
                 'price' => 18000000,
                 'years' => 5,
-            ]
+            ],
         ];
 
         foreach ($assets as $data) {
-            if (CompanyAsset::where('asset_tag', $data['asset_tag'])->exists()) continue;
+            if (CompanyAsset::where('asset_tag', $data['asset_tag'])->exists()) {
+                continue;
+            }
 
             $asset = CompanyAsset::create([
                 'name' => $data['name'],
@@ -56,7 +58,7 @@ class AssetSeeder extends Seeder
             for ($i = 1; $i <= $data['years']; $i++) {
                 $date = Carbon::parse($asset->purchase_date)->addYears($i);
                 $currentValue -= $annualDepreciation;
-                
+
                 AssetDepreciation::create([
                     'company_asset_id' => $asset->id,
                     'depreciation_date' => $date,
@@ -64,7 +66,7 @@ class AssetSeeder extends Seeder
                     'book_value_after' => max(0, $currentValue),
                 ]);
             }
-            
+
             // Update current value based on time passed (simple logic)
             // In real app, we check if depreciation date passed
         }

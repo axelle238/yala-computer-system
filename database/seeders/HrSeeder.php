@@ -44,13 +44,15 @@ class HrSeeder extends Seeder
             // 3. Create Attendance Dummy for Technician (Last 7 days)
             for ($i = 6; $i >= 0; $i--) {
                 $date = Carbon::now()->subDays($i);
-                
+
                 // Skip Sunday
-                if ($date->dayOfWeek == Carbon::SUNDAY) continue;
+                if ($date->dayOfWeek == Carbon::SUNDAY) {
+                    continue;
+                }
 
                 $clockIn = $date->copy()->setTime(rand(8, 9), rand(0, 59));
                 $clockOut = $date->copy()->setTime(rand(17, 19), rand(0, 30));
-                
+
                 $status = 'present';
                 $lateMinutes = 0;
 

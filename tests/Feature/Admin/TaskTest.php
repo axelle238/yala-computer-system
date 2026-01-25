@@ -1,13 +1,13 @@
 <?php
 
-use App\Models\User;
 use App\Livewire\Admin\TaskManager;
 use App\Models\Task;
+use App\Models\User;
 use Livewire\Livewire;
 
 it('halaman tugas bisa diakses oleh admin', function () {
     $user = User::factory()->create();
-    
+
     $this->actingAs($user)
         ->get(route('admin.tasks'))
         ->assertStatus(200)
@@ -32,7 +32,7 @@ it('bisa membuat tugas baru', function () {
         'priority' => 'high',
         'assigned_to' => $assignee->id,
         'created_by' => $user->id,
-        'status' => 'pending'
+        'status' => 'pending',
     ]);
 });
 
@@ -44,9 +44,9 @@ it('validasi form tugas bekerja dalam bahasa indonesia', function () {
         ->set('title', '') // Kosong
         ->call('save')
         ->assertHasErrors(['title' => 'required']);
-        
+
     // Cek pesan error bahasa indonesia (Manual check or strict assert if we loaded lang)
-    // Note: assertions on specific error messages in Livewire is tricky without direct viewing errors bag, 
+    // Note: assertions on specific error messages in Livewire is tricky without direct viewing errors bag,
     // but standard Laravel validation will use our new lang files.
 });
 
@@ -56,7 +56,7 @@ it('bisa mengubah status tugas', function () {
         'title' => 'Tugas Awal',
         'priority' => 'medium',
         'status' => 'pending',
-        'created_by' => $user->id
+        'created_by' => $user->id,
     ]);
 
     Livewire::actingAs($user)
@@ -66,6 +66,6 @@ it('bisa mengubah status tugas', function () {
 
     $this->assertDatabaseHas('tasks', [
         'id' => $task->id,
-        'status' => 'in_progress'
+        'status' => 'in_progress',
     ]);
 });

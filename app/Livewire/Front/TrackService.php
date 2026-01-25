@@ -3,17 +3,20 @@
 namespace App\Livewire\Front;
 
 use App\Models\ServiceTicket;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
-#[Layout('layouts.store')] 
+#[Layout('layouts.store')]
 #[Title('Cek Status Service - Yala Computer')]
 class TrackService extends Component
 {
-    public $search_ticket = ''; 
+    public $search_ticket = '';
+
     public $phone_verification = '';
+
     public $result = null;
+
     public $timeline = [];
 
     public function track()
@@ -26,17 +29,18 @@ class TrackService extends Component
         // Find ticket that matches Ticket Number AND Phone (fuzzy match for phone)
         $ticket = ServiceTicket::with(['items', 'technician', 'histories.user'])
             ->where('ticket_number', $this->search_ticket)
-            ->where('customer_phone', 'like', '%' . $this->phone_verification . '%')
+            ->where('customer_phone', 'like', '%'.$this->phone_verification.'%')
             ->first();
 
-        if (!$ticket) {
+        if (! $ticket) {
             $this->addError('search_ticket', 'Data tidak ditemukan. Pastikan Nomor Tiket dan Nomor HP sesuai.');
             $this->result = null;
+
             return;
         }
 
         $this->result = $ticket;
-        
+
         // Build Timeline
         // Default standard milestones
         $standardSteps = [
@@ -44,7 +48,7 @@ class TrackService extends Component
             'diagnosing' => 'Pengecekan (Diagnosa)',
             'repairing' => 'Dalam Pengerjaan',
             'ready' => 'Selesai / Siap Diambil',
-            'picked_up' => 'Diambil'
+            'picked_up' => 'Diambil',
         ];
 
         // Merge actual history

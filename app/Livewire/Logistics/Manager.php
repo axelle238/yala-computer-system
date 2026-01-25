@@ -3,10 +3,10 @@
 namespace App\Livewire\Logistics;
 
 use App\Models\Order;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Manajemen Pengiriman (Logistics)')]
@@ -15,15 +15,20 @@ class Manager extends Component
     use WithPagination;
 
     public $filterStatus = 'processing'; // pending, processing, shipped, delivered
+
     public $search = '';
-    
+
     // View State
     public $activeAction = null; // null, 'tracking'
 
     public $selectedOrderId;
+
     public $trackingNumber;
 
-    public function updatedFilterStatus() { $this->resetPage(); }
+    public function updatedFilterStatus()
+    {
+        $this->resetPage();
+    }
 
     public function markAsProcessing($id)
     {
@@ -48,10 +53,10 @@ class Manager extends Component
     public function saveTracking()
     {
         $this->validate(['trackingNumber' => 'required|string|min:5']);
-        
+
         Order::find($this->selectedOrderId)->update([
             'status' => 'shipped',
-            'tracking_number' => $this->trackingNumber
+            'tracking_number' => $this->trackingNumber,
         ]);
 
         $this->closeTrackingPanel();
@@ -61,9 +66,9 @@ class Manager extends Component
     public function render()
     {
         $orders = Order::where('status', $this->filterStatus)
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->where('order_number', 'like', '%'.$this->search.'%')
-                  ->orWhere('guest_name', 'like', '%'.$this->search.'%');
+                    ->orWhere('guest_name', 'like', '%'.$this->search.'%');
             })
             ->latest()
             ->paginate(10);

@@ -12,7 +12,7 @@ uses(DatabaseTransactions::class);
 
 it('halaman rma manager bisa diakses admin', function () {
     $admin = User::factory()->create();
-    
+
     $this->actingAs($admin)
         ->get(route('rma.index'))
         ->assertStatus(200)
@@ -22,7 +22,7 @@ it('halaman rma manager bisa diakses admin', function () {
 it('admin bisa memproses refund rma dengan sesi kasir aktif', function () {
     $admin = User::factory()->create();
     $customer = User::factory()->create();
-    
+
     // 1. Setup Cash Register (OPEN)
     $register = CashRegister::create([
         'user_id' => $admin->id,
@@ -36,7 +36,7 @@ it('admin bisa memproses refund rma dengan sesi kasir aktif', function () {
         'user_id' => $customer->id,
         'order_number' => 'ORD-TEST-REFUND',
         'status' => 'completed',
-        'total_amount' => 500000
+        'total_amount' => 500000,
     ]);
 
     $rma = Rma::create([
@@ -44,7 +44,7 @@ it('admin bisa memproses refund rma dengan sesi kasir aktif', function () {
         'order_id' => $order->id,
         'rma_number' => 'RMA-TEST-REFUND',
         'reason' => 'Rusak',
-        'status' => 'received', 
+        'status' => 'received',
     ]);
 
     // 3. Eksekusi Livewire
@@ -83,7 +83,7 @@ it('admin gagal refund jika tidak ada sesi kasir aktif', function () {
         'user_id' => $customer->id,
         'order_number' => 'ORD-FAIL-REFUND',
         'status' => 'completed',
-        'total_amount' => 500000
+        'total_amount' => 500000,
     ]);
 
     $rma = Rma::create([

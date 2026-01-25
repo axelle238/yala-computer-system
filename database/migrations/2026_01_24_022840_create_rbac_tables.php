@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // Jika tabel roles belum ada (cek conflict dengan migrasi lama)
-        if (!Schema::hasTable('roles_v2')) {
+        if (! Schema::hasTable('roles_v2')) {
             Schema::create('roles_v2', function (Blueprint $table) {
                 $table->id();
                 $table->string('name')->unique(); // e.g., 'Super Admin', 'Warehouse Staff'

@@ -3,11 +3,10 @@
 namespace App\Livewire\Master;
 
 use App\Models\Category;
-use Illuminate\Support\Str;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.app')]
 #[Title('Master Kategori - Yala Computer')]
@@ -19,7 +18,7 @@ class Categories extends Component
 
     public function render()
     {
-        $categories = Category::where('name', 'like', '%' . $this->search . '%')
+        $categories = Category::where('name', 'like', '%'.$this->search.'%')
             ->latest()
             ->paginate(10);
 

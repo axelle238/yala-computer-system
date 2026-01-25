@@ -4,10 +4,10 @@ namespace App\Livewire\Marketing\FlashSale;
 
 use App\Models\FlashSale;
 use App\Models\Product;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Manajemen Flash Sale')]
@@ -16,19 +16,32 @@ class Index extends Component
     use WithPagination;
 
     public $showForm = false;
+
     public $searchProduct = '';
+
     public $productSearchResults = [];
 
     // Form
     public $flashSaleId;
-    public $product_id, $discount_price, $quota, $start_time, $end_time;
+
+    public $product_id;
+
+    public $discount_price;
+
+    public $quota;
+
+    public $start_time;
+
+    public $end_time;
+
     public $is_active = true;
+
     public $selectedProductName = '';
 
     public function updatedSearchProduct()
     {
         if (strlen($this->searchProduct) > 2) {
-            $this->productSearchResults = Product::where('name', 'like', '%' . $this->searchProduct . '%')
+            $this->productSearchResults = Product::where('name', 'like', '%'.$this->searchProduct.'%')
                 ->limit(5)->get();
         } else {
             $this->productSearchResults = [];
@@ -81,6 +94,7 @@ class Index extends Component
     public function render()
     {
         $sales = FlashSale::with('product')->latest()->paginate(10);
+
         return view('livewire.marketing.flash-sale.index', ['sales' => $sales]);
     }
 }

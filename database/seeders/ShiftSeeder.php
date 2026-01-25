@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Shift;
+use Illuminate\Database\Seeder;
 
 class ShiftSeeder extends Seeder
 {
@@ -16,7 +16,7 @@ class ShiftSeeder extends Seeder
             'end_time' => '17:00:00',
             'late_tolerance' => 15,
             'work_days' => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         Shift::firstOrCreate([
@@ -26,7 +26,7 @@ class ShiftSeeder extends Seeder
             'end_time' => '19:00:00',
             'late_tolerance' => 10,
             'work_days' => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-            'is_active' => true
+            'is_active' => true,
         ]);
     }
 }

@@ -11,9 +11,9 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
-use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')] // Menggunakan layout admin, tapi nanti kita buat full-width di view
 #[Title('Point of Sales (POS)')]
@@ -21,23 +21,32 @@ class PointOfSale extends Component
 {
     // Search & Filter
     public $searchQuery = '';
+
     public $categoryId = null;
-    
+
     // Cart
     public $cart = []; // [product_id => [id, name, price, qty, subtotal, stock]]
+
     public $subtotal = 0;
+
     public $discount = 0;
+
     public $grandTotal = 0;
 
     // Customer
     public $selectedMemberId = null;
+
     public $guestName = 'Tamu';
+
     public $memberSearch = '';
+
     public $searchResultsMember = [];
 
     // Payment
     public $paymentMethod = 'cash'; // cash, transfer, qris
+
     public $cashGiven = 0;
+
     public $change = 0;
 
     // System State
@@ -54,8 +63,8 @@ class PointOfSale extends Component
             ->where('status', 'open')
             ->latest()
             ->first();
-            
-        if (!$this->activeRegister) {
+
+        if (! $this->activeRegister) {
             // Redirect jika belum buka kasir
             return redirect()->route('finance.cash-register')->with('error', 'Silakan buka shift kasir terlebih dahulu.');
         }
@@ -66,10 +75,13 @@ class PointOfSale extends Component
     public function addToCart($productId)
     {
         $product = Product::find($productId);
-        
-        if (!$product) return;
+
+        if (! $product) {
+            return;
+        }
         if ($product->stock_quantity <= 0) {
             $this->dispatch('notify', message: 'Stok habis!', type: 'error');
+
             return;
         }
 
@@ -77,6 +89,7 @@ class PointOfSale extends Component
             // Cek stok sebelum nambah
             if ($this->cart[$productId]['qty'] + 1 > $product->stock_quantity) {
                 $this->dispatch('notify', message: 'Stok tidak mencukupi!', type: 'error');
+
                 return;
             }
             $this->cart[$productId]['qty']++;
@@ -90,17 +103,19 @@ class PointOfSale extends Component
                 'max_stock' => $product->stock_quantity,
             ];
         }
-        
+
         $this->calculateTotals();
         $this->searchQuery = ''; // Reset search focus
     }
 
     public function updateQty($productId, $qty)
     {
-        if (!isset($this->cart[$productId])) return;
-        
+        if (! isset($this->cart[$productId])) {
+            return;
+        }
+
         $qty = intval($qty);
-        
+
         if ($qty <= 0) {
             unset($this->cart[$productId]);
         } else {
@@ -111,7 +126,7 @@ class PointOfSale extends Component
             }
             $this->cart[$productId]['qty'] = $qty;
         }
-        
+
         $this->calculateTotals();
     }
 
@@ -127,7 +142,7 @@ class PointOfSale extends Component
         foreach ($this->cart as $item) {
             $this->subtotal += $item['price'] * $item['qty'];
         }
-        
+
         // Diskon logic (bisa dikembangkan)
         $this->grandTotal = max(0, $this->subtotal - $this->discount);
         $this->calculateChange();
@@ -153,9 +168,9 @@ class PointOfSale extends Component
     public function updatedMemberSearch()
     {
         if (strlen($this->memberSearch) > 2) {
-            $this->searchResultsMember = User::where('name', 'like', '%' . $this->memberSearch . '%')
-                ->orWhere('email', 'like', '%' . $this->memberSearch . '%')
-                ->orWhere('phone', 'like', '%' . $this->memberSearch . '%')
+            $this->searchResultsMember = User::where('name', 'like', '%'.$this->memberSearch.'%')
+                ->orWhere('email', 'like', '%'.$this->memberSearch.'%')
+                ->orWhere('phone', 'like', '%'.$this->memberSearch.'%')
                 ->limit(5)
                 ->get();
         } else {
@@ -179,11 +194,13 @@ class PointOfSale extends Component
         // 1. Validasi
         if (empty($this->cart)) {
             $this->dispatch('notify', message: 'Keranjang belanja kosong!', type: 'error');
+
             return;
         }
 
         if ($this->paymentMethod == 'cash' && $this->cashGiven < $this->grandTotal) {
             $this->dispatch('notify', message: 'Uang pembayaran kurang!', type: 'error');
+
             return;
         }
 
@@ -192,6 +209,7 @@ class PointOfSale extends Component
             $product = Product::find($id);
             if ($product->stock_quantity < $item['qty']) {
                 $this->dispatch('notify', message: "Stok {$product->name} berubah/tidak cukup!", type: 'error');
+
                 return;
             }
         }
@@ -199,7 +217,7 @@ class PointOfSale extends Component
         DB::transaction(function () {
             // 2. Buat Order
             $order = Order::create([
-                'order_number' => 'ORD-' . date('ymd') . '-' . rand(1000, 9999),
+                'order_number' => 'ORD-'.date('ymd').'-'.rand(1000, 9999),
                 'cash_register_id' => $this->activeRegister->id,
                 'user_id' => $this->selectedMemberId, // Null if guest
                 'guest_name' => $this->selectedMemberId ? null : $this->guestName,
@@ -213,7 +231,7 @@ class PointOfSale extends Component
 
             foreach ($this->cart as $id => $item) {
                 $product = Product::find($id);
-                
+
                 // 3. Buat Order Item
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -224,7 +242,7 @@ class PointOfSale extends Component
 
                 // 4. Potong Stok & Log Inventory
                 $product->decrement('stock_quantity', $item['qty']);
-                
+
                 InventoryTransaction::create([
                     'product_id' => $product->id,
                     'user_id' => Auth::id(),
@@ -244,10 +262,10 @@ class PointOfSale extends Component
             // Biasanya Transfer masuk Bank, bukan Laci. Tapi untuk pencatatan Sales tetap masuk.
             // Kita catat semua sebagai Sales, tapi mungkin perlu flag 'cash_drawer' true/false.
             // Untuk simplifikasi, kita catat semua di CashTransaction dengan tipe metode.
-            
+
             CashTransaction::create([
                 'cash_register_id' => $this->activeRegister->id,
-                'transaction_number' => 'TRX-POS-' . $order->id,
+                'transaction_number' => 'TRX-POS-'.$order->id,
                 'type' => 'in',
                 'category' => 'sales',
                 'amount' => $this->grandTotal,
@@ -271,14 +289,14 @@ class PointOfSale extends Component
     {
         $products = Product::query()
             ->when($this->searchQuery, function ($q) {
-                $q->where('name', 'like', '%' . $this->searchQuery . '%')
-                  ->orWhere('sku', 'like', '%' . $this->searchQuery . '%');
+                $q->where('name', 'like', '%'.$this->searchQuery.'%')
+                    ->orWhere('sku', 'like', '%'.$this->searchQuery.'%');
             })
             ->when($this->categoryId, function ($q) {
                 $q->where('category_id', $this->categoryId);
             })
             ->where('is_active', true)
-            ->whereHas('category', function($q) {
+            ->whereHas('category', function ($q) {
                 $q->where('slug', '!=', 'services'); // Hanya produk fisik
             })
             ->latest()
@@ -288,7 +306,7 @@ class PointOfSale extends Component
 
         return view('livewire.sales.point-of-sale', [
             'products' => $products,
-            'categories' => $categories
+            'categories' => $categories,
         ]);
     }
 }

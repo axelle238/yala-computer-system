@@ -3,9 +3,9 @@
 namespace App\Livewire\Store\News;
 
 use App\Models\Article;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 class Show extends Component
@@ -20,7 +20,7 @@ class Show extends Component
     #[Title]
     public function pageTitle()
     {
-        return $this->article->title . ' - Yala Computer';
+        return $this->article->title.' - Yala Computer';
     }
 
     public function render()

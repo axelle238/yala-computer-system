@@ -4,15 +4,14 @@ namespace App\Livewire\Store;
 
 use App\Models\Product;
 use Illuminate\Support\Facades\Session;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 class ProductDetail extends Component
 {
     public $product;
-    
+
     // Add Listeners
     protected $listeners = ['addToWishlist'];
 
@@ -36,8 +35,9 @@ class ProductDetail extends Component
 
     public function addToWishlist($productId)
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             $this->dispatch('notify', message: 'Silakan login terlebih dahulu.', type: 'error');
+
             return;
         }
 
@@ -49,7 +49,7 @@ class ProductDetail extends Component
         } else {
             \App\Models\Wishlist::create([
                 'user_id' => auth()->id(),
-                'product_id' => $productId
+                'product_id' => $productId,
             ]);
             $this->dispatch('notify', message: 'Ditambahkan ke Wishlist!', type: 'success');
         }
@@ -64,11 +64,11 @@ class ProductDetail extends Component
             ->get();
 
         return view('livewire.store.product-detail', [
-            'relatedProducts' => $relatedProducts
+            'relatedProducts' => $relatedProducts,
         ])
-        ->layout('layouts.store', [
-            'title' => $this->product->name . ' - Yala Computer',
-            'description' => \Illuminate\Support\Str::limit(strip_tags($this->product->description), 160)
-        ]);
+            ->layout('layouts.store', [
+                'title' => $this->product->name.' - Yala Computer',
+                'description' => \Illuminate\Support\Str::limit(strip_tags($this->product->description), 160),
+            ]);
     }
 }

@@ -4,14 +4,13 @@ namespace App\Livewire\Store;
 
 use App\Models\Product;
 use App\Models\SavedBuild;
-use App\Models\Setting;
 use App\Services\PcCompatibilityService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.store')]
 #[Title('Simulasi Rakit PC - Yala Computer')]
@@ -23,25 +22,33 @@ class PcBuilder extends Component
      * Status Rakitan
      */
     public $namaRakitan = 'PC Kustom Saya';
-    public $pilihanKomponen = []; 
+
+    public $pilihanKomponen = [];
+
     public $totalHarga = 0;
+
     public $estimasiDaya = 0;
+
     public $tambahJasaRakit = false;
-    
+
     /**
      * Pesan Status Kompatibilitas
      */
     public $masalahKompatibilitas = [];
+
     public $peringatanKompatibilitas = [];
+
     public $infoKompatibilitas = [];
 
     /**
      * Status Pemilih Komponen (Tanpa Modal)
      */
     public $tampilkanPemilih = false;
+
     public $kategoriSaatIni = null;
+
     public $kataKunciCari = '';
-    
+
     /**
      * Daftar Kategori Komponen
      */
@@ -68,7 +75,7 @@ class PcBuilder extends Component
             $this->pilihanKomponen = session()->get('cloned_build');
             $this->namaRakitan = session()->get('cloned_build_name', 'PC Kustom Baru');
             $this->hitungUlang();
-            
+
             session()->forget(['cloned_build', 'cloned_build_name']);
         }
     }
@@ -81,7 +88,7 @@ class PcBuilder extends Component
         $this->kategoriSaatIni = $kategori;
         $this->kataKunciCari = '';
         $this->tampilkanPemilih = true;
-        $this->resetPage(); 
+        $this->resetPage();
     }
 
     /**
@@ -105,7 +112,7 @@ class PcBuilder extends Component
                 'nama' => $produk->name,
                 'harga' => $produk->sell_price,
                 'gambar' => $produk->image_path,
-                'spek' => $produk->specifications
+                'spek' => $produk->specifications,
             ];
             $this->hitungUlang();
         }
@@ -146,7 +153,7 @@ class PcBuilder extends Component
         }
 
         // 3. Layanan Kompatibilitas
-        $layanan = new PcCompatibilityService();
+        $layanan = new PcCompatibilityService;
         $hasil = $layanan->checkCompatibility($this->pilihanKomponen);
 
         $this->masalahKompatibilitas = $hasil['issues'];
@@ -160,15 +167,16 @@ class PcBuilder extends Component
      */
     public function simpanRakitan()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $this->dispatch('notify', message: 'Silakan masuk untuk menyimpan rakitan.', type: 'error');
+
             return redirect()->route('customer.login');
         }
 
         SavedBuild::create([
             'user_id' => Auth::id(),
             'name' => $this->namaRakitan,
-            'description' => 'Disimpan pada ' . now()->locale('id')->isoFormat('D MMMM Y'),
+            'description' => 'Disimpan pada '.now()->locale('id')->isoFormat('D MMMM Y'),
             'total_price_estimated' => $this->totalHarga,
             'components' => $this->pilihanKomponen,
             'share_token' => Str::random(32),
@@ -209,14 +217,14 @@ class PcBuilder extends Component
                         'is_active' => true,
                     ]
                 );
-                
+
                 $keranjang[$produkJasa->id] = 1;
 
                 // Simpan Metadata Rakitan untuk dikelola di antrian teknisi
                 session()->put('pc_assembly_data', [
                     'build_name' => $this->namaRakitan,
                     'specs' => $this->pilihanKomponen,
-                    'wattage' => $this->estimasiDaya
+                    'wattage' => $this->estimasiDaya,
                 ]);
             } else {
                 session()->forget('pc_assembly_data');
@@ -224,9 +232,10 @@ class PcBuilder extends Component
 
             session()->put('cart', $keranjang);
             $this->dispatch('cart-updated');
+
             return redirect()->route('cart');
         } else {
-             $this->dispatch('notify', message: 'Pilih komponen minimal satu terlebih dahulu.', type: 'warning');
+            $this->dispatch('notify', message: 'Pilih komponen minimal satu terlebih dahulu.', type: 'warning');
         }
     }
 
@@ -235,16 +244,16 @@ class PcBuilder extends Component
         $daftarProduk = [];
         if ($this->tampilkanPemilih && $this->kategoriSaatIni) {
             $daftarProduk = Product::where('is_active', true)
-                ->whereHas('category', function($q) {
+                ->whereHas('category', function ($q) {
                     $q->where('slug', $this->kategoriSaatIni);
                 })
-                ->where('name', 'like', '%' . $this->kataKunciCari . '%')
+                ->where('name', 'like', '%'.$this->kataKunciCari.'%')
                 ->orderBy('sell_price')
                 ->paginate(12);
         }
 
         return view('livewire.store.pc-builder', [
-            'daftarProduk' => $daftarProduk
+            'daftarProduk' => $daftarProduk,
         ]);
     }
 }

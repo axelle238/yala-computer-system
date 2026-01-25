@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // 1. Shifts (Jadwal Kerja)
-        if (!Schema::hasTable('shifts')) {
+        if (! Schema::hasTable('shifts')) {
             Schema::create('shifts', function (Blueprint $table) {
                 $table->id();
                 $table->string('name'); // Pagi, Siang, Malam
@@ -20,7 +20,7 @@ return new class extends Migration
         }
 
         // 2. Employee Shifts (Assignment)
-        if (!Schema::hasTable('employee_shifts')) {
+        if (! Schema::hasTable('employee_shifts')) {
             Schema::create('employee_shifts', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained()->onDelete('cascade');
@@ -32,7 +32,7 @@ return new class extends Migration
         }
 
         // 3. Attendances (Absensi Real)
-        if (!Schema::hasTable('attendances')) {
+        if (! Schema::hasTable('attendances')) {
             Schema::create('attendances', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained();
@@ -47,7 +47,7 @@ return new class extends Migration
         }
 
         // 4. Payrolls (Penggajian)
-        if (!Schema::hasTable('payrolls')) {
+        if (! Schema::hasTable('payrolls')) {
             Schema::create('payrolls', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained();
@@ -65,7 +65,7 @@ return new class extends Migration
 
         // 5. Commissions (Komisi per Transaksi - Link ke Payroll)
         // Note: Commission model might exist, creating table if not.
-        if (!Schema::hasTable('commissions')) {
+        if (! Schema::hasTable('commissions')) {
             Schema::create('commissions', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained();
@@ -78,7 +78,7 @@ return new class extends Migration
             });
         } else {
             // Add payroll_id if table exists but column doesn't
-            if (!Schema::hasColumn('commissions', 'payroll_id')) {
+            if (! Schema::hasColumn('commissions', 'payroll_id')) {
                 Schema::table('commissions', function (Blueprint $table) {
                     $table->foreignId('payroll_id')->nullable()->constrained()->onDelete('set null');
                 });

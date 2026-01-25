@@ -9,10 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('vouchers', function (Blueprint $table) {
-            if (!Schema::hasColumn('vouchers', 'points_cost')) {
+            if (! Schema::hasColumn('vouchers', 'points_cost')) {
                 $table->integer('points_cost')->default(0)->after('usage_per_user')->comment('Cost to redeem this voucher');
             }
-            if (!Schema::hasColumn('vouchers', 'is_public')) {
+            if (! Schema::hasColumn('vouchers', 'is_public')) {
                 $table->boolean('is_public')->default(false)->after('points_cost')->comment('Show in Redeem Center');
             }
         });

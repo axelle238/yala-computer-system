@@ -9,22 +9,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rmas', function (Blueprint $table) {
-            if (!Schema::hasColumn('rmas', 'refund_amount')) {
+            if (! Schema::hasColumn('rmas', 'refund_amount')) {
                 $table->decimal('refund_amount', 15, 2)->default(0)->after('resolution_type');
             }
-            if (!Schema::hasColumn('rmas', 'supplier_id')) {
+            if (! Schema::hasColumn('rmas', 'supplier_id')) {
                 $table->foreignId('supplier_id')->nullable()->after('order_id')->constrained();
             }
-            if (!Schema::hasColumn('rmas', 'stock_adjusted')) {
+            if (! Schema::hasColumn('rmas', 'stock_adjusted')) {
                 $table->boolean('stock_adjusted')->default(false)->after('status');
             }
         });
 
         Schema::table('rma_items', function (Blueprint $table) {
-            if (!Schema::hasColumn('rma_items', 'replacement_product_id')) {
+            if (! Schema::hasColumn('rma_items', 'replacement_product_id')) {
                 $table->foreignId('replacement_product_id')->nullable()->after('product_id')->constrained('products');
             }
-            if (!Schema::hasColumn('rma_items', 'replacement_serial_number')) {
+            if (! Schema::hasColumn('rma_items', 'replacement_serial_number')) {
                 $table->string('replacement_serial_number')->nullable()->after('serial_number');
             }
         });

@@ -3,28 +3,35 @@
 namespace App\Livewire\Assets;
 
 use App\Models\CompanyAsset;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Form Aset - Yala Computer')]
 class Form extends Component
 {
     public $name;
+
     public $asset_tag;
+
     public $serial_number;
+
     public $purchase_price;
+
     public $purchase_date;
+
     public $useful_life_years = 4;
+
     public $location;
+
     public $condition = 'good';
 
     public function mount()
     {
         // Auto-generate Tag
         $count = CompanyAsset::count() + 1;
-        $this->asset_tag = 'AST-' . date('Y') . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
+        $this->asset_tag = 'AST-'.date('Y').'-'.str_pad($count, 3, '0', STR_PAD_LEFT);
         $this->purchase_date = date('Y-m-d');
     }
 
@@ -51,6 +58,7 @@ class Form extends Component
         ]);
 
         $this->dispatch('notify', message: 'Aset berhasil didaftarkan!', type: 'success');
+
         return redirect()->route('assets.index');
     }
 

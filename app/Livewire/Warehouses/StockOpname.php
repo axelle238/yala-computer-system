@@ -9,10 +9,10 @@ use App\Models\StockOpnameItem as ItemStokOpname;
 use App\Models\Warehouse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Title;
-use Livewire\Attributes\Layout;
 
 #[Layout('layouts.admin')]
 #[Title('Stok Opname - Yala Computer')]
@@ -21,6 +21,7 @@ class StockOpname extends Component
     use WithPagination;
 
     public $cari = '';
+
     public ?ModelStokOpname $opnameAktif = null;
 
     public function mount()
@@ -35,15 +36,16 @@ class StockOpname extends Component
     public function mulaiSesi()
     {
         $gudangUtama = Warehouse::first();
-        
-        if (!$gudangUtama) {
+
+        if (! $gudangUtama) {
             $this->dispatch('notify', message: 'Tidak ada data gudang ditemukan.', type: 'error');
+
             return;
         }
 
         // Buat sesi opname baru
         $this->opnameAktif = ModelStokOpname::create([
-            'opname_number' => 'OPN-' . date('Ymd-His'),
+            'opname_number' => 'OPN-'.date('Ymd-His'),
             'warehouse_id' => $gudangUtama->id,
             'creator_id' => Auth::id(),
             'status' => 'menghitung',
@@ -53,7 +55,7 @@ class StockOpname extends Component
         // Masukkan semua produk aktif ke dalam item opname
         $produk = Product::where('is_active', true)->get();
         $item = [];
-        foreach($produk as $p) {
+        foreach ($produk as $p) {
             $item[] = [
                 'stock_opname_id' => $this->opnameAktif->id,
                 'product_id' => $p->id,
@@ -72,7 +74,7 @@ class StockOpname extends Component
             $this->opnameAktif = null;
         }
     }
-    
+
     public function perbaruiStokFisik($idItem, $stokFisik)
     {
         $item = ItemStokOpname::find($idItem);
@@ -83,14 +85,16 @@ class StockOpname extends Component
 
     public function finalisasiOpname()
     {
-        if (!$this->opnameAktif) return;
+        if (! $this->opnameAktif) {
+            return;
+        }
 
         DB::transaction(function () {
             $itemUntukDisesuaikan = $this->opnameAktif->items()
                 ->whereNotNull('physical_stock')
                 ->whereRaw('physical_stock != system_stock')
                 ->get();
-            
+
             foreach ($itemUntukDisesuaikan as $item) {
                 $produk = $item->product;
                 $selisih = $item->variance;
@@ -125,15 +129,15 @@ class StockOpname extends Component
         if ($this->opnameAktif) {
             $daftarItem = ItemStokOpname::where('stock_opname_id', $this->opnameAktif->id)
                 ->with('product')
-                ->whereHas('product', function($q) {
-                    $q->where('name', 'like', '%' . $this->cari . '%')
-                      ->orWhere('sku', 'like', '%' . $this->cari . '%');
+                ->whereHas('product', function ($q) {
+                    $q->where('name', 'like', '%'.$this->cari.'%')
+                        ->orWhere('sku', 'like', '%'.$this->cari.'%');
                 })
                 ->paginate(50);
         }
 
         return view('livewire.warehouses.stock-opname', [
-            'daftarItem' => $daftarItem
+            'daftarItem' => $daftarItem,
         ]);
     }
 }

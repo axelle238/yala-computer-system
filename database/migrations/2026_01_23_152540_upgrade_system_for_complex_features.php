@@ -58,7 +58,7 @@ return new class extends Migration
         Schema::dropIfExists('saved_builds');
         Schema::dropIfExists('order_items');
         Schema::dropIfExists('orders');
-        
+
         Schema::table('products', function (Blueprint $table) {
             $table->dropColumn(['socket_type', 'memory_type', 'form_factor', 'tdp_watts', 'wattage']);
         });

@@ -2,12 +2,12 @@
 
 namespace App\Livewire\Services;
 
-use App\Models\ServiceTicket;
 use App\Models\ProgresServis;
+use App\Models\ServiceTicket;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
-use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Papan Kanban Servis - Yala Computer')]
@@ -24,27 +24,29 @@ class Kanban extends Component
     public function perbaruiStatus($idTiket, $statusBaru)
     {
         $tiket = ServiceTicket::findOrFail($idTiket);
-        
+
         // Validasi dasar
-        if (!array_key_exists($statusBaru, $this->statusTersedia) && $statusBaru !== 'picked_up' && $statusBaru !== 'cancelled') {
+        if (! array_key_exists($statusBaru, $this->statusTersedia) && $statusBaru !== 'picked_up' && $statusBaru !== 'cancelled') {
             return;
         }
 
-        if ($tiket->status === $statusBaru) return;
+        if ($tiket->status === $statusBaru) {
+            return;
+        }
 
         $statusLama = $tiket->status;
         $tiket->update(['status' => $statusBaru]);
-        
+
         // KONSISTENSI: Buat Log Progres
         ProgresServis::create([
             'id_tiket_servis' => $tiket->id,
             'status' => $statusBaru,
-            'deskripsi' => "Status diperbarui via Papan Kanban dari " . ucfirst(str_replace('_', ' ', $statusLama)) . " ke " . ucfirst(str_replace('_', ' ', $statusBaru)),
+            'deskripsi' => 'Status diperbarui via Papan Kanban dari '.ucfirst(str_replace('_', ' ', $statusLama)).' ke '.ucfirst(str_replace('_', ' ', $statusBaru)),
             'id_teknisi' => Auth::id() ?? 1, // Fallback ke admin jika belum login
             'is_publik' => true,
         ]);
 
-        $this->dispatch('notify', message: "Tiket #{$tiket->ticket_number} dipindahkan ke " . ($this->statusTersedia[$statusBaru] ?? $statusBaru));
+        $this->dispatch('notify', message: "Tiket #{$tiket->ticket_number} dipindahkan ke ".($this->statusTersedia[$statusBaru] ?? $statusBaru));
     }
 
     public function render()
@@ -57,7 +59,7 @@ class Kanban extends Component
             ->groupBy('status');
 
         return view('livewire.services.kanban', [
-            'tiket' => $tiket
+            'tiket' => $tiket,
         ]);
     }
 }

@@ -9,18 +9,18 @@ return new class extends Migration
     public function up(): void
     {
         // 1. Product Serials
-        if (!Schema::hasTable('product_serials')) {
+        if (! Schema::hasTable('product_serials')) {
             Schema::create('product_serials', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('product_id')->constrained()->onDelete('cascade');
                 $table->string('serial_number');
                 $table->string('status')->default('available'); // available, reserved, sold, rma, defective
                 $table->foreignId('warehouse_id')->constrained();
-                
+
                 // Linking to purchase/sales
                 $table->foreignId('goods_receive_item_id')->nullable()->constrained('goods_receive_items')->onDelete('set null');
                 $table->foreignId('order_item_id')->nullable()->constrained('order_items')->onDelete('set null');
-                
+
                 $table->decimal('cost_price', 15, 2)->nullable(); // Specific cost for this unit
                 $table->timestamps();
 
@@ -29,7 +29,7 @@ return new class extends Migration
         }
 
         // 2. Product Bundles
-        if (!Schema::hasTable('product_bundles')) {
+        if (! Schema::hasTable('product_bundles')) {
             Schema::create('product_bundles', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
@@ -42,7 +42,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('product_bundle_items')) {
+        if (! Schema::hasTable('product_bundle_items')) {
             Schema::create('product_bundle_items', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('product_bundle_id')->constrained('product_bundles')->onDelete('cascade');
@@ -53,7 +53,7 @@ return new class extends Migration
         }
 
         // 3. Reviews (StoreFront)
-        if (!Schema::hasTable('reviews')) {
+        if (! Schema::hasTable('reviews')) {
             Schema::create('reviews', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained();

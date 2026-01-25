@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 
 class GoodsReceive extends Model
 {
@@ -17,7 +17,7 @@ class GoodsReceive extends Model
         'received_date',
         'notes',
         'status', // draft / finalized
-        'warehouse_id' // Pastikan kolom ini ada, atau gunakan default logic
+        'warehouse_id', // Pastikan kolom ini ada, atau gunakan default logic
     ];
 
     protected $casts = [

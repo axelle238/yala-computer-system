@@ -2,20 +2,17 @@
 
 namespace App\Livewire;
 
-use App\Models\InventoryTransaction;
-use App\Models\Product;
-use App\Models\ServiceTicket;
 use App\Models\Order;
 use App\Models\PcAssembly;
+use App\Models\PesanPelanggan;
 use App\Models\Quotation;
-use App\Models\PesanPelanggan; // Model baru
+use App\Models\ServiceTicket; // Model baru
 use App\Services\BusinessIntelligence;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
-use Livewire\Attributes\Title;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Dashboard Utama - Yala Computer')]
@@ -23,15 +20,15 @@ class Dashboard extends Component
 {
     public function render()
     {
-        $intelBisnis = new BusinessIntelligence();
+        $intelBisnis = new BusinessIntelligence;
         $bulan = now()->month;
         $tahun = now()->year;
         $pengguna = Auth::user();
 
         // 1. Statistik Inti (Cache 60 detik untuk performa)
-        $statistik = Cache::remember('dashboard_statistik_inti_' . $pengguna->id, 60, function () use ($bulan, $tahun, $intelBisnis, $pengguna) {
+        $statistik = Cache::remember('dashboard_statistik_inti_'.$pengguna->id, 60, function () use ($bulan, $tahun, $intelBisnis, $pengguna) {
             $labaRugi = $intelBisnis->getProfitLoss($bulan, $tahun);
-            
+
             $data = [
                 'pendapatan' => $labaRugi['revenue']['total'],
                 'laba_bersih' => $labaRugi['net_profit'],
@@ -58,7 +55,7 @@ class Dashboard extends Component
         return view('livewire.dashboard', [
             'statistik' => $statistik,
             'analisis' => $analisis,
-            'pengguna' => $pengguna
+            'pengguna' => $pengguna,
         ]);
     }
 }

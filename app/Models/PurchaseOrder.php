@@ -2,24 +2,24 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use App\Traits\LogsActivity;
 
 class PurchaseOrder extends Model
 {
     use LogsActivity;
 
     protected $fillable = [
-        'po_number', 
-        'supplier_id', 
-        'status', 
-        'delivery_status', 
-        'order_date', 
-        'total_amount', 
+        'po_number',
+        'supplier_id',
+        'status',
+        'delivery_status',
+        'order_date',
+        'total_amount',
         'payment_status',
-        'notes', 
-        'created_by'
+        'notes',
+        'created_by',
     ];
 
     protected $casts = [

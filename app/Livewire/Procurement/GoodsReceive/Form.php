@@ -2,45 +2,50 @@
 
 namespace App\Livewire\Procurement\GoodsReceive;
 
-use App\Models\PurchaseOrder;
-use App\Models\Product;
-use App\Models\ProductSerial;
 use App\Models\GoodsReceive;
 use App\Models\GoodsReceiveItem;
 use App\Models\InventoryTransaction;
+use App\Models\Product;
+use App\Models\ProductSerial;
+use App\Models\PurchaseOrder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Proses GRN')]
 class Form extends Component
 {
     public PurchaseOrder $po;
+
     public $items = []; // [product_id => [received_qty, serials[]]]
+
     public $receivedDate;
+
     public $notes;
 
     // UI State
     public $activeItemId = null;
+
     public $tempQty = 0;
+
     public $tempSerials = [];
 
     public function mount($poId)
     {
         $this->po = PurchaseOrder::with('items.product')->findOrFail($poId);
         $this->receivedDate = date('Y-m-d');
-        
+
         // Initialize Items
-        foreach($this->po->items as $item) {
+        foreach ($this->po->items as $item) {
             $this->items[$item->product_id] = [
                 'name' => $item->product->name,
                 'ordered_qty' => $item->quantity,
                 'has_serial' => $item->product->has_serial_number,
                 'received_qty' => 0,
-                'serials' => []
+                'serials' => [],
             ];
         }
     }
@@ -50,20 +55,22 @@ class Form extends Component
         $this->activeItemId = $productId;
         $this->tempQty = $this->items[$productId]['received_qty'];
         $this->tempSerials = $this->items[$productId]['serials'];
-        
+
         // Auto fill empty serials slots
         $diff = $this->tempQty - count($this->tempSerials);
-        for($i=0; $i<$diff; $i++) $this->tempSerials[] = '';
+        for ($i = 0; $i < $diff; $i++) {
+            $this->tempSerials[] = '';
+        }
     }
 
     public function updatedTempQty()
     {
         // Adjust serials array size based on qty
         $currentCount = count($this->tempSerials);
-        $newCount = (int)$this->tempQty;
+        $newCount = (int) $this->tempQty;
 
         if ($newCount > $currentCount) {
-            for($i=0; $i < ($newCount - $currentCount); $i++) {
+            for ($i = 0; $i < ($newCount - $currentCount); $i++) {
                 $this->tempSerials[] = '';
             }
         } elseif ($newCount < $currentCount) {
@@ -78,19 +85,22 @@ class Form extends Component
             $this->tempSerials = array_filter($this->tempSerials); // Remove empty
             if (count($this->tempSerials) != $this->tempQty) {
                 $this->dispatch('notify', message: 'Harap isi semua Nomor Seri sesuai jumlah yang diterima!', type: 'error');
+
                 return;
             }
-            
+
             // Check Duplicate in DB
             $duplicates = ProductSerial::whereIn('serial_number', $this->tempSerials)->pluck('serial_number')->toArray();
-            if (!empty($duplicates)) {
-                $this->dispatch('notify', message: 'Serial Number berikut sudah ada: ' . implode(', ', $duplicates), type: 'error');
+            if (! empty($duplicates)) {
+                $this->dispatch('notify', message: 'Serial Number berikut sudah ada: '.implode(', ', $duplicates), type: 'error');
+
                 return;
             }
-            
+
             // Check Duplicate in Input
             if (count($this->tempSerials) !== count(array_unique($this->tempSerials))) {
                 $this->dispatch('notify', message: 'Ada Serial Number ganda di inputan Anda.', type: 'error');
+
                 return;
             }
         }
@@ -106,13 +116,14 @@ class Form extends Component
         $totalReceived = collect($this->items)->sum('received_qty');
         if ($totalReceived <= 0) {
             $this->dispatch('notify', message: 'Belum ada barang yang diterima.', type: 'error');
+
             return;
         }
 
         DB::transaction(function () {
             // 1. Create GRN Header
             $grn = GoodsReceive::create([
-                'grn_number' => 'GRN-' . date('Ymd') . '-' . $this->po->id,
+                'grn_number' => 'GRN-'.date('Ymd').'-'.$this->po->id,
                 'purchase_order_id' => $this->po->id,
                 'received_by' => Auth::id(),
                 'received_date' => $this->receivedDate,
@@ -146,7 +157,7 @@ class Form extends Component
 
                     // 4. Update Stock & Log Inventory
                     $product->increment('stock_quantity', $data['received_qty']);
-                    
+
                     InventoryTransaction::create([
                         'product_id' => $productId,
                         'user_id' => Auth::id(),
@@ -155,27 +166,30 @@ class Form extends Component
                         'quantity' => $data['received_qty'],
                         'remaining_stock' => $product->stock_quantity,
                         'reference_number' => $grn->grn_number,
-                        'notes' => 'GRN from PO #' . $this->po->po_number,
+                        'notes' => 'GRN from PO #'.$this->po->po_number,
                         'cogs' => $this->po->items->where('product_id', $productId)->first()->unit_price ?? 0,
                     ]);
                 }
             }
 
             // 5. Update PO Status
-            // Logic simple: If any received -> received (for now). 
+            // Logic simple: If any received -> received (for now).
             // Advanced: Check if fully received.
             $allReceived = true;
-            foreach($this->po->items as $poItem) {
+            foreach ($this->po->items as $poItem) {
                 $rec = $this->items[$poItem->product_id]['received_qty'] ?? 0;
                 // Note: This logic assumes 1 GRN per PO fully. For partial, we need to sum previous GRNs.
                 // Keeping it simple for this "Complex" step (1 GRN flow).
-                if ($rec < $poItem->quantity) $allReceived = false;
+                if ($rec < $poItem->quantity) {
+                    $allReceived = false;
+                }
             }
-            
+
             $this->po->update(['status' => $allReceived ? 'received' : 'partial']);
         });
 
         session()->flash('success', 'Barang berhasil diterima dan stok bertambah.');
+
         return redirect()->route('purchase-orders.index');
     }
 

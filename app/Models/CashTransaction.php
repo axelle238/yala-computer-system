@@ -15,7 +15,7 @@ class CashTransaction extends Model
         'description',
         'reference_id',
         'reference_type',
-        'created_by'
+        'created_by',
     ];
 
     public function register()

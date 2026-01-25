@@ -14,11 +14,13 @@ class PayrollTestSeeder extends Seeder
     public function run(): void
     {
         $tech = User::where('email', 'tech@yala.com')->first();
-        if (!$tech) return;
+        if (! $tech) {
+            return;
+        }
 
         // Create Completed Ticket for Commission Calculation
         $ticket = ServiceTicket::create([
-            'ticket_number' => 'SRV-COM-' . rand(100,999),
+            'ticket_number' => 'SRV-COM-'.rand(100, 999),
             'customer_name' => 'Client Komisi Test',
             'customer_phone' => '0811223344',
             'device_name' => 'PC Gaming High End',

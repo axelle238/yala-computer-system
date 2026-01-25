@@ -22,11 +22,11 @@ class ProductSerial extends Model
     {
         return $this->belongsTo(Order::class);
     }
-    
+
     // Status accessor
     public function getStatusLabelAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'available' => 'Tersedia',
             'sold' => 'Terjual',
             'rma' => 'Sedang RMA',

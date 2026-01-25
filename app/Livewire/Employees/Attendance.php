@@ -5,10 +5,10 @@ namespace App\Livewire\Employees;
 use App\Models\Attendance as AttendanceModel;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Title;
-use Livewire\Attributes\Layout;
 
 #[Layout('layouts.admin')]
 #[Title('Absensi Harian')]
@@ -17,6 +17,7 @@ class Attendance extends Component
     use WithPagination;
 
     public $todayAttendance;
+
     public $currentTime;
 
     public function mount()
@@ -34,10 +35,12 @@ class Attendance extends Component
 
     public function clockIn()
     {
-        if ($this->todayAttendance) return;
+        if ($this->todayAttendance) {
+            return;
+        }
 
         $now = Carbon::now();
-        
+
         // Logika Keterlambatan (Misal masuk jam 09:00)
         $status = 'present';
         $limit = Carbon::createFromTime(9, 15, 0); // Toleransi sampai 09:15
@@ -63,7 +66,9 @@ class Attendance extends Component
 
     public function clockOut()
     {
-        if (!$this->todayAttendance) return;
+        if (! $this->todayAttendance) {
+            return;
+        }
 
         $this->todayAttendance->update([
             'clock_out' => Carbon::now()->toTimeString(),
@@ -80,7 +85,7 @@ class Attendance extends Component
             ->paginate(10);
 
         return view('livewire.employees.attendance', [
-            'history' => $history
+            'history' => $history,
         ]);
     }
 }

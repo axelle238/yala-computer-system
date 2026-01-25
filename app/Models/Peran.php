@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Model Peran
- * 
+ *
  * Mengelola peran pengguna dan daftar hak akses dalam format JSON.
  */
 class Peran extends Model
@@ -48,9 +48,6 @@ class Peran extends Model
 
     /**
      * Mengecek apakah peran ini memiliki hak akses tertentu.
-     * 
-     * @param string $kodeAkses
-     * @return bool
      */
     public function punyaAkses(string $kodeAkses): bool
     {

@@ -19,10 +19,18 @@ return new class extends Migration
         if (Schema::hasTable('sesi_obrolan')) {
             Schema::table('sesi_obrolan', function (Blueprint $table) {
                 // Rename Columns
-                if (Schema::hasColumn('sesi_obrolan', 'customer_id')) $table->renameColumn('customer_id', 'id_pelanggan');
-                if (Schema::hasColumn('sesi_obrolan', 'guest_token')) $table->renameColumn('guest_token', 'token_tamu');
-                if (Schema::hasColumn('sesi_obrolan', 'subject')) $table->renameColumn('subject', 'topik');
-                if (Schema::hasColumn('sesi_obrolan', 'is_closed')) $table->renameColumn('is_closed', 'is_selesai');
+                if (Schema::hasColumn('sesi_obrolan', 'customer_id')) {
+                    $table->renameColumn('customer_id', 'id_pelanggan');
+                }
+                if (Schema::hasColumn('sesi_obrolan', 'guest_token')) {
+                    $table->renameColumn('guest_token', 'token_tamu');
+                }
+                if (Schema::hasColumn('sesi_obrolan', 'subject')) {
+                    $table->renameColumn('subject', 'topik');
+                }
+                if (Schema::hasColumn('sesi_obrolan', 'is_closed')) {
+                    $table->renameColumn('is_closed', 'is_selesai');
+                }
             });
         }
 
@@ -34,12 +42,24 @@ return new class extends Migration
         if (Schema::hasTable('pesan_obrolan')) {
             Schema::table('pesan_obrolan', function (Blueprint $table) {
                 // Rename Columns
-                if (Schema::hasColumn('pesan_obrolan', 'conversation_id')) $table->renameColumn('conversation_id', 'id_sesi');
-                if (Schema::hasColumn('pesan_obrolan', 'user_id')) $table->renameColumn('user_id', 'id_pengguna');
-                if (Schema::hasColumn('pesan_obrolan', 'is_admin_reply')) $table->renameColumn('is_admin_reply', 'is_balasan_admin');
-                if (Schema::hasColumn('pesan_obrolan', 'body')) $table->renameColumn('body', 'isi');
-                if (Schema::hasColumn('pesan_obrolan', 'attachment')) $table->renameColumn('attachment', 'lampiran');
-                if (Schema::hasColumn('pesan_obrolan', 'is_read')) $table->renameColumn('is_read', 'is_dibaca');
+                if (Schema::hasColumn('pesan_obrolan', 'conversation_id')) {
+                    $table->renameColumn('conversation_id', 'id_sesi');
+                }
+                if (Schema::hasColumn('pesan_obrolan', 'user_id')) {
+                    $table->renameColumn('user_id', 'id_pengguna');
+                }
+                if (Schema::hasColumn('pesan_obrolan', 'is_admin_reply')) {
+                    $table->renameColumn('is_admin_reply', 'is_balasan_admin');
+                }
+                if (Schema::hasColumn('pesan_obrolan', 'body')) {
+                    $table->renameColumn('body', 'isi');
+                }
+                if (Schema::hasColumn('pesan_obrolan', 'attachment')) {
+                    $table->renameColumn('attachment', 'lampiran');
+                }
+                if (Schema::hasColumn('pesan_obrolan', 'is_read')) {
+                    $table->renameColumn('is_read', 'is_dibaca');
+                }
             });
         }
     }

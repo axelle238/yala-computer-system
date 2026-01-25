@@ -3,8 +3,6 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class NewChatMessage extends Notification
@@ -12,6 +10,7 @@ class NewChatMessage extends Notification
     use Queueable;
 
     public $message;
+
     public $senderName;
 
     /**
@@ -41,10 +40,10 @@ class NewChatMessage extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'title' => 'Pesan Baru dari ' . $this->senderName,
+            'title' => 'Pesan Baru dari '.$this->senderName,
             'message' => substr($this->message, 0, 100),
             'action' => route('customers.live-chat'),
-            'type' => 'chat'
+            'type' => 'chat',
         ];
     }
 }

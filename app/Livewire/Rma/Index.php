@@ -3,10 +3,10 @@
 namespace App\Livewire\Rma;
 
 use App\Models\Rma;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.app')]
 #[Title('Manajemen RMA - Yala Computer')]
@@ -15,6 +15,7 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+
     public $status = '';
 
     public function updatingSearch()
@@ -26,8 +27,8 @@ class Index extends Component
     {
         $rmas = Rma::with('user', 'order')
             ->when($this->search, function ($q) {
-                $q->where('rma_number', 'like', '%' . $this->search . '%')
-                  ->orWhere('guest_name', 'like', '%' . $this->search . '%');
+                $q->where('rma_number', 'like', '%'.$this->search.'%')
+                    ->orWhere('guest_name', 'like', '%'.$this->search.'%');
             })
             ->when($this->status, function ($q) {
                 $q->where('status', $this->status);
@@ -36,7 +37,7 @@ class Index extends Component
             ->paginate(10);
 
         return view('livewire.rma.index', [
-            'rmas' => $rmas
+            'rmas' => $rmas,
         ]);
     }
 }

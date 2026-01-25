@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('roles')) {
+        if (! Schema::hasTable('roles')) {
             Schema::create('roles', function (Blueprint $table) {
                 $table->id();
                 $table->string('name')->unique();
@@ -18,7 +18,7 @@ return new class extends Migration
         }
 
         // Add role_id to users table if not exists
-        if (Schema::hasTable('users') && !Schema::hasColumn('users', 'role_id')) {
+        if (Schema::hasTable('users') && ! Schema::hasColumn('users', 'role_id')) {
             Schema::table('users', function (Blueprint $table) {
                 $table->foreignId('role_id')->nullable()->after('email'); // Constraint removed for safety if role not seeded
             });

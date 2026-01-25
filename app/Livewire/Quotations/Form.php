@@ -8,9 +8,9 @@ use App\Models\QuotationItem;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Form Penawaran - Yala Computer')]
@@ -20,17 +20,23 @@ class Form extends Component
 
     // Form Fields
     public $quotation_number;
+
     public $user_id;
+
     public $valid_until;
+
     public $notes;
+
     public $terms_and_conditions;
+
     public $approval_status = 'pending';
 
     // Items
     public $items = []; // [ ['product_id', 'item_name', 'quantity', 'unit_price', 'total_price'] ]
-    
+
     // Search
     public $searchProduct = '';
+
     public $searchResults = [];
 
     public function mount($id = null)
@@ -54,7 +60,7 @@ class Form extends Component
                 ];
             }
         } else {
-            $this->quotation_number = 'Q-' . date('Ymd') . '-' . strtoupper(Str::random(4));
+            $this->quotation_number = 'Q-'.date('Ymd').'-'.strtoupper(Str::random(4));
             $this->valid_until = now()->addDays(7)->format('Y-m-d');
         }
     }
@@ -62,7 +68,7 @@ class Form extends Component
     public function updatedSearchProduct()
     {
         if (strlen($this->searchProduct) > 2) {
-            $this->searchResults = Product::where('name', 'like', '%' . $this->searchProduct . '%')
+            $this->searchResults = Product::where('name', 'like', '%'.$this->searchProduct.'%')
                 ->limit(5)
                 ->get();
         } else {
@@ -151,13 +157,14 @@ class Form extends Component
         });
 
         $this->dispatch('notify', message: 'Penawaran berhasil disimpan.', type: 'success');
+
         return redirect()->route('quotations.index');
     }
 
     public function render()
     {
         return view('livewire.quotations.form', [
-            'users' => User::limit(20)->get() // Simplified user select
+            'users' => User::limit(20)->get(), // Simplified user select
         ]);
     }
 }

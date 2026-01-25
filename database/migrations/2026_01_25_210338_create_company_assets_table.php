@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         // Cek jika tabel sudah ada untuk menghindari error, jika ada kita modify, jika belum kita create
-        if (!Schema::hasTable('company_assets')) {
+        if (! Schema::hasTable('company_assets')) {
             Schema::create('company_assets', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
@@ -29,19 +29,19 @@ return new class extends Migration
         } else {
             // Jika tabel sudah ada tapi kolom kurang (kasus update)
             Schema::table('company_assets', function (Blueprint $table) {
-                if (!Schema::hasColumn('company_assets', 'purchase_cost')) {
+                if (! Schema::hasColumn('company_assets', 'purchase_cost')) {
                     $table->decimal('purchase_cost', 15, 2)->default(0)->after('purchase_date');
                 }
-                if (!Schema::hasColumn('company_assets', 'useful_life_years')) {
+                if (! Schema::hasColumn('company_assets', 'useful_life_years')) {
                     $table->integer('useful_life_years')->default(5)->after('purchase_cost');
                 }
-                if (!Schema::hasColumn('company_assets', 'current_value')) {
+                if (! Schema::hasColumn('company_assets', 'current_value')) {
                     $table->decimal('current_value', 15, 2)->default(0)->after('useful_life_years');
                 }
-                if (!Schema::hasColumn('company_assets', 'location')) {
+                if (! Schema::hasColumn('company_assets', 'location')) {
                     $table->string('location')->nullable()->after('serial_number');
                 }
-                if (!Schema::hasColumn('company_assets', 'image_path')) {
+                if (! Schema::hasColumn('company_assets', 'image_path')) {
                     $table->string('image_path')->nullable()->after('current_value');
                 }
             });

@@ -14,12 +14,12 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained(); // Kasir yg buka
             $table->timestamp('opened_at');
             $table->timestamp('closed_at')->nullable();
-            
+
             $table->decimal('opening_cash', 15, 2)->default(0); // Modal Awal
             $table->decimal('closing_cash', 15, 2)->default(0); // Uang fisik saat tutup (input user)
             $table->decimal('expected_cash', 15, 2)->default(0); // Hitungan sistem
             $table->decimal('variance', 15, 2)->default(0); // Selisih
-            
+
             $table->enum('status', ['open', 'closed'])->default('open');
             $table->text('note')->nullable();
             $table->timestamps();

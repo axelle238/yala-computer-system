@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Setting;
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class CheckForMaintenanceMode
 {
@@ -19,12 +19,12 @@ class CheckForMaintenanceMode
     {
         $isMaintenance = (bool) Setting::get('maintenance_mode', false);
 
-        if ($isMaintenance && !Auth::check()) {
+        if ($isMaintenance && ! Auth::check()) {
             // Allow login route and Livewire internal routes
             if ($request->routeIs('login') || $request->routeIs('logout') || $request->is('livewire/*')) {
                 return $next($request);
             }
-            
+
             return response()->view('errors.maintenance', [], 503);
         }
 

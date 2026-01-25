@@ -2,10 +2,10 @@
 
 namespace App\Livewire\System;
 
-use Livewire\Component;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Illuminate\Support\Facades\DB;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Informasi Sistem')]

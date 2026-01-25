@@ -2,13 +2,13 @@
 
 namespace App\Livewire\Employees;
 
-use App\Models\User;
 use App\Models\Peran;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Manajemen Karyawan - Yala Computer')]
@@ -25,16 +25,24 @@ class Index extends Component
      * Flag untuk menampilkan form inputan.
      */
     public $tampilkanForm = false;
-    
+
     // Properti Model Pengguna
     public $idPengguna;
+
     public $nama;
+
     public $surel;
+
     public $idPeran; // Menggunakan sistem Peran (RBAC)
+
     public $kataSandi;
+
     public $telepon;
+
     public $gaji;
+
     public $nomorKtp;
+
     public $alamatLengkap;
 
     /**
@@ -75,7 +83,7 @@ class Index extends Component
             'nomorKtp' => 'nullable|digits:16',
         ];
 
-        if (!$this->idPengguna) {
+        if (! $this->idPengguna) {
             $aturan['kataSandi'] = 'required|min:6';
         }
 
@@ -116,6 +124,7 @@ class Index extends Component
     {
         if ($id == auth()->id()) {
             $this->dispatch('notify', message: 'Tidak dapat menghapus akun Anda sendiri.', type: 'error');
+
             return;
         }
         User::find($id)->delete();
@@ -129,16 +138,16 @@ class Index extends Component
 
         $karyawan = User::whereNotNull('id_peran') // Asumsi karyawan adalah yang punya peran
             ->orWhereIn('role', ['admin', 'technician', 'cashier', 'warehouse', 'hr'])
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->where('name', 'like', '%'.$this->cari.'%')
-                  ->orWhere('email', 'like', '%'.$this->cari.'%');
+                    ->orWhere('email', 'like', '%'.$this->cari.'%');
             })
             ->latest()
             ->paginate(10);
 
         return view('livewire.employees.index', [
             'karyawan' => $karyawan,
-            'daftarOpsiPeran' => $daftarOpsiPeran
+            'daftarOpsiPeran' => $daftarOpsiPeran,
         ]);
     }
 }

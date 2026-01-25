@@ -15,10 +15,10 @@ return new class extends Migration
             $table->foreignId('order_id')->nullable()->constrained()->onDelete('set null'); // Linked to original purchase
             $table->string('guest_name')->nullable(); // For walk-in guest
             $table->string('guest_phone')->nullable();
-            
-            $table->string('status')->default('pending'); 
+
+            $table->string('status')->default('pending');
             // pending, approved, received_goods, checking, sent_to_distributor, ready_to_pickup, completed, rejected
-            
+
             $table->string('resolution_type')->nullable(); // refund, replacement, repair
             $table->text('reason')->nullable();
             $table->text('admin_notes')->nullable();

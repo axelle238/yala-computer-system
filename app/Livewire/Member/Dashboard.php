@@ -6,9 +6,9 @@ use App\Models\Order;
 use App\Models\SavedBuild;
 use App\Models\ServiceTicket;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Member Area - Yala Computer')]
@@ -23,14 +23,14 @@ class Dashboard extends Component
     public function render()
     {
         $user = Auth::user();
-        
+
         // Mock Gamification Logic (To be moved to User Model later)
         $points = $user->points ?? 0;
         $level = 'Bronze';
         $levelColor = 'bg-amber-600 border-amber-400 text-amber-100';
         $levelIcon = 'star';
         $nextLevelTarget = 10000;
-        
+
         if ($points >= 50000) {
             $level = 'Diamond';
             $levelColor = 'bg-cyan-600 border-cyan-400 text-cyan-100';
@@ -48,23 +48,23 @@ class Dashboard extends Component
             'name' => $level,
             'color' => $levelColor,
             'bg' => str_replace('text', 'bg', $levelColor), // simplistic
-            'icon' => $levelIcon
+            'icon' => $levelIcon,
         ];
-        
+
         $user->next_level_progress = [
             'target' => $nextLevelTarget,
             'current' => $points,
             'remaining' => max(0, $nextLevelTarget - $points),
-            'percent' => $nextLevelTarget > 0 ? min(100, ($points / $nextLevelTarget) * 100) : 100
+            'percent' => $nextLevelTarget > 0 ? min(100, ($points / $nextLevelTarget) * 100) : 100,
         ];
 
         // Fetch Data
         $recentOrders = Order::where('user_id', $user->id)->latest()->take(5)->get();
-        
-        $activeServices = ServiceTicket::where(function($q) use ($user) {
-                $q->where('customer_phone', $user->phone)
-                  ->orWhere('customer_name', $user->name); 
-            })
+
+        $activeServices = ServiceTicket::where(function ($q) use ($user) {
+            $q->where('customer_phone', $user->phone)
+                ->orWhere('customer_name', $user->name);
+        })
             ->whereNotIn('status', ['picked_up', 'cancelled'])
             ->latest()
             ->get();

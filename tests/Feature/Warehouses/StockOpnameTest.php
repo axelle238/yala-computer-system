@@ -10,7 +10,7 @@ use Livewire\Livewire;
 
 uses(DatabaseTransactions::class);
 
-beforeEach(function() {
+beforeEach(function () {
     // Buat warehouse default
     Warehouse::factory()->create(['id' => 1, 'name' => 'Gudang Utama']);
 });
@@ -31,15 +31,15 @@ it('bisa memulai sesi stok opname dan memuat produk', function () {
 it('bisa mengupdate stok fisik per item', function () {
     $user = User::factory()->create();
     $product = Product::factory()->create(['stock_quantity' => 10]);
-    
+
     $livewire = Livewire::actingAs($user)->test(StockOpname::class);
     $livewire->call('startSession');
-    
+
     $opname = StockOpnameModel::first();
     $item = $opname->items()->where('product_id', $product->id)->first();
-    
+
     $livewire->call('updatePhysicalStock', $item->id, 12);
-    
+
     $this->assertDatabaseHas('stock_opname_items', [
         'id' => $item->id,
         'physical_stock' => 12,
@@ -50,7 +50,7 @@ it('bisa menyelesaikan opname dan menyesuaikan stok', function () {
     $user = User::factory()->create();
     $productA = Product::factory()->create(['stock_quantity' => 10]);
     $productB = Product::factory()->create(['stock_quantity' => 20]);
-    
+
     // Mulai sesi
     $livewire = Livewire::actingAs($user)->test(StockOpname::class);
     $livewire->call('startSession');
@@ -68,9 +68,9 @@ it('bisa menyelesaikan opname dan menyesuaikan stok', function () {
     // Assert Status
     $this->assertDatabaseHas('stock_opnames', [
         'id' => $opname->id,
-        'status' => 'completed'
+        'status' => 'completed',
     ]);
-    
+
     // Assert Stok Produk
     $this->assertDatabaseHas('products', [
         'id' => $productA->id,
@@ -86,6 +86,6 @@ it('bisa menyelesaikan opname dan menyesuaikan stok', function () {
         'product_id' => $productA->id,
         'type' => 'adjustment',
         'quantity' => 2, // absolute variance
-        'notes' => 'Stok Opname #' . $opname->opname_number . ': Selisih -2'
+        'notes' => 'Stok Opname #'.$opname->opname_number.': Selisih -2',
     ]);
 });

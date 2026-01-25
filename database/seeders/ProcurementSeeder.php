@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\GoodsReceive;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
@@ -28,20 +27,20 @@ class ProcurementSeeder extends Seeder
 
         $ssd = Product::where('sku', 'PART-SSD-512')->first();
         if ($ssd) {
-            $ssd->update(['stock_quantity' => 2]); 
+            $ssd->update(['stock_quantity' => 2]);
         }
 
         // 3. Create Purchase Order (Status: Ordered)
         // Use random suffix to avoid collision during re-seeding
-        $poNumber1 = 'PO-' . date('Ymd') . '-' . rand(1000, 9999);
-        
+        $poNumber1 = 'PO-'.date('Ymd').'-'.rand(1000, 9999);
+
         $po = PurchaseOrder::create([
             'po_number' => $poNumber1,
             'supplier_id' => $supplier->id,
-            'status' => 'ordered', 
+            'status' => 'ordered',
             'delivery_status' => 'pending',
             'order_date' => Carbon::now()->subDays(3),
-            'total_amount' => 750000 * 20, 
+            'total_amount' => 750000 * 20,
             'created_by' => User::first()->id ?? 1,
         ]);
 
@@ -49,15 +48,15 @@ class ProcurementSeeder extends Seeder
             PurchaseOrderItem::create([
                 'purchase_order_id' => $po->id,
                 'product_id' => $ssd->id,
-                'quantity_ordered' => 20, 
-                'quantity_received' => 0, 
+                'quantity_ordered' => 20,
+                'quantity_received' => 0,
                 'buy_price' => 600000,
                 'subtotal' => 12000000,
             ]);
         }
 
         // 5. Create Another PO (Partial)
-        $poNumber2 = 'PO-' . date('Ymd') . '-' . rand(1000, 9999);
+        $poNumber2 = 'PO-'.date('Ymd').'-'.rand(1000, 9999);
 
         $poPartial = PurchaseOrder::create([
             'po_number' => $poNumber2,
@@ -69,12 +68,12 @@ class ProcurementSeeder extends Seeder
             'created_by' => User::first()->id ?? 1,
         ]);
 
-         if ($ssd) {
+        if ($ssd) {
             PurchaseOrderItem::create([
                 'purchase_order_id' => $poPartial->id,
                 'product_id' => $ssd->id,
                 'quantity_ordered' => 10,
-                'quantity_received' => 5, 
+                'quantity_received' => 5,
                 'buy_price' => 600000,
                 'subtotal' => 6000000,
             ]);

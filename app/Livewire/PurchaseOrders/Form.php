@@ -2,16 +2,15 @@
 
 namespace App\Livewire\PurchaseOrders;
 
-use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\Supplier;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Form PO - Yala Computer')]
@@ -21,9 +20,13 @@ class Form extends Component
 
     // Form Fields
     public $po_number;
+
     public $supplier_id;
+
     public $order_date;
+
     public $notes;
+
     public $status = 'draft';
 
     // Items Logic
@@ -47,7 +50,7 @@ class Form extends Component
                 ];
             }
         } else {
-            $this->po_number = 'PO-' . date('Ymd') . '-' . strtoupper(Str::random(4));
+            $this->po_number = 'PO-'.date('Ymd').'-'.strtoupper(Str::random(4));
             $this->order_date = date('Y-m-d');
             $this->items[] = ['product_id' => '', 'qty' => 1, 'price' => 0]; // Empty row
         }
@@ -79,6 +82,7 @@ class Form extends Component
         foreach ($this->items as $item) {
             $total += ($item['qty'] * $item['price']);
         }
+
         return $total;
     }
 
@@ -86,17 +90,18 @@ class Form extends Component
     {
         // Jika sudah Ordered/Received, tidak boleh edit Items, hanya header (notes/date)
         if ($this->po && in_array($this->po->status, ['ordered', 'received', 'partial'])) {
-             $this->validate([
+            $this->validate([
                 'notes' => 'nullable|string',
                 'order_date' => 'required|date',
             ]);
-            
+
             $this->po->update([
                 'notes' => $this->notes,
                 'order_date' => $this->order_date,
             ]);
-            
+
             session()->flash('success', 'Info PO diperbarui. Item tidak dapat diubah karena status sudah berjalan.');
+
             return redirect()->route('purchase-orders.index');
         }
 
@@ -120,7 +125,7 @@ class Form extends Component
 
             if ($this->po) {
                 $this->po->update($data);
-                $this->po->items()->delete(); 
+                $this->po->items()->delete();
             } else {
                 $this->po = PurchaseOrder::create($data);
             }
@@ -137,9 +142,10 @@ class Form extends Component
         });
 
         session()->flash('success', 'Purchase Order berhasil disimpan.');
+
         return redirect()->route('purchase-orders.index');
     }
-    
+
     public function markAsOrdered()
     {
         if ($this->po && $this->po->status === 'draft') {
@@ -158,7 +164,7 @@ class Form extends Component
 
         return view('livewire.purchase-orders.form', [
             'suppliers' => Supplier::all(),
-            'products' => $products
+            'products' => $products,
         ]);
     }
 }

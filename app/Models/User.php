@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Model Pengguna (User)
@@ -88,9 +88,6 @@ class User extends Authenticatable
 
     /**
      * Mengecek apakah pengguna memiliki hak akses tertentu.
-     * 
-     * @param string $kodeAkses
-     * @return bool
      */
     public function punyaAkses(string $kodeAkses): bool
     {
@@ -124,8 +121,6 @@ class User extends Authenticatable
 
     /**
      * Mengecek apakah user adalah Admin.
-     * 
-     * @return bool
      */
     public function isAdmin(): bool
     {

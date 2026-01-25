@@ -3,16 +3,16 @@
 namespace App\Livewire\Store;
 
 use App\Models\InventoryTransaction;
-use Carbon\Carbon;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Cek Garansi - Yala Computer')]
 class WarrantyCheck extends Component
 {
     public $serial_number = '';
+
     public $result = null;
 
     public function check()
@@ -21,7 +21,7 @@ class WarrantyCheck extends Component
 
         // Cari transaksi keluar yang mengandung SN ini
         $transaction = InventoryTransaction::where('type', 'out')
-            ->where('serial_numbers', 'like', '%' . $this->serial_number . '%')
+            ->where('serial_numbers', 'like', '%'.$this->serial_number.'%')
             ->with('product')
             ->latest()
             ->first();
@@ -30,7 +30,7 @@ class WarrantyCheck extends Component
             $purchaseDate = $transaction->created_at;
             $duration = $transaction->product->warranty_duration; // Bulan
             $expiryDate = $purchaseDate->copy()->addMonths($duration);
-            
+
             $this->result = [
                 'product' => $transaction->product->name,
                 'purchase_date' => $purchaseDate->format('d M Y'),

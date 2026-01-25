@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Traits\LogsActivity;
 
 /**
  * Class InventoryTransaction
- * 
+ *
  * Records every movement of stock to ensure full traceability.
  * Never delete these records; they are the audit trail.
- * 
- * @package App\Models
  */
 class InventoryTransaction extends Model
 {
@@ -39,8 +37,6 @@ class InventoryTransaction extends Model
 
     /**
      * Get the product associated with the transaction.
-     *
-     * @return BelongsTo
      */
     public function product(): BelongsTo
     {
@@ -49,8 +45,6 @@ class InventoryTransaction extends Model
 
     /**
      * Get the user who performed the transaction.
-     *
-     * @return BelongsTo
      */
     public function user(): BelongsTo
     {

@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Store\Navbar;
 
-use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class Notifications extends Component
 {
@@ -28,7 +28,7 @@ class Notifications extends Component
 
         return view('livewire.store.navbar.notifications', [
             'notifications' => $notifications,
-            'count' => $count
+            'count' => $count,
         ]);
     }
 }

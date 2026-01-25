@@ -9,10 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reviews', function (Blueprint $table) {
-            if (!Schema::hasColumn('reviews', 'images')) {
+            if (! Schema::hasColumn('reviews', 'images')) {
                 $table->text('images')->nullable()->after('comment');
             }
-            if (!Schema::hasColumn('reviews', 'reviewer_name')) {
+            if (! Schema::hasColumn('reviews', 'reviewer_name')) {
                 $table->string('reviewer_name')->nullable()->after('user_id'); // Snapshot name
             }
         });

@@ -47,6 +47,51 @@
                 </div>
             </div>
 
+            <!-- Data Personal -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2 pb-4 border-b border-slate-100 dark:border-slate-700">
+                    <span class="w-8 h-8 rounded-lg bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-600 dark:text-pink-400">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0c0 .884.39 1.676 1 2.222V11a3 3 0 003 3a3 3 0 003-3V7.222c.61-.546 1-1.338 1-2.222" /></svg>
+                    </span>
+                    Data Personal & Kontak
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">NIK (KTP)</label>
+                        <input wire:model="nik" type="text" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="16 Digit NIK">
+                        @error('nik') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">NPWP</label>
+                        <input wire:model="npwp" type="text" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="Nomor NPWP">
+                        @error('npwp') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tempat Lahir</label>
+                        <input wire:model="place_of_birth" type="text" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="Kota Kelahiran">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tanggal Lahir</label>
+                        <input wire:model="date_of_birth" type="date" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nomor Telepon / WA</label>
+                        <input wire:model="phone_number" type="text" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="08xxxxxxxxxx">
+                        @error('phone_number') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="col-span-2">
+                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Alamat Domisili</label>
+                         <textarea wire:model="address" rows="2" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="Alamat lengkap sesuai KTP/Domisili"></textarea>
+                    </div>
+                </div>
+            </div>
+
             <!-- Peran & Hak Akses -->
             <div class="space-y-6">
                 <h3 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2 pb-4 border-b border-slate-100 dark:border-slate-700">

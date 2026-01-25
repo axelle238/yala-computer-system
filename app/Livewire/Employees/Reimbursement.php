@@ -5,22 +5,26 @@ namespace App\Livewire\Employees;
 use App\Models\Reimbursement as Claim;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 
 #[Layout('layouts.app')]
 #[Title('Klaim Reimbursement - Yala Computer')]
 class Reimbursement extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithFileUploads, WithPagination;
 
     public $amount;
+
     public $date;
+
     public $category = 'Transport';
+
     public $description;
+
     public $proof;
 
     public function mount()
@@ -41,7 +45,7 @@ class Reimbursement extends Component
         $path = $this->proof ? $this->proof->store('reimbursements', 'public') : null;
 
         Claim::create([
-            'claim_number' => 'CLM-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
+            'claim_number' => 'CLM-'.date('Ymd').'-'.strtoupper(Str::random(4)),
             'user_id' => Auth::id(),
             'date' => $this->date,
             'category' => $this->category,
@@ -75,12 +79,12 @@ class Reimbursement extends Component
     {
         $query = Claim::with('user')->latest();
 
-        if (!Auth::user()->isAdmin() && !Auth::user()->isOwner()) {
+        if (! Auth::user()->isAdmin() && ! Auth::user()->isOwner()) {
             $query->where('user_id', Auth::id());
         }
 
         return view('livewire.employees.reimbursement', [
-            'claims' => $query->paginate(10)
+            'claims' => $query->paginate(10),
         ]);
     }
 }

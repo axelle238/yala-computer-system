@@ -12,7 +12,7 @@ class EnsureCashRegisterOpen
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return $next($request);
         }
 
@@ -21,7 +21,7 @@ class EnsureCashRegisterOpen
             ->where('status', 'open')
             ->exists();
 
-        if (!$openRegister) {
+        if (! $openRegister) {
             // Jika mengakses halaman POS, redirect ke halaman Buka Shift
             if ($request->routeIs('transactions.create')) {
                 return redirect()->route('shift.open');

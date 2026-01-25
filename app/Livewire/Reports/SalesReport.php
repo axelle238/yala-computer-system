@@ -4,18 +4,20 @@ namespace App\Livewire\Reports;
 
 use App\Models\Order;
 use App\Models\OrderItem;
-use Livewire\Component;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Laporan Penjualan Detail')]
 class SalesReport extends Component
 {
     public $startDate;
+
     public $endDate;
+
     public $period = 'this_month';
 
     public function mount()
@@ -54,9 +56,9 @@ class SalesReport extends Component
 
         // 2. Daily Chart Data
         $dailySales = Order::select(
-                DB::raw('DATE(created_at) as date'),
-                DB::raw('SUM(total_amount) as total')
-            )
+            DB::raw('DATE(created_at) as date'),
+            DB::raw('SUM(total_amount) as total')
+        )
             ->whereBetween('created_at', [$start, $end])
             ->where('status', '!=', 'cancelled')
             ->groupBy('date')
@@ -65,13 +67,13 @@ class SalesReport extends Component
 
         // 3. Top Products
         $topProducts = OrderItem::select(
-                'product_id',
-                DB::raw('SUM(quantity) as total_qty'),
-                DB::raw('SUM(price * quantity) as total_sales')
-            )
-            ->whereHas('order', function($q) use ($start, $end) {
+            'product_id',
+            DB::raw('SUM(quantity) as total_qty'),
+            DB::raw('SUM(price * quantity) as total_sales')
+        )
+            ->whereHas('order', function ($q) use ($start, $end) {
                 $q->whereBetween('created_at', [$start, $end])
-                  ->where('status', '!=', 'cancelled');
+                    ->where('status', '!=', 'cancelled');
             })
             ->with('product')
             ->groupBy('product_id')
@@ -92,7 +94,7 @@ class SalesReport extends Component
             'avgOrderValue' => $avgOrderValue,
             'dailySales' => $dailySales,
             'topProducts' => $topProducts,
-            'paymentStats' => $paymentStats
+            'paymentStats' => $paymentStats,
         ]);
     }
 }

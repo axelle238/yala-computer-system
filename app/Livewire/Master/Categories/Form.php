@@ -4,9 +4,9 @@ namespace App\Livewire\Master\Categories;
 
 use App\Models\Category;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Formulir Kategori - Yala Computer')]
@@ -16,7 +16,9 @@ class Form extends Component
      * Properti Formulir Kategori.
      */
     public $idKategori;
+
     public $nama;
+
     public $deskripsi;
 
     public function mount($id = null)
@@ -35,7 +37,7 @@ class Form extends Component
     public function simpan()
     {
         $this->validate([
-            'nama' => 'required|string|max:255|unique:categories,name,' . $this->idKategori,
+            'nama' => 'required|string|max:255|unique:categories,name,'.$this->idKategori,
             'deskripsi' => 'nullable|string',
         ], [
             'nama.required' => 'Nama kategori wajib diisi.',
@@ -47,12 +49,12 @@ class Form extends Component
             [
                 'name' => $this->nama,
                 'slug' => Str::slug($this->nama),
-                'description' => $this->deskripsi
+                'description' => $this->deskripsi,
             ]
         );
 
         $this->dispatch('notify', message: 'Kategori berhasil disimpan!', type: 'success');
-        
+
         return redirect()->route('master.categories');
     }
 

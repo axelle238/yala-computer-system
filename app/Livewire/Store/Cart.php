@@ -8,16 +8,18 @@ use App\Models\QuotationItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Keranjang Belanja - Yala Computer')]
 class Cart extends Component
 {
     public $cart = []; // [id => qty]
+
     public $cartProducts = []; // Collection of Product models
+
     public $subtotal = 0;
 
     public function mount()
@@ -31,12 +33,12 @@ class Cart extends Component
         $this->cartProducts = collect();
         $this->subtotal = 0;
 
-        if (!empty($this->cart)) {
+        if (! empty($this->cart)) {
             // Filter out non-integer keys just in case
             $ids = array_filter(array_keys($this->cart), 'is_numeric');
-            
+
             $products = Product::whereIn('id', $ids)->get();
-            
+
             foreach ($products as $product) {
                 // Determine Quantity
                 $qty = $this->cart[$product->id];
@@ -44,16 +46,16 @@ class Cart extends Component
                 if (is_array($qty)) {
                     $qty = $qty['quantity'] ?? 1;
                     // Auto-fix session
-                    $this->cart[$product->id] = $qty; 
+                    $this->cart[$product->id] = $qty;
                 }
 
                 $product->cart_qty = intval($qty);
                 $product->line_total = $product->sell_price * $product->cart_qty;
-                
+
                 $this->cartProducts->push($product);
                 $this->subtotal += $product->line_total;
             }
-            
+
             // Save standardized cart back to session
             session()->put('cart', $this->cart);
         }
@@ -63,15 +65,16 @@ class Cart extends Component
     {
         if ($qty < 1) {
             $this->removeItem($productId);
+
             return;
         }
 
         $this->cart = session()->get('cart', []);
         $this->cart[$productId] = intval($qty);
         session()->put('cart', $this->cart);
-        
+
         $this->refreshCart();
-        $this->dispatch('cart-updated'); 
+        $this->dispatch('cart-updated');
     }
 
     public function removeItem($productId)
@@ -81,25 +84,27 @@ class Cart extends Component
             unset($this->cart[$productId]);
             session()->put('cart', $this->cart);
             $this->refreshCart();
-            $this->dispatch('cart-updated'); 
+            $this->dispatch('cart-updated');
         }
     }
 
     public function requestQuote()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $this->dispatch('notify', message: 'Silakan login untuk meminta penawaran.', type: 'warning');
+
             return redirect()->route('login');
         }
 
         if ($this->cartProducts->isEmpty()) {
-             $this->dispatch('notify', message: 'Keranjang kosong.', type: 'error');
-             return;
+            $this->dispatch('notify', message: 'Keranjang kosong.', type: 'error');
+
+            return;
         }
 
         DB::transaction(function () {
             $quote = Quotation::create([
-                'quotation_number' => 'Q-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
+                'quotation_number' => 'Q-'.date('Ymd').'-'.strtoupper(Str::random(4)),
                 'user_id' => Auth::id(),
                 'status' => 'pending', // Draft/Submitted
                 'approval_status' => 'pending',
@@ -124,6 +129,7 @@ class Cart extends Component
         });
 
         $this->dispatch('notify', message: 'Permintaan penawaran berhasil dikirim!', type: 'success');
+
         return redirect()->route('member.orders'); // Redirect to Member Area (Needs Quotation Tab)
     }
 

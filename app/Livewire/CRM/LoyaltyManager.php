@@ -3,23 +3,28 @@
 namespace App\Livewire\CRM;
 
 use App\Models\CustomerGroup;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Loyalty & Membership - Yala Computer')]
 class LoyaltyManager extends Component
 {
     public $groups;
-    
+
     public $activeAction = null; // null, 'form'
-    
+
     public $name;
+
     public $code;
+
     public $min_spend;
+
     public $discount_percent;
+
     public $color = 'gray';
+
     public $groupIdToEdit;
 
     public function mount()
@@ -59,7 +64,7 @@ class LoyaltyManager extends Component
     {
         $this->validate([
             'name' => 'required|string',
-            'code' => 'required|string|unique:customer_groups,code,' . $this->groupIdToEdit,
+            'code' => 'required|string|unique:customer_groups,code,'.$this->groupIdToEdit,
             'min_spend' => 'required|numeric',
             'discount_percent' => 'required|numeric|max:100',
         ]);

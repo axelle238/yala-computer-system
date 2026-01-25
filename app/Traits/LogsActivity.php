@@ -26,7 +26,7 @@ trait LogsActivity
     {
         // Skip log jika dijalankan lewat seeder/console tanpa user login (opsional)
         // tapi kita simpan saja dengan user_id null (System)
-        
+
         $properties = null;
         if ($action === 'updated') {
             $properties = [

@@ -14,13 +14,14 @@ class PrintController extends Controller
     public function labels(Request $request)
     {
         $queue = Session::get('label_print_queue', []);
-        
+
         if (empty($queue)) {
             return redirect()->back()->with('error', 'Antrian cetak kosong.');
         }
 
-        $items = Product::whereIn('id', array_keys($queue))->get()->map(function($product) use ($queue) {
+        $items = Product::whereIn('id', array_keys($queue))->get()->map(function ($product) use ($queue) {
             $product->print_qty = $queue[$product->id];
+
             return $product;
         });
 
@@ -33,7 +34,7 @@ class PrintController extends Controller
     public function transaction($id)
     {
         $mainTransaction = InventoryTransaction::with(['product', 'user'])->findOrFail($id);
-        
+
         if ($mainTransaction->reference_number && $mainTransaction->reference_number !== '-') {
             $transactions = InventoryTransaction::with(['product'])
                 ->where('reference_number', $mainTransaction->reference_number)
@@ -62,11 +63,12 @@ class PrintController extends Controller
     public function productLabel($id)
     {
         $product = Product::findOrFail($id);
+
         // Single item print fallback
         return view('print.labels', [
-            'items' => collect([$product])->map(fn($p) => $p->print_qty = 1),
+            'items' => collect([$product])->map(fn ($p) => $p->print_qty = 1),
             'type' => 'price_tag',
-            'paper' => 'thermal_100x150'
+            'paper' => 'thermal_100x150',
         ]);
     }
 }

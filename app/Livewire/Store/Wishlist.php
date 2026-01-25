@@ -5,9 +5,9 @@ namespace App\Livewire\Store;
 use App\Models\Wishlist as WishlistModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Wishlist Saya - Yala Computer')]
@@ -17,13 +17,13 @@ class Wishlist extends Component
 
     public function add($productId)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
 
         WishlistModel::firstOrCreate([
             'user_id' => Auth::id(),
-            'product_id' => $productId
+            'product_id' => $productId,
         ]);
 
         $this->dispatch('notify', message: 'Ditambahkan ke Wishlist!', type: 'success');
@@ -38,19 +38,19 @@ class Wishlist extends Component
     public function moveToCart($id, $productId)
     {
         $cart = Session::get('cart', []);
-        
+
         if (isset($cart[$productId])) {
             $cart[$productId]++;
         } else {
             $cart[$productId] = 1;
         }
-        
+
         Session::put('cart', $cart);
         $this->dispatch('cart-updated');
-        
+
         // Remove from wishlist after moving
         $this->remove($id);
-        
+
         $this->dispatch('notify', message: 'Produk dipindahkan ke Keranjang!', type: 'success');
     }
 

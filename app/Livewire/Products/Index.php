@@ -4,11 +4,11 @@ namespace App\Livewire\Products;
 
 use App\Models\Category;
 use App\Models\Product;
-use Livewire\Component;
-use Livewire\WithPagination;
-use Livewire\Attributes\Url;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Manajemen Produk - Yala Computer')]
@@ -23,6 +23,7 @@ class Index extends Component
     public $filterKategori = '';
 
     public $kolomUrut = 'created_at';
+
     public $arahUrut = 'desc';
 
     // Reset pagination saat melakukan pencarian
@@ -52,9 +53,9 @@ class Index extends Component
             ->with(['category', 'supplier']) // Eager Load untuk performa
             ->when($this->cari, function ($query) {
                 $query->where(function ($subQuery) {
-                    $subQuery->where('name', 'like', '%' . $this->cari . '%')
-                        ->orWhere('sku', 'like', '%' . $this->cari . '%')
-                        ->orWhere('barcode', 'like', '%' . $this->cari . '%');
+                    $subQuery->where('name', 'like', '%'.$this->cari.'%')
+                        ->orWhere('sku', 'like', '%'.$this->cari.'%')
+                        ->orWhere('barcode', 'like', '%'.$this->cari.'%');
                 });
             })
             ->when($this->filterKategori, function ($query) {

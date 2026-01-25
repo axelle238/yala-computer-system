@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 
 class Rma extends Model
 {
@@ -13,15 +13,23 @@ class Rma extends Model
 
     // Konstanta Status untuk Konsistensi
     const STATUS_REQUESTED = 'requested';
+
     const STATUS_APPROVED = 'approved';
+
     const STATUS_RECEIVED = 'received';
+
     const STATUS_PROCESSING = 'processing';
+
     const STATUS_VENDOR = 'vendor_process';
+
     const STATUS_RESOLVED = 'resolved';
+
     const STATUS_REJECTED = 'rejected';
 
     const RESOLUTION_REPAIR = 'repair';
+
     const RESOLUTION_REPLACE = 'replacement';
+
     const RESOLUTION_REFUND = 'refund';
 
     public function items()

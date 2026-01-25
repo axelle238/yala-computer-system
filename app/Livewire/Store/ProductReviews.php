@@ -13,8 +13,11 @@ class ProductReviews extends Component
     use WithPagination;
 
     public $productId;
+
     public $rating = 5;
+
     public $comment = '';
+
     public $canReview = false;
 
     public function mount($productId)
@@ -32,12 +35,12 @@ class ProductReviews extends Component
                 ->whereHas('items', function ($q) {
                     $q->where('product_id', $this->productId);
                 })->exists();
-            
+
             $alreadyReviewed = Review::where('user_id', Auth::id())
                 ->where('product_id', $this->productId)
                 ->exists();
 
-            $this->canReview = $hasBought && !$alreadyReviewed;
+            $this->canReview = $hasBought && ! $alreadyReviewed;
         }
     }
 
@@ -48,7 +51,9 @@ class ProductReviews extends Component
             'comment' => 'required|string|min:10',
         ]);
 
-        if (!$this->canReview) return;
+        if (! $this->canReview) {
+            return;
+        }
 
         Review::create([
             'user_id' => Auth::id(),

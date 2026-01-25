@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Checkout Aman - Yala Computer')]
@@ -22,28 +22,42 @@ class Checkout extends Component
 {
     // Data Formulir
     public $nama;
+
     public $telepon;
+
     public $alamat;
+
     public $kota;
+
     public $kurir = 'jne'; // jne, jnt, sicepat
+
     public $poinUntukDitukar = 0;
+
     public $metodePembayaran = 'midtrans'; // midtrans, transfer_manual
+
     public $catatanPesanan = '';
-    
+
     // Logika Voucher
     public $kodeVoucher = '';
-    public $voucherTerpasang = null; 
+
+    public $voucherTerpasang = null;
+
     public $diskonVoucher = 0;
 
     // Logika Buku Alamat
     public $alamatTersimpan = [];
+
     public $idAlamatTerpilih = null;
 
     // Data Kalkulasi
     public $itemKeranjang = [];
+
     public $subtotal = 0;
+
     public $biayaPengiriman = 0;
+
     public $jumlahDiskon = 0;
+
     public $totalAkhir = 0;
 
     // Data Statis Kota & Ongkir
@@ -66,7 +80,7 @@ class Checkout extends Component
     public function mount()
     {
         $this->muatKeranjang();
-        
+
         if (empty($this->itemKeranjang)) {
             return redirect()->route('home');
         }
@@ -112,16 +126,16 @@ class Checkout extends Component
         $this->itemKeranjang = [];
         $this->subtotal = 0;
 
-        if (!empty($keranjang)) {
+        if (! empty($keranjang)) {
             $produk = Product::whereIn('id', array_keys($keranjang))->get();
             foreach ($produk as $p) {
                 $qty = $keranjang[$p->id];
                 $totalBaris = $p->sell_price * $qty;
-                
+
                 $this->itemKeranjang[] = [
                     'produk' => $p,
                     'qty' => $qty,
-                    'total_baris' => $totalBaris
+                    'total_baris' => $totalBaris,
                 ];
                 $this->subtotal += $totalBaris;
             }
@@ -129,8 +143,15 @@ class Checkout extends Component
         $this->hitungTotal();
     }
 
-    public function updatedKota() { $this->hitungTotal(); }
-    public function updatedKurir() { $this->hitungTotal(); }
+    public function updatedKota()
+    {
+        $this->hitungTotal();
+    }
+
+    public function updatedKurir()
+    {
+        $this->hitungTotal();
+    }
 
     public function pasangVoucher()
     {
@@ -138,13 +159,15 @@ class Checkout extends Component
 
         $voucher = Voucher::where('code', $this->kodeVoucher)->first();
 
-        if (!$voucher) {
+        if (! $voucher) {
             $this->addError('kodeVoucher', 'Kode voucher tidak valid.');
+
             return;
         }
 
-        if (!$voucher->isValidForUser(Auth::id(), $this->subtotal)) {
+        if (! $voucher->isValidForUser(Auth::id(), $this->subtotal)) {
             $this->addError('kodeVoucher', 'Voucher tidak dapat digunakan (Min. belanja / Kuota habis).');
+
             return;
         }
 
@@ -163,14 +186,19 @@ class Checkout extends Component
 
     public function updatedPoinUntukDitukar()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $this->poinUntukDitukar = 0;
+
             return;
         }
         $maksPoin = Auth::user()->points;
-        if ($this->poinUntukDitukar > $maksPoin) $this->poinUntukDitukar = $maksPoin;
-        if ($this->poinUntukDitukar < 0) $this->poinUntukDitukar = 0;
-        
+        if ($this->poinUntukDitukar > $maksPoin) {
+            $this->poinUntukDitukar = $maksPoin;
+        }
+        if ($this->poinUntukDitukar < 0) {
+            $this->poinUntukDitukar = 0;
+        }
+
         $this->hitungTotal();
     }
 
@@ -183,17 +211,19 @@ class Checkout extends Component
             $totalBerat += ($berat * $item['qty']);
         }
         $totalBeratKg = ceil($totalBerat / 1000);
-        if ($totalBeratKg < 1) $totalBeratKg = 1;
+        if ($totalBeratKg < 1) {
+            $totalBeratKg = 1;
+        }
 
         $biayaDasar = $this->daftarKota[$this->kota] ?? 0;
         $this->biayaPengiriman = $biayaDasar * $totalBeratKg;
-        
+
         // 2. Voucher
         if ($this->voucherTerpasang) {
             if ($this->subtotal >= $this->voucherTerpasang->min_spend) {
                 $this->diskonVoucher = $this->voucherTerpasang->calculateDiscount($this->subtotal);
             } else {
-                $this->voucherTerpasang = null; 
+                $this->voucherTerpasang = null;
                 $this->diskonVoucher = 0;
             }
         } else {
@@ -205,7 +235,9 @@ class Checkout extends Component
 
         // 4. Total Akhir
         $this->totalAkhir = $this->subtotal + $this->biayaPengiriman - $this->diskonVoucher - $this->jumlahDiskon;
-        if ($this->totalAkhir < 0) $this->totalAkhir = 0;
+        if ($this->totalAkhir < 0) {
+            $this->totalAkhir = 0;
+        }
     }
 
     /**
@@ -227,11 +259,13 @@ class Checkout extends Component
             'kurir.required' => 'Jasa kurir wajib dipilih.',
         ]);
 
-        if (empty($this->itemKeranjang)) return;
+        if (empty($this->itemKeranjang)) {
+            return;
+        }
 
         $pesanan = DB::transaction(function () {
             $pesanan = Order::create([
-                'order_number' => 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
+                'order_number' => 'ORD-'.date('Ymd').'-'.strtoupper(Str::random(4)),
                 'user_id' => Auth::id(),
                 'guest_name' => $this->nama,
                 'guest_whatsapp' => $this->telepon,
@@ -276,7 +310,7 @@ class Checkout extends Component
             // Tangani Permintaan Perakitan PC
             if (Session::has('pc_assembly_data')) {
                 $dataRakitan = Session::get('pc_assembly_data');
-                
+
                 \App\Models\PcAssembly::create([
                     'order_id' => $pesanan->id,
                     'build_name' => $dataRakitan['build_name'],
@@ -288,6 +322,7 @@ class Checkout extends Component
             }
 
             Session::forget('cart');
+
             return $pesanan;
         });
 
@@ -296,12 +331,13 @@ class Checkout extends Component
             $dataSnap = $layananPembayaran->ambilTokenSnap($pesanan);
             $pesanan->update([
                 'snap_token' => $dataSnap['token'],
-                'payment_url' => $dataSnap['redirect_url']
+                'payment_url' => $dataSnap['redirect_url'],
             ]);
 
             $this->dispatch('trigger-payment', token: $dataSnap['token'], orderId: $pesanan->id);
         } catch (\Exception $e) {
-            $this->dispatch('notify', message: 'Kesalahan Pembayaran: ' . $e->getMessage(), type: 'error');
+            $this->dispatch('notify', message: 'Kesalahan Pembayaran: '.$e->getMessage(), type: 'error');
+
             return redirect()->route('order.success', $pesanan->id);
         }
     }

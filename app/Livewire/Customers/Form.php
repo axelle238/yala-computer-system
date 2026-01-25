@@ -3,9 +3,9 @@
 namespace App\Livewire\Customers;
 
 use App\Models\Customer;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Formulir Pelanggan - Yala Computer')]
@@ -15,8 +15,11 @@ class Form extends Component
      * Properti Formulir Pelanggan.
      */
     public $idPelanggan;
+
     public $nama;
+
     public $telepon;
+
     public $surel;
 
     public function mount($id = null)
@@ -37,7 +40,7 @@ class Form extends Component
     {
         $this->validate([
             'nama' => 'required|string|max:255',
-            'telepon' => 'required|string|max:20|unique:customers,phone,' . $this->idPelanggan,
+            'telepon' => 'required|string|max:20|unique:customers,phone,'.$this->idPelanggan,
             'surel' => 'nullable|email|max:255',
         ], [
             'nama.required' => 'Nama pelanggan wajib diisi.',
@@ -57,7 +60,7 @@ class Form extends Component
         );
 
         $this->dispatch('notify', message: 'Data pelanggan berhasil disimpan!', type: 'success');
-        
+
         return redirect()->route('customers.index');
     }
 

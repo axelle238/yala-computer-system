@@ -9,7 +9,9 @@ use Livewire\Component;
 class ProductAlert extends Component
 {
     public $productId;
+
     public $email = '';
+
     public $isSubscribed = false;
 
     public function mount($productId)
@@ -32,7 +34,7 @@ class ProductAlert extends Component
 
     public function subscribe()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $this->validate(['email' => 'required|email']);
         }
 
@@ -43,7 +45,7 @@ class ProductAlert extends Component
                 'email' => Auth::check() ? Auth::user()->email : $this->email,
             ],
             [
-                'is_notified' => false
+                'is_notified' => false,
             ]
         );
 

@@ -1,15 +1,15 @@
 <?php
 
-use App\Models\User;
 use App\Livewire\Admin\Inbox;
-use App\Models\ContactMessage;
 use App\Mail\ContactReplyMail;
+use App\Models\ContactMessage;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Livewire;
 
 it('halaman inbox bisa diakses oleh admin', function () {
     $user = User::factory()->create();
-    
+
     $this->actingAs($user)
         ->get(route('customers.inbox'))
         ->assertStatus(200)
@@ -23,17 +23,17 @@ it('bisa memilih dan membaca pesan', function () {
         'email' => 'budi@example.com',
         'subject' => 'Tanya Stok',
         'message' => 'Apakah stok ready?',
-        'status' => 'new'
+        'status' => 'new',
     ]);
 
     Livewire::actingAs($user)
         ->test(Inbox::class)
         ->call('selectMessage', $message->id)
         ->assertSet('selectedMessage.id', $message->id);
-    
+
     $this->assertDatabaseHas('contact_messages', [
         'id' => $message->id,
-        'status' => 'read'
+        'status' => 'read',
     ]);
 });
 
@@ -45,7 +45,7 @@ it('bisa membalas pesan dan mengirim email', function () {
         'email' => 'siti@example.com',
         'subject' => 'Komplain',
         'message' => 'Barang rusak',
-        'status' => 'read'
+        'status' => 'read',
     ]);
 
     Livewire::actingAs($user)
@@ -61,7 +61,7 @@ it('bisa membalas pesan dan mengirim email', function () {
 
     $this->assertDatabaseHas('contact_messages', [
         'id' => $message->id,
-        'status' => 'replied'
+        'status' => 'replied',
     ]);
 });
 
@@ -72,15 +72,15 @@ it('bisa menghapus pesan', function () {
         'email' => 'spam@example.com',
         'subject' => 'Spam',
         'message' => 'Spam content',
-        'status' => 'new'
+        'status' => 'new',
     ]);
 
     Livewire::actingAs($user)
         ->test(Inbox::class)
         ->call('delete', $message->id)
         ->assertDispatched('notify');
-        
+
     $this->assertDatabaseMissing('contact_messages', [
-        'id' => $message->id
+        'id' => $message->id,
     ]);
 });

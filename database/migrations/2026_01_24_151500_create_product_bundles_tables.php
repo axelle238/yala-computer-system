@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('product_bundles')) {
+        if (! Schema::hasTable('product_bundles')) {
             Schema::create('product_bundles', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
@@ -21,7 +21,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('product_bundle_items')) {
+        if (! Schema::hasTable('product_bundle_items')) {
             Schema::create('product_bundle_items', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('product_bundle_id')->constrained()->cascadeOnDelete();

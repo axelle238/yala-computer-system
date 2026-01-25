@@ -3,16 +3,18 @@
 namespace App\Livewire\Reports;
 
 use App\Services\BusinessIntelligence;
-use Livewire\Component;
-use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Laporan Keuangan & Laba Rugi')]
 class FinanceReport extends Component
 {
     public $month;
+
     public $year;
+
     public $reportData;
 
     public function mount()
@@ -22,12 +24,19 @@ class FinanceReport extends Component
         $this->generateReport();
     }
 
-    public function updatedMonth() { $this->generateReport(); }
-    public function updatedYear() { $this->generateReport(); }
+    public function updatedMonth()
+    {
+        $this->generateReport();
+    }
+
+    public function updatedYear()
+    {
+        $this->generateReport();
+    }
 
     public function generateReport()
     {
-        $bi = new BusinessIntelligence();
+        $bi = new BusinessIntelligence;
         $this->reportData = $bi->getProfitLoss($this->month, $this->year);
     }
 

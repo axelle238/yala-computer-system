@@ -5,10 +5,10 @@ namespace App\Livewire\News;
 use App\Models\Article;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.admin')]
 #[Title('Editor Artikel')]
@@ -17,12 +17,19 @@ class Form extends Component
     use WithFileUploads;
 
     public $articleId;
+
     public $title;
+
     public $slug;
+
     public $content;
+
     public $category = 'news'; // news, tutorial, promo
+
     public $is_published = true;
+
     public $image;
+
     public $existingImage;
 
     public function mount($id = null)
@@ -48,7 +55,7 @@ class Form extends Component
     {
         $this->validate([
             'title' => 'required|min:5',
-            'slug' => 'required|unique:articles,slug,' . $this->articleId,
+            'slug' => 'required|unique:articles,slug,'.$this->articleId,
             'content' => 'required|min:20',
             'category' => 'required',
             'image' => $this->articleId ? 'nullable|image|max:2048' : 'required|image|max:2048',
@@ -71,6 +78,7 @@ class Form extends Component
         ]);
 
         session()->flash('success', 'Artikel berhasil disimpan.');
+
         return redirect()->route('news.index');
     }
 

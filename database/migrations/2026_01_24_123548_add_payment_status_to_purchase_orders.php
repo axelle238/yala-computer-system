@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('purchase_orders', function (Blueprint $table) {
-            if (!Schema::hasColumn('purchase_orders', 'payment_status')) {
+            if (! Schema::hasColumn('purchase_orders', 'payment_status')) {
                 $table->enum('payment_status', ['unpaid', 'partial', 'paid'])->default('unpaid')->after('total_amount');
             }
         });

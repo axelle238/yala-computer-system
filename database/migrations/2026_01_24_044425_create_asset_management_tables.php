@@ -13,15 +13,15 @@ return new class extends Migration
             $table->string('name');
             $table->string('asset_tag')->unique(); // e.g., AST-2026-001
             $table->string('serial_number')->nullable();
-            
+
             $table->decimal('purchase_price', 15, 2);
             $table->date('purchase_date');
             $table->integer('useful_life_years')->default(4); // Masa manfaat (tahun)
-            
+
             $table->decimal('current_value', 15, 2); // Nilai buku saat ini
             $table->string('location')->nullable();
             $table->string('condition')->default('good'); // good, damaged, lost, sold
-            
+
             $table->timestamps();
         });
 

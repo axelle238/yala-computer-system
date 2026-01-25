@@ -4,16 +4,16 @@ namespace App\Livewire\Services;
 
 use App\Models\CashRegister;
 use App\Models\CashTransaction;
+use App\Models\InventoryTransaction;
 use App\Models\Product;
+use App\Models\ProgresServis;
 use App\Models\ServiceTicket;
 use App\Models\SukuCadangServis;
-use App\Models\ProgresServis;
-use App\Models\InventoryTransaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Meja Kerja Teknisi - Yala Computer')]
@@ -23,33 +23,41 @@ class Workbench extends Component
      * Data Tiket Servis.
      */
     public ServiceTicket $tiket;
-    
+
     // Manajemen Status & Catatan
     public $statusSaatIni;
+
     public $inputCatatan = '';
+
     public $catatanPublik = true;
 
     // Manajemen Suku Cadang (Sparepart)
     public $cariSukuCadang = '';
+
     public $hasilPencarian = [];
+
     public $produkTerpilih = null;
+
     public $jumlah = 1;
+
     public $hargaKustom = 0;
 
     // Logika Pembayaran (Tanpa Modal)
     public $tampilkanFormPembayaran = false;
+
     public $metodePembayaran = 'tunai'; // tunai, transfer
+
     public $catatanPembayaran = '';
 
     public function mount($id)
     {
         $this->tiket = ServiceTicket::with([
-            'parts.produk', 
+            'parts.produk',
             'progressLogs.teknisi', // Update eager load relation name
             'technician',
-            'customerMember'
+            'customerMember',
         ])->findOrFail($id);
-        
+
         $this->statusSaatIni = $this->tiket->status;
     }
 
@@ -61,9 +69,9 @@ class Workbench extends Component
         if (strlen($this->cariSukuCadang) > 2) {
             $this->hasilPencarian = Product::with('category')
                 ->where('is_active', true)
-                ->where(function($q) {
-                    $q->where('name', 'like', '%' . $this->cariSukuCadang . '%')
-                      ->orWhere('sku', 'like', '%' . $this->cariSukuCadang . '%');
+                ->where(function ($q) {
+                    $q->where('name', 'like', '%'.$this->cariSukuCadang.'%')
+                        ->orWhere('sku', 'like', '%'.$this->cariSukuCadang.'%');
                 })
                 ->limit(5)
                 ->get();
@@ -79,7 +87,7 @@ class Workbench extends Component
     {
         $this->produkTerpilih = Product::with('category')->find($idProduk);
         if ($this->produkTerpilih) {
-            $this->hargaKustom = $this->produkTerpilih->sell_price; 
+            $this->hargaKustom = $this->produkTerpilih->sell_price;
         }
         $this->cariSukuCadang = '';
         $this->hasilPencarian = [];
@@ -94,6 +102,7 @@ class Workbench extends Component
         if ($produk->category && in_array($produk->category->slug, ['services', 'jasa', 'layanan'])) {
             return false;
         }
+
         return true;
     }
 
@@ -102,7 +111,9 @@ class Workbench extends Component
      */
     public function tambahSukuCadang()
     {
-        if (!$this->produkTerpilih) return;
+        if (! $this->produkTerpilih) {
+            return;
+        }
 
         $this->validate([
             'jumlah' => 'required|integer|min:1',
@@ -115,7 +126,8 @@ class Workbench extends Component
         $lacakStok = $this->dipantauStoknya($this->produkTerpilih);
 
         if ($lacakStok && $this->produkTerpilih->stock_quantity < $this->jumlah) {
-            $this->addError('jumlah', 'Stok tidak mencukupi (Tersedia: ' . $this->produkTerpilih->stock_quantity . ')');
+            $this->addError('jumlah', 'Stok tidak mencukupi (Tersedia: '.$this->produkTerpilih->stock_quantity.')');
+
             return;
         }
 
@@ -123,7 +135,7 @@ class Workbench extends Component
             if ($lacakStok) {
                 // Kurangi Stok Global
                 $this->produkTerpilih->decrement('stock_quantity', $this->jumlah);
-                
+
                 // Catat Transaksi Inventaris
                 InventoryTransaction::create([
                     'product_id' => $this->produkTerpilih->id,
@@ -133,9 +145,9 @@ class Workbench extends Component
                     'quantity' => $this->jumlah,
                     'unit_price' => $this->hargaKustom,
                     'cogs' => $this->produkTerpilih->buy_price ?? 0,
-                    'remaining_stock' => $this->produkTerpilih->stock_quantity, 
+                    'remaining_stock' => $this->produkTerpilih->stock_quantity,
                     'reference_number' => $this->tiket->ticket_number,
-                    'notes' => 'Digunakan dalam Tiket Servis #' . $this->tiket->ticket_number,
+                    'notes' => 'Digunakan dalam Tiket Servis #'.$this->tiket->ticket_number,
                 ]);
             }
 
@@ -145,14 +157,14 @@ class Workbench extends Component
                 'id_produk' => $this->produkTerpilih->id,
                 'jumlah' => $this->jumlah,
                 'harga_satuan' => $this->hargaKustom,
-                'catatan' => 'Ditambahkan teknisi: ' . (Auth::user()->name ?? 'Sistem'),
+                'catatan' => 'Ditambahkan teknisi: '.(Auth::user()->name ?? 'Sistem'),
             ]);
         });
 
         $this->produkTerpilih = null;
         $this->jumlah = 1;
         $this->hargaKustom = 0;
-        
+
         $this->tiket->refresh();
         $this->dispatch('notify', message: 'Suku cadang berhasil ditambahkan.', type: 'success');
     }
@@ -180,7 +192,7 @@ class Workbench extends Component
                     'unit_price' => $item->harga_satuan,
                     'remaining_stock' => $produk->stock_quantity,
                     'reference_number' => $this->tiket->ticket_number,
-                    'notes' => 'Dibatalkan/Dikembalikan dari Tiket Servis #' . $this->tiket->ticket_number,
+                    'notes' => 'Dibatalkan/Dikembalikan dari Tiket Servis #'.$this->tiket->ticket_number,
                 ]);
             }
 
@@ -221,7 +233,9 @@ class Workbench extends Component
      */
     public function perbaruiStatus($statusBaru)
     {
-        if ($this->tiket->status === $statusBaru) return;
+        if ($this->tiket->status === $statusBaru) {
+            return;
+        }
 
         $statusLama = $this->tiket->status;
         $this->tiket->status = $statusBaru;
@@ -230,7 +244,7 @@ class Workbench extends Component
         ProgresServis::create([
             'id_tiket_servis' => $this->tiket->id,
             'status' => $statusBaru,
-            'deskripsi' => "Status diubah dari " . ucfirst(str_replace('_', ' ', $statusLama)) . " ke " . ucfirst(str_replace('_', ' ', $statusBaru)),
+            'deskripsi' => 'Status diubah dari '.ucfirst(str_replace('_', ' ', $statusLama)).' ke '.ucfirst(str_replace('_', ' ', $statusBaru)),
             'id_teknisi' => Auth::id() ?? 1,
             'is_publik' => true,
         ]);
@@ -250,17 +264,19 @@ class Workbench extends Component
             ->where('status', 'open')
             ->latest()
             ->first();
-        
-        if (!$kasirAktif) {
+
+        if (! $kasirAktif) {
             $this->dispatch('notify', message: 'Sesi kasir belum dibuka! Silakan buka kasir terlebih dahulu.', type: 'error');
+
             return;
         }
 
         // 2. Hitung Total Tagihan
         $totalTagihan = SukuCadangServis::where('id_tiket_servis', $this->tiket->id)->sum(DB::raw('jumlah * harga_satuan'));
-        
+
         if ($totalTagihan <= 0) {
             $this->dispatch('notify', message: 'Tagihan Rp 0. Masukkan jasa atau sparepart dahulu.', type: 'error');
+
             return;
         }
 
@@ -268,11 +284,11 @@ class Workbench extends Component
             // Catat Transaksi Kas
             CashTransaction::create([
                 'cash_register_id' => $kasirAktif->id,
-                'transaction_number' => 'PAY-' . date('ymd') . '-' . $this->tiket->id,
+                'transaction_number' => 'PAY-'.date('ymd').'-'.$this->tiket->id,
                 'type' => 'in',
                 'category' => 'service_payment',
                 'amount' => $totalTagihan,
-                'description' => "Pembayaran Servis Tiket #{$this->tiket->ticket_number}. " . $this->catatanPembayaran,
+                'description' => "Pembayaran Servis Tiket #{$this->tiket->ticket_number}. ".$this->catatanPembayaran,
                 'reference_id' => $this->tiket->id,
                 'reference_type' => ServiceTicket::class,
                 'created_by' => Auth::id(),
@@ -287,7 +303,7 @@ class Workbench extends Component
             ProgresServis::create([
                 'id_tiket_servis' => $this->tiket->id,
                 'status' => 'picked_up',
-                'deskripsi' => "Pembayaran diterima sebesar Rp " . number_format($totalTagihan) . " via " . ucfirst($this->metodePembayaran) . ". Unit telah diambil.",
+                'deskripsi' => 'Pembayaran diterima sebesar Rp '.number_format($totalTagihan).' via '.ucfirst($this->metodePembayaran).'. Unit telah diambil.',
                 'id_teknisi' => Auth::id(),
                 'is_publik' => true,
             ]);

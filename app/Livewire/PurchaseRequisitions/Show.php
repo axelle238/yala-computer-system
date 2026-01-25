@@ -3,9 +3,9 @@
 namespace App\Livewire\PurchaseRequisitions;
 
 use App\Models\PurchaseRequisition;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Detail Pengajuan (PR) - Yala Computer')]
@@ -20,7 +20,7 @@ class Show extends Component
 
     public function approve()
     {
-        if (!auth()->user()->isAdmin()) {
+        if (! auth()->user()->isAdmin()) {
             return abort(403);
         }
 
@@ -34,7 +34,7 @@ class Show extends Component
 
     public function reject()
     {
-        if (!auth()->user()->isAdmin()) {
+        if (! auth()->user()->isAdmin()) {
             return abort(403);
         }
 
@@ -49,13 +49,13 @@ class Show extends Component
     public function convertToPo()
     {
         // Redirect to PO Create with PR data
-        // Ideally we would pass ID and let PO Create handle it, 
+        // Ideally we would pass ID and let PO Create handle it,
         // but for now let's just show a message or redirect to PO index
         // This part would be complex integration: Pre-filling PO form from PR.
-        
+
         // For this step, I will mark it as converted and redirect
         $this->pr->update(['status' => 'converted_to_po']);
-        
+
         return redirect()->route('purchase-orders.create', ['from_pr' => $this->pr->id]);
     }
 

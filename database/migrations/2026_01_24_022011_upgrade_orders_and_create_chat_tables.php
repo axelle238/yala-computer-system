@@ -10,23 +10,23 @@ return new class extends Migration
     {
         // 1. Upgrade Orders for Payment Gateway
         Schema::table('orders', function (Blueprint $table) {
-            if (!Schema::hasColumn('orders', 'snap_token')) {
+            if (! Schema::hasColumn('orders', 'snap_token')) {
                 $table->string('snap_token')->nullable()->after('total_amount');
             }
-            if (!Schema::hasColumn('orders', 'payment_url')) {
+            if (! Schema::hasColumn('orders', 'payment_url')) {
                 $table->string('payment_url')->nullable()->after('snap_token');
             }
-            if (!Schema::hasColumn('orders', 'payment_data')) {
+            if (! Schema::hasColumn('orders', 'payment_data')) {
                 $table->json('payment_data')->nullable()->after('payment_url');
             }
             // Check paid_at before adding
-            if (!Schema::hasColumn('orders', 'paid_at')) {
+            if (! Schema::hasColumn('orders', 'paid_at')) {
                 $table->timestamp('paid_at')->nullable()->after('payment_status');
             }
         });
 
         // 2. Chat System Tables
-        if (!Schema::hasTable('conversations')) {
+        if (! Schema::hasTable('conversations')) {
             Schema::create('conversations', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('customer_id')->nullable()->constrained('users')->onDelete('set null');
@@ -37,7 +37,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('messages')) {
+        if (! Schema::hasTable('messages')) {
             Schema::create('messages', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('conversation_id')->constrained()->onDelete('cascade');

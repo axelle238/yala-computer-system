@@ -11,14 +11,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ProgresServis extends Model
 {
     protected $table = 'progres_servis';
-    
+
     protected $fillable = [
         'id_tiket_servis',
         'status',
         'deskripsi',
         'id_teknisi',
         'is_publik',
-        'lampiran'
+        'lampiran',
     ];
 
     protected $casts = [

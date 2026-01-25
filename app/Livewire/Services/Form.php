@@ -10,11 +10,11 @@ use App\Models\ServiceItem;
 use App\Models\ServiceTicket;
 use App\Models\Setting;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Illuminate\Support\Facades\DB;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Service Workbench - Yala Computer')]
@@ -24,26 +24,35 @@ class Form extends Component
 
     // Ticket Details
     public $ticket_number;
+
     public $customer_name;
+
     public $customer_phone;
+
     public $device_name;
+
     public $problem_description;
+
     public $status = 'pending';
+
     public $technician_notes;
+
     public $technician_id;
-    
+
     // Costing
     public $estimated_cost = 0;
+
     public $labor_cost = 0; // Jasa Service
-    
+
     // Parts Management
-    public $parts = []; 
+    public $parts = [];
     // Structure: ['id' => ?, 'product_id' => ?, 'name' => ?, 'qty' => ?, 'price' => ?, 'note' => ?, 'is_inventory' => ?, 'serial_number' => ?, 'warranty_duration' => ?]
-    
+
     public $productSearch = '';
-    
+
     // UI State
     public $activeTab = 'info'; // info, diagnosis, parts, history
+
     public $technicians = [];
 
     public function mount($id = null)
@@ -62,7 +71,7 @@ class Form extends Component
                 'estimated_cost' => $this->ticket->estimated_cost,
                 'technician_notes' => $this->ticket->technician_notes,
                 'technician_id' => $this->ticket->technician_id,
-                'labor_cost' => max(0, $this->ticket->final_cost - $this->ticket->items->sum(fn($i) => $i->price * $i->quantity)),
+                'labor_cost' => max(0, $this->ticket->final_cost - $this->ticket->items->sum(fn ($i) => $i->price * $i->quantity)),
             ]);
 
             // Load existing items
@@ -74,13 +83,13 @@ class Form extends Component
                     'qty' => $item->quantity,
                     'price' => $item->price,
                     'note' => $item->note,
-                    'is_inventory' => !is_null($item->product_id),
+                    'is_inventory' => ! is_null($item->product_id),
                     'serial_number' => $item->serial_number,
                     'warranty_duration' => $item->warranty_duration,
                 ];
             }
         } else {
-            $this->ticket_number = 'SRV-' . date('Ymd') . '-' . strtoupper(Str::random(4));
+            $this->ticket_number = 'SRV-'.date('Ymd').'-'.strtoupper(Str::random(4));
             $this->technician_id = auth()->id(); // Default to creator
         }
     }
@@ -130,7 +139,7 @@ class Form extends Component
     // --- Calculations ---
     public function getTotalPartsCostProperty()
     {
-        return array_sum(array_map(fn($p) => $p['price'] * $p['qty'], $this->parts));
+        return array_sum(array_map(fn ($p) => $p['price'] * $p['qty'], $this->parts));
     }
 
     public function getGrandTotalProperty()
@@ -150,7 +159,7 @@ class Form extends Component
         try {
             DB::transaction(function () {
                 $oldStatus = $this->ticket ? $this->ticket->status : null;
-                $isNew = !$this->ticket;
+                $isNew = ! $this->ticket;
 
                 // 1. Create/Update Ticket
                 $data = [
@@ -177,14 +186,14 @@ class Form extends Component
                     ]);
                 } else {
                     $this->ticket->update($data);
-                    
+
                     // History Update if Status Changed
                     if ($oldStatus !== $this->status) {
                         ServiceHistory::create([
                             'service_ticket_id' => $this->ticket->id,
                             'user_id' => auth()->id(),
                             'status' => $this->status,
-                            'notes' => "Status berubah dari " . ucfirst($oldStatus) . " ke " . ucfirst($this->status),
+                            'notes' => 'Status berubah dari '.ucfirst($oldStatus).' ke '.ucfirst($this->status),
                         ]);
                     }
                 }
@@ -195,7 +204,7 @@ class Form extends Component
 
                 // A. DELETE removed items
                 foreach ($existingItems as $id => $item) {
-                    if (!in_array($id, $currentPartIds)) {
+                    if (! in_array($id, $currentPartIds)) {
                         if ($item->is_stock_deducted && $item->product_id) {
                             $this->adjustStock($item->product_id, $item->quantity, 'in', "Service Cancel Item #{$this->ticket->ticket_number}");
                         }
@@ -223,9 +232,9 @@ class Form extends Component
                             $type = $qtyDiff > 0 ? 'out' : 'in';
                             $this->adjustStock($item->product_id, abs($qtyDiff), $type, "Service Update Item #{$this->ticket->ticket_number}");
                         }
-                        
+
                         $item->update($itemData);
-                        
+
                     } else {
                         // Create
                         $isDeducted = false;
@@ -238,7 +247,7 @@ class Form extends Component
                             'service_ticket_id' => $this->ticket->id,
                             'product_id' => $part['product_id'],
                             'item_name' => $part['name'],
-                            'is_stock_deducted' => $isDeducted
+                            'is_stock_deducted' => $isDeducted,
                         ]));
                     }
                 }
@@ -251,23 +260,24 @@ class Form extends Component
 
             session()->flash('success', 'Data servis berhasil disimpan.');
             // Refresh parts to get IDs
-            $this->mount($this->ticket->id); 
+            $this->mount($this->ticket->id);
 
         } catch (\Exception $e) {
             $this->addError('parts', $e->getMessage());
         }
     }
 
-    protected function processCommission() {
+    protected function processCommission()
+    {
         $existingCommission = Commission::where('source_type', ServiceTicket::class)
             ->where('source_id', $this->ticket->id)
             ->first();
 
-        if (!$existingCommission) {
+        if (! $existingCommission) {
             $percent = Setting::get('commission_service_percent', 10);
             $partsCost = $this->ticket->items()->sum(DB::raw('price * quantity'));
             $laborCost = max(0, $this->ticket->final_cost - $partsCost);
-            
+
             $commissionAmount = $laborCost * ($percent / 100);
 
             if ($commissionAmount > 0) {
@@ -277,25 +287,28 @@ class Form extends Component
                     'description' => "Komisi Service #{$this->ticket->ticket_number} ({$percent}%)",
                     'source_type' => ServiceTicket::class,
                     'source_id' => $this->ticket->id,
-                    'is_paid' => false
+                    'is_paid' => false,
                 ]);
             }
         }
     }
 
-    protected function adjustStock($productId, $qty, $type, $reason) {
+    protected function adjustStock($productId, $qty, $type, $reason)
+    {
         $product = Product::lockForUpdate()->find($productId);
-        if(!$product) return;
+        if (! $product) {
+            return;
+        }
 
         if ($type === 'out') {
             if ($product->stock_quantity < $qty) {
-                 throw new \Exception("Stok {$product->name} tidak mencukupi! (Sisa: {$product->stock_quantity})");
+                throw new \Exception("Stok {$product->name} tidak mencukupi! (Sisa: {$product->stock_quantity})");
             }
             $product->decrement('stock_quantity', $qty);
         } else {
             $product->increment('stock_quantity', $qty);
         }
-        
+
         InventoryTransaction::create([
             'product_id' => $product->id,
             'user_id' => auth()->id(),
@@ -305,13 +318,14 @@ class Form extends Component
             'unit_price' => $product->sell_price,
             'cogs' => $product->buy_price,
             'reference_number' => $this->ticket->ticket_number,
-            'notes' => $reason
+            'notes' => $reason,
         ]);
     }
-    
+
     public function printInvoice()
     {
-        $this->save(); 
+        $this->save();
+
         return redirect()->route('print.service', $this->ticket->id);
     }
 
@@ -319,13 +333,13 @@ class Form extends Component
     {
         $products = [];
         if (strlen($this->productSearch) > 2) {
-            $products = Product::where('name', 'like', '%' . $this->productSearch . '%')
-                ->orWhere('sku', 'like', '%' . $this->productSearch . '%')
+            $products = Product::where('name', 'like', '%'.$this->productSearch.'%')
+                ->orWhere('sku', 'like', '%'.$this->productSearch.'%')
                 ->take(5)->get();
         }
 
         return view('livewire.services.form', [
-            'products' => $products
+            'products' => $products,
         ]);
     }
 }

@@ -8,7 +8,6 @@ use App\Models\Product;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class InventorySeeder extends Seeder
@@ -171,7 +170,9 @@ class InventorySeeder extends Seeder
 
         foreach ($productsData as $data) {
             $cat = Category::where('slug', $data['category_slug'])->first();
-            if (!$cat) continue;
+            if (! $cat) {
+                continue;
+            }
 
             $product = Product::updateOrCreate(
                 ['sku' => $data['sku']],
@@ -220,7 +221,7 @@ class InventorySeeder extends Seeder
                 'created_at' => now()->subMonths(6),
             ]);
         }
-        
+
         // Create an expired transaction (purchased 4 years ago for a 3 year warranty item)
         $cpu = Product::where('sku', 'INTEL-13600K')->first();
         if ($cpu) {

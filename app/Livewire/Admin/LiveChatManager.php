@@ -2,13 +2,13 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\SesiObrolan;
 use App\Models\PesanObrolan;
-use Livewire\Component;
-use Livewire\WithPagination;
+use App\Models\SesiObrolan;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Live Chat Pelanggan - Yala Computer')]
@@ -17,7 +17,9 @@ class LiveChatManager extends Component
     use WithPagination;
 
     public $sesiTerpilihId = null;
+
     public $isiPesan = '';
+
     public $search = '';
 
     protected $listeners = ['refreshChat' => '$refresh'];
@@ -51,18 +53,20 @@ class LiveChatManager extends Component
             'isiPesan' => 'required|string|min:1',
         ]);
 
-        if (!$this->sesiTerpilihId) return;
+        if (! $this->sesiTerpilihId) {
+            return;
+        }
 
         PesanObrolan::create([
             'id_sesi' => $this->sesiTerpilihId,
             'id_pengguna' => Auth::id(),
             'is_balasan_admin' => true,
             'isi' => $this->isiPesan,
-            'is_dibaca' => true // Pesan sendiri dianggap dibaca
+            'is_dibaca' => true, // Pesan sendiri dianggap dibaca
         ]);
 
         $this->isiPesan = '';
-        
+
         // Refresh chat
         $this->dispatch('scroll-to-bottom');
     }
@@ -72,8 +76,8 @@ class LiveChatManager extends Component
         $sesiList = SesiObrolan::with(['pelanggan', 'pesanTerakhir'])
             ->when($this->search, function ($query) {
                 $query->whereHas('pelanggan', function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%');
-                })->orWhere('topik', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%');
+                })->orWhere('topik', 'like', '%'.$this->search.'%');
             })
             ->latest('updated_at') // Urutkan berdasarkan update terakhir (pesan baru)
             ->get(); // Tidak pakai pagination agar list tetap statis saat chat aktif
@@ -93,7 +97,7 @@ class LiveChatManager extends Component
         return view('livewire.admin.live-chat-manager', [
             'sesiList' => $sesiList,
             'messages' => $messages,
-            'activeSession' => $activeSession
+            'activeSession' => $activeSession,
         ]);
     }
 }

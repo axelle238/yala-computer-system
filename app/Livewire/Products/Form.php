@@ -6,10 +6,10 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Supplier;
 use Illuminate\Support\Str;
-use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.admin')]
 #[Title('Formulir Produk - Yala Computer')]
@@ -24,16 +24,27 @@ class Form extends Component
 
     // Properti Formulir
     public $nama = '';
+
     public $sku = '';
+
     public $barcode = '';
+
     public $idKategori = '';
+
     public $idPemasok = '';
+
     public $hargaBeli = 0;
+
     public $hargaJual = 0;
+
     public $jumlahStok = 0;
+
     public $peringatanStokMin = 5;
+
     public $deskripsi = '';
+
     public $gambar; // Unggahan sementara
+
     public $pathGambar; // Path yang sudah ada
 
     public function mount($id = null)
@@ -71,7 +82,7 @@ class Form extends Component
     {
         $this->validate([
             'nama' => 'required|string|max:255',
-            'sku' => 'required|string|unique:products,sku,' . ($this->produk->id ?? 'NULL'),
+            'sku' => 'required|string|unique:products,sku,'.($this->produk->id ?? 'NULL'),
             'idKategori' => 'required|exists:categories,id',
             'idPemasok' => 'nullable|exists:suppliers,id',
             'hargaBeli' => 'required|numeric|min:0',

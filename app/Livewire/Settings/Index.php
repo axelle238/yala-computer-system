@@ -3,10 +3,10 @@
 namespace App\Livewire\Settings;
 
 use App\Models\Setting;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Livewire\Attributes\Title;
-use Livewire\Attributes\Layout;
 
 #[Layout('layouts.admin')]
 #[Title('Pusat Pengaturan Sistem - Yala Computer')]
@@ -15,8 +15,11 @@ class Index extends Component
     use WithFileUploads;
 
     public $grupPengaturan = [];
+
     public $formulir = [];
+
     public $logoBaru;
+
     public $faviconBaru;
 
     // Tab Aktif
@@ -44,12 +47,12 @@ class Index extends Component
             'tax_rate', 'service_charge',
             // Sistem & Integrasi
             'smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_encryption',
-            'whatsapp_gateway_url', 'printer_ip_address'
+            'whatsapp_gateway_url', 'printer_ip_address',
         ];
 
         // Pastikan setting ada di database, jika tidak buat default kosong
         foreach ($kunciWajib as $kunci) {
-            if (!Setting::where('key', $kunci)->exists()) {
+            if (! Setting::where('key', $kunci)->exists()) {
                 Setting::create(['key' => $kunci, 'value' => null]);
             }
         }
@@ -59,7 +62,7 @@ class Index extends Component
         foreach ($semuaPengaturan as $p) {
             $this->formulir[$p->key] = $p->value;
         }
-        
+
         // Handling boolean checkbox
         $this->formulir['store_announcement_active'] = (bool) ($this->formulir['store_announcement_active'] ?? false);
         $this->formulir['midtrans_is_production'] = (bool) ($this->formulir['midtrans_is_production'] ?? false);
@@ -86,7 +89,7 @@ class Index extends Component
 
         $this->logoBaru = null;
         $this->faviconBaru = null;
-        
+
         $this->dispatch('notify', message: 'Pengaturan sistem berhasil diperbarui.', type: 'success');
     }
 

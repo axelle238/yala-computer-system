@@ -36,7 +36,7 @@ return new class extends Migration
             $table->decimal('current_debt', 15, 2)->default(0)->after('credit_limit');
             $table->integer('top_days')->default(0)->after('current_debt'); // Term of Payment (days)
         });
-        
+
         // 3. Update Orders (Due Date for Credit)
         Schema::table('orders', function (Blueprint $table) {
             $table->date('due_date')->nullable()->after('paid_at');

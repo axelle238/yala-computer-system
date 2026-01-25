@@ -4,9 +4,9 @@ namespace App\Livewire\Member;
 
 use App\Models\UserAddress;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Buku Alamat Saya')]
@@ -26,20 +26,25 @@ class Addresses extends Component
      * ID alamat yang sedang diubah.
      */
     public $idAlamat;
-    
+
     // Properti Form
     public $label = 'Rumah';
+
     public $namaPenerima;
+
     public $nomorTelepon;
+
     public $barisAlamat;
+
     public $kota;
+
     public $isUtama = false;
 
     /**
      * Daftar kota statis (ideal dari API RajaOngkir).
      */
     public $daftarKota = [
-        'Jakarta', 'Bogor', 'Depok', 'Tangerang', 'Bekasi', 'Bandung', 'Surabaya', 'Semarang', 'Yogyakarta', 'Medan', 'Denpasar', 'Makassar'
+        'Jakarta', 'Bogor', 'Depok', 'Tangerang', 'Bekasi', 'Bandung', 'Surabaya', 'Semarang', 'Yogyakarta', 'Medan', 'Denpasar', 'Makassar',
     ];
 
     public function mount()

@@ -5,11 +5,10 @@ namespace App\Livewire\Finance;
 use App\Models\CashRegister;
 use App\Models\CashTransaction;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Title;
-use Livewire\Attributes\Layout;
 
 #[Layout('layouts.admin')]
 #[Title('Manajemen Kasir & Keuangan')]
@@ -19,20 +18,26 @@ class CashRegisterManager extends Component
 
     // View State
     public $activeRegister = null;
+
     public $activeAction = null; // null, 'open', 'close', 'transaction'
 
     // Open Register Inputs
     public $openingCash = 0;
+
     public $openNote = '';
 
     // Close Register Inputs
     public $closingCash = 0;
+
     public $closeNote = '';
-    
+
     // Manual Transaction Inputs
     public $trxType = 'out'; // in / out
+
     public $trxCategory = 'expense'; // expense, sales, service, etc
+
     public $trxAmount = 0;
+
     public $trxDescription = '';
 
     public function mount()
@@ -55,16 +60,22 @@ class CashRegisterManager extends Component
     }
 
     // --- Computed Properties for Dashboard ---
-    
+
     public function getCurrentBalanceProperty()
     {
-        if (!$this->activeRegister) return 0;
+        if (! $this->activeRegister) {
+            return 0;
+        }
+
         return $this->activeRegister->system_balance;
     }
 
     public function getTodayTransactionsProperty()
     {
-        if (!$this->activeRegister) return collect();
+        if (! $this->activeRegister) {
+            return collect();
+        }
+
         return $this->activeRegister->transactions()->latest()->get();
     }
 
@@ -95,7 +106,9 @@ class CashRegisterManager extends Component
             'closingCash' => 'required|numeric|min:0',
         ]);
 
-        if (!$this->activeRegister) return;
+        if (! $this->activeRegister) {
+            return;
+        }
 
         $expected = $this->currentBalance;
         $variance = $this->closingCash - $expected;
@@ -106,7 +119,7 @@ class CashRegisterManager extends Component
             'expected_cash' => $expected,
             'variance' => $variance,
             'status' => 'closed',
-            'note' => $this->closeNote . ($variance != 0 ? " [Selisih: " . number_format($variance, 0, ',', '.') . "]" : ""),
+            'note' => $this->closeNote.($variance != 0 ? ' [Selisih: '.number_format($variance, 0, ',', '.').']' : ''),
         ]);
 
         session()->flash('success', 'Shift Kasir Ditutup. Laporan tersimpan.');
@@ -116,7 +129,9 @@ class CashRegisterManager extends Component
 
     public function saveTransaction()
     {
-        if (!$this->activeRegister) return;
+        if (! $this->activeRegister) {
+            return;
+        }
 
         $this->validate([
             'trxAmount' => 'required|numeric|min:1',
@@ -127,12 +142,13 @@ class CashRegisterManager extends Component
         // Cek saldo cukup jika pengeluaran
         if ($this->trxType == 'out' && $this->trxAmount > $this->currentBalance) {
             $this->addError('trxAmount', 'Saldo kas tidak mencukupi!');
+
             return;
         }
 
         CashTransaction::create([
             'cash_register_id' => $this->activeRegister->id,
-            'transaction_number' => 'TRX-' . date('ymd') . '-' . rand(1000, 9999),
+            'transaction_number' => 'TRX-'.date('ymd').'-'.rand(1000, 9999),
             'type' => $this->trxType,
             'category' => $this->trxCategory,
             'amount' => $this->trxAmount,
@@ -153,7 +169,7 @@ class CashRegisterManager extends Component
             ->paginate(5);
 
         return view('livewire.finance.cash-register-manager', [
-            'history' => $history
+            'history' => $history,
         ]);
     }
 }

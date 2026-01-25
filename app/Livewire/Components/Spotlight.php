@@ -2,15 +2,17 @@
 
 namespace App\Livewire\Components;
 
-use App\Models\Product;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\Product;
 use Livewire\Component;
 
 class Spotlight extends Component
 {
     public $search = '';
+
     public $results = [];
+
     public $isOpen = false;
 
     // Listen to keyboard shortcut from global JS
@@ -33,6 +35,7 @@ class Spotlight extends Component
     {
         if (strlen($this->search) < 2) {
             $this->results = [];
+
             return;
         }
 
@@ -65,42 +68,42 @@ class Spotlight extends Component
 
     private function searchProducts()
     {
-        return Product::where('name', 'like', '%' . $this->search . '%')
-            ->orWhere('sku', 'like', '%' . $this->search . '%')
+        return Product::where('name', 'like', '%'.$this->search.'%')
+            ->orWhere('sku', 'like', '%'.$this->search.'%')
             ->take(3)
             ->get()
-            ->map(fn($p) => [
+            ->map(fn ($p) => [
                 'label' => $p->name,
-                'sub' => 'Stok: ' . $p->stock_quantity,
+                'sub' => 'Stok: '.$p->stock_quantity,
                 'route' => route('products.edit', $p->id), // Asumsi ada route edit
-                'icon' => 'box'
+                'icon' => 'box',
             ]);
     }
 
     private function searchCustomers()
     {
-        return Customer::where('name', 'like', '%' . $this->search . '%')
-            ->orWhere('phone', 'like', '%' . $this->search . '%')
+        return Customer::where('name', 'like', '%'.$this->search.'%')
+            ->orWhere('phone', 'like', '%'.$this->search.'%')
             ->take(3)
             ->get()
-            ->map(fn($c) => [
+            ->map(fn ($c) => [
                 'label' => $c->name,
                 'sub' => $c->phone,
                 'route' => route('customers.edit', $c->id),
-                'icon' => 'user'
+                'icon' => 'user',
             ]);
     }
 
     private function searchOrders()
     {
-        return Order::where('order_number', 'like', '%' . $this->search . '%')
+        return Order::where('order_number', 'like', '%'.$this->search.'%')
             ->take(3)
             ->get()
-            ->map(fn($o) => [
-                'label' => 'Order #' . $o->order_number,
-                'sub' => $o->status . ' - ' . $o->guest_name,
+            ->map(fn ($o) => [
+                'label' => 'Order #'.$o->order_number,
+                'sub' => $o->status.' - '.$o->guest_name,
                 'route' => route('orders.show', $o->id), // Asumsi route show order admin
-                'icon' => 'receipt-tax'
+                'icon' => 'receipt-tax',
             ]);
     }
 

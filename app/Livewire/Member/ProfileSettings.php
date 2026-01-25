@@ -4,10 +4,10 @@ namespace App\Livewire\Member;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.store')]
 #[Title('Pengaturan Profil - Yala Computer')]
@@ -19,18 +19,26 @@ class ProfileSettings extends Component
      * Properti Data Profil
      */
     public $nama;
+
     public $surel;
+
     public $telepon;
+
     public $nomorKtp;
+
     public $alamatLengkap;
+
     public $fotoProfil;
+
     public $pathFotoSaatIni;
 
     /**
      * Properti Keamanan (Kata Sandi)
      */
     public $kataSandiSaatIni;
+
     public $kataSandiBaru;
+
     public $konfirmasiKataSandi;
 
     public function mount()
@@ -63,7 +71,7 @@ class ProfileSettings extends Component
         ]);
 
         $pengguna = Auth::user();
-        
+
         $data = [
             'name' => $this->nama,
             'phone' => $this->telepon,

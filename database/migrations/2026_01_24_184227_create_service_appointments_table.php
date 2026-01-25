@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('service_appointments')) {
+        if (! Schema::hasTable('service_appointments')) {
             Schema::create('service_appointments', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null'); // Registered user

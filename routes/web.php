@@ -9,25 +9,25 @@ use Illuminate\Support\Facades\Route;
 
 // Public Storefront
 Route::get('/', StoreHome::class)->name('home');
-Route::get('/catalog', \App\Livewire\Store\Catalog::class)->name('store.catalog'); 
+Route::get('/catalog', \App\Livewire\Store\Catalog::class)->name('store.catalog');
 Route::get('/brands', \App\Livewire\Store\Brands::class)->name('store.brands'); // New
 Route::get('/product/{id}', \App\Livewire\Store\ProductDetail::class)->name('product.detail');
 Route::get('/bundle/{slug}', \App\Livewire\Store\BundleDetail::class)->name('store.bundle.detail'); // New
 Route::get('/compare', \App\Livewire\Store\Comparison::class)->name('product.compare');
-Route::get('/community', \App\Livewire\Community\Gallery::class)->name('community.index'); 
+Route::get('/community', \App\Livewire\Community\Gallery::class)->name('community.index');
 Route::get('/berita', \App\Livewire\Store\News\Index::class)->name('news.index');
 Route::get('/berita/{slug}', \App\Livewire\Store\News\Show::class)->name('news.show');
-Route::get('/help-center', \App\Livewire\Store\HelpCenter::class)->name('help.center'); 
+Route::get('/help-center', \App\Livewire\Store\HelpCenter::class)->name('help.center');
 Route::get('/rakit-pc', \App\Livewire\Store\PcBuilder::class)->name('pc-builder');
 Route::get('/garansi', \App\Livewire\Store\WarrantyCheck::class)->name('warranty-check');
-Route::get('/track-service', \App\Livewire\Front\TrackService::class)->name('track-service'); 
+Route::get('/track-service', \App\Livewire\Front\TrackService::class)->name('track-service');
 Route::get('/track-order', \App\Livewire\Front\TrackOrder::class)->name('track-order');
 Route::get('/contact-us', \App\Livewire\Store\ContactUs::class)->name('store.contact'); // New
 Route::get('/about-us', \App\Livewire\Store\AboutUs::class)->name('store.about'); // New
 Route::get('/cart', \App\Livewire\Store\Cart::class)->name('cart');
-Route::get('/checkout-secure', \App\Livewire\Store\Checkout::class)->name('checkout.secure'); 
-Route::get('/checkout', \App\Livewire\Store\Checkout::class)->name('checkout'); 
-Route::get('/wishlist', \App\Livewire\Store\Wishlist::class)->name('wishlist'); 
+Route::get('/checkout-secure', \App\Livewire\Store\Checkout::class)->name('checkout.secure');
+Route::get('/checkout', \App\Livewire\Store\Checkout::class)->name('checkout');
+Route::get('/wishlist', \App\Livewire\Store\Wishlist::class)->name('wishlist');
 Route::get('/order-success/{id}', \App\Livewire\Store\OrderSuccess::class)->name('order.success');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
@@ -45,16 +45,17 @@ Route::post('/logout', function () {
     auth()->logout();
     session()->invalidate();
     session()->regenerateToken();
+
     return redirect('/');
 })->name('logout');
 
 // Member Area (Protected)
 Route::prefix('member')->middleware('auth')->group(function () {
     Route::get('/dashboard', \App\Livewire\Member\Dashboard::class)->name('member.dashboard');
-    Route::get('/addresses', \App\Livewire\Member\Addresses::class)->name('member.addresses'); 
-    Route::get('/service/booking', \App\Livewire\Service\Booking::class)->name('service.booking'); 
+    Route::get('/addresses', \App\Livewire\Member\Addresses::class)->name('member.addresses');
+    Route::get('/service/booking', \App\Livewire\Service\Booking::class)->name('service.booking');
     Route::get('/orders', \App\Livewire\Member\Orders::class)->name('member.orders');
-    Route::get('/orders/{id}', \App\Livewire\Member\OrderDetail::class)->name('member.orders.show'); 
+    Route::get('/orders/{id}', \App\Livewire\Member\OrderDetail::class)->name('member.orders.show');
     Route::get('/quotations', \App\Livewire\Member\Quotations::class)->name('member.quotations'); // New
     Route::get('/profile', \App\Livewire\Member\ProfileSettings::class)->name('member.profile'); // New
     Route::get('/referrals', \App\Livewire\Member\Referrals::class)->name('member.referrals'); // New
@@ -65,7 +66,7 @@ Route::prefix('member')->middleware('auth')->group(function () {
 // Admin Panel (Protected)
 Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/', Dashboard::class)->name('dashboard');
-    
+
     // Tasks & Collaboration
     Route::get('/tasks', \App\Livewire\Admin\TaskManager::class)->name('admin.tasks'); // New
 
@@ -75,22 +76,22 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/rma/{id}/edit', \App\Livewire\Rma\Form::class)->name('rma.edit');
 
     Route::get('/products', ProductIndex::class)->name('products.index');
-    Route::get('/products/bundles', \App\Livewire\Products\Bundles::class)->name('products.bundles'); 
+    Route::get('/products/bundles', \App\Livewire\Products\Bundles::class)->name('products.bundles');
     Route::get('/products/create', \App\Livewire\Products\Form::class)->name('products.create');
     Route::get('/products/{id}/edit', \App\Livewire\Products\Form::class)->name('products.edit');
-    Route::get('/products/labels', \App\Livewire\Products\LabelMaker::class)->name('products.labels'); 
+    Route::get('/products/labels', \App\Livewire\Products\LabelMaker::class)->name('products.labels');
 
     Route::get('/transactions', \App\Livewire\Transactions\Index::class)->name('transactions.index');
     Route::get('/transactions/create', TransactionCreate::class)->name('transactions.create');
     Route::get('/settings', \App\Livewire\Settings\Index::class)->name('settings.index');
-    
+
     // Master Data
     Route::get('/master/categories', \App\Livewire\Master\Categories::class)->name('master.categories');
     Route::get('/master/categories/create', \App\Livewire\Master\Categories\Form::class)->name('master.categories.create');
     Route::get('/master/categories/{id}/edit', \App\Livewire\Master\Categories\Form::class)->name('master.categories.edit');
-    
+
     Route::get('/master/suppliers', \App\Livewire\Master\Suppliers::class)->name('master.suppliers');
-    
+
     Route::get('/banners', \App\Livewire\Banners\Index::class)->name('banners.index');
     Route::get('/banners/create', \App\Livewire\Banners\Form::class)->name('banners.create');
     Route::get('/banners/{id}/edit', \App\Livewire\Banners\Form::class)->name('banners.edit');
@@ -106,7 +107,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/employees/{id}/edit', \App\Livewire\Employees\Form::class)->name('employees.edit');
     Route::get('/payroll', \App\Livewire\Employees\Payroll::class)->name('employees.payroll');
     Route::get('/expenses', \App\Livewire\Expenses\Index::class)->name('expenses.index');
-    
+
     // CRM
     Route::get('/customers', \App\Livewire\Customers\Index::class)->name('customers.index');
     Route::get('/customers/inbox', \App\Livewire\Admin\Inbox::class)->name('customers.inbox');
@@ -121,12 +122,12 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/activity-logs/{id}', \App\Livewire\ActivityLogs\Show::class)->name('activity-logs.show');
 
     // Service Center
-    Route::get('/services/board', \App\Livewire\Services\Kanban::class)->name('services.kanban'); 
+    Route::get('/services/board', \App\Livewire\Services\Kanban::class)->name('services.kanban');
     Route::get('/services', \App\Livewire\Services\Index::class)->name('services.index');
     Route::get('/services/create', \App\Livewire\Services\Form::class)->name('services.create');
     Route::get('/services/{id}/edit', \App\Livewire\Services\Form::class)->name('services.edit');
     Route::get('/services/{id}/workbench', \App\Livewire\Services\Workbench::class)->name('services.workbench');
-    
+
     // PC Assembly (New)
     Route::get('/assembly', \App\Livewire\Assembly\Manager::class)->name('assembly.manager');
 
@@ -153,13 +154,13 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // Warehouse
     Route::get('/warehouses/transfer', \App\Livewire\Warehouses\Transfer::class)->name('warehouses.transfer');
-    Route::get('/warehouses/stock-opname', \App\Livewire\Warehouses\StockOpname::class)->name('warehouses.stock-opname'); 
-    
+    Route::get('/warehouses/stock-opname', \App\Livewire\Warehouses\StockOpname::class)->name('warehouses.stock-opname');
+
     // Marketing
     Route::get('/marketing/flash-sale', \App\Livewire\Marketing\FlashSale\Index::class)->name('marketing.flash-sale.index');
     Route::get('/marketing/flash-sale/create', \App\Livewire\Marketing\FlashSale\Form::class)->name('marketing.flash-sale.create');
     Route::get('/marketing/reviews', \App\Livewire\Marketing\Reviews\Manager::class)->name('reviews.manager'); // New
-    
+
     // Vouchers (New)
     Route::get('/marketing/vouchers', \App\Livewire\Marketing\Vouchers\Index::class)->name('marketing.vouchers.index');
     Route::get('/marketing/vouchers/create', \App\Livewire\Marketing\Vouchers\Form::class)->name('marketing.vouchers.create');
@@ -184,9 +185,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/reports/finance', \App\Livewire\Reports\FinanceReport::class)->name('reports.finance'); // New
     Route::get('/reports/stock', \App\Livewire\Reports\StockReport::class)->name('reports.stock'); // New
     Route::get('/reports/sales', \App\Livewire\Reports\SalesReport::class)->name('reports.sales'); // New
-    
-    Route::get('/shift', \App\Livewire\Shift\Manager::class)->name('shift.manager'); 
-    Route::get('/reimbursement', \App\Livewire\Employees\Reimbursement::class)->name('employees.reimbursement'); 
+
+    Route::get('/shift', \App\Livewire\Shift\Manager::class)->name('shift.manager');
+    Route::get('/reimbursement', \App\Livewire\Employees\Reimbursement::class)->name('employees.reimbursement');
 
     // B2B & Finance
     Route::get('/quotations', \App\Livewire\Quotations\Index::class)->name('quotations.index');
@@ -194,7 +195,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/quotations/{id}/edit', \App\Livewire\Quotations\Form::class)->name('quotations.edit'); // Updated to Form
     Route::get('/finance/cash-register', \App\Livewire\Finance\CashRegisterManager::class)->name('finance.cash-register');
     Route::get('/finance/receivables', \App\Livewire\Finance\Receivables::class)->name('finance.receivables');
-    Route::get('/finance/profit-loss', \App\Livewire\Finance\ProfitLoss::class)->name('finance.profit-loss'); 
+    Route::get('/finance/profit-loss', \App\Livewire\Finance\ProfitLoss::class)->name('finance.profit-loss');
 
     // System Maintenance
     Route::get('/system/health', \App\Livewire\System\Health::class)->name('system.health');

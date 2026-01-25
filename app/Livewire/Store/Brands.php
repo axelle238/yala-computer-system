@@ -3,9 +3,9 @@
 namespace App\Livewire\Store;
 
 use App\Models\Supplier;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Mitra Brand & Supplier - Yala Computer')]
@@ -16,7 +16,7 @@ class Brands extends Component
         $brands = Supplier::withCount('products')->get();
 
         return view('livewire.store.brands', [
-            'brands' => $brands
+            'brands' => $brands,
         ]);
     }
 }

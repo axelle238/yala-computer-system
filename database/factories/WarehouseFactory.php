@@ -9,7 +9,7 @@ class WarehouseFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'Gudang ' . fake()->city(),
+            'name' => 'Gudang '.fake()->city(),
             'location' => fake()->address(),
             'is_active' => true,
         ];

@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // 1. Expenses
-        if (!Schema::hasTable('expenses')) {
+        if (! Schema::hasTable('expenses')) {
             Schema::create('expenses', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->nullable();
@@ -24,7 +24,7 @@ return new class extends Migration
         }
 
         // 2. Wishlists
-        if (!Schema::hasTable('wishlists')) {
+        if (! Schema::hasTable('wishlists')) {
             Schema::create('wishlists', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -34,7 +34,7 @@ return new class extends Migration
         }
 
         // 3. Vouchers
-        if (!Schema::hasTable('vouchers')) {
+        if (! Schema::hasTable('vouchers')) {
             Schema::create('vouchers', function (Blueprint $table) {
                 $table->id();
                 $table->string('code')->unique();
@@ -50,7 +50,7 @@ return new class extends Migration
         }
 
         // 4. Voucher Usages
-        if (!Schema::hasTable('voucher_usages')) {
+        if (! Schema::hasTable('voucher_usages')) {
             Schema::create('voucher_usages', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('voucher_id')->constrained();
@@ -63,7 +63,7 @@ return new class extends Migration
         }
 
         // 5. Flash Sales
-        if (!Schema::hasTable('flash_sales')) {
+        if (! Schema::hasTable('flash_sales')) {
             Schema::create('flash_sales', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('product_id')->constrained()->cascadeOnDelete();
@@ -78,7 +78,7 @@ return new class extends Migration
         }
 
         // 6. Articles (News/Blog)
-        if (!Schema::hasTable('articles')) {
+        if (! Schema::hasTable('articles')) {
             Schema::create('articles', function (Blueprint $table) {
                 $table->id();
                 $table->string('title');
@@ -94,7 +94,7 @@ return new class extends Migration
         }
 
         // 7. Contact Messages
-        if (!Schema::hasTable('contact_messages')) {
+        if (! Schema::hasTable('contact_messages')) {
             Schema::create('contact_messages', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
@@ -107,7 +107,7 @@ return new class extends Migration
         }
 
         // 8. Inventory Transfers
-        if (!Schema::hasTable('inventory_transfers')) {
+        if (! Schema::hasTable('inventory_transfers')) {
             Schema::create('inventory_transfers', function (Blueprint $table) {
                 $table->id();
                 $table->string('transfer_number')->unique();
@@ -121,7 +121,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('inventory_transfer_items')) {
+        if (! Schema::hasTable('inventory_transfer_items')) {
             Schema::create('inventory_transfer_items', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('inventory_transfer_id')->constrained()->cascadeOnDelete();
@@ -130,9 +130,9 @@ return new class extends Migration
                 $table->timestamps();
             });
         }
-        
+
         // 9. Saved Builds (PC Builder)
-        if (!Schema::hasTable('saved_builds')) {
+        if (! Schema::hasTable('saved_builds')) {
             Schema::create('saved_builds', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -144,9 +144,9 @@ return new class extends Migration
                 $table->timestamps();
             });
         }
-        
+
         // 10. Reviews & Discussions
-        if (!Schema::hasTable('reviews')) {
+        if (! Schema::hasTable('reviews')) {
             Schema::create('reviews', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained();
@@ -157,8 +157,8 @@ return new class extends Migration
                 $table->timestamps();
             });
         }
-        
-        if (!Schema::hasTable('product_discussions')) {
+
+        if (! Schema::hasTable('product_discussions')) {
             Schema::create('product_discussions', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained();
@@ -168,9 +168,9 @@ return new class extends Migration
                 $table->timestamps();
             });
         }
-        
+
         // 11. Activity Logs (Simple version if spatie not used)
-        if (!Schema::hasTable('activity_logs')) {
+        if (! Schema::hasTable('activity_logs')) {
             Schema::create('activity_logs', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->nullable();

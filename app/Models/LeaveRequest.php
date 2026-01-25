@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 
 class LeaveRequest extends Model
 {
@@ -34,10 +34,10 @@ class LeaveRequest extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
-    
+
     public function getStatusColorAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'bg-amber-100 text-amber-600',
             'approved' => 'bg-emerald-100 text-emerald-600',
             'rejected' => 'bg-rose-100 text-rose-600',

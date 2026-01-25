@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Reimbursement extends Model
 {
     protected $fillable = [
-        'claim_number', 'user_id', 'date', 'category', 'amount', 
-        'description', 'proof_file', 'status', 'approved_by', 'admin_notes'
+        'claim_number', 'user_id', 'date', 'category', 'amount',
+        'description', 'proof_file', 'status', 'approved_by', 'admin_notes',
     ];
 
     protected $casts = [

@@ -5,10 +5,10 @@ namespace App\Livewire\Admin;
 use App\Mail\ContactReplyMail;
 use App\Models\PesanPelanggan;
 use Illuminate\Support\Facades\Mail;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Kotak Masuk & Pesan - Yala Computer')]
@@ -37,7 +37,7 @@ class Inbox extends Component
     public function pilihPesan($id)
     {
         $this->pesanTerpilih = PesanPelanggan::findOrFail($id);
-        
+
         if ($this->pesanTerpilih->status === PesanPelanggan::STATUS_BARU) {
             $this->pesanTerpilih->update(['status' => PesanPelanggan::STATUS_DIBACA]);
         }
@@ -55,7 +55,7 @@ class Inbox extends Component
             'isiBalasan.min' => 'Isi balasan minimal 10 karakter.',
         ]);
 
-        if (!$this->pesanTerpilih) {
+        if (! $this->pesanTerpilih) {
             return;
         }
 
@@ -63,18 +63,19 @@ class Inbox extends Component
             // Gunakan Mail untuk mengirim balasan
             Mail::to($this->pesanTerpilih->surel)
                 ->send(new ContactReplyMail($this->isiBalasan, $this->pesanTerpilih->subjek));
-            
+
             $this->pesanTerpilih->update(['status' => PesanPelanggan::STATUS_DIBALAS]);
-            
-            $this->dispatch('notify', 
-                message: 'Balasan berhasil dikirim ke ' . $this->pesanTerpilih->surel, 
+
+            $this->dispatch('notify',
+                message: 'Balasan berhasil dikirim ke '.$this->pesanTerpilih->surel,
                 type: 'success'
             );
         } catch (\Exception $e) {
-            $this->dispatch('notify', 
-                message: 'Gagal mengirim surel. Pastikan konfigurasi SMTP sudah benar.', 
+            $this->dispatch('notify',
+                message: 'Gagal mengirim surel. Pastikan konfigurasi SMTP sudah benar.',
                 type: 'error'
             );
+
             return;
         }
 
@@ -109,7 +110,7 @@ class Inbox extends Component
         $daftarPesan = $query->latest()->paginate(10);
 
         return view('livewire.admin.inbox', [
-            'daftarPesan' => $daftarPesan
+            'daftarPesan' => $daftarPesan,
         ]);
     }
 }

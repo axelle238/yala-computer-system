@@ -16,15 +16,15 @@ class ProductBundle extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'product_bundle_items')
-                    ->withPivot('quantity')
-                    ->withTimestamps();
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 
     // Dynamic stock calculation based on components
     public function getStockAttribute()
     {
         $minStock = 999999;
-        
+
         foreach ($this->items as $item) {
             $componentStock = floor($item->product->stock_quantity / $item->quantity);
             if ($componentStock < $minStock) {

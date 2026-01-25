@@ -8,19 +8,21 @@ use App\Models\Payroll as PayrollModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Payroll System - Yala Computer')]
 class Payroll extends Component
 {
     public $month;
+
     public $year;
 
     // Konfigurasi Potongan (Bisa dipindah ke Settings nanti)
     const DEDUCTION_LATE = 50000; // 50rb per terlambat
+
     const DEDUCTION_ABSENT = 150000; // 150rb per alpha
 
     public function mount()
@@ -37,12 +39,13 @@ class Payroll extends Component
         $exists = PayrollModel::where('period_month', $period)->exists();
         if ($exists) {
             $this->dispatch('notify', message: 'Payroll periode ini sudah dibuat.', type: 'error');
+
             return;
         }
 
         DB::transaction(function () use ($period) {
-            $users = User::where('role', '!=', 'customer')->get(); 
-            
+            $users = User::where('role', '!=', 'customer')->get();
+
             // Tentukan rentang tanggal absensi (biasanya tgl 26 bulan lalu s/d 25 bulan ini, atau full bulan)
             // Disini kita pakai Full Bulan kalender untuk simplifikasi reporting
             $startDate = Carbon::createFromDate($this->year, $this->month, 1)->startOfMonth();
@@ -54,7 +57,7 @@ class Payroll extends Component
                     ->where('is_paid', false)
                     ->get();
                 $totalCommission = $pendingCommissions->sum('amount');
-                
+
                 // 2. Data Gaji Pokok
                 $baseSalary = $user->base_salary ?? 0;
 
@@ -63,8 +66,8 @@ class Payroll extends Component
                     ->whereBetween('date', [$startDate, $endDate])
                     ->where('status', 'late')
                     ->count();
-                
-                // Hitung Alpha (Hari kerja tanpa absen). 
+
+                // Hitung Alpha (Hari kerja tanpa absen).
                 // Simplifikasi: Kita hitung dari status 'absent' yang tercatat secara manual atau otomatis oleh sistem cron (jika ada).
                 // Untuk sekarang kita ambil record yg statusnya 'absent'.
                 $absentCount = Attendance::where('user_id', $user->id)
@@ -82,13 +85,15 @@ class Payroll extends Component
                         'late_days' => $lateCount,
                         'absent_days' => $absentCount,
                         'late_penalty' => $deductionLateAmount,
-                        'absent_penalty' => $deductionAbsentAmount
+                        'absent_penalty' => $deductionAbsentAmount,
                     ],
-                    'commission_ids' => $pendingCommissions->pluck('id')->toArray()
+                    'commission_ids' => $pendingCommissions->pluck('id')->toArray(),
                 ];
 
                 // Skip jika tidak ada aktivitas finansial sama sekali
-                if ($baseSalary == 0 && $totalCommission == 0 && $totalDeductions == 0) continue;
+                if ($baseSalary == 0 && $totalCommission == 0 && $totalDeductions == 0) {
+                    continue;
+                }
 
                 $netSalary = $baseSalary + $totalCommission - $totalDeductions;
 
@@ -127,12 +132,13 @@ class Payroll extends Component
         $payroll = PayrollModel::findOrFail($id);
         if ($payroll->status !== 'draft') {
             $this->dispatch('notify', message: 'Hanya payroll Draft yang bisa dihapus.', type: 'error');
+
             return;
         }
 
         // Kembalikan status komisi jadi unpaid (Perlu logika advance, disini kita skip untuk safety)
         // Idealnya kita simpan commission_ids di tabel payroll agar bisa direvert.
-        
+
         $payroll->delete();
         $this->dispatch('notify', message: 'Data payroll dihapus.', type: 'success');
     }
@@ -140,14 +146,14 @@ class Payroll extends Component
     public function render()
     {
         $period = sprintf('%02d-%d', $this->month, $this->year);
-        
+
         $payrolls = PayrollModel::with('user')
             ->where('period_month', $period)
             ->get();
 
         return view('livewire.employees.payroll', [
             'payrolls' => $payrolls,
-            'hasGenerated' => $payrolls->isNotEmpty()
+            'hasGenerated' => $payrolls->isNotEmpty(),
         ]);
     }
 }

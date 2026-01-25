@@ -3,9 +3,9 @@
 namespace App\Livewire\Store;
 
 use App\Models\PesanPelanggan;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Hubungi Kami - Yala Computer')]
@@ -15,8 +15,11 @@ class ContactUs extends Component
      * Properti formulir dalam Bahasa Indonesia.
      */
     public $nama;
+
     public $surel;
+
     public $subjek;
+
     public $pesan;
 
     /**
@@ -49,9 +52,9 @@ class ContactUs extends Component
         ]);
 
         $this->reset(['nama', 'surel', 'subjek', 'pesan']);
-        
-        $this->dispatch('notify', 
-            message: 'Pesan berhasil terkirim! Tim kami akan segera menghubungi Anda melalui surel.', 
+
+        $this->dispatch('notify',
+            message: 'Pesan berhasil terkirim! Tim kami akan segera menghubungi Anda melalui surel.',
             type: 'success'
         );
     }

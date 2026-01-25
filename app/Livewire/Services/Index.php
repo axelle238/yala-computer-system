@@ -4,9 +4,9 @@ namespace App\Livewire\Services;
 
 use App\Models\ServiceHistory;
 use App\Models\ServiceTicket;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Service Kanban - Yala Computer')]
@@ -18,7 +18,7 @@ class Index extends Component
         'waiting_part' => 'Menunggu Sparepart',
         'repairing' => 'Sedang Diperbaiki',
         'ready' => 'Siap Diambil',
-        'picked_up' => 'Selesai/Diambil'
+        'picked_up' => 'Selesai/Diambil',
     ];
 
     public function updateStatus($ticketId, $newStatus)
@@ -27,13 +27,13 @@ class Index extends Component
         if ($ticket && array_key_exists($newStatus, $this->statuses) && $ticket->status !== $newStatus) {
             $oldStatus = $ticket->status;
             $ticket->update(['status' => $newStatus]);
-            
+
             // Log History
             ServiceHistory::create([
                 'service_ticket_id' => $ticket->id,
                 'user_id' => auth()->id(),
                 'status' => $newStatus,
-                'notes' => "Status diperbarui via Kanban Board (dari " . ucfirst($oldStatus) . ")",
+                'notes' => 'Status diperbarui via Kanban Board (dari '.ucfirst($oldStatus).')',
             ]);
 
             // Notify
@@ -50,7 +50,7 @@ class Index extends Component
             ->groupBy('status');
 
         return view('livewire.services.index', [
-            'tickets' => $tickets
+            'tickets' => $tickets,
         ]);
     }
 }

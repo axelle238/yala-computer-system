@@ -3,11 +3,11 @@
 namespace App\Livewire\Banners;
 
 use App\Models\Banner;
-use Livewire\Component;
-use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Illuminate\Support\Facades\Storage;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.app')]
 #[Title('Form Banner - Yala Computer')]
@@ -18,12 +18,19 @@ class Form extends Component
     public ?Banner $banner = null;
 
     public $title;
+
     public $description;
+
     public $button_text; // New Field
+
     public $image; // Temporary upload
+
     public $existingImage;
+
     public $link_url;
+
     public $is_active = true;
+
     public $order = 0;
 
     public function mount($id = null)

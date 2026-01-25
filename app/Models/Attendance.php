@@ -25,8 +25,10 @@ class Attendance extends Model
         if ($this->clock_in && $this->clock_out) {
             $in = \Carbon\Carbon::parse($this->clock_in);
             $out = \Carbon\Carbon::parse($this->clock_out);
+
             return $in->diffInHours($out);
         }
+
         return 0;
     }
 }

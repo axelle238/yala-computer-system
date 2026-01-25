@@ -10,42 +10,49 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductBundle;
-use App\Models\Setting;
 use App\Models\SavedBuild;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Title('Point of Sales - Yala Computer')]
 class Create extends Component
 {
     // Transaction Info
     public $type = 'out'; // Default to 'out' (Sales)
+
     public $customer_phone = '';
+
     public $reference_number = '';
+
     public $notes = '';
-    
+
     // Cart System
     public $cart = []; // Array of ['product_id', 'name', 'price', 'quantity', 'subtotal', 'sku', 'image']
 
     // Search & Filter
     public $search = '';
+
     public $category = '';
-    public $searchBuild = ''; 
+
+    public $searchBuild = '';
 
     // Loyalty System
     public $customerPoints = 0;
+
     public $usePoints = false;
-    
+
     // UI State
     public $showSuccessModal = false;
+
     public $registerStatus = 'closed'; // open, closed
 
     public function mount()
     {
-        $this->reference_number = 'TRX-' . strtoupper(uniqid());
+        $this->reference_number = 'TRX-'.strtoupper(uniqid());
         $this->checkRegister();
     }
 
@@ -54,10 +61,10 @@ class Create extends Component
         $active = CashRegister::where('user_id', Auth::id())
             ->where('status', 'open')
             ->exists();
-        
+
         $this->registerStatus = $active ? 'open' : 'closed';
 
-        if (!$active && $this->type === 'out') {
+        if (! $active && $this->type === 'out') {
             // Optional: Redirect immediately or show blocker
             // return redirect()->route('finance.cash-register');
         }
@@ -70,14 +77,15 @@ class Create extends Component
             ->orWhere('share_token', $this->searchBuild)
             ->first();
 
-        if (!$build) {
+        if (! $build) {
             $this->dispatch('notify', message: 'Rakitan tidak ditemukan.', type: 'error');
+
             return;
         }
 
-        $components = $build->components; 
+        $components = $build->components;
         $loadedCount = 0;
-        
+
         foreach ($components as $key => $productId) {
             if ($productId) {
                 $product = Product::find($productId);
@@ -90,7 +98,7 @@ class Create extends Component
 
         if ($loadedCount > 0) {
             $this->dispatch('notify', message: "Berhasil memuat {$loadedCount} komponen dari rakitan '{$build->name}'.", type: 'success');
-            $this->searchBuild = ''; 
+            $this->searchBuild = '';
         } else {
             $this->dispatch('notify', message: 'Semua komponen dalam rakitan ini stoknya habis.', type: 'error');
         }
@@ -103,7 +111,7 @@ class Create extends Component
             $customer = Customer::where('phone', $this->customer_phone)->first();
             if ($customer) {
                 $this->customerPoints = $customer->points;
-                $this->dispatch('notify', message: "Member ditemukan! Poin: " . number_format($customer->points), type: 'info');
+                $this->dispatch('notify', message: 'Member ditemukan! Poin: '.number_format($customer->points), type: 'info');
             } else {
                 $this->customerPoints = 0;
             }
@@ -115,8 +123,10 @@ class Create extends Component
 
     public function togglePoints()
     {
-        if ($this->customerPoints <= 0) return;
-        $this->usePoints = !$this->usePoints;
+        if ($this->customerPoints <= 0) {
+            return;
+        }
+        $this->usePoints = ! $this->usePoints;
     }
 
     // --- Search & Barcode Logic ---
@@ -128,7 +138,7 @@ class Create extends Component
 
         if ($exactProduct) {
             $this->addToCart($exactProduct->id);
-            $this->search = ''; 
+            $this->search = '';
             $this->dispatch('play-beep');
         }
     }
@@ -137,8 +147,10 @@ class Create extends Component
     public function addToCart($productId)
     {
         $product = Product::find($productId);
-        
-        if (!$product) return;
+
+        if (! $product) {
+            return;
+        }
 
         $existingItemKey = null;
         foreach ($this->cart as $key => $item) {
@@ -156,13 +168,13 @@ class Create extends Component
                 'name' => $product->name,
                 'sku' => $product->sku,
                 'price' => $product->sell_price,
-                'buy_price' => $product->buy_price, 
+                'buy_price' => $product->buy_price,
                 'quantity' => 1,
                 'image' => $product->image_path,
                 'max_stock' => $product->stock_quantity,
                 'subtotal' => $product->sell_price,
-                'warranty_period' => $product->warranty_period ?? 0, 
-                'serial_numbers' => [''] 
+                'warranty_period' => $product->warranty_period ?? 0,
+                'serial_numbers' => [''],
             ];
         }
     }
@@ -170,15 +182,17 @@ class Create extends Component
     public function removeFromCart($index)
     {
         unset($this->cart[$index]);
-        $this->cart = array_values($this->cart); 
+        $this->cart = array_values($this->cart);
     }
 
     public function updateQty($index, $qty)
     {
-        if (!isset($this->cart[$index])) return;
+        if (! isset($this->cart[$index])) {
+            return;
+        }
 
         $newQty = max(1, intval($qty));
-        
+
         if ($this->type === 'out' && $newQty > $this->cart[$index]['max_stock']) {
             $this->dispatch('notify', message: 'Stok tidak mencukupi!', type: 'error');
             $newQty = $this->cart[$index]['max_stock'];
@@ -197,7 +211,7 @@ class Create extends Component
         }
         $this->cart[$index]['serial_numbers'] = $currentSNs;
     }
-    
+
     public function updateSerial($index, $snIndex, $value)
     {
         $this->cart[$index]['serial_numbers'][$snIndex] = $value;
@@ -214,12 +228,13 @@ class Create extends Component
         if ($this->usePoints && $this->customerPoints > 0) {
             return min($this->customerPoints, $this->subtotal);
         }
+
         return 0;
     }
 
     public function getTaxProperty()
     {
-        return 0; 
+        return 0;
     }
 
     public function getTotalProperty()
@@ -232,6 +247,7 @@ class Create extends Component
     {
         if (empty($this->cart)) {
             $this->dispatch('notify', message: 'Keranjang kosong!', type: 'error');
+
             return;
         }
 
@@ -244,15 +260,17 @@ class Create extends Component
             ->where('status', 'open')
             ->first();
 
-        if (!$activeRegister && $this->type === 'out') {
+        if (! $activeRegister && $this->type === 'out') {
             $this->dispatch('notify', message: 'Shift Kasir belum dibuka!', type: 'error');
+
             return redirect()->route('shift.open');
         }
 
         if ($this->usePoints && $this->customerPoints > 0) {
             $customer = Customer::where('phone', $this->customer_phone)->first();
-            if (!$customer || $customer->points < $this->discount) {
+            if (! $customer || $customer->points < $this->discount) {
                 $this->addError('customer_phone', 'Saldo poin tidak valid atau berubah.');
+
                 return;
             }
         }
@@ -266,12 +284,12 @@ class Create extends Component
                 }
 
                 $order = Order::create([
-                    'user_id' => Auth::id(), 
+                    'user_id' => Auth::id(),
                     'cash_register_id' => $activeRegister->id,
-                    'guest_name' => $this->customer_phone ? 'Member ' . $this->customer_phone : 'Guest',
+                    'guest_name' => $this->customer_phone ? 'Member '.$this->customer_phone : 'Guest',
                     'guest_whatsapp' => $this->customer_phone,
                     'order_number' => $this->reference_number,
-                    'total_amount' => $this->total, 
+                    'total_amount' => $this->total,
                     'status' => 'completed',
                     'payment_status' => 'paid',
                     'payment_method' => 'cash',
@@ -286,14 +304,16 @@ class Create extends Component
 
             foreach ($this->cart as $item) {
                 $product = Product::lockForUpdate()->find($item['product_id']);
-                if (!$product) continue;
+                if (! $product) {
+                    continue;
+                }
 
                 $quantitySold = $item['quantity'];
 
                 // --- COMPLEX BUNDLE LOGIC ---
                 if ($product->is_bundle) {
                     $components = ProductBundle::where('parent_product_id', $product->id)->get();
-                    
+
                     if ($components->isEmpty()) {
                         $this->processStockDeduction($product, $quantitySold, $activeRegister, $order);
                     } else {
@@ -311,12 +331,12 @@ class Create extends Component
 
                 // Prepare Serial Numbers (Clean empty ones)
                 $snList = array_filter($item['serial_numbers'] ?? []);
-                $snString = !empty($snList) ? implode(',', $snList) : null;
+                $snString = ! empty($snList) ? implode(',', $snList) : null;
 
                 // Create Order Item
                 if ($order) {
                     $warrantyEnds = null;
-                    if (!empty($item['warranty_period']) && $item['warranty_period'] > 0) {
+                    if (! empty($item['warranty_period']) && $item['warranty_period'] > 0) {
                         $warrantyEnds = Carbon::now()->addMonths($item['warranty_period']);
                     }
 
@@ -326,16 +346,16 @@ class Create extends Component
                         'quantity' => $item['quantity'],
                         'price' => $item['price'],
                         'serial_numbers' => $snString,
-                        'warranty_ends_at' => $warrantyEnds
+                        'warranty_ends_at' => $warrantyEnds,
                     ]);
                 }
 
                 if ($this->type === 'out' && $this->customer_phone) {
                     $customer = Customer::firstOrCreate(
                         ['phone' => $this->customer_phone],
-                        ['name' => 'Member ' . $this->customer_phone, 'email' => $this->customer_phone.'@member.com']
+                        ['name' => 'Member '.$this->customer_phone, 'email' => $this->customer_phone.'@member.com']
                     );
-                    
+
                     $pointsEarned = floor($item['subtotal'] / 100000);
                     if ($pointsEarned > 0) {
                         $customer->increment('points', $pointsEarned);
@@ -344,7 +364,7 @@ class Create extends Component
             }
 
             if ($order && Auth::check()) {
-                $percent = Setting::get('commission_sales_percent', 1); 
+                $percent = Setting::get('commission_sales_percent', 1);
                 $commissionAmount = $order->total_amount * ($percent / 100);
 
                 if ($commissionAmount > 0) {
@@ -354,17 +374,17 @@ class Create extends Component
                         'description' => "Komisi Penjualan #{$order->order_number} ({$percent}%)",
                         'source_type' => Order::class,
                         'source_id' => $order->id,
-                        'is_paid' => false
+                        'is_paid' => false,
                     ]);
                 }
             }
         });
 
         $this->cart = [];
-        $this->reference_number = 'TRX-' . strtoupper(uniqid());
+        $this->reference_number = 'TRX-'.strtoupper(uniqid());
         $this->customer_phone = '';
         $this->notes = '';
-        
+
         $this->dispatch('notify', message: 'Transaksi berhasil disimpan!');
     }
 
@@ -380,7 +400,7 @@ class Create extends Component
         } else {
             $newStock -= $qty;
         }
-        
+
         $product->update(['stock_quantity' => $newStock]);
 
         InventoryTransaction::create([
@@ -388,11 +408,11 @@ class Create extends Component
             'user_id' => Auth::id() ?? 1,
             'type' => $this->type,
             'quantity' => $qty,
-            'unit_price' => $product->sell_price, 
-            'cogs' => $product->buy_price,        
+            'unit_price' => $product->sell_price,
+            'cogs' => $product->buy_price,
             'remaining_stock' => $newStock,
             'reference_number' => $this->reference_number,
-            'notes' => trim($notePrefix . ' ' . $this->notes),
+            'notes' => trim($notePrefix.' '.$this->notes),
         ]);
     }
 
@@ -400,17 +420,17 @@ class Create extends Component
     {
         $productsQuery = Product::query()
             ->where('is_active', true)
-            ->when($this->search, function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('sku', 'like', '%' . $this->search . '%');
+            ->when($this->search, function ($q) {
+                $q->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhere('sku', 'like', '%'.$this->search.'%');
             })
-            ->when($this->category, function($q) {
+            ->when($this->category, function ($q) {
                 $q->where('category_id', $this->category);
             });
 
         return view('livewire.transactions.create', [
             'products' => $productsQuery->paginate(12),
-            'categories' => \App\Models\Category::all()
+            'categories' => \App\Models\Category::all(),
         ]);
     }
 }

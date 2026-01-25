@@ -4,30 +4,37 @@ namespace App\Livewire\Marketing\FlashSale;
 
 use App\Models\FlashSale;
 use App\Models\Product;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Tambah Flash Sale - Yala Computer')]
 class Form extends Component
 {
     public $product_id;
+
     public $discount_price;
+
     public $start_time;
+
     public $end_time;
+
     public $quota = 10;
 
     // Search
     public $searchProduct = '';
+
     public $searchResults = [];
+
     public $selectedProductName = '';
+
     public $originalPrice = 0;
 
     public function updatedSearchProduct()
     {
         if (strlen($this->searchProduct) > 2) {
-            $this->searchResults = Product::where('name', 'like', '%' . $this->searchProduct . '%')
+            $this->searchResults = Product::where('name', 'like', '%'.$this->searchProduct.'%')
                 ->where('is_active', true)
                 ->take(5)->get();
         } else {
@@ -65,6 +72,7 @@ class Form extends Component
         ]);
 
         $this->dispatch('notify', message: 'Flash sale berhasil dibuat!', type: 'success');
+
         return redirect()->route('marketing.flash-sale.index');
     }
 

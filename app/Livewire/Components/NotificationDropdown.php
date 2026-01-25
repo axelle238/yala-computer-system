@@ -8,12 +8,13 @@ use Livewire\Component;
 class NotificationDropdown extends Component
 {
     public $unreadCount = 0;
+
     public $notifications = [];
 
     public function getListeners()
     {
         return [
-            'echo-private:App.Models.User.' . Auth::id() . ',.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated' => 'refreshNotifications',
+            'echo-private:App.Models.User.'.Auth::id().',.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated' => 'refreshNotifications',
             'refreshNotifications' => '$refresh',
         ];
     }

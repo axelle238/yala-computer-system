@@ -2,24 +2,26 @@
 
 namespace App\Livewire\CRM;
 
-use App\Models\User;
 use App\Models\PointHistory;
-use Livewire\Component;
-use Livewire\Attributes\Title;
+use App\Models\User;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Profil Pelanggan - CRM 360')]
 class CustomerDetail extends Component
 {
     public $customer;
+
     public $activeTab = 'overview'; // overview, orders, services, rma, points
-    
+
     // Edit Profile
     public $notes;
 
     // Manual Point Adjustment
     public $pointAdjustment = 0;
+
     public $pointReason = '';
 
     public function mount($id)
@@ -42,9 +44,10 @@ class CustomerDetail extends Component
         ]);
 
         $newBalance = $this->customer->loyalty_points + $this->pointAdjustment;
-        
+
         if ($newBalance < 0) {
             $this->addError('pointAdjustment', 'Poin tidak boleh minus.');
+
             return;
         }
 
@@ -57,7 +60,7 @@ class CustomerDetail extends Component
             'user_id' => $this->customer->id,
             'amount' => $this->pointAdjustment,
             'type' => 'adjustment',
-            'description' => 'Manual Adjustment: ' . $this->pointReason,
+            'description' => 'Manual Adjustment: '.$this->pointReason,
         ]);
 
         // 3. Check Tier Upgrade (Simple Logic)
@@ -72,11 +75,15 @@ class CustomerDetail extends Component
         // Simple logic based on TOTAL SPENT, not points balance usually
         // But let's check points for now or skip complex logic
         $spent = $this->customer->total_spent;
-        
+
         $newTier = 'bronze';
-        if ($spent >= 50000000) $newTier = 'platinum';
-        elseif ($spent >= 20000000) $newTier = 'gold';
-        elseif ($spent >= 5000000) $newTier = 'silver';
+        if ($spent >= 50000000) {
+            $newTier = 'platinum';
+        } elseif ($spent >= 20000000) {
+            $newTier = 'gold';
+        } elseif ($spent >= 5000000) {
+            $newTier = 'silver';
+        }
 
         if ($newTier !== $this->customer->loyalty_tier) {
             $this->customer->update(['loyalty_tier' => $newTier]);

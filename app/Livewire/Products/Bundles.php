@@ -5,40 +5,47 @@ namespace App\Livewire\Products;
 use App\Models\Product;
 use App\Models\ProductBundle;
 use App\Models\ProductBundleItem;
+use Illuminate\Support\Str;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
-use Illuminate\Support\Str;
 
 #[Layout('layouts.admin')]
 #[Title('Kelola Bundle Produk - Yala Computer')]
 class Bundles extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithFileUploads, WithPagination;
 
     public $viewMode = 'list'; // list, create, edit
+
     public $search = '';
 
     // Form
     public $bundleId;
+
     public $name;
+
     public $description;
+
     public $price;
+
     public $image;
+
     public $isActive = true;
-    
+
     public $bundleItems = []; // [['product_id', 'qty']]
-    
+
     // Search Product for Bundle
     public $searchProduct = '';
+
     public $searchResults = [];
 
     public function updatedSearchProduct()
     {
         if (strlen($this->searchProduct) > 2) {
-            $this->searchResults = Product::where('name', 'like', '%' . $this->searchProduct . '%')->take(5)->get();
+            $this->searchResults = Product::where('name', 'like', '%'.$this->searchProduct.'%')->take(5)->get();
         }
     }
 
@@ -50,7 +57,7 @@ class Bundles extends Component
                 'product_id' => $product->id,
                 'name' => $product->name,
                 'qty' => 1,
-                'price' => $product->sell_price
+                'price' => $product->sell_price,
             ];
         }
         $this->searchProduct = '';
@@ -68,7 +75,7 @@ class Bundles extends Component
         $this->validate([
             'name' => 'required',
             'price' => 'required|numeric',
-            'bundleItems' => 'required|array|min:1'
+            'bundleItems' => 'required|array|min:1',
         ]);
 
         $data = [
@@ -95,7 +102,7 @@ class Bundles extends Component
             ProductBundleItem::create([
                 'product_bundle_id' => $bundle->id,
                 'product_id' => $item['product_id'],
-                'quantity' => $item['qty']
+                'quantity' => $item['qty'],
             ]);
         }
 
@@ -111,17 +118,17 @@ class Bundles extends Component
         $this->description = $bundle->description;
         $this->price = $bundle->price;
         $this->isActive = $bundle->is_active;
-        
+
         $this->bundleItems = [];
         foreach ($bundle->items as $item) {
             $this->bundleItems[] = [
                 'product_id' => $item->product_id,
                 'name' => $item->product->name,
                 'qty' => $item->quantity,
-                'price' => $item->product->sell_price
+                'price' => $item->product->sell_price,
             ];
         }
-        
+
         $this->viewMode = 'edit';
     }
 
@@ -134,12 +141,12 @@ class Bundles extends Component
     public function render()
     {
         $bundles = ProductBundle::withCount('items')
-            ->where('name', 'like', '%' . $this->search . '%')
+            ->where('name', 'like', '%'.$this->search.'%')
             ->latest()
             ->paginate(10);
 
         return view('livewire.products.bundles', [
-            'bundles' => $bundles
+            'bundles' => $bundles,
         ]);
     }
 }

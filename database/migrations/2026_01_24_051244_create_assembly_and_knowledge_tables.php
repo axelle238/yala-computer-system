@@ -13,14 +13,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('technician_id')->nullable()->constrained('users')->onDelete('set null');
-            
+
             $table->string('build_name')->nullable(); // e.g. "Gaming Beast RTX 4090"
             $table->enum('status', ['queued', 'picking', 'building', 'testing', 'completed', 'cancelled'])->default('queued');
-            
+
             $table->text('specs_snapshot')->nullable(); // JSON summary of parts
             $table->text('technician_notes')->nullable();
             $table->string('benchmark_score')->nullable(); // e.g. "Cinebench: 15000"
-            
+
             $table->timestamp('started_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();

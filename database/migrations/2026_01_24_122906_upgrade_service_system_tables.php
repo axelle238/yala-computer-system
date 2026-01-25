@@ -20,13 +20,13 @@ return new class extends Migration
 
         // 2. Add columns to Service Items (Inventory & Warranty)
         Schema::table('service_items', function (Blueprint $table) {
-            if (!Schema::hasColumn('service_items', 'is_stock_deducted')) {
+            if (! Schema::hasColumn('service_items', 'is_stock_deducted')) {
                 $table->boolean('is_stock_deducted')->default(false)->after('note');
             }
-            if (!Schema::hasColumn('service_items', 'serial_number')) {
+            if (! Schema::hasColumn('service_items', 'serial_number')) {
                 $table->string('serial_number')->nullable()->after('is_stock_deducted');
             }
-            if (!Schema::hasColumn('service_items', 'warranty_duration')) {
+            if (! Schema::hasColumn('service_items', 'warranty_duration')) {
                 $table->integer('warranty_duration')->nullable()->comment('In Months')->after('serial_number');
             }
         });
@@ -35,7 +35,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('service_histories');
-        
+
         Schema::table('service_items', function (Blueprint $table) {
             $table->dropColumn(['is_stock_deducted', 'serial_number', 'warranty_duration']);
         });

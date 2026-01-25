@@ -4,19 +4,20 @@ namespace App\Livewire\Store;
 
 use App\Models\Product;
 use Illuminate\Support\Facades\Session;
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class MiniCart extends Component
 {
     public $cart = [];
+
     public $isOpen = false;
 
     #[On('cart-updated')]
     public function updateCart()
     {
         $this->cart = Session::get('cart', []);
-        
+
         // Auto open if items added
         // $this->isOpen = true; // Optional: maybe annoying
     }
@@ -24,7 +25,7 @@ class MiniCart extends Component
     #[On('toggle-mini-cart')]
     public function toggle()
     {
-        $this->isOpen = !$this->isOpen;
+        $this->isOpen = ! $this->isOpen;
         if ($this->isOpen) {
             $this->updateCart();
         }
@@ -36,16 +37,18 @@ class MiniCart extends Component
         $this->cart = Session::get('cart', []);
         $product = Product::find($productId);
 
-        if (!$product || $product->stock_quantity < 1) {
+        if (! $product || $product->stock_quantity < 1) {
             $this->dispatch('notify', message: 'Stok barang habis!', type: 'error');
+
             return;
         }
 
         if (isset($this->cart[$productId])) {
             $newQty = $this->cart[$productId] + $qty;
             if ($newQty > $product->stock_quantity) {
-                 $this->dispatch('notify', message: 'Stok tidak mencukupi!', type: 'error');
-                 return;
+                $this->dispatch('notify', message: 'Stok tidak mencukupi!', type: 'error');
+
+                return;
             }
             $this->cart[$productId] = $newQty;
         } else {
@@ -66,8 +69,10 @@ class MiniCart extends Component
 
     public function updateQty($id, $change)
     {
-        if (!isset($this->cart[$id])) return;
-        
+        if (! isset($this->cart[$id])) {
+            return;
+        }
+
         $newQty = $this->cart[$id] + $change;
         $product = Product::find($id);
 
@@ -84,12 +89,13 @@ class MiniCart extends Component
         $products = [];
         $total = 0;
 
-        if (!empty($this->cart)) {
-            $products = Product::whereIn('id', array_keys($this->cart))->get()->map(function($p) {
+        if (! empty($this->cart)) {
+            $products = Product::whereIn('id', array_keys($this->cart))->get()->map(function ($p) {
                 $p->cart_qty = $this->cart[$p->id];
+
                 return $p;
             });
-            
+
             foreach ($products as $p) {
                 $total += $p->sell_price * $p->cart_qty;
             }
@@ -98,7 +104,7 @@ class MiniCart extends Component
         return view('livewire.store.mini-cart', [
             'products' => $products,
             'total' => $total,
-            'count' => count($this->cart)
+            'count' => count($this->cart),
         ]);
     }
 }

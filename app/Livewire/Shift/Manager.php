@@ -2,28 +2,33 @@
 
 namespace App\Livewire\Shift;
 
-use App\Models\User;
+use App\Models\EmployeeShift;
 use App\Models\Shift; // Asumsi: id, name, start_time, end_time, color
-use App\Models\EmployeeShift; // Asumsi: user_id, shift_id, date
+use App\Models\User; // Asumsi: user_id, shift_id, date
 use Carbon\Carbon;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Manajemen Jadwal Shift')]
 class Manager extends Component
 {
     public $startDate; // Senin minggu ini
+
     public $weekDates = [];
+
     public $employees = [];
+
     public $shifts = [];
-    
+
     // View State
     public $activeAction = null; // null, 'edit'
 
     public $selectedUserId;
+
     public $selectedDate;
+
     public $selectedShiftId;
 
     public function mount()
@@ -67,12 +72,13 @@ class Manager extends Component
             ->get()
             ->map(function ($user) {
                 // Mocking shift data attachment. In real app, use relation: $user->shifts
-                $user->roster = []; 
-                foreach($this->weekDates as $date) {
+                $user->roster = [];
+                foreach ($this->weekDates as $date) {
                     $dateStr = $date->format('Y-m-d');
                     // Randomize mock data for demo visual
                     $user->roster[$dateStr] = session()->get("roster_{$user->id}_{$dateStr}", 4); // Default OFF
                 }
+
                 return $user;
             });
     }
@@ -94,7 +100,7 @@ class Manager extends Component
     {
         // In real app: EmployeeShift::updateOrCreate(...)
         session()->put("roster_{$this->selectedUserId}_{$this->selectedDate}", $this->selectedShiftId);
-        
+
         $this->closePanel();
         $this->loadData(); // Refresh UI
         $this->dispatch('notify', message: 'Jadwal berhasil diperbarui.', type: 'success');

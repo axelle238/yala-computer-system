@@ -6,16 +6,16 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Rma;
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 uses(DatabaseTransactions::class);
 
 it('halaman rma request bisa diakses oleh member', function () {
     $user = User::factory()->create();
-    
+
     $this->actingAs($user)
         ->get(route('member.rma.request'))
         ->assertStatus(200)
@@ -24,10 +24,10 @@ it('halaman rma request bisa diakses oleh member', function () {
 
 it('bisa membuat permintaan rma dengan upload bukti', function () {
     Storage::fake('public');
-    
+
     $user = User::factory()->create();
     $product = Product::factory()->create();
-    
+
     // Create eligible order (completed, < 1 year)
     $order = Order::create([
         'user_id' => $user->id,
@@ -50,9 +50,9 @@ it('bisa membuat permintaan rma dengan upload bukti', function () {
     Livewire::actingAs($user)
         ->test(RmaRequest::class)
         ->set('selectedOrderId', $order->id)
-        ->set('selectedItems.' . $orderItem->id . '.selected', true)
-        ->set('selectedItems.' . $orderItem->id . '.reason', 'Mati Total')
-        ->set('selectedItems.' . $orderItem->id . '.condition', 'Lengkap')
+        ->set('selectedItems.'.$orderItem->id.'.selected', true)
+        ->set('selectedItems.'.$orderItem->id.'.reason', 'Mati Total')
+        ->set('selectedItems.'.$orderItem->id.'.condition', 'Lengkap')
         ->set('description', 'Tiba-tiba tidak menyala saat dinyalakan.')
         ->set('evidencePhotos', [$file])
         ->call('submitRequest')
@@ -79,7 +79,7 @@ it('bisa membuat permintaan rma dengan upload bukti', function () {
     expect($rmaItem->evidence_files)->not->toBeNull();
     $files = json_decode($rmaItem->evidence_files);
     expect(count($files))->toBe(1);
-    
+
     // Assert Storage
     Storage::disk('public')->assertExists($files[0]);
 });

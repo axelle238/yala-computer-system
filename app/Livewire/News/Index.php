@@ -3,13 +3,10 @@
 namespace App\Livewire\News;
 
 use App\Models\Article;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Livewire\Component;
-use Livewire\WithPagination;
-use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Manajemen Berita & Artikel')]

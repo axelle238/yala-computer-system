@@ -3,28 +3,32 @@
 namespace App\Livewire\Products;
 
 use App\Models\Product;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Cetak Label Produk')]
 class LabelMaker extends Component
 {
     public $search = '';
+
     public $searchResults = [];
+
     public $selectedProducts = []; // [[id, name, price, qty]]
-    
+
     // Print Settings
     public $paperSize = 'a4'; // a4, thermal
+
     public $showPrice = true;
+
     public $showBarcode = true;
 
     public function updatedSearch()
     {
         if (strlen($this->search) > 2) {
-            $this->searchResults = Product::where('name', 'like', '%' . $this->search . '%')
-                ->orWhere('sku', 'like', '%' . $this->search . '%')
+            $this->searchResults = Product::where('name', 'like', '%'.$this->search.'%')
+                ->orWhere('sku', 'like', '%'.$this->search.'%')
                 ->take(5)->get();
         } else {
             $this->searchResults = [];
@@ -41,7 +45,7 @@ class LabelMaker extends Component
                 'sku' => $product->sku,
                 'price' => $product->sell_price,
                 'barcode' => $product->barcode ?? $product->sku,
-                'qty' => 1
+                'qty' => 1,
             ];
         }
         $this->search = '';
@@ -58,6 +62,7 @@ class LabelMaker extends Component
     {
         if (empty($this->selectedProducts)) {
             $this->dispatch('notify', message: 'Pilih produk terlebih dahulu.', type: 'error');
+
             return;
         }
 
@@ -67,8 +72,8 @@ class LabelMaker extends Component
             'settings' => [
                 'size' => $this->paperSize,
                 'price' => $this->showPrice,
-                'barcode' => $this->showBarcode
-            ]
+                'barcode' => $this->showBarcode,
+            ],
         ]);
 
         return redirect()->route('print.labels.preview');

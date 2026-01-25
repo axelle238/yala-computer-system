@@ -48,11 +48,11 @@ return new class extends Migration
     {
         Schema::dropIfExists('purchase_requisition_items');
         Schema::dropIfExists('purchase_requisitions');
-        
+
         Schema::table('products', function (Blueprint $table) {
             $table->dropColumn('is_bundle');
         });
-        
+
         Schema::dropIfExists('product_bundles');
     }
 };

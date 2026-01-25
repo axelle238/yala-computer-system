@@ -2,20 +2,21 @@
 
 namespace App\Livewire\System;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Database & Backup Manager')]
 class DatabaseManager extends Component
 {
     public $tables = [];
+
     public $totalSize = 0;
+
     public $backups = [];
 
     public function mount()
@@ -31,12 +32,12 @@ class DatabaseManager extends Component
         try {
             $dbName = config('database.connections.mysql.database');
             $tablesData = DB::select('SELECT table_name AS name, table_rows AS "rows", round(((data_length + index_length) / 1024 / 1024), 2) "size_mb" FROM information_schema.TABLES WHERE table_schema = ?', [$dbName]);
-            
-            $this->tables = collect($tablesData)->map(function($t) {
+
+            $this->tables = collect($tablesData)->map(function ($t) {
                 return [
                     'name' => $t->name,
                     'rows' => $t->rows ?? 0,
-                    'size' => $t->size_mb ?? 0
+                    'size' => $t->size_mb ?? 0,
                 ];
             })->sortByDesc('size_mb')->values()->all();
 
@@ -58,13 +59,13 @@ class DatabaseManager extends Component
 
     public function createBackup()
     {
-        // Artisan::call('backup:run --only-db'); 
+        // Artisan::call('backup:run --only-db');
         sleep(2); // Simulate heavy process
-        
+
         array_unshift($this->backups, [
-            'name' => 'db-backup-' . date('Y-m-d-H-i') . '.sql.gz',
-            'size' => number_format($this->totalSize / 3, 2) . ' MB', // Compressed est
-            'date' => now()
+            'name' => 'db-backup-'.date('Y-m-d-H-i').'.sql.gz',
+            'size' => number_format($this->totalSize / 3, 2).' MB', // Compressed est
+            'date' => now(),
         ]);
 
         $this->dispatch('notify', message: 'Database berhasil di-backup!', type: 'success');
@@ -79,7 +80,7 @@ class DatabaseManager extends Component
 
     public function download($name)
     {
-        $this->dispatch('notify', message: 'Mengunduh ' . $name, type: 'info');
+        $this->dispatch('notify', message: 'Mengunduh '.$name, type: 'info');
     }
 
     public function delete($index)

@@ -21,7 +21,7 @@ return new class extends Migration
         });
 
         // Add missing column to service_tickets if not exists (defensive)
-        if (!Schema::hasColumn('service_tickets', 'estimated_completion')) {
+        if (! Schema::hasColumn('service_tickets', 'estimated_completion')) {
             Schema::table('service_tickets', function (Blueprint $table) {
                 $table->dateTime('estimated_completion')->nullable()->after('status');
             });
@@ -31,7 +31,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('service_items');
-        
+
         if (Schema::hasColumn('service_tickets', 'estimated_completion')) {
             Schema::table('service_tickets', function (Blueprint $table) {
                 $table->dropColumn('estimated_completion');

@@ -6,24 +6,26 @@ use App\Models\Product;
 use App\Models\PurchaseRequisition;
 use App\Models\PurchaseRequisitionItem;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Buat Pengajuan (PR) - Yala Computer')]
 class Create extends Component
 {
     public $pr_number;
+
     public $required_date;
+
     public $notes;
-    
+
     // Items
     public $items = []; // [['product_id' => '', 'qty' => 1, 'notes' => '']]
 
     public function mount()
     {
-        $this->pr_number = 'PR-' . date('Ymd') . '-' . strtoupper(Str::random(4));
+        $this->pr_number = 'PR-'.date('Ymd').'-'.strtoupper(Str::random(4));
         $this->required_date = date('Y-m-d', strtotime('+3 days')); // Default +3 days
         $this->items[] = ['product_id' => '', 'qty' => 1, 'notes' => ''];
     }
@@ -65,6 +67,7 @@ class Create extends Component
         }
 
         session()->flash('success', 'Pengajuan (PR) berhasil dibuat.');
+
         return redirect()->route('purchase-requisitions.index');
     }
 

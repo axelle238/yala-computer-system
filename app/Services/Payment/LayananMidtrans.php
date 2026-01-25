@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 
 /**
  * Class LayananMidtrans
- * 
+ *
  * Menangani integrasi dengan gerbang pembayaran Midtrans.
  */
 class LayananMidtrans
@@ -32,17 +32,18 @@ class LayananMidtrans
         // Prioritaskan Pengaturan Basis Data, Cadangan ke .env
         $this->kunciServer = Setting::get('midtrans_server_key') ?: config('services.midtrans.server_key');
         $this->isProduksi = (bool) Setting::get('midtrans_is_production', config('services.midtrans.is_production', false));
-        
-        $this->urlApi = $this->isProduksi 
-            ? 'https://app.midtrans.com/snap/v1/transactions' 
+
+        $this->urlApi = $this->isProduksi
+            ? 'https://app.midtrans.com/snap/v1/transactions'
             : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
     }
 
     /**
      * Mendapatkan Token Snap Midtrans untuk transaksi pesanan.
-     * 
-     * @param object $pesanan
+     *
+     * @param  object  $pesanan
      * @return array
+     *
      * @throws \Exception
      */
     public function ambilTokenSnap($pesanan)
@@ -54,7 +55,7 @@ class LayananMidtrans
         // Konstruksi Data Transaksi
         $parameter = [
             'transaction_details' => [
-                'order_id' => $pesanan->order_number . '-' . rand(100,999), // ID Unik per percobaan
+                'order_id' => $pesanan->order_number.'-'.rand(100, 999), // ID Unik per percobaan
                 'gross_amount' => (int) $pesanan->total_amount,
             ],
             'customer_details' => [
@@ -75,6 +76,6 @@ class LayananMidtrans
             return $respon->json(); // Mengembalikan ['token' => '...', 'redirect_url' => '...']
         }
 
-        throw new \Exception('Kesalahan Midtrans: ' . $respon->body());
+        throw new \Exception('Kesalahan Midtrans: '.$respon->body());
     }
 }

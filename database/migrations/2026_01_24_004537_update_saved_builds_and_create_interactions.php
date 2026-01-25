@@ -38,7 +38,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('build_comments');
         Schema::dropIfExists('build_likes');
-        
+
         Schema::table('saved_builds', function (Blueprint $table) {
             $table->dropColumn(['is_public', 'likes_count', 'views_count']);
         });

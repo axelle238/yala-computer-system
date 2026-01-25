@@ -2,12 +2,10 @@
 
 namespace App\Livewire\System;
 
-use App\Models\User;
-use App\Models\Order;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('System Health Check')]
@@ -26,7 +24,7 @@ class Health extends Component
         try {
             DB::connection()->getPdo();
             $dbStatus = 'Connected';
-            $dbLatency = rand(1, 10) . 'ms';
+            $dbLatency = rand(1, 10).'ms';
             $dbColor = 'text-emerald-500';
         } catch (\Exception $e) {
             $dbStatus = 'Error';
@@ -35,8 +33,8 @@ class Health extends Component
         }
 
         // Disk Space (Simulated for shared hosting env)
-        $diskFree = '45 GB'; 
-        $diskUsed = '15 GB'; 
+        $diskFree = '45 GB';
+        $diskUsed = '15 GB';
         $diskPercent = 25;
 
         // Cache Status
@@ -49,8 +47,8 @@ class Health extends Component
                 'php' => phpversion(),
                 'laravel' => app()->version(),
                 'server' => $_SERVER['SERVER_SOFTWARE'] ?? 'Nginx/Apache',
-                'load' => rand(10, 40) . '%' // Simulated Load
-            ]
+                'load' => rand(10, 40).'%', // Simulated Load
+            ],
         ];
     }
 

@@ -3,10 +3,10 @@
 namespace App\Livewire\PurchaseRequisitions;
 
 use App\Models\PurchaseRequisition;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.app')]
 #[Title('Purchase Requisitions - Yala Computer')]
@@ -24,9 +24,9 @@ class Index extends Component
         $myRequestsCount = PurchaseRequisition::where('requested_by', auth()->id())->count();
 
         $requisitions = PurchaseRequisition::with('requester')
-            ->where('pr_number', 'like', '%' . $this->search . '%')
-            ->orWhereHas('requester', function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%');
+            ->where('pr_number', 'like', '%'.$this->search.'%')
+            ->orWhereHas('requester', function ($q) {
+                $q->where('name', 'like', '%'.$this->search.'%');
             })
             ->latest()
             ->paginate(10);

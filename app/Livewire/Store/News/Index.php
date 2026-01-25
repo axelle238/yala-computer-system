@@ -3,10 +3,10 @@
 namespace App\Livewire\Store\News;
 
 use App\Models\Article;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.store')]
 #[Title('Berita & Artikel - Yala Computer')]
@@ -25,7 +25,7 @@ class Index extends Component
     public function render()
     {
         $articles = Article::where('is_published', true)
-            ->when($this->category, fn($q) => $q->where('category', $this->category))
+            ->when($this->category, fn ($q) => $q->where('category', $this->category))
             ->latest('published_at')
             ->paginate(9);
 
@@ -33,7 +33,7 @@ class Index extends Component
 
         return view('livewire.store.news.index', [
             'articles' => $articles,
-            'featured' => $featured
+            'featured' => $featured,
         ]);
     }
 }

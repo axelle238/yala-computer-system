@@ -27,7 +27,7 @@ class ContactReplyMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Re: ' . $this->originalSubject . ' - Yala Computer',
+            subject: 'Re: '.$this->originalSubject.' - Yala Computer',
         );
     }
 

@@ -4,9 +4,9 @@ namespace App\Livewire\System;
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('System Backups')]
@@ -35,17 +35,17 @@ class Backups extends Component
         // Artisan::call('backup:run'); // Real command
         sleep(2); // Simulate process
         $this->dispatch('notify', message: 'Backup berhasil dibuat (Simulasi).', type: 'success');
-        
+
         array_unshift($this->backups, [
-            'name' => 'backup-' . date('Y-m-d-H-i-s') . '.zip',
+            'name' => 'backup-'.date('Y-m-d-H-i-s').'.zip',
             'size' => '12.6 MB',
-            'date' => now()
+            'date' => now(),
         ]);
     }
 
     public function download($name)
     {
-        $this->dispatch('notify', message: 'Mengunduh ' . $name . '...', type: 'info');
+        $this->dispatch('notify', message: 'Mengunduh '.$name.'...', type: 'info');
     }
 
     public function delete($index)

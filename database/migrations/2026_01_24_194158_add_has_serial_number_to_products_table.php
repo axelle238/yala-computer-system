@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            if (!Schema::hasColumn('products', 'has_serial_number')) {
+            if (! Schema::hasColumn('products', 'has_serial_number')) {
                 $table->boolean('has_serial_number')->default(false)->after('sku')->comment('Wajib input SN saat Goods Receive');
             }
         });

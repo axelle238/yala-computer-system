@@ -8,9 +8,9 @@ use App\Models\Quotation;
 use App\Models\QuotationItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Buat Penawaran Harga - Yala Computer')]
@@ -18,8 +18,11 @@ class Create extends Component
 {
     // Header Data
     public $customer_id;
+
     public $valid_until;
+
     public $notes;
+
     public $terms;
 
     // Items Data
@@ -27,6 +30,7 @@ class Create extends Component
 
     // Search Logic
     public $searchProduct = '';
+
     public $searchResults = [];
 
     public function mount()
@@ -43,7 +47,7 @@ class Create extends Component
             'product_name' => '',
             'qty' => 1,
             'price' => 0,
-            'subtotal' => 0
+            'subtotal' => 0,
         ];
     }
 
@@ -98,7 +102,7 @@ class Create extends Component
             $total = array_sum(array_column($this->items, 'subtotal'));
 
             $quotation = Quotation::create([
-                'quotation_number' => 'Q-' . date('Ymd') . '-' . rand(100, 999),
+                'quotation_number' => 'Q-'.date('Ymd').'-'.rand(100, 999),
                 'customer_id' => $this->customer_id,
                 'user_id' => Auth::id(),
                 'valid_until' => $this->valid_until,
@@ -106,7 +110,7 @@ class Create extends Component
                 'status' => 'sent', // Assume sent immediately
                 'approval_status' => 'pending',
                 'notes' => $this->notes,
-                'terms_and_conditions' => $this->terms
+                'terms_and_conditions' => $this->terms,
             ]);
 
             foreach ($this->items as $item) {
@@ -114,19 +118,20 @@ class Create extends Component
                     'quotation_id' => $quotation->id,
                     'product_id' => $item['product_id'],
                     'quantity' => $item['qty'],
-                    'price' => $item['price']
+                    'price' => $item['price'],
                 ]);
             }
         });
 
         $this->dispatch('notify', message: 'Penawaran berhasil dibuat!', type: 'success');
+
         return redirect()->route('quotations.index');
     }
 
     public function render()
     {
         return view('livewire.quotations.create', [
-            'customers' => Customer::all()
+            'customers' => Customer::all(),
         ]);
     }
 }

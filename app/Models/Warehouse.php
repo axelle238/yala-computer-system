@@ -8,15 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Class Warehouse (Gudang)
- * 
+ *
  * Model untuk mengelola lokasi penyimpanan fisik stok.
- * 
- * @package App\Models
  */
 class Warehouse extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = ['name', 'location', 'is_active'];
 
     protected $casts = [
@@ -30,7 +28,7 @@ class Warehouse extends Model
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class)
-                    ->withPivot('quantity')
-                    ->withTimestamps();
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 }

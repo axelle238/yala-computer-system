@@ -3,19 +3,20 @@
 namespace App\Livewire\Finance;
 
 use App\Models\Expense;
+use App\Models\InventoryTransaction;
 use App\Models\Order;
 use App\Models\Payroll;
-use App\Models\InventoryTransaction;
 use Carbon\Carbon;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Laporan Laba Rugi - Yala Computer')]
 class ProfitLoss extends Component
 {
     public $month;
+
     public $year;
 
     public function mount()
@@ -43,7 +44,7 @@ class ProfitLoss extends Component
         // Idealnya pakai FIFO/Average dari InventoryTransaction, tapi untuk MVP kita pakai harga beli saat ini atau history
         // Kita gunakan InventoryTransaction type 'out' (Sales) di periode ini untuk akurasi HPP historis jika ada data COGS di sana
         // Jika tidak, kita hitung manual dari Order Items * Buy Price Product saat ini (Simplifikasi)
-        
+
         $cogs = 0;
         foreach ($orders as $order) {
             foreach ($order->items as $item) {
@@ -58,7 +59,7 @@ class ProfitLoss extends Component
 
         // 3. EXPENSES (Biaya Operasional)
         $operationalExpenses = Expense::whereBetween('expense_date', [$startDate, $endDate])->sum('amount');
-        
+
         // Gaji Karyawan
         $payrollExpenses = Payroll::where('period_month', sprintf('%02d-%d', $this->month, $this->year))->sum('net_salary');
 
@@ -74,9 +75,9 @@ class ProfitLoss extends Component
             'expenses' => [
                 'operational' => $operationalExpenses,
                 'payroll' => $payrollExpenses,
-                'total' => $totalExpenses
+                'total' => $totalExpenses,
             ],
-            'netProfit' => $netProfit
+            'netProfit' => $netProfit,
         ]);
     }
 }

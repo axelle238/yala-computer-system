@@ -3,16 +3,18 @@
 namespace App\Livewire\Front;
 
 use App\Models\Order;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Lacak Pesanan - Yala Computer')]
 class TrackOrder extends Component
 {
     public $order_number = '';
+
     public $contact = ''; // Email or Phone
+
     public $order = null;
 
     public function track()
@@ -24,15 +26,15 @@ class TrackOrder extends Component
 
         $this->order = Order::with(['items.product'])
             ->where('order_number', $this->order_number)
-            ->where(function($q) {
-                $q->where('guest_whatsapp', 'like', '%' . $this->contact . '%')
-                  ->orWhereHas('user', function($u) {
-                      $u->where('email', $this->contact);
-                  });
+            ->where(function ($q) {
+                $q->where('guest_whatsapp', 'like', '%'.$this->contact.'%')
+                    ->orWhereHas('user', function ($u) {
+                        $u->where('email', $this->contact);
+                    });
             })
             ->first();
 
-        if (!$this->order) {
+        if (! $this->order) {
             $this->addError('order_number', 'Pesanan tidak ditemukan. Periksa nomor order dan kontak Anda.');
         }
     }
@@ -50,7 +52,7 @@ class TrackOrder extends Component
         }
 
         return view('livewire.front.track-order', [
-            'timeline' => $timeline
+            'timeline' => $timeline,
         ]);
     }
 }

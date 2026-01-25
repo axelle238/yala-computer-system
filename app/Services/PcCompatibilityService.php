@@ -43,7 +43,7 @@ class PcCompatibilityService
                 $r = strtolower($ramType);
                 $m = strtolower($moboRamType);
 
-                if (!str_contains($m, $r)) {
+                if (! str_contains($m, $r)) {
                     $issues[] = "RAM ({$ramType}) tidak didukung oleh Motherboard ({$moboRamType}).";
                 }
             }
@@ -55,16 +55,20 @@ class PcCompatibilityService
             $caseForms = strtolower($this->getSpec($case, 'supported_forms') ?? 'atx,m-atx,itx');
 
             // Logic: Case supports list vs Mobo single form
-            if (!str_contains($caseForms, $moboForm)) {
+            if (! str_contains($caseForms, $moboForm)) {
                 $issues[] = "Ukuran Motherboard ({$moboForm}) mungkin tidak muat di Casing.";
             }
         }
 
         // 4. Power Supply (Wattage)
         $totalWattage = 50; // System Overhead
-        if ($cpu) $totalWattage += (int) $this->getSpec($cpu, 'tdp', 65);
-        if ($gpu) $totalWattage += (int) $this->getSpec($gpu, 'tdp', 0);
-        
+        if ($cpu) {
+            $totalWattage += (int) $this->getSpec($cpu, 'tdp', 65);
+        }
+        if ($gpu) {
+            $totalWattage += (int) $this->getSpec($gpu, 'tdp', 0);
+        }
+
         $recommendedPsu = $totalWattage + 100; // Headroom
 
         if ($psu) {
@@ -84,7 +88,7 @@ class PcCompatibilityService
             'issues' => $issues,
             'warnings' => $warnings,
             'info' => $info,
-            'wattage' => $totalWattage
+            'wattage' => $totalWattage,
         ];
     }
 
@@ -99,6 +103,7 @@ class PcCompatibilityService
         if (is_array($part)) {
             return $part['specs'][$key] ?? $default;
         }
+
         // If Model (fetched fresh)
         return $part->specifications[$key] ?? $default;
     }

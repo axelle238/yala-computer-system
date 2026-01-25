@@ -12,8 +12,8 @@ class RecentlyViewed extends Component
     public function mount()
     {
         $viewedIds = session()->get('recently_viewed', []);
-        
-        if (!empty($viewedIds)) {
+
+        if (! empty($viewedIds)) {
             $this->products = Product::whereIn('id', $viewedIds)
                 ->where('is_active', true)
                 ->take(6)

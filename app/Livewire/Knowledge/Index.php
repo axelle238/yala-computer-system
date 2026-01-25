@@ -5,10 +5,10 @@ namespace App\Livewire\Knowledge;
 use App\Models\KnowledgeArticle;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.app')]
 #[Title('Pusat Pengetahuan & SOP - Yala Computer')]
@@ -17,15 +17,22 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+
     public $categoryFilter = '';
-    
+
     // Editor State
     public $isEditing = false;
+
     public $isReading = false;
+
     public $articleId;
+
     public $title;
+
     public $category;
+
     public $content;
+
     public $activeArticle;
 
     public function create()
@@ -63,7 +70,7 @@ class Index extends Component
 
         $data = [
             'title' => $this->title,
-            'slug' => Str::slug($this->title) . '-' . rand(100,999),
+            'slug' => Str::slug($this->title).'-'.rand(100, 999),
             'category' => $this->category,
             'content' => $this->content,
             'author_id' => Auth::id(),
@@ -90,16 +97,16 @@ class Index extends Component
     public function render()
     {
         $categories = KnowledgeArticle::select('category')->distinct()->pluck('category');
-        
+
         $articles = KnowledgeArticle::with('author')
-            ->when($this->search, fn($q) => $q->where('title', 'like', '%'.$this->search.'%'))
-            ->when($this->categoryFilter, fn($q) => $q->where('category', $this->categoryFilter))
+            ->when($this->search, fn ($q) => $q->where('title', 'like', '%'.$this->search.'%'))
+            ->when($this->categoryFilter, fn ($q) => $q->where('category', $this->categoryFilter))
             ->latest()
             ->paginate(12);
 
         return view('livewire.knowledge.index', [
             'articles' => $articles,
-            'categories' => $categories
+            'categories' => $categories,
         ]);
     }
 }

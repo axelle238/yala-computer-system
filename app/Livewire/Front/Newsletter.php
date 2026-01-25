@@ -18,7 +18,7 @@ class Newsletter extends Component
             ['is_active' => true]
         );
 
-        if (!$subscriber->wasRecentlyCreated && !$subscriber->is_active) {
+        if (! $subscriber->wasRecentlyCreated && ! $subscriber->is_active) {
             $subscriber->update(['is_active' => true]);
         }
 

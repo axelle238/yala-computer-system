@@ -25,15 +25,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('shipping_manifest_id')->nullable()->constrained()->onDelete('set null');
-            
+
             $table->string('tracking_number')->nullable(); // Resi
             $table->string('courier_name');
             $table->decimal('weight_kg', 8, 2)->default(1);
             $table->decimal('shipping_cost', 15, 2)->default(0);
-            
+
             $table->string('status')->default('pending'); // pending, shipped, delivered, returned
             $table->text('tracking_history')->nullable(); // JSON log of status updates
-            
+
             $table->timestamp('shipped_at')->nullable();
             $table->timestamp('delivered_at')->nullable();
             $table->timestamps();

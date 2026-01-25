@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 
 class Expense extends Model
 {
     use LogsActivity;
 
     protected $fillable = [
-        'title', 'amount', 'expense_date', 'category', 'notes', 'user_id'
+        'title', 'amount', 'expense_date', 'category', 'notes', 'user_id',
     ];
 
     protected $casts = [

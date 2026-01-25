@@ -3,16 +3,20 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Peran;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Form Peran & Hak Akses')]
 class RoleForm extends Component
 {
-    public $nama, $hak_akses = [];
+    public $nama;
+
+    public $hak_akses = [];
+
     public $peranId;
+
     public $isEdit = false;
 
     // Definisi Hak Akses yang tersedia (Grouping)
@@ -58,7 +62,7 @@ class RoleForm extends Component
             'akses_admin' => 'Akses Penuh Administrator',
             'kelola_pengaturan' => 'Ubah Pengaturan Sistem',
             'lihat_log' => 'Lihat Log Aktivitas',
-        ]
+        ],
     ];
 
     public function mount($id = null)
@@ -77,19 +81,20 @@ class RoleForm extends Component
     public function save()
     {
         $this->validate([
-            'nama' => 'required|unique:peran,nama,' . $this->peranId,
-            'hak_akses' => 'array'
+            'nama' => 'required|unique:peran,nama,'.$this->peranId,
+            'hak_akses' => 'array',
         ]);
 
         Peran::updateOrCreate(
             ['id' => $this->peranId],
             [
                 'nama' => $this->nama,
-                'hak_akses' => $this->hak_akses
+                'hak_akses' => $this->hak_akses,
             ]
         );
 
         session()->flash('success', $this->isEdit ? 'Peran berhasil diperbarui.' : 'Peran baru berhasil dibuat.');
+
         return redirect()->route('employees.roles');
     }
 

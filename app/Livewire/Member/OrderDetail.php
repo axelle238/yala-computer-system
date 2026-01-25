@@ -4,9 +4,9 @@ namespace App\Livewire\Member;
 
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Detail Pesanan - Yala Computer')]
@@ -50,7 +50,7 @@ class OrderDetail extends Component
         ];
 
         return view('livewire.member.order-detail', [
-            'linimasa' => $linimasa
+            'linimasa' => $linimasa,
         ]);
     }
 }

@@ -4,9 +4,9 @@ namespace App\Livewire\Service;
 
 use App\Models\ServiceAppointment;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Booking Service - Yala Computer')]
@@ -16,9 +16,13 @@ class Booking extends Component
 
     // Form Data
     public $device_type = 'laptop';
+
     public $problem_description;
+
     public $appointment_date;
+
     public $guest_name;
+
     public $guest_phone;
 
     public function mount()
@@ -64,11 +68,11 @@ class Booking extends Component
             'device_type' => $this->device_type,
             'problem_description' => $this->problem_description,
             'appointment_date' => $this->appointment_date,
-            'status' => 'scheduled'
+            'status' => 'scheduled',
         ]);
 
         $this->dispatch('notify', message: 'Booking berhasil! Kami akan menghubungi Anda.', type: 'success');
-        
+
         // Reset or redirect
         return redirect()->route('home');
     }

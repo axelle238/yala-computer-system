@@ -3,10 +3,10 @@
 namespace App\Livewire\Marketing\Vouchers;
 
 use App\Models\Voucher;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Manajemen Voucher & Promo')]
@@ -15,11 +15,26 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+
     public $showForm = false;
-    
+
     // Form Inputs
     public $voucherId;
-    public $code, $type = 'fixed', $amount, $min_spend = 0, $quota = 100, $start_date, $end_date;
+
+    public $code;
+
+    public $type = 'fixed';
+
+    public $amount;
+
+    public $min_spend = 0;
+
+    public $quota = 100;
+
+    public $start_date;
+
+    public $end_date;
+
     public $is_active = true;
 
     public function create()
@@ -47,7 +62,7 @@ class Index extends Component
     public function save()
     {
         $this->validate([
-            'code' => 'required|unique:vouchers,code,' . $this->voucherId,
+            'code' => 'required|unique:vouchers,code,'.$this->voucherId,
             'type' => 'required|in:fixed,percentage',
             'amount' => 'required|numeric|min:1',
             'quota' => 'required|numeric|min:1',

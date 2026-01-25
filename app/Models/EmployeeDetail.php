@@ -10,6 +10,7 @@ class EmployeeDetail extends Model
 
     protected $casts = [
         'join_date' => 'date',
+        'date_of_birth' => 'date',
         'base_salary' => 'decimal:2',
         'allowance_daily' => 'decimal:2',
         'commission_percentage' => 'decimal:2',

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             // Role: admin (Full Akses), owner (Lihat Laporan), employee (Terbatas)
             $table->enum('role', ['admin', 'owner', 'employee'])->default('employee')->after('email');
-            
+
             // Hak akses granular untuk pegawai (disimpan sebagai JSON array)
             // Contoh: ["create_transaction", "view_products"]
             $table->json('access_rights')->nullable()->after('role');

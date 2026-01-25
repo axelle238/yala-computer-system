@@ -38,21 +38,21 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->foreignId('supplier_id')->nullable()->constrained()->onDelete('set null');
-            
+
             $table->string('name');
             $table->string('slug')->unique();
             $table->string('sku')->unique()->comment('Stock Keeping Unit - Internal Code');
             $table->string('barcode')->nullable()->unique()->comment('Scannable UPC/EAN code');
-            
+
             $table->text('description')->nullable();
             $table->json('specifications')->nullable()->comment('JSON for flexible tech specs (CPU, RAM, etc.)');
-            
+
             $table->decimal('buy_price', 15, 2);
             $table->decimal('sell_price', 15, 2);
-            
+
             $table->integer('stock_quantity')->default(0);
             $table->integer('min_stock_alert')->default(5)->comment('Threshold for low stock warning');
-            
+
             $table->string('image_path')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
@@ -64,14 +64,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained(); // Who performed the action
-            
+
             $table->enum('type', ['in', 'out', 'adjustment', 'return'])->comment('Type of movement');
             $table->integer('quantity')->comment('Positive for IN, Negative for OUT usually, but handled by logic');
             $table->integer('remaining_stock')->comment('Snapshot of stock after this transaction');
-            
+
             $table->string('reference_number')->nullable()->comment('Invoice # or Order #');
             $table->text('notes')->nullable();
-            
+
             $table->timestamps();
         });
     }

@@ -6,24 +6,25 @@ use App\Models\Expense;
 use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
-use App\Models\PurchaseOrderItem;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Detail Purchase Order - Yala Computer')]
 class Show extends Component
 {
     public PurchaseOrder $po;
+
     public $receiveData = []; // ['item_id' => received_qty_input]
+
     public $activeAction = null; // null, 'receive'
 
     public function mount(PurchaseOrder $po)
     {
         $this->po = $po->load(['items.product', 'supplier', 'creator']);
-        
+
         // Init form input
         foreach ($this->po->items as $item) {
             $this->receiveData[$item->id] = 0; // Default 0 saat modal dibuka
@@ -60,6 +61,7 @@ class Show extends Component
         $totalInput = array_sum($this->receiveData);
         if ($totalInput <= 0) {
             $this->dispatch('notify', message: 'Jumlah terima harus minimal satu barang.', type: 'error');
+
             return;
         }
 

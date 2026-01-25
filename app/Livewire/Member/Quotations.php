@@ -4,10 +4,10 @@ namespace App\Livewire\Member;
 
 use App\Models\Quotation;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.store')]
 #[Title('Penawaran Saya (B2B) - Yala Computer')]
@@ -22,7 +22,7 @@ class Quotations extends Component
             ->paginate(10);
 
         return view('livewire.member.quotations', [
-            'quotations' => $quotations
+            'quotations' => $quotations,
         ]);
     }
 }

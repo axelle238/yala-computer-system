@@ -9,16 +9,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('saved_builds', function (Blueprint $table) {
-            if (!Schema::hasColumn('saved_builds', 'is_public')) {
+            if (! Schema::hasColumn('saved_builds', 'is_public')) {
                 $table->boolean('is_public')->default(false)->after('share_token');
             }
-            if (!Schema::hasColumn('saved_builds', 'likes_count')) {
+            if (! Schema::hasColumn('saved_builds', 'likes_count')) {
                 $table->integer('likes_count')->default(0)->after('is_public');
             }
         });
 
         // Like tracking
-        if (!Schema::hasTable('build_likes')) {
+        if (! Schema::hasTable('build_likes')) {
             Schema::create('build_likes', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained()->cascadeOnDelete();

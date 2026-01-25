@@ -6,11 +6,10 @@ use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.app')]
 #[Title('Piutang Penjualan (Receivables) - Yala Computer')]
@@ -19,13 +18,16 @@ class Receivables extends Component
     use WithPagination;
 
     public $search = '';
-    
+
     // View State
     public $activeAction = null; // null, 'payment'
 
     public $selectedOrderId;
+
     public $paymentAmount;
+
     public $paymentMethod = 'transfer';
+
     public $paymentNote;
 
     public function openPaymentPanel($orderId)
@@ -51,15 +53,16 @@ class Receivables extends Component
         ]);
 
         $order = Order::findOrFail($this->selectedOrderId);
-        
+
         if ($this->paymentAmount > $order->remaining_balance) {
             $this->addError('paymentAmount', 'Jumlah pembayaran melebihi sisa tagihan.');
+
             return;
         }
 
         DB::transaction(function () use ($order) {
             Payment::create([
-                'payment_number' => 'PAY-AR-' . date('YmdHis'),
+                'payment_number' => 'PAY-AR-'.date('YmdHis'),
                 'payable_type' => Order::class,
                 'payable_id' => $order->id,
                 'amount' => $this->paymentAmount,
@@ -90,8 +93,8 @@ class Receivables extends Component
             ->whereIn('payment_status', ['unpaid', 'partial'])
             ->whereNotIn('status', ['cancelled', 'pending']) // Pending orders usually not receivables yet until confirmed
             ->when($this->search, function ($q) {
-                $q->where('order_number', 'like', '%' . $this->search . '%')
-                  ->orWhere('guest_name', 'like', '%' . $this->search . '%');
+                $q->where('order_number', 'like', '%'.$this->search.'%')
+                    ->orWhere('guest_name', 'like', '%'.$this->search.'%');
             })
             ->latest()
             ->paginate(10);
@@ -99,13 +102,13 @@ class Receivables extends Component
         $totalReceivables = Order::whereIn('payment_status', ['unpaid', 'partial'])
             ->whereNotIn('status', ['cancelled', 'pending'])
             ->get()
-            ->sum(function($order) {
+            ->sum(function ($order) {
                 return $order->remaining_balance;
             });
 
         return view('livewire.finance.receivables', [
             'invoices' => $invoices,
-            'totalReceivables' => $totalReceivables
+            'totalReceivables' => $totalReceivables,
         ]);
     }
 }

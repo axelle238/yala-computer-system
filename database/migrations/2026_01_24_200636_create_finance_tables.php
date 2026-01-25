@@ -13,17 +13,17 @@ return new class extends Migration
             $table->id();
             $table->foreignId('cash_register_id')->constrained()->onDelete('cascade');
             $table->string('transaction_number')->unique();
-            
+
             // Tipe Transaksi
             $table->enum('type', ['in', 'out'])->comment('Masuk / Keluar');
             $table->string('category')->comment('Servis, Penjualan, Operasional, Prive, dll');
-            
+
             $table->decimal('amount', 15, 2);
             $table->text('description')->nullable();
-            
+
             // Referensi ke dokumen lain (Polymorphic)
-            $table->nullableMorphs('reference'); 
-            
+            $table->nullableMorphs('reference');
+
             $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
         });

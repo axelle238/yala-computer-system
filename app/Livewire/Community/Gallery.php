@@ -3,13 +3,13 @@
 namespace App\Livewire\Community;
 
 use App\Models\BuildLike; // Asumsi model
-use App\Models\BuildComment; // Asumsi model
-use App\Models\SavedBuild; 
+// Asumsi model
+use App\Models\SavedBuild;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.store')]
 #[Title('Galeri Komunitas - Yala Computer')]
@@ -18,12 +18,14 @@ class Gallery extends Component
     use WithPagination;
 
     public $search = '';
-    
+
     // View State
     public $activeAction = null; // null, 'upload'
 
     public $selectedBuildId;
+
     public $galleryTitle;
+
     public $galleryDesc;
 
     public function mount()
@@ -33,7 +35,7 @@ class Gallery extends Component
 
     public function openUploadPanel()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
         $this->reset(['selectedBuildId', 'galleryTitle', 'galleryDesc']);
@@ -56,7 +58,7 @@ class Gallery extends Component
 
         // Logic: Update SavedBuild to be 'public'/published
         // SavedBuild::where('id', $this->selectedBuildId)->update([...]);
-        
+
         // Mock success
         $this->closePanel();
         $this->dispatch('notify', message: 'Rakitan berhasil dipublikasikan ke galeri!', type: 'success');
@@ -64,8 +66,10 @@ class Gallery extends Component
 
     public function like($buildId)
     {
-        if (!Auth::check()) return redirect()->route('login');
-        
+        if (! Auth::check()) {
+            return redirect()->route('login');
+        }
+
         // BuildLike::create(...) logic
         $this->dispatch('notify', message: 'Anda menyukai rakitan ini.', type: 'success');
     }
@@ -83,7 +87,7 @@ class Gallery extends Component
 
         return view('livewire.community.gallery', [
             'builds' => $builds,
-            'myBuilds' => $myBuilds
+            'myBuilds' => $myBuilds,
         ]);
     }
 }

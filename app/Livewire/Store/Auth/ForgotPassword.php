@@ -3,15 +3,16 @@
 namespace App\Livewire\Store\Auth;
 
 use Illuminate\Support\Facades\Password;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.auth')]
 #[Title('Lupa Password - Yala Computer')]
 class ForgotPassword extends Component
 {
     public $email;
+
     public $status;
 
     public function sendResetLink()

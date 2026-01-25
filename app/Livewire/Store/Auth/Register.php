@@ -5,20 +5,23 @@ namespace App\Livewire\Store\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
+use Livewire\Component;
 
 #[Layout('layouts.auth')]
 #[Title('Daftar Akun Baru - Yala Computer')]
 class Register extends Component
 {
     public $name = '';
+
     public $email = '';
+
     public $password = '';
+
     public $password_confirmation = '';
-    
+
     #[Url(as: 'ref')]
     public $referralCode = '';
 

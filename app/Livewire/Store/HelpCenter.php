@@ -3,16 +3,16 @@
 namespace App\Livewire\Store;
 
 use App\Models\Faq; // Asumsi model FAQ
-use App\Models\FaqCategory;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.store')]
 #[Title('Pusat Bantuan - Yala Computer')]
 class HelpCenter extends Component
 {
     public $search = '';
+
     public $activeCategory = null;
 
     public function selectCategory($id)
@@ -39,7 +39,7 @@ class HelpCenter extends Component
 
         // Filtering logic (Simple array filter for mock)
         $filteredFaqs = collect($faqs);
-        
+
         if ($this->activeCategory) {
             $filteredFaqs = $filteredFaqs->where('category_id', $this->activeCategory);
         }
@@ -52,7 +52,7 @@ class HelpCenter extends Component
 
         return view('livewire.store.help-center', [
             'categories' => $categories,
-            'faqs' => $filteredFaqs
+            'faqs' => $filteredFaqs,
         ]);
     }
 }

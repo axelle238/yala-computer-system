@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // 1. Shift Management (Handle existing table)
-        if (!Schema::hasTable('shifts')) {
+        if (! Schema::hasTable('shifts')) {
             Schema::create('shifts', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
@@ -21,18 +21,18 @@ return new class extends Migration
                 $table->timestamps();
             });
         } else {
-             Schema::table('shifts', function (Blueprint $table) {
-                if (!Schema::hasColumn('shifts', 'late_tolerance')) {
+            Schema::table('shifts', function (Blueprint $table) {
+                if (! Schema::hasColumn('shifts', 'late_tolerance')) {
                     $table->integer('late_tolerance')->default(15);
                 }
-                if (!Schema::hasColumn('shifts', 'work_days')) {
+                if (! Schema::hasColumn('shifts', 'work_days')) {
                     $table->json('work_days')->nullable();
                 }
-             });
+            });
         }
 
         // 2. Leave Management (Cuti/Izin)
-        if (!Schema::hasTable('leave_requests')) {
+        if (! Schema::hasTable('leave_requests')) {
             Schema::create('leave_requests', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -49,30 +49,30 @@ return new class extends Migration
 
         // 3. Update Attendances
         Schema::table('attendances', function (Blueprint $table) {
-            if (!Schema::hasColumn('attendances', 'shift_id')) {
+            if (! Schema::hasColumn('attendances', 'shift_id')) {
                 $table->foreignId('shift_id')->nullable()->constrained();
             }
-            if (!Schema::hasColumn('attendances', 'late_minutes')) {
+            if (! Schema::hasColumn('attendances', 'late_minutes')) {
                 $table->integer('late_minutes')->default(0);
             }
-            if (!Schema::hasColumn('attendances', 'latitude')) {
+            if (! Schema::hasColumn('attendances', 'latitude')) {
                 $table->decimal('latitude', 10, 8)->nullable();
                 $table->decimal('longitude', 11, 8)->nullable();
             }
-            if (!Schema::hasColumn('attendances', 'photo_path')) {
+            if (! Schema::hasColumn('attendances', 'photo_path')) {
                 $table->string('photo_path')->nullable();
             }
         });
 
         // 4. Update Users (Default Shift)
         Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'shift_id')) {
+            if (! Schema::hasColumn('users', 'shift_id')) {
                 $table->foreignId('shift_id')->nullable()->constrained();
             }
-            if (!Schema::hasColumn('users', 'transport_allowance')) {
+            if (! Schema::hasColumn('users', 'transport_allowance')) {
                 $table->decimal('transport_allowance', 15, 2)->default(0);
             }
-            if (!Schema::hasColumn('users', 'meal_allowance')) {
+            if (! Schema::hasColumn('users', 'meal_allowance')) {
                 $table->decimal('meal_allowance', 15, 2)->default(0);
             }
         });

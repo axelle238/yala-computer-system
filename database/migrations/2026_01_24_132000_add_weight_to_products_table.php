@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            if (!Schema::hasColumn('products', 'weight')) {
+            if (! Schema::hasColumn('products', 'weight')) {
                 $table->integer('weight')->default(1000)->after('specifications')->comment('Weight in grams');
             }
         });

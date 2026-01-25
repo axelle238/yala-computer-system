@@ -4,9 +4,9 @@ namespace App\Livewire\ActivityLogs;
 
 use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 #[Title('Detail Log Aktivitas - Yala Computer')]
@@ -16,7 +16,7 @@ class Show extends Component
 
     public function mount($id)
     {
-        if (!Auth::user()->isAdmin()) {
+        if (! Auth::user()->isAdmin()) {
             abort(403);
         }
         $this->log = ActivityLog::with('user')->findOrFail($id);
