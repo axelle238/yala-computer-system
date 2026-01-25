@@ -57,7 +57,7 @@
                     <div class="absolute inset-0 border-4 border-cyan-500/20 rounded-full"></div>
                     <div class="absolute inset-0 border-4 border-cyan-500 rounded-full border-t-transparent animate-spin"></div>
                 </div>
-                <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest animate-pulse">Syncing Data...</span>
+                <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest animate-pulse">Memuat Data...</span>
             </div>
         </div>
 
@@ -67,7 +67,7 @@
                     <tr class="bg-slate-50/50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400">
                         <th class="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Info Produk</th>
                         <th class="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Kategori</th>
-                        <th class="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Pricing (IDR)</th>
+                        <th class="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Harga (IDR)</th>
                         <th class="px-6 py-5 font-bold uppercase tracking-wider text-[10px] text-center">Persediaan</th>
                         <th class="px-6 py-5 font-bold uppercase tracking-wider text-[10px] text-center">Aksi</th>
                     </tr>
@@ -103,7 +103,7 @@
                             </td>
                             <td class="px-6 py-5">
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800">
-                                    {{ $product->category->name }}
+                                    {{ $product->category->name ?? 'Tanpa Kategori' }}
                                 </span>
                             </td>
                             <td class="px-6 py-5">
@@ -118,26 +118,27 @@
                                         <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 36 36">
                                             <circle cx="18" cy="18" r="16" fill="none" class="stroke-slate-100 dark:stroke-slate-700" stroke-width="3"></circle>
                                             @php 
-                                                $stockPct = $product->stock_quantity > 0 ? min(100, ($product->stock_quantity / max(1, $product->min_stock_alert * 2)) * 100) : 0;
-                                                $stockColor = $product->stock_quantity <= $product->min_stock_alert ? 'stroke-rose-500' : 'stroke-emerald-500';
+                                                $minStock = $product->min_stock_alert ?? 5; // Fallback jika null
+                                                $stockPct = $product->stock_quantity > 0 ? min(100, ($product->stock_quantity / max(1, $minStock * 4)) * 100) : 0;
+                                                $stockColor = $product->stock_quantity <= $minStock ? 'stroke-rose-500' : 'stroke-emerald-500';
                                             @endphp
                                             <circle cx="18" cy="18" r="16" fill="none" class="{{ $stockColor }}" stroke-width="3" stroke-dasharray="{{ $stockPct }}, 100" stroke-linecap="round"></circle>
                                         </svg>
-                                        <span class="text-xs font-black {{ $product->stock_quantity <= $product->min_stock_alert ? 'text-rose-600' : 'text-slate-700 dark:text-slate-200' }}">
+                                        <span class="text-xs font-black {{ $product->stock_quantity <= $minStock ? 'text-rose-600' : 'text-slate-700 dark:text-slate-200' }}">
                                             {{ $product->stock_quantity }}
                                         </span>
                                     </div>
-                                    @if($product->stock_quantity <= $product->min_stock_alert)
-                                        <span class="text-[9px] text-rose-500 font-black uppercase tracking-tighter mt-1 animate-pulse">Low Stock</span>
+                                    @if($product->stock_quantity <= $minStock)
+                                        <span class="text-[9px] text-rose-500 font-black uppercase tracking-tighter mt-1 animate-pulse">Stok Menipis</span>
                                     @endif
                                 </div>
                             </td>
                             <td class="px-6 py-5 text-center">
                                 <div class="flex items-center justify-center gap-1">
-                                    <a href="{{ route('print.label', $product->id) }}" target="_blank" class="p-2 text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/30 rounded-lg transition-all" title="Print Barcode">
+                                    <a href="{{ route('products.labels', ['ids' => $product->id]) }}" target="_blank" class="p-2 text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/30 rounded-lg transition-all" title="Cetak Barcode">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
                                     </a>
-                                    <a href="{{ route('products.edit', $product->id) }}" class="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all" title="Edit Data">
+                                    <a href="{{ route('products.edit', $product->id) }}" class="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all" title="Ubah Data">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                     </a>
                                 </div>
@@ -150,8 +151,8 @@
                                     <div class="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mb-4">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                                     </div>
-                                    <p class="font-bold text-slate-500 uppercase tracking-widest text-xs">No Signal Detected</p>
-                                    <p class="text-xs mt-1 opacity-60">Database tidak mengembalikan hasil pencarian.</p>
+                                    <p class="font-bold text-slate-500 uppercase tracking-widest text-xs">Tidak Ada Data</p>
+                                    <p class="text-xs mt-1 opacity-60">Database tidak mengembalikan hasil pencarian produk.</p>
                                 </div>
                             </td>
                         </tr>
