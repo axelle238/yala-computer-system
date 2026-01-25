@@ -3,65 +3,41 @@
 namespace App\Livewire\Store;
 
 use App\Models\Order;
-use App\Models\Review;
+use App\Models\Review; // Asumsi model Review ada
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\WithFileUploads;
 
 class ProductReviews extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination;
 
     public $productId;
     public $rating = 5;
     public $comment = '';
-    public $photos = [];
-    
-    // State
     public $canReview = false;
-    public $hasReviewed = false;
-    public $qualifyingOrderId = null;
 
     public function mount($productId)
     {
         $this->productId = $productId;
-        $this->checkReviewEligibility();
+        $this->checkReviewPermission();
     }
 
-    public function checkReviewEligibility()
+    public function checkReviewPermission()
     {
-        if (!Auth::check()) {
-            $this->canReview = false;
-            return;
-        }
+        if (Auth::check()) {
+            // User can review if they bought the item and haven't reviewed it yet
+            $hasBought = Order::where('user_id', Auth::id())
+                ->where('status', 'completed')
+                ->whereHas('items', function ($q) {
+                    $q->where('product_id', $this->productId);
+                })->exists();
+            
+            $alreadyReviewed = Review::where('user_id', Auth::id())
+                ->where('product_id', $this->productId)
+                ->exists();
 
-        $userId = Auth::id();
-
-        // 1. Cek apakah sudah pernah review
-        $this->hasReviewed = Review::where('product_id', $this->productId)
-            ->where('user_id', $userId)
-            ->exists();
-
-        if ($this->hasReviewed) {
-            $this->canReview = false;
-            return;
-        }
-
-        // 2. Cek order yang valid
-        $order = Order::where('user_id', $userId)
-            ->whereIn('status', ['received', 'completed'])
-            ->whereHas('items', function ($q) {
-                $q->where('product_id', $this->productId);
-            })
-            ->latest()
-            ->first();
-
-        if ($order) {
-            $this->canReview = true;
-            $this->qualifyingOrderId = $order->id;
-        } else {
-            $this->canReview = false;
+            $this->canReview = $hasBought && !$alreadyReviewed;
         }
     }
 
@@ -69,57 +45,32 @@ class ProductReviews extends Component
     {
         $this->validate([
             'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'required|string|min:5|max:500',
-            'photos.*' => 'image|max:2048', 
+            'comment' => 'required|string|min:10',
         ]);
 
-        if (!$this->canReview || !$this->qualifyingOrderId) {
-            $this->dispatch('notify', message: 'Anda tidak memenuhi syarat untuk mereview produk ini.', type: 'error');
-            return;
-        }
-
-        $imagePaths = [];
-        foreach ($this->photos as $photo) {
-            $imagePaths[] = $photo->store('reviews', 'public');
-        }
+        if (!$this->canReview) return;
 
         Review::create([
-            'product_id' => $this->productId,
             'user_id' => Auth::id(),
-            'order_id' => $this->qualifyingOrderId,
-            'reviewer_name' => Auth::user()->name,
+            'product_id' => $this->productId,
             'rating' => $this->rating,
             'comment' => $this->comment,
-            'images' => $imagePaths, 
-            'is_approved' => false, // Auto-moderation needed usually, setting false for admin approval
+            'is_approved' => true, // Auto approve for now
         ]);
 
-        $this->dispatch('notify', message: 'Terima kasih! Ulasan Anda menunggu persetujuan admin.', type: 'success');
-        
-        $this->reset(['comment', 'rating', 'photos']);
-        $this->checkReviewEligibility();
+        $this->reset(['rating', 'comment']);
+        $this->canReview = false;
+        $this->dispatch('notify', message: 'Ulasan berhasil dikirim!', type: 'success');
     }
 
     public function render()
     {
-        $reviews = Review::where('product_id', $this->productId)
+        $reviews = Review::with('user')
+            ->where('product_id', $this->productId)
             ->where('is_approved', true)
             ->latest()
             ->paginate(5);
 
-        $stats = [
-            'count' => Review::where('product_id', $this->productId)->where('is_approved', true)->count(),
-            'avg' => Review::where('product_id', $this->productId)->where('is_approved', true)->avg('rating') ?? 0,
-            '5_star' => Review::where('product_id', $this->productId)->where('is_approved', true)->where('rating', 5)->count(),
-            '4_star' => Review::where('product_id', $this->productId)->where('is_approved', true)->where('rating', 4)->count(),
-            '3_star' => Review::where('product_id', $this->productId)->where('is_approved', true)->where('rating', 3)->count(),
-            '2_star' => Review::where('product_id', $this->productId)->where('is_approved', true)->where('rating', 2)->count(),
-            '1_star' => Review::where('product_id', $this->productId)->where('is_approved', true)->where('rating', 1)->count(),
-        ];
-
-        return view('livewire.store.product-reviews', [
-            'reviews' => $reviews,
-            'stats' => $stats
-        ]);
+        return view('livewire.store.product-reviews', ['reviews' => $reviews]);
     }
 }
