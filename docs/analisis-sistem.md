@@ -1,51 +1,34 @@
-# Analisis Sistem Yala Computer
+# Analisis Sistem Yala Computer - Sesi 2
 
 **Tanggal:** 26 Januari 2026
-**Status:** FINAL (RELEASE CANDIDATE)
+**Status:** AUDIT MENYELURUH (Sesi 2)
 
 ## 1. Ringkasan Eksekutif
-Sistem Yala Computer telah melalui fase stabilisasi dan pengembangan fitur kritis. Modul Admin (HRD & Keuangan) dan Storefront (Checkout) kini dalam kondisi stabil dan siap digunakan.
+Sistem berada pada tahap maturitas menengah. Fitur-fitur inti (POS, Checkout, HRD) sudah berjalan. Fokus sesi ini adalah standarisasi penamaan (Indonesiasi kode), penguatan audit log, dan sinkronisasi data dashboard.
 
 ## 2. Area Admin / Operasional
 
-### Status Fitur Utama
-| Modul | Status Kode | Verifikasi | Catatan |
-| :--- | :--- | :--- | :--- |
-| **Auth & Permissions** | Ada | **OK** | RoleManager aman. |
-| **Dashboard** | Ada | Pending | Widget real-time perlu pemantauan performa. |
-| **Keuangan (Cash Register)** | Perbaikan Baru | **OK (Stabil)** | Logika `system_balance` valid. Buka/Tutup shift aman. |
-| **Karyawan (Employee)** | Perbaikan Baru | **OK (Lengkap)** | Tabel `employee_details` mencakup NIK, NPWP, Alamat, dll. |
-| **Produk & Inventaris** | Ada | OK | Fitur inti stabil. |
-| **Servis & Rakit PC** | Ada | OK | Modul kompleks siap digunakan. |
+### Temuan Bug & Inkonsistensi
+| Komponen | Masalah | Prioritas |
+| :--- | :--- | :--- |
+| **Point of Sale** | Nama fungsi & variabel masih Inggris (`addToCart`, `calculateTotals`). | Menengah |
+| **Dashboard** | Widget "Pesan Baru" menggunakan rute `customers.inbox`, perlu dipastikan datanya real-time. | Rendah |
+| **Log Aktivitas** | Belum semua model kritis (misal: `Product`, `Order`) menyematkan `LogsActivity`. | Tinggi |
+| **Pesan Validasi** | Beberapa pesan error di POS masih semi-Inggris. | Menengah |
 
-## 3. Area Storefront (Halaman Pengguna)
+### Rencana Perbaikan
+1.  **Iterasi 1: Audit Log & Notifikasi**. Memastikan semua model CRUD (Produk, Pelanggan, Transaksi) mencatat log dan memberikan notifikasi sukses/gagal.
+2.  **Iterasi 2: Indonesiasi Kode POS**. Mengubah nama fungsi dan variabel pada `PointOfSale.php` ke Bahasa Indonesia (misal: `tambahKeKeranjang`, `hitungTotal`).
+3.  **Iterasi 3: Dashboard Sinkronisasi**. Validasi data dari `BusinessIntelligence` untuk memastikan angka pendapatan dan laba akurat.
 
-### Status Fitur Utama
-| Modul | Status Kode | Verifikasi | Catatan |
-| :--- | :--- | :--- | :--- |
-| **Homepage** | Ada | OK | Load time optimal. |
-| **Cart & Checkout** | Ada | **OK (Terintegrasi)** | Script Midtrans Snap sudah terpasang. Alur pembayaran aktif. |
-| **Member Area** | Ada | OK | Dashboard member berfungsi. |
+## 3. Area Storefront
 
-## 4. Riwayat Pengembangan (Sesi Ini)
+### Temuan Bug & Inkonsistensi
+| Komponen | Masalah | Prioritas |
+| :--- | :--- | :--- |
+| **Katalog** | Filter kategori perlu dicek fungsionalitasnya. | Menengah |
+| **Product Detail** | Sinkronisasi stok real-time saat user menambah ke keranjang. | Tinggi |
 
-### Iterasi 1: Validasi Manajemen Karyawan (Admin)
-- Menambahkan migrasi `add_personal_data_to_employee_details`.
-- Memperbarui Model dan Controller untuk menyimpan NIK, NPWP, Alamat.
-- Memperbarui View dengan input form data personal.
-
-### Iterasi 2: Stabilisasi Cash Register (Admin)
-- Verifikasi logika `system_balance` pada model `CashRegister`.
-- Fitur dinyatakan stabil tanpa perlu perubahan kode.
-
-### Iterasi 3: Polish Storefront (Midtrans)
-- Menambahkan script Midtrans Snap JS pada halaman Checkout.
-- Menambahkan Event Listener `trigger-payment` untuk memunculkan popup pembayaran.
-
-## 5. Log Perubahan (Checkpoint)
-- `checkpoint-baseline`: Kondisi awal sistem.
-- `checkpoint-analisis`: Audit awal.
-- `checkpoint-iterasi-1`: Fitur Data Karyawan Lengkap.
-- `checkpoint-iterasi-2`: Verifikasi Cash Register.
-- `checkpoint-iterasi-3`: Integrasi Midtrans Snap.
-- `checkpoint-final`: Sistem Stabil.
+## 4. Log Checkpoint (Sesi 2)
+- `checkpoint-baseline`: Kondisi awal sesi 2.
+- `checkpoint-analisis`: Hasil audit sesi 2.
