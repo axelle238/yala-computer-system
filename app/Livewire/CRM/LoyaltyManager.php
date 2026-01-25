@@ -13,13 +13,14 @@ class LoyaltyManager extends Component
 {
     public $groups;
     
+    public $activeAction = null; // null, 'form'
+    
     public $name;
     public $code;
     public $min_spend;
     public $discount_percent;
     public $color = 'gray';
     public $groupIdToEdit;
-    public $showModal = false;
 
     public function mount()
     {
@@ -31,22 +32,27 @@ class LoyaltyManager extends Component
         $this->groups = CustomerGroup::orderBy('min_spend')->get();
     }
 
-    public function create()
+    public function openFormPanel($id = null)
     {
-        $this->reset(['name', 'code', 'min_spend', 'discount_percent', 'color', 'groupIdToEdit']);
-        $this->showModal = true;
+        $this->resetValidation();
+        if ($id) {
+            $group = CustomerGroup::findOrFail($id);
+            $this->groupIdToEdit = $id;
+            $this->name = $group->name;
+            $this->code = $group->code;
+            $this->min_spend = $group->min_spend;
+            $this->discount_percent = $group->discount_percent;
+            $this->color = $group->color;
+        } else {
+            $this->reset(['name', 'code', 'min_spend', 'discount_percent', 'color', 'groupIdToEdit']);
+        }
+        $this->activeAction = 'form';
     }
 
-    public function edit($id)
+    public function closePanel()
     {
-        $group = CustomerGroup::findOrFail($id);
-        $this->groupIdToEdit = $id;
-        $this->name = $group->name;
-        $this->code = $group->code;
-        $this->min_spend = $group->min_spend;
-        $this->discount_percent = $group->discount_percent;
-        $this->color = $group->color;
-        $this->showModal = true;
+        $this->activeAction = null;
+        $this->reset(['name', 'code', 'min_spend', 'discount_percent', 'color', 'groupIdToEdit']);
     }
 
     public function save()
@@ -72,7 +78,7 @@ class LoyaltyManager extends Component
             CustomerGroup::create($data);
         }
 
-        $this->showModal = false;
+        $this->closePanel();
         $this->loadGroups();
         $this->dispatch('notify', message: 'Level membership disimpan.', type: 'success');
     }

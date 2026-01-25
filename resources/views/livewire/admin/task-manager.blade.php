@@ -7,11 +7,84 @@
             </h2>
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Papan kerja kolaboratif untuk tim internal.</p>
         </div>
-        <button wire:click="createTask" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2">
+        <button wire:click="openCreatePanel" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
             Tugas Baru
         </button>
     </div>
+
+    <!-- Action Panel -->
+    @if($activeAction === 'create')
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-indigo-100 dark:border-indigo-900/30 p-6 shadow-lg animate-fade-in-up">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    </span>
+                    Buat Tugas Baru
+                </h3>
+                <button wire:click="closePanel" class="text-slate-400 hover:text-indigo-500 transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Judul Tugas</label>
+                        <input wire:model="title" type="text" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-indigo-500 font-bold" placeholder="Contoh: Stok Opname Gudang A">
+                        @error('title') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Deskripsi</label>
+                        <textarea wire:model="description" rows="4" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-indigo-500" placeholder="Detail instruksi tugas..."></textarea>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Prioritas</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="cursor-pointer">
+                                <input type="radio" wire:model="priority" value="low" class="sr-only peer">
+                                <div class="px-3 py-2 rounded-lg border text-center text-xs font-bold transition-all peer-checked:bg-blue-100 peer-checked:text-blue-700 peer-checked:border-blue-300 hover:bg-slate-50 dark:peer-checked:bg-blue-900/30 dark:peer-checked:border-blue-700">
+                                    Low
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" wire:model="priority" value="medium" class="sr-only peer">
+                                <div class="px-3 py-2 rounded-lg border text-center text-xs font-bold transition-all peer-checked:bg-amber-100 peer-checked:text-amber-700 peer-checked:border-amber-300 hover:bg-slate-50 dark:peer-checked:bg-amber-900/30 dark:peer-checked:border-amber-700">
+                                    Medium
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" wire:model="priority" value="high" class="sr-only peer">
+                                <div class="px-3 py-2 rounded-lg border text-center text-xs font-bold transition-all peer-checked:bg-rose-100 peer-checked:text-rose-700 peer-checked:border-rose-300 hover:bg-slate-50 dark:peer-checked:bg-rose-900/30 dark:peer-checked:border-rose-700">
+                                    High
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tugaskan Ke</label>
+                        <select wire:model="assignee_id" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-indigo-500 py-2.5">
+                            <option value="">-- Diri Sendiri --</option>
+                            @foreach($users as $u)
+                                <option value="{{ $u->id }}">{{ $u->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="pt-4 flex justify-end gap-3">
+                        <button wire:click="closePanel" class="px-5 py-2.5 text-slate-500 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Batal</button>
+                        <button wire:click="save" class="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition transform active:scale-95">Simpan Tugas</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- Kanban Board -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-full min-h-[500px]">
@@ -121,53 +194,4 @@
         </div>
 
     </div>
-
-    <!-- Modal Form -->
-    @if($showModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
-                    <h3 class="font-bold text-lg text-slate-800 dark:text-white">Buat Tugas Baru</h3>
-                    <button wire:click="$set('showModal', false)" class="text-slate-400 hover:text-rose-500"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-                </div>
-                
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Judul Tugas</label>
-                        <input wire:model="title" type="text" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-indigo-500">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Deskripsi</label>
-                        <textarea wire:model="description" rows="3" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-indigo-500"></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Prioritas</label>
-                            <select wire:model="priority" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-indigo-500">
-                                <option value="low">Low (Santai)</option>
-                                <option value="medium">Medium (Standar)</option>
-                                <option value="high">High (Penting)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tugaskan Ke</label>
-                            <select wire:model="assignee_id" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-indigo-500">
-                                <option value="">-- Diri Sendiri --</option>
-                                @foreach($users as $u)
-                                    <option value="{{ $u->id }}">{{ $u->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
-                    <button wire:click="$set('showModal', false)" class="px-4 py-2 text-slate-500 font-bold hover:bg-slate-200 rounded-lg transition">Batal</button>
-                    <button wire:click="save" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-lg transition">Simpan</button>
-                </div>
-            </div>
-        </div>
-    @endif
 </div>

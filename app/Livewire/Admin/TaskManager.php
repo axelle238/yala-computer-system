@@ -15,8 +15,9 @@ class TaskManager extends Component
 {
     public $tasks = [];
     
-    // Form
-    public $showModal = false;
+    // View State
+    public $activeAction = null; // null, 'create'
+
     public $title, $description, $priority = 'medium', $assignee_id;
 
     public function mount()
@@ -31,10 +32,15 @@ class TaskManager extends Component
             ->get();
     }
 
-    public function createTask()
+    public function openCreatePanel()
     {
         $this->reset(['title', 'description', 'priority', 'assignee_id']);
-        $this->showModal = true;
+        $this->activeAction = 'create';
+    }
+
+    public function closePanel()
+    {
+        $this->activeAction = null;
     }
 
     public function save()
@@ -57,7 +63,7 @@ class TaskManager extends Component
 
         $this->dispatch('notify', message: 'Tugas berhasil dibuat!', type: 'success');
 
-        $this->showModal = false;
+        $this->closePanel();
         $this->refreshTasks();
     }
 
