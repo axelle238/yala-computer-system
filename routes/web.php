@@ -68,7 +68,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/', Dashboard::class)->name('dashboard');
 
     // Tugas & Kolaborasi
-    Route::get('/tugas', \App\Livewire\Admin\TaskManager::class)->name('admin.tasks');
+    Route::get('/tugas', \App\Livewire\Admin\PengelolaTugas::class)->name('admin.tasks');
 
     // Garansi (Admin)
     Route::get('/garansi', \App\Livewire\Rma\Manager::class)->name('rma.index');
@@ -114,10 +114,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     // CRM
     Route::get('/pelanggan', \App\Livewire\Customers\Index::class)->name('customers.index');
     Route::get('/pelanggan/kotak-masuk', \App\Livewire\Admin\Inbox::class)->name('customers.inbox');
-    Route::get('/pelanggan/loyalitas', \App\Livewire\CRM\LoyaltyManager::class)->name('customers.loyalty');
+    Route::get('/pelanggan/loyalitas', \App\Livewire\Pelanggan\PengelolaLoyalitas::class)->name('customers.loyalty');
     Route::get('/pelanggan/obrolan-langsung', \App\Livewire\Admin\LiveChatManager::class)->name('customers.live-chat');
     Route::get('/pelanggan/buat', \App\Livewire\Customers\Form::class)->name('customers.create');
-    Route::get('/pelanggan/{id}', \App\Livewire\CRM\CustomerDetail::class)->name('customers.show');
+    Route::get('/pelanggan/{id}', \App\Livewire\Pelanggan\DetailPelanggan::class)->name('customers.show');
     Route::get('/pelanggan/{id}/ubah', \App\Livewire\Customers\Form::class)->name('customers.edit');
 
     // Log Audit
