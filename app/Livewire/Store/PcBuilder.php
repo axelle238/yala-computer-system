@@ -14,227 +14,237 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.store')]
-#[Title('Simulasi Rakit PC Professional - Yala Computer')]
+#[Title('Simulasi Rakit PC - Yala Computer')]
 class PcBuilder extends Component
 {
     use WithPagination;
 
-    // Build State
-    public $buildName = 'My Custom PC';
-    public $selection = []; 
-    public $totalPrice = 0;
-    public $estimatedWattage = 0;
-    public $addAssemblyService = false; // New
+    /**
+     * Status Rakitan
+     */
+    public $namaRakitan = 'PC Kustom Saya';
+    public $pilihanKomponen = []; 
+    public $totalHarga = 0;
+    public $estimasiDaya = 0;
+    public $tambahJasaRakit = false;
     
-    // Status Messages
-    public $compatibilityIssues = [];
-    public $compatibilityWarnings = [];
-    public $compatibilityInfo = [];
+    /**
+     * Pesan Status Kompatibilitas
+     */
+    public $masalahKompatibilitas = [];
+    public $peringatanKompatibilitas = [];
+    public $infoKompatibilitas = [];
 
-    // Modal Selector State
-    public $showSelector = false;
-    public $currentCategory = null;
-    public $searchQuery = '';
+    /**
+     * Status Pemilih Komponen (Tanpa Modal)
+     */
+    public $tampilkanPemilih = false;
+    public $kategoriSaatIni = null;
+    public $kataKunciCari = '';
     
-    // Config
-    public $partsList = [
-        'processors' => ['label' => 'Processor (CPU)', 'icon' => 'cpu'],
-        'motherboards' => ['label' => 'Motherboard', 'icon' => 'server'],
-        'rams' => ['label' => 'Memory (RAM)', 'icon' => 'memory'],
-        'gpus' => ['label' => 'Graphic Card (VGA)', 'icon' => 'monitor'],
-        'storage' => ['label' => 'Storage (SSD/NVMe)', 'icon' => 'hard-drive'],
-        'cases' => ['label' => 'Casing PC', 'icon' => 'box'],
-        'psus' => ['label' => 'Power Supply (PSU)', 'icon' => 'zap'],
-        'coolers' => ['label' => 'CPU Cooler', 'icon' => 'wind'],
+    /**
+     * Daftar Kategori Komponen
+     */
+    public $daftarBagian = [
+        'processors' => ['label' => 'Prosesor (CPU)', 'ikon' => 'cpu'],
+        'motherboards' => ['label' => 'Motherboard', 'ikon' => 'server'],
+        'rams' => ['label' => 'Memori (RAM)', 'ikon' => 'memory'],
+        'gpus' => ['label' => 'Kartu Grafis (VGA)', 'ikon' => 'monitor'],
+        'storage' => ['label' => 'Penyimpanan (SSD/HDD)', 'ikon' => 'hard-drive'],
+        'cases' => ['label' => 'Casing PC', 'ikon' => 'box'],
+        'psus' => ['label' => 'Power Supply (PSU)', 'ikon' => 'zap'],
+        'coolers' => ['label' => 'Pendingin CPU', 'ikon' => 'wind'],
     ];
 
     public function mount()
     {
-        // Initialize empty selection
-        foreach (array_keys($this->partsList) as $key) {
-            $this->selection[$key] = null;
+        // Inisialisasi pilihan kosong
+        foreach (array_keys($this->daftarBagian) as $kunci) {
+            $this->pilihanKomponen[$kunci] = null;
         }
 
-        // Load Cloned Build
+        // Muat Rakitan dari Sesi (jika ada kloning)
         if (session()->has('cloned_build')) {
-            $this->selection = session()->get('cloned_build');
-            $this->buildName = session()->get('cloned_build_name', 'My New Custom PC');
-            $this->recalculate();
+            $this->pilihanKomponen = session()->get('cloned_build');
+            $this->namaRakitan = session()->get('cloned_build_name', 'PC Kustom Baru');
+            $this->hitungUlang();
             
-            // Clear session (Flash data behavior)
             session()->forget(['cloned_build', 'cloned_build_name']);
         }
     }
 
-    // --- Modal Selection Logic ---
-
-    public function openSelector($category)
+    /**
+     * Membuka antarmuka pemilih komponen.
+     */
+    public function bukaPemilih($kategori)
     {
-        $this->currentCategory = $category;
-        $this->searchQuery = '';
-        $this->showSelector = true;
+        $this->kategoriSaatIni = $kategori;
+        $this->kataKunciCari = '';
+        $this->tampilkanPemilih = true;
         $this->resetPage(); 
     }
 
-    public function closeSelector()
+    /**
+     * Menutup antarmuka pemilih komponen.
+     */
+    public function tutupPemilih()
     {
-        $this->showSelector = false;
-        $this->currentCategory = null;
+        $this->tampilkanPemilih = false;
+        $this->kategoriSaatIni = null;
     }
 
-    public function selectProduct($productId)
+    /**
+     * Memilih produk untuk kategori tertentu.
+     */
+    public function pilihProduk($idProduk)
     {
-        $product = Product::find($productId);
-        if ($product) {
-            $this->selection[$this->currentCategory] = [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => $product->sell_price,
-                'image' => $product->image_path,
-                'specs' => $product->specifications // Store raw specs for service
+        $produk = Product::find($idProduk);
+        if ($produk) {
+            $this->pilihanKomponen[$this->kategoriSaatIni] = [
+                'id' => $produk->id,
+                'nama' => $produk->name,
+                'harga' => $produk->sell_price,
+                'gambar' => $produk->image_path,
+                'spek' => $produk->specifications
             ];
-            $this->recalculate();
+            $this->hitungUlang();
         }
-        $this->closeSelector();
+        $this->tutupPemilih();
     }
 
-    public function removePart($category)
+    /**
+     * Menghapus komponen dari pilihan.
+     */
+    public function hapusBagian($kategori)
     {
-        $this->selection[$category] = null;
-        $this->recalculate();
+        $this->pilihanKomponen[$kategori] = null;
+        $this->hitungUlang();
     }
 
-    // --- Calculation & Logic ---
-
-    public function updatedAddAssemblyService()
+    public function updatedTambahJasaRakit()
     {
-        $this->recalculate();
+        $this->hitungUlang();
     }
 
-    public function recalculate()
+    /**
+     * Menghitung total harga dan mengecek kompatibilitas.
+     */
+    public function hitungUlang()
     {
-        $this->totalPrice = 0;
+        $this->totalHarga = 0;
 
-        // 1. Sum Price
-        foreach ($this->selection as $item) {
+        // 1. Jumlahkan Harga
+        foreach ($this->pilihanKomponen as $item) {
             if ($item) {
-                $this->totalPrice += $item['price'];
+                $this->totalHarga += $item['harga'];
             }
         }
 
-        // 2. Assembly Fee
-        if ($this->addAssemblyService) {
-            $this->totalPrice += 150000;
+        // 2. Biaya Rakit
+        if ($this->tambahJasaRakit) {
+            $this->totalHarga += 150000;
         }
 
-        // 3. Compatibility Service
-        $service = new PcCompatibilityService();
-        $result = $service->checkCompatibility($this->selection);
+        // 3. Layanan Kompatibilitas
+        $layanan = new PcCompatibilityService();
+        $hasil = $layanan->checkCompatibility($this->pilihanKomponen);
 
-        $this->compatibilityIssues = $result['issues'];
-        $this->compatibilityWarnings = $result['warnings'];
-        $this->compatibilityInfo = $result['info'];
-        $this->estimatedWattage = $result['wattage'];
+        $this->masalahKompatibilitas = $hasil['issues'];
+        $this->peringatanKompatibilitas = $hasil['warnings'];
+        $this->infoKompatibilitas = $hasil['info'];
+        $this->estimasiDaya = $hasil['wattage'];
     }
 
-    // --- Actions ---
-
-    public function saveBuild()
+    /**
+     * Menyimpan rakitan ke profil pengguna.
+     */
+    public function simpanRakitan()
     {
         if (!Auth::check()) {
-            $this->dispatch('notify', message: 'Silakan login untuk menyimpan rakitan.', type: 'error');
-            return redirect()->route('login');
+            $this->dispatch('notify', message: 'Silakan masuk untuk menyimpan rakitan.', type: 'error');
+            return redirect()->route('customer.login');
         }
 
         SavedBuild::create([
             'user_id' => Auth::id(),
-            'name' => $this->buildName,
-            'description' => 'Disimpan pada ' . now()->format('d M Y'),
-            'total_price_estimated' => $this->totalPrice,
-            'components' => $this->selection,
+            'name' => $this->namaRakitan,
+            'description' => 'Disimpan pada ' . now()->locale('id')->isoFormat('D MMMM Y'),
+            'total_price_estimated' => $this->totalHarga,
+            'components' => $this->pilihanKomponen,
             'share_token' => Str::random(32),
         ]);
 
-        $this->dispatch('notify', message: 'Rakitan berhasil disimpan di profil Anda!', type: 'success');
+        $this->dispatch('notify', message: 'Rakitan berhasil disimpan ke profil Anda!', type: 'success');
     }
 
-    public function addToCart()
+    /**
+     * Memasukkan semua komponen ke keranjang belanja.
+     */
+    public function masukkanKeKeranjang()
     {
-        $cart = session()->get('cart', []);
-        $count = 0;
+        $keranjang = session()->get('cart', []);
+        $jumlahTerpilih = 0;
 
-        foreach ($this->selection as $item) {
+        foreach ($this->pilihanKomponen as $item) {
             if ($item) {
                 $id = $item['id'];
-                if (isset($cart[$id])) {
-                    $cart[$id]['quantity']++; // Warning: Simple increment might not be desired for PC parts
-                } else {
-                    $cart[$id] = 1; // Correct format based on Checkout.php: $cart[$id] = $qty
-                }
-                $count++;
+                $keranjang[$id] = 1; // Sesuai format Checkout: ID => Qty
+                $jumlahTerpilih++;
             }
         }
 
-        if ($count > 0) {
-            // Handle Assembly Service
-            if ($this->addAssemblyService) {
-                // Find or Create Service Product
-                $serviceProduct = Product::firstOrCreate(
-                    ['sku' => 'SVC-ASSEMBLY'],
+        if ($jumlahTerpilih > 0) {
+            // Tangani Jasa Rakit
+            if ($this->tambahJasaRakit) {
+                $produkJasa = Product::firstOrCreate(
+                    ['sku' => 'SVC-RAKIT'],
                     [
                         'name' => 'Jasa Rakit PC Professional',
                         'slug' => 'jasa-rakit-pc-professional',
-                        'description' => 'Jasa perakitan, instalasi OS (Trial), dan cable management premium.',
+                        'description' => 'Jasa perakitan, instalasi OS (Trial), dan manajemen kabel rapi.',
                         'sell_price' => 150000,
-                        'cost_price' => 0,
+                        'buy_price' => 0,
                         'stock_quantity' => 9999,
-                        'category_id' => 1, // Fallback ID
+                        'category_id' => 1,
                         'is_active' => true,
-                        'track_inventory' => false
                     ]
                 );
                 
-                $cart[$serviceProduct->id] = 1;
+                $keranjang[$produkJasa->id] = 1;
 
-                // Save Build Metadata for Checkout/Assembly Manager
+                // Simpan Metadata Rakitan untuk dikelola di antrian teknisi
                 session()->put('pc_assembly_data', [
-                    'build_name' => $this->buildName,
-                    'specs' => $this->selection,
-                    'wattage' => $this->estimatedWattage
+                    'build_name' => $this->namaRakitan,
+                    'specs' => $this->pilihanKomponen,
+                    'wattage' => $this->estimasiDaya
                 ]);
             } else {
                 session()->forget('pc_assembly_data');
             }
 
-            session()->put('cart', $cart);
-            $this->dispatch('cart-updated'); // Event for Cart Badge
+            session()->put('cart', $keranjang);
+            $this->dispatch('cart-updated');
             return redirect()->route('cart');
         } else {
-             $this->dispatch('notify', message: 'Pilih komponen terlebih dahulu.', type: 'warning');
+             $this->dispatch('notify', message: 'Pilih komponen minimal satu terlebih dahulu.', type: 'warning');
         }
-    }
-
-    public function printPdf()
-    {
-        // Placeholder for PDF generation
-        $this->dispatch('notify', message: 'Fitur cetak PDF akan segera hadir!', type: 'info');
     }
 
     public function render()
     {
-        $products = [];
-        if ($this->showSelector && $this->currentCategory) {
-            $products = Product::where('is_active', true)
+        $daftarProduk = [];
+        if ($this->tampilkanPemilih && $this->kategoriSaatIni) {
+            $daftarProduk = Product::where('is_active', true)
                 ->whereHas('category', function($q) {
-                    $q->where('slug', $this->currentCategory);
+                    $q->where('slug', $this->kategoriSaatIni);
                 })
-                ->where('name', 'like', '%' . $this->searchQuery . '%')
+                ->where('name', 'like', '%' . $this->kataKunciCari . '%')
                 ->orderBy('sell_price')
-                ->paginate(10);
+                ->paginate(12);
         }
 
         return view('livewire.store.pc-builder', [
-            'products' => $products
+            'daftarProduk' => $daftarProduk
         ]);
     }
 }
