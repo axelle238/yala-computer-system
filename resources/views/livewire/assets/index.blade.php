@@ -1,167 +1,143 @@
-<div class="p-6">
+<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-800">Manajemen Aset Toko</h1>
-            <p class="text-gray-500">Inventaris barang milik toko (bukan untuk dijual).</p>
-        </div>
-        <button wire:click="create" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg">
-            + Tambah Aset
+        <h2 class="text-2xl font-bold text-slate-800">Manajemen Aset Perusahaan</h2>
+        <button wire:click="$set('showCreateModal', true)" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-bold shadow flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+            Tambah Aset
         </button>
     </div>
 
-    <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-            <p class="text-xs text-gray-500 font-bold uppercase">Total Nilai Aset</p>
-            <p class="text-xl font-black text-gray-800">Rp {{ number_format(\App\Models\CompanyAsset::sum('purchase_cost'), 0, ',', '.') }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-            <p class="text-xs text-gray-500 font-bold uppercase">Total Item</p>
-            <p class="text-xl font-black text-blue-600">{{ \App\Models\CompanyAsset::count() }} Unit</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-            <p class="text-xs text-gray-500 font-bold uppercase">Dipinjam Karyawan</p>
-            <p class="text-xl font-black text-indigo-600">{{ \App\Models\CompanyAsset::whereNotNull('assigned_to_user_id')->count() }} Unit</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-            <p class="text-xs text-gray-500 font-bold uppercase">Perlu Perbaikan</p>
-            <p class="text-xl font-black text-rose-600">{{ \App\Models\CompanyAsset::where('status', 'maintenance')->count() }} Unit</p>
-        </div>
-    </div>
-
-    @if($showForm)
-        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-lg mb-6">
-            <h3 class="font-bold text-lg mb-4">{{ $assetId ? 'Edit Aset' : 'Input Aset Baru' }}</h3>
-            <form wire:submit.prevent="save" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Kode Aset</label>
-                    <input wire:model="asset_code" type="text" class="w-full rounded-lg border-gray-300 bg-gray-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nama Aset</label>
-                    <input wire:model="name" type="text" class="w-full rounded-lg border-gray-300">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Kategori</label>
-                    <select wire:model="category" class="w-full rounded-lg border-gray-300">
-                        <option value="">Pilih...</option>
-                        <option value="Electronics">Elektronik (Laptop/PC/Printer)</option>
-                        <option value="Furniture">Furniture</option>
-                        <option value="Vehicle">Kendaraan</option>
-                        <option value="Tools">Perkakas / Tools</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Serial Number</label>
-                    <input wire:model="serial_number" type="text" class="w-full rounded-lg border-gray-300">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tanggal Beli</label>
-                    <input wire:model="purchase_date" type="date" class="w-full rounded-lg border-gray-300">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Harga Beli</label>
-                    <input wire:model="purchase_cost" type="number" class="w-full rounded-lg border-gray-300">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Kondisi</label>
-                    <select wire:model="condition" class="w-full rounded-lg border-gray-300">
-                        <option value="good">Baik</option>
-                        <option value="fair">Cukup (Lecet Pemakaian)</option>
-                        <option value="poor">Kurang (Rusak Ringan)</option>
-                        <option value="broken">Rusak Berat</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
-                    <select wire:model="status" class="w-full rounded-lg border-gray-300">
-                        <option value="active">Aktif Digunakan</option>
-                        <option value="maintenance">Sedang Servis</option>
-                        <option value="disposed">Dibuang / Dijual</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Pegang Jawab (User)</label>
-                    <select wire:model="assigned_to_user_id" class="w-full rounded-lg border-gray-300">
-                        <option value="">-- Kantor / Umum --</option>
-                        @foreach($users as $u)
-                            <option value="{{ $u->id }}">{{ $u->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Lokasi</label>
-                    <input wire:model="location" type="text" class="w-full rounded-lg border-gray-300" placeholder="Contoh: Gudang Belakang, Meja Kasir 1">
-                </div>
-                
-                <div class="md:col-span-2 flex justify-end gap-2 border-t pt-4">
-                    <button type="button" wire:click="$set('showForm', false)" class="px-4 py-2 text-gray-600 font-bold hover:bg-gray-100 rounded-lg">Batal</button>
-                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">Simpan Data</button>
-                </div>
-            </form>
+    <!-- Flash Messages -->
+    @if (session()->has('success'))
+        <div class="mb-4 bg-emerald-100 border border-emerald-400 text-emerald-700 px-4 py-3 rounded relative">
+            {{ session('success') }}
         </div>
     @endif
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-4 border-b border-gray-100">
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari nama aset atau kode..." class="w-full md:w-1/3 rounded-lg border-gray-300 text-sm">
-        </div>
-        <table class="w-full text-left text-sm text-gray-600">
-            <thead class="bg-gray-50 uppercase text-xs font-semibold text-gray-700">
+    <!-- Asset List -->
+    <div class="bg-white shadow rounded-xl overflow-hidden border border-slate-200">
+        <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
                 <tr>
-                    <th class="px-6 py-4">Kode / Nama</th>
-                    <th class="px-6 py-4">Kategori</th>
-                    <th class="px-6 py-4">Kondisi</th>
-                    <th class="px-6 py-4">Lokasi / Pengguna</th>
-                    <th class="px-6 py-4 text-right">Nilai Aset</th>
-                    <th class="px-6 py-4 text-center">Aksi</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Tag #</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Nama Aset</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Kategori</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Nilai Beli</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Nilai Buku (Saat Ini)</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
+            <tbody class="divide-y divide-slate-200">
                 @forelse($assets as $asset)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4">
-                            <div class="font-bold text-gray-900">{{ $asset->name }}</div>
-                            <div class="text-xs font-mono text-gray-500">{{ $asset->asset_code }}</div>
-                        </td>
-                        <td class="px-6 py-4">{{ $asset->category }}</td>
-                        <td class="px-6 py-4">
-                            @php
-                                $badges = [
-                                    'good' => 'bg-green-100 text-green-700',
-                                    'fair' => 'bg-blue-100 text-blue-700',
-                                    'poor' => 'bg-yellow-100 text-yellow-700',
-                                    'broken' => 'bg-red-100 text-red-700',
-                                ];
-                            @endphp
-                            <span class="px-2 py-1 rounded-full text-xs font-bold uppercase {{ $badges[$asset->condition] ?? 'bg-gray-100' }}">
-                                {{ $asset->condition }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="text-gray-900">{{ $asset->location }}</div>
-                            @if($asset->assignee)
-                                <div class="text-xs text-indigo-600 font-bold flex items-center gap-1">
-                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                                    {{ $asset->assignee->name }}
-                                </div>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            Rp {{ number_format($asset->purchase_cost, 0, ',', '.') }}
-                        </td>
-                        <td class="px-6 py-4 text-center flex justify-center gap-2">
-                            <button wire:click="edit({{ $asset->id }})" class="text-blue-600 hover:text-blue-800">Edit</button>
-                            <button wire:click="delete({{ $asset->id }})" wire:confirm="Hapus aset ini?" class="text-red-500 hover:text-red-700">Del</button>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-indigo-600">{{ $asset->asset_tag }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{{ $asset->name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $asset->category }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-500">Rp {{ number_format($asset->purchase_price, 0, ',', '.') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-slate-800">Rp {{ number_format($asset->current_value, 0, ',', '.') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                            <button wire:click="viewDetail({{ $asset->id }})" class="text-indigo-600 hover:text-indigo-900 font-bold">Detail</button>
                         </td>
                     </tr>
                 @empty
-                    <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-400">Tidak ada data aset.</td>
-                    </tr>
+                    <tr><td colspan="6" class="px-6 py-12 text-center text-slate-400">Belum ada aset terdaftar.</td></tr>
                 @endforelse
             </tbody>
         </table>
-        <div class="p-4 border-t border-gray-100">{{ $assets->links() }}</div>
+        <div class="px-6 py-3 border-t border-slate-200">{{ $assets->links() }}</div>
     </div>
+
+    <!-- CREATE MODAL -->
+    @if($showCreateModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg">
+                <h3 class="text-xl font-bold text-slate-800 mb-6">Registrasi Aset Baru</h3>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Nama Aset</label>
+                        <input type="text" wire:model="name" class="w-full rounded-lg border-slate-300" placeholder="Contoh: Laptop Teknisi 01">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Kode Tag</label>
+                        <input type="text" wire:model="asset_tag" class="w-full rounded-lg border-slate-300" placeholder="AST-XXX">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Kategori</label>
+                        <select wire:model="category" class="w-full rounded-lg border-slate-300">
+                            <option>Elektronik</option>
+                            <option>Furniture</option>
+                            <option>Kendaraan</option>
+                            <option>Mesin</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Harga Beli (Rp)</label>
+                        <input type="number" wire:model="purchase_price" class="w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Masa Manfaat (Tahun)</label>
+                        <input type="number" wire:model="useful_life_years" class="w-full rounded-lg border-slate-300">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Lokasi Fisik</label>
+                        <input type="text" wire:model="location" class="w-full rounded-lg border-slate-300" placeholder="Contoh: Meja Depan">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <button wire:click="$set('showCreateModal', false)" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
+                    <button wire:click="store" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold">Simpan</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- DETAIL MODAL -->
+    @if($showDetailModal && $selectedAsset)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-start mb-6 border-b pb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">{{ $selectedAsset->name }}</h3>
+                        <p class="text-sm text-slate-500 font-mono">{{ $selectedAsset->asset_tag }}</p>
+                    </div>
+                    <button wire:click="$set('showDetailModal', false)" class="text-slate-400 hover:text-slate-600">&times;</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                        <div class="text-xs text-slate-500 uppercase">Harga Perolehan</div>
+                        <div class="text-lg font-bold text-slate-800">Rp {{ number_format($selectedAsset->purchase_price, 0, ',', '.') }}</div>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                        <div class="text-xs text-slate-500 uppercase">Nilai Buku Saat Ini</div>
+                        <div class="text-lg font-bold text-indigo-600">Rp {{ number_format($selectedAsset->current_value, 0, ',', '.') }}</div>
+                    </div>
+                </div>
+
+                <h4 class="font-bold text-slate-700 mb-2 text-sm uppercase">Jadwal Penyusutan (Depresiasi)</h4>
+                <div class="overflow-hidden border border-slate-200 rounded-lg">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-bold text-slate-500 uppercase">Tahun</th>
+                                <th class="px-4 py-2 text-right text-xs font-bold text-slate-500 uppercase">Penyusutan</th>
+                                <th class="px-4 py-2 text-right text-xs font-bold text-slate-500 uppercase">Nilai Akhir</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            @foreach($selectedAsset->depreciations as $dep)
+                                <tr>
+                                    <td class="px-4 py-2 text-sm text-slate-700">{{ $dep->depreciation_date->format('Y') }}</td>
+                                    <td class="px-4 py-2 text-sm text-right text-rose-600">- Rp {{ number_format($dep->amount, 0, ',', '.') }}</td>
+                                    <td class="px-4 py-2 text-sm text-right font-bold text-slate-800">Rp {{ number_format($dep->book_value_after, 0, ',', '.') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

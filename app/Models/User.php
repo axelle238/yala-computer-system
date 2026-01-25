@@ -90,4 +90,33 @@ class User extends Authenticatable
             default => 'text-slate-600 bg-slate-100',
         };
     }
+
+    /**
+     * Check if user has a specific permission.
+     * Temporary implementation using 'role' column.
+     */
+    public function hasPermissionTo($permission)
+    {
+        // 1. Admin always true
+        if ($this->role === 'admin') {
+            return true;
+        }
+
+        // 2. Simple Role-Based Permission Mapping
+        $rolePermissions = [
+            'technician' => ['service.', 'workbench.'],
+            'cashier' => ['pos.', 'sales.', 'finance.'],
+            'customer' => ['order.'],
+        ];
+
+        if (isset($rolePermissions[$this->role])) {
+            foreach ($rolePermissions[$this->role] as $prefix) {
+                if (str_starts_with($permission, $prefix)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }

@@ -10,10 +10,12 @@ class CompanyAsset extends Model
 
     protected $casts = [
         'purchase_date' => 'date',
+        'purchase_price' => 'decimal:2',
+        'current_value' => 'decimal:2',
     ];
 
-    public function assignee()
+    public function depreciations()
     {
-        return $this->belongsTo(User::class, 'assigned_to_user_id');
+        return $this->hasMany(AssetDepreciation::class);
     }
 }
