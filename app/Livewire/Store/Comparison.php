@@ -3,60 +3,63 @@
 namespace App\Livewire\Store;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.store')]
-#[Title('Bandingkan Produk - Yala Computer')]
+#[Title('Perbandingan Produk - Yala Computer')]
 class Comparison extends Component
 {
-    public $productIds = [];
     public $products = [];
 
     public function mount()
     {
-        // Load from session
-        $this->productIds = session()->get('compare_products', []);
         $this->loadProducts();
     }
 
     public function loadProducts()
     {
-        if (!empty($this->productIds)) {
-            $this->products = Product::whereIn('id', $this->productIds)->get();
+        $ids = Session::get('comparison_list', []);
+        
+        if (!empty($ids)) {
+            $this->products = Product::whereIn('id', $ids)->get();
         } else {
-            $this->products = [];
+            $this->products = collect();
         }
     }
 
     public function removeFromCompare($id)
     {
-        $this->productIds = array_diff($this->productIds, [$id]);
-        session()->put('compare_products', $this->productIds);
-        $this->loadProducts();
+        $ids = Session::get('comparison_list', []);
+        
+        if (($key = array_search($id, $ids)) !== false) {
+            unset($ids[$key]);
+            Session::put('comparison_list', array_values($ids)); // Reindex
+            
+            $this->loadProducts();
+            $this->dispatch('notify', message: 'Produk dihapus dari perbandingan.');
+        }
     }
 
-    public function clearAll()
+    public function addToCart($id)
     {
-        session()->forget('compare_products');
-        $this->productIds = [];
-        $this->products = [];
+        $cart = Session::get('cart', []);
+        
+        if (isset($cart[$id])) {
+            $cart[$id]++;
+        } else {
+            $cart[$id] = 1;
+        }
+        
+        Session::put('cart', $cart);
+        $this->dispatch('cart-updated');
+        $this->dispatch('notify', message: 'Produk masuk keranjang!', type: 'success');
     }
 
     public function render()
     {
-        // Gather unique spec keys for table rows
-        $specKeys = [];
-        foreach ($this->products as $product) {
-            if ($product->specifications && is_array($product->specifications)) {
-                $specKeys = array_unique(array_merge($specKeys, array_keys($product->specifications)));
-            }
-        }
-        sort($specKeys);
-
-        return view('livewire.store.comparison', [
-            'specKeys' => $specKeys
-        ]);
+        return view('livewire.store.comparison');
     }
 }

@@ -38,14 +38,14 @@ class Home extends Component
 
     public function addToCompare($productId)
     {
-        $compare = session()->get('compare_products', []);
+        $compare = session()->get('comparison_list', []);
         if (!in_array($productId, $compare)) {
             if(count($compare) >= 4) {
                 $this->dispatch('notify', message: 'Maksimal 4 produk untuk dibandingkan.', type: 'error');
                 return;
             }
             $compare[] = $productId;
-            session()->put('compare_products', $compare);
+            session()->put('comparison_list', $compare);
             $this->dispatch('notify', message: 'Ditambahkan ke perbandingan!', type: 'success');
         } else {
             $this->dispatch('notify', message: 'Produk sudah ada di list.', type: 'info');
