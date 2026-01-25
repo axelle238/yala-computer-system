@@ -12,7 +12,7 @@
             (request()->routeIs('finance.*', 'reports.*', 'expenses.*') ? 'keuangan' : 
             (request()->routeIs('customers.*', 'marketing.*', 'member.*', 'reviews.*') ? 'crm' : 
             (request()->routeIs('employees.*', 'shift.*') ? 'sdm' : 
-            (request()->routeIs('admin.news.*', 'banners.*', 'customers.inbox') ? 'media' :
+            (request()->routeIs('admin.news.*', 'banners.*', 'customers.inbox', 'customers.live-chat') ? 'media' :
             (request()->routeIs('settings.*', 'system.*', 'activity-logs.*', 'users.*', 'assets.*') ? 'sistem' : ''))))))))
         }}',
         toggleGrup(grup) {
@@ -204,6 +204,9 @@
                 </a>
                 <a href="{{ route('customers.inbox') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('customers.inbox') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Pesan Email Masuk
+                </a>
+                <a href="{{ route('customers.live-chat') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('customers.live-chat') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Live Chat Pelanggan
                 </a>
                 <a href="{{ route('banners.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('banners.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Banner & Media

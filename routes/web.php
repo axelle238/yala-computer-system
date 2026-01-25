@@ -166,6 +166,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/news/create', \App\Livewire\News\Form::class)->name('admin.news.create');
     Route::get('/news/{id}/edit', \App\Livewire\News\Form::class)->name('admin.news.edit');
 
+    // Customer Service & Media
+    Route::get('/customers/live-chat', \App\Livewire\Admin\LiveChatManager::class)->name('customers.live-chat');
+
     // Printing Routes
     Route::get('/print/transaction/{id}', [\App\Http\Controllers\PrintController::class, 'transaction'])->name('print.transaction');
     Route::get('/print/service/{id}', [\App\Http\Controllers\PrintController::class, 'service'])->name('print.service');
