@@ -3,100 +3,75 @@
 namespace App\Livewire\News;
 
 use App\Models\Article;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Illuminate\Support\Str;
 
-#[Layout('layouts.app')]
-#[Title('Form Berita - Admin Panel')]
+#[Layout('layouts.admin')]
+#[Title('Editor Artikel')]
 class Form extends Component
 {
     use WithFileUploads;
 
-    public $article;
+    public $articleId;
     public $title;
     public $slug;
     public $content;
-    public $image;
-    public $oldImage;
-    public $category = 'General';
-    public $tags = '';
-    public $author_name;
-    public $is_featured = false;
+    public $category = 'news'; // news, tutorial, promo
     public $is_published = true;
-
-    public $categories = ['General', 'Teknologi', 'Tips & Trik', 'Promo', 'Hardware', 'Review'];
+    public $image;
+    public $existingImage;
 
     public function mount($id = null)
     {
         if ($id) {
-            $this->article = Article::findOrFail($id);
-            $this->title = $this->article->title;
-            $this->slug = $this->article->slug;
-            $this->content = $this->article->content;
-            $this->oldImage = $this->article->image_path;
-            $this->category = $this->article->category;
-            $this->tags = $this->article->tags ? implode(', ', $this->article->tags) : '';
-            $this->author_name = $this->article->author_name;
-            $this->is_featured = $this->article->is_featured;
-            $this->is_published = $this->article->is_published;
-        } else {
-            $this->author_name = auth()->user()->name;
+            $article = Article::findOrFail($id);
+            $this->articleId = $article->id;
+            $this->title = $article->title;
+            $this->slug = $article->slug;
+            $this->content = $article->content;
+            $this->category = $article->category;
+            $this->is_published = $article->is_published;
+            $this->existingImage = $article->image_path;
         }
     }
 
     public function updatedTitle()
     {
-        if (!$this->article) {
-            $this->slug = Str::slug($this->title);
-        }
+        $this->slug = Str::slug($this->title);
     }
 
     public function save()
     {
         $this->validate([
-            'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:articles,slug,' . ($this->article->id ?? 'NULL'),
-            'content' => 'required',
-            'image' => 'nullable|image|max:2048',
-            'category' => 'required|string',
-            'author_name' => 'nullable|string',
+            'title' => 'required|min:5',
+            'slug' => 'required|unique:articles,slug,' . $this->articleId,
+            'content' => 'required|min:20',
+            'category' => 'required',
+            'image' => $this->articleId ? 'nullable|image|max:2048' : 'required|image|max:2048',
         ]);
 
-        $imagePath = $this->oldImage;
+        $imagePath = $this->existingImage;
         if ($this->image) {
             $imagePath = $this->image->store('articles', 'public');
         }
 
-        // Process tags
-        $tagsArray = array_map('trim', explode(',', $this->tags));
-        $tagsArray = array_filter($tagsArray);
-
-        $data = [
+        Article::updateOrCreate(['id' => $this->articleId], [
             'title' => $this->title,
             'slug' => $this->slug,
             'content' => $this->content,
-            'image_path' => $imagePath,
             'category' => $this->category,
-            'tags' => $tagsArray,
-            'author_name' => $this->author_name,
-            'is_featured' => $this->is_featured,
             'is_published' => $this->is_published,
-            'excerpt' => Str::limit(strip_tags($this->content), 150),
-            'published_at' => $this->is_published ? ($this->article->published_at ?? now()) : null,
-        ];
+            'image_path' => $imagePath,
+            'user_id' => Auth::id(),
+            'published_at' => $this->is_published ? now() : null,
+        ]);
 
-        if ($this->article) {
-            $this->article->update($data);
-            $this->dispatch('notify', message: 'Berita diperbarui!', type: 'success');
-        } else {
-            Article::create($data);
-            $this->dispatch('notify', message: 'Berita dibuat!', type: 'success');
-        }
-
-        return redirect()->route('admin.news.index');
+        session()->flash('success', 'Artikel berhasil disimpan.');
+        return redirect()->route('news.index');
     }
 
     public function render()

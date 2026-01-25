@@ -10,25 +10,27 @@ use Livewire\Attributes\Title;
 #[Layout('layouts.store')]
 class Show extends Component
 {
-    public Article $article;
+    public $article;
 
     public function mount($slug)
     {
-        $this->article = Article::where('slug', $slug)
-            ->where('is_published', true)
-            ->firstOrFail();
-            
-        $this->article->increment('views_count');
+        $this->article = Article::where('slug', $slug)->where('is_published', true)->firstOrFail();
     }
 
     #[Title]
     public function pageTitle()
     {
-        return $this->article->title . ' - Yala News';
+        return $this->article->title . ' - Yala Computer';
     }
 
     public function render()
     {
-        return view('livewire.store.news.show');
+        $related = Article::where('is_published', true)
+            ->where('category', $this->article->category)
+            ->where('id', '!=', $this->article->id)
+            ->take(3)
+            ->get();
+
+        return view('livewire.store.news.show', ['related' => $related]);
     }
 }

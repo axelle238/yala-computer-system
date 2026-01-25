@@ -4,30 +4,32 @@ namespace App\Livewire\Store\News;
 
 use App\Models\Article;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Livewire\WithPagination;
 
 #[Layout('layouts.store')]
-#[Title('Berita & Artikel Teknologi - Yala Computer')]
+#[Title('Berita & Artikel - Yala Computer')]
 class Index extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public $category = '';
+
+    public function filter($cat)
+    {
+        $this->category = $cat;
+        $this->resetPage();
+    }
 
     public function render()
     {
         $articles = Article::where('is_published', true)
-            ->where(function($q) {
-                $q->where('title', 'like', '%'.$this->search.'%')
-                  ->orWhere('content', 'like', '%'.$this->search.'%');
-            })
-            ->with('author')
+            ->when($this->category, fn($q) => $q->where('category', $this->category))
             ->latest('published_at')
             ->paginate(9);
 
-        $featured = Article::where('is_published', true)->latest('views_count')->first();
+        $featured = Article::where('is_published', true)->latest('published_at')->first();
 
         return view('livewire.store.news.index', [
             'articles' => $articles,

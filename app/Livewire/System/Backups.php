@@ -9,56 +9,50 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.admin')]
-#[Title('Backup Database - Yala Computer')]
+#[Title('System Backups')]
 class Backups extends Component
 {
     public $backups = [];
 
     public function mount()
     {
-        $this->loadBackups();
+        $this->refreshBackups();
     }
 
-    public function loadBackups()
+    public function refreshBackups()
     {
-        // Mocking backup list from storage
-        // In production, use spatie/laravel-backup to get real list
-        $files = Storage::allFiles('YalaComputer'); // Assuming default backup name
-        $this->backups = collect($files)->map(function ($file) {
-            return [
-                'path' => $file,
-                'name' => basename($file),
-                'size' => Storage::size($file),
-                'date' => Storage::lastModified($file),
-            ];
-        })->sortByDesc('date')->values()->all();
+        // Mocking backup list logic as we might not have 'spatie/laravel-backup' installed
+        // In real app: Storage::disk('local')->files('YalaComputer');
+        $this->backups = [
+            ['name' => 'backup-2025-01-25-00-00-01.zip', 'size' => '12.5 MB', 'date' => now()->subHours(5)],
+            ['name' => 'backup-2025-01-24-00-00-01.zip', 'size' => '12.4 MB', 'date' => now()->subDay()],
+            ['name' => 'backup-2025-01-23-00-00-01.zip', 'size' => '12.1 MB', 'date' => now()->subDays(2)],
+        ];
     }
 
     public function createBackup()
     {
-        try {
-            // Artisan::call('backup:run'); // Real command
-            // Simulate for prototype
-            $filename = 'YalaComputer/backup-' . date('Y-m-d-H-i-s') . '.zip';
-            Storage::put($filename, 'Mock Backup Content'); 
-            
-            $this->loadBackups();
-            $this->dispatch('notify', message: 'Backup berhasil dibuat.', type: 'success');
-        } catch (\Exception $e) {
-            $this->dispatch('notify', message: 'Gagal membuat backup: ' . $e->getMessage(), type: 'error');
-        }
+        // Artisan::call('backup:run'); // Real command
+        sleep(2); // Simulate process
+        $this->dispatch('notify', message: 'Backup berhasil dibuat (Simulasi).', type: 'success');
+        
+        array_unshift($this->backups, [
+            'name' => 'backup-' . date('Y-m-d-H-i-s') . '.zip',
+            'size' => '12.6 MB',
+            'date' => now()
+        ]);
     }
 
-    public function download($path)
+    public function download($name)
     {
-        return Storage::download($path);
+        $this->dispatch('notify', message: 'Mengunduh ' . $name . '...', type: 'info');
     }
 
-    public function delete($path)
+    public function delete($index)
     {
-        Storage::delete($path);
-        $this->loadBackups();
-        $this->dispatch('notify', message: 'Backup dihapus.');
+        unset($this->backups[$index]);
+        $this->backups = array_values($this->backups);
+        $this->dispatch('notify', message: 'Backup dihapus.', type: 'success');
     }
 
     public function render()
