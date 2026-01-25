@@ -2,7 +2,7 @@
 <html lang="id" 
       x-data="{ 
           darkMode: localStorage.getItem('darkMode') === 'true',
-          sidebarOpen: false,
+          sidebarTerbuka: false,
           toggle() { 
               this.darkMode = !this.darkMode; 
               localStorage.setItem('darkMode', this.darkMode);
@@ -79,7 +79,7 @@
                 
                 <!-- Left: Mobile Toggle & Breadcrumb -->
                 <div class="flex items-center gap-4">
-                    <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                    <button @click="sidebarTerbuka = !sidebarTerbuka" class="md:hidden p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                     </button>
                     
