@@ -12,45 +12,45 @@ use Livewire\Attributes\Title;
 #[Title('Detail Pesanan - Yala Computer')]
 class OrderDetail extends Component
 {
-    public Order $order;
+    public Order $pesanan;
 
     public function mount($id)
     {
-        $this->order = Order::with(['items.product', 'voucherUsages'])->where('user_id', Auth::id())->findOrFail($id);
+        $this->pesanan = Order::with(['items.product', 'penggunaanVoucher'])->where('user_id', Auth::id())->findOrFail($id);
     }
 
-    public function cancelOrder()
+    public function batalkanPesanan()
     {
-        if ($this->order->status === 'pending' && $this->order->payment_status === 'unpaid') {
-            $this->order->update(['status' => 'cancelled']);
-            $this->dispatch('notify', message: 'Pesanan dibatalkan.', type: 'success');
+        if ($this->pesanan->status === 'pending' && $this->pesanan->payment_status === 'unpaid') {
+            $this->pesanan->update(['status' => 'cancelled']);
+            $this->dispatch('notify', message: 'Pesanan berhasil dibatalkan.', type: 'success');
         }
     }
 
-    public function payNow()
+    public function bayarSekarang()
     {
-        if ($this->order->snap_token) {
-            $this->dispatch('trigger-payment', token: $this->order->snap_token, orderId: $this->order->id);
+        if ($this->pesanan->snap_token) {
+            $this->dispatch('trigger-payment', token: $this->pesanan->snap_token, orderId: $this->pesanan->id);
         }
     }
 
-    public function printInvoice()
+    public function cetakFaktur()
     {
-        $this->dispatch('notify', message: 'Fitur cetak invoice akan segera hadir!', type: 'info');
+        $this->dispatch('notify', message: 'Fitur cetak faktur akan segera hadir!', type: 'info');
     }
 
     public function render()
     {
-        // Tracking Timeline (Mock based on status)
-        $timeline = [
-            ['status' => 'pending', 'label' => 'Menunggu Pembayaran', 'time' => $this->order->created_at, 'done' => true],
-            ['status' => 'processing', 'label' => 'Diproses Penjual', 'time' => $this->order->paid_at ?? null, 'done' => in_array($this->order->status, ['processing', 'shipped', 'completed', 'received'])],
-            ['status' => 'shipped', 'label' => 'Sedang Dikirim', 'time' => null, 'done' => in_array($this->order->status, ['shipped', 'completed', 'received'])],
-            ['status' => 'completed', 'label' => 'Selesai', 'time' => null, 'done' => in_array($this->order->status, ['completed', 'received'])],
+        // Linimasa Pelacakan (Mock berdasarkan status)
+        $linimasa = [
+            ['status' => 'pending', 'label' => 'Menunggu Pembayaran', 'waktu' => $this->pesanan->created_at, 'selesai' => true],
+            ['status' => 'processing', 'label' => 'Diproses Penjual', 'waktu' => $this->pesanan->paid_at ?? null, 'selesai' => in_array($this->pesanan->status, ['processing', 'shipped', 'completed', 'received'])],
+            ['status' => 'shipped', 'label' => 'Sedang Dikirim', 'waktu' => null, 'selesai' => in_array($this->pesanan->status, ['shipped', 'completed', 'received'])],
+            ['status' => 'completed', 'label' => 'Selesai', 'waktu' => null, 'selesai' => in_array($this->pesanan->status, ['completed', 'received'])],
         ];
 
         return view('livewire.member.order-detail', [
-            'timeline' => $timeline
+            'linimasa' => $linimasa
         ]);
     }
 }

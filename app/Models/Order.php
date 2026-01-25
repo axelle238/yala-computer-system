@@ -3,8 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+/**
+ * Model Pesanan (Order)
+ */
 class Order extends Model
 {
     protected $fillable = [
@@ -24,7 +29,11 @@ class Order extends Model
         'shipped_at',
         'points_redeemed',
         'discount_amount',
-        'due_date', // Added in previous migration for B2B
+        'due_date',
+        'voucher_code', // Tambahan dari migrasi
+        'voucher_discount', // Tambahan dari migrasi
+        'snap_token', // Midtrans
+        'payment_url', // Midtrans
     ];
 
     protected $casts = [
@@ -33,19 +42,42 @@ class Order extends Model
         'total_amount' => 'decimal:2',
     ];
 
-    public function items()
+    /**
+     * Relasi ke Item Pesanan.
+     */
+    public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    public function user()
+    /**
+     * Relasi ke Pengguna (Pelanggan).
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Relasi ke Pembayaran.
+     */
     public function payments(): MorphMany
     {
         return $this->morphMany(Payment::class, 'payable');
+    }
+
+    /**
+     * Relasi ke Penggunaan Voucher.
+     */
+    public function penggunaanVoucher(): HasMany
+    {
+        return $this->hasMany(VoucherUsage::class);
+    }
+
+    // Alias untuk kompatibilitas sementara atau perbaikan pemanggilan
+    public function voucherUsages()
+    {
+        return $this->penggunaanVoucher();
     }
 
     public function getPaidAmountAttribute()
