@@ -80,6 +80,7 @@ class RoleManager extends Component
 
     public function create()
     {
+        // dd('create called');
         $this->reset(['nama', 'hak_akses', 'peranId']);
         $this->hak_akses = []; // Ensure it's an array
         $this->isEdit = false;
