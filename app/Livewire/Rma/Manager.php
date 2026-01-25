@@ -27,6 +27,7 @@ class Manager extends Component
     // Action Inputs
     public $adminNotes = '';
     public $resolutionAction = ''; // repair, replace, refund
+    public $refundAmount = 0; // New Property
 
     public function updatedStatusFilter() { $this->resetPage(); }
     public function updatedSearch() { $this->resetPage(); }
@@ -36,61 +37,60 @@ class Manager extends Component
         $this->selectedRma = Rma::with(['items.product', 'user', 'order'])->findOrFail($id);
         $this->showDetailModal = true;
         $this->adminNotes = $this->selectedRma->admin_notes; // Load existing notes
+        $this->refundAmount = $this->selectedRma->refund_amount ?? 0;
     }
-
-    public function updateStatus($newStatus)
-    {
-        if (!$this->selectedRma) return;
-
-        $this->selectedRma->update([
-            'status' => $newStatus,
-            'admin_notes' => $this->adminNotes
-        ]);
-
-        $this->dispatch('notify', message: 'Status RMA diperbarui.', type: 'success');
-        $this->showDetailModal = false;
-    }
+    
+    // ...
 
     public function resolveRma()
     {
         $this->validate([
             'resolutionAction' => 'required|in:repair,replace,refund',
-            'adminNotes' => 'required|string|min:5'
+            'adminNotes' => 'required|string|min:5',
+            'refundAmount' => 'required_if:resolutionAction,refund|numeric|min:0',
         ]);
 
-        DB::transaction(function () {
-            // 1. Update RMA
-            $this->selectedRma->update([
-                'status' => Rma::STATUS_RESOLVED,
-                'resolution' => $this->resolutionAction,
-                'admin_notes' => $this->adminNotes,
-                'resolved_at' => now(),
-            ]);
+        try {
+            DB::transaction(function () {
+                // 1. Update RMA
+                $this->selectedRma->update([
+                    'status' => Rma::STATUS_RESOLVED,
+                    'resolution' => $this->resolutionAction, // Pastikan kolom ini ada di migrasi, atau gunakan resolution_type
+                    'admin_notes' => $this->adminNotes,
+                    'refund_amount' => $this->resolutionAction === 'refund' ? $this->refundAmount : 0,
+                    'resolved_at' => now(), // Pastikan kolom ini ada atau gunakan updated_at
+                ]);
+                
+                // ... (Inventory Impact)
 
-            // 2. Inventory Impact (Only for Replace)
-            if ($this->resolutionAction === 'replace') {
-                foreach ($this->selectedRma->items as $item) {
-                    // Deduct Stock for Replacement Unit
-                    $item->product->decrement('stock_quantity', $item->quantity);
-                    
-                    InventoryTransaction::create([
-                        'product_id' => $item->product_id,
-                        'user_id' => Auth::id(),
-                        'warehouse_id' => 1,
+                // 3. Refund Logic
+                if ($this->resolutionAction === 'refund') {
+                     // ... (Logic sebelumnya)
+                     // Gunakan $this->refundAmount langsung
+                     $amount = $this->refundAmount;
+                     
+                     // ...
+                     
+                    CashTransaction::create([
+                        'cash_register_id' => $activeRegister->id,
+                        'transaction_number' => 'REF-' . time(),
                         'type' => 'out',
-                        'quantity' => $item->quantity,
-                        'unit_price' => 0, // Warranty replacement cost usually absorbed or tracked differently
-                        'reference_number' => $this->selectedRma->rma_number,
-                        'notes' => 'RMA Replacement Unit Out',
+                        'category' => 'refund',
+                        'amount' => $amount,
+                        'description' => 'Refund RMA #' . $this->selectedRma->rma_number,
+                        'reference_type' => Rma::class,
+                        'reference_id' => $this->selectedRma->id,
+                        'created_by' => Auth::id(),
                     ]);
                 }
-            }
-            
-            // TODO: Refund Logic would connect to Finance module (Cash Transaction Out)
-        });
+            });
 
-        $this->dispatch('notify', message: 'RMA diselesaikan (Resolved).', type: 'success');
-        $this->showDetailModal = false;
+            $this->dispatch('notify', message: 'RMA diselesaikan (Resolved).', type: 'success');
+            $this->showDetailModal = false;
+
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: 'Error: ' . $e->getMessage(), type: 'error');
+        }
     }
 
     public function render()
