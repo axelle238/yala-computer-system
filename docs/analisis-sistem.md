@@ -1,42 +1,43 @@
-# Analisis Sistem - Yala Computer (Revisi: 26 Januari 2026 - Fase 2)
+# Analisis Sistem - Yala Computer (Revisi: 26 Januari 2026 - Fase 3 - Menuju V3)
 
 ## Pendahuluan
-Dokumen ini memperbarui hasil analisis sebelumnya dengan fokus pada transformasi ke "Sistem V3" dan restrukturisasi navigasi Storefront serta modul Media & CS.
+Dokumen ini adalah pembaruan untuk fase implementasi "Sistem V3". Fokus utama adalah perombakan visual total (modern, enterprise, colorful), restrukturisasi menu navigasi, dan peningkatan fitur Sistem & Pengaturan.
 
-## Temuan & Rencana Perubahan
+## Rencana Pengembangan V3
 
-### A. Storefront (Navigasi & Layout)
-1.  **Navbar Utama:**
-    *   **Saat Ini:** Katalog, Merek, Rakit PC, Servis.
-    *   **Perubahan:** 
-        *   Hapus: "Merek", "Rakit PC", "Servis".
-        *   Tambah: "Berita".
-        *   Pindahkan "Merek", "Rakit PC", "Servis" ke Dropdown Menu Pelanggan (User Menu).
-2.  **Footer:**
-    *   **Saat Ini:** Ada link "Lacak Pesanan" dan "Berita".
-    *   **Perubahan:** Hapus link tersebut. "Lacak Pesanan" pindah ke Dropdown Menu Pelanggan.
-3.  **Dropdown Pelanggan:**
-    *   Akan menjadi pusat navigasi fitur fungsional (Rakit PC, Lacak Service, Lacak Pesanan, Merek).
+### A. Tampilan & UX (Redesign Total)
+1.  **Konsep Visual:**
+    *   Tema: Modern, Enterprise, High-End Technology.
+    *   Warna: Lebih berani dan berwarna (colorful), tidak monoton.
+    *   Elemen: Ikon yang relevan untuk setiap menu, layout seragam di semua halaman.
+    *   Aksesibilitas: User-friendly dan mudah digunakan.
+2.  **Layout Frontend & Backend:**
+    *   Redesign `layouts/admin.blade.php` dan `layouts/store.blade.php`.
+    *   Pastikan konsistensi visual antara Dashboard dan Storefront.
 
-### B. Admin / Operasional (Sistem V3)
-1.  **Layout:**
-    *   Perlu redesign `layouts/admin.blade.php` agar lebih "High-End Technology".
-    *   Penggunaan warna gradasi, glassmorphism, dan font modern (Inter/Exo 2 sudah bagus, perlu tuning CSS).
-2.  **Modul "Media dan Customer Service":**
-    *   **Berita & Artikel:** Sudah ada (`admin.news`).
-    *   **Banner:** Sudah ada (`admin.banners`).
-    *   **Inbox/Chat:** Sudah ada (`admin.customers.inbox`), perlu dipastikan live sync.
-    *   **Customer Service:** Perlu menu eksplisit yang menggabungkan Inbox dan Tiket Servis jika memungkinkan, atau penamaan ulang.
+### B. Fitur Sistem & Pengaturan (Peningkatan)
+1.  **Log Aktivitas:**
+    *   **Log Sistem:** Detail teknis, dapat dibuka per item log.
+    *   **Log User:** Pemisahan antara Log Aktivitas Pelanggan dan Log Aktivitas Pegawai.
+2.  **Manajemen Database:**
+    *   Fitur Backup Database manual yang dapat diakses langsung dari dashboard.
+3.  **Informasi Sistem:**
+    *   Halaman informasi sistem yang sangat detail, kompleks, dan terperinci (Environment, Server, PHP, Database, dll).
 
-### C. Kepatuhan Bahasa
-*   Pemeriksaan ulang label menu dan tombol untuk memastikan 100% Bahasa Indonesia baku.
+### C. Konsistensi & Integritas
+1.  **Bahasa:** Wajib 100% Bahasa Indonesia baku di seluruh sistem.
+2.  **Sinkronisasi:** Setiap perubahan backend harus langsung direfleksikan di frontend.
+3.  **Modal:** DILARANG menggunakan modal untuk form input data. Gunakan halaman terpisah atau komponen form inline yang rapi.
 
-## Daftar Tugas (Prioritas)
+## Daftar Tugas Prioritas
 
-1.  **Restrukturisasi Navigasi Store:** Ubah `layouts/store.blade.php`.
-2.  **Implementasi Modul Media & CS:** Pastikan Controller dan View siap dan dalam grup menu yang benar di Sidebar.
-3.  **Redesign Admin V3:** Update `layouts/admin.blade.php` dan `dashboard.blade.php`.
-4.  **Redesign Store V3:** Update `layouts/store.blade.php` (Visual) dan `home.blade.php`.
+1.  **Update Dokumen Analisis:** (Selesai).
+2.  **Redesign Layout V3:** Implementasi CSS dan struktur HTML baru.
+3.  **Pengembangan Menu Sistem:**
+    *   Upgrade `ActivityLog` controller dan view.
+    *   Buat/Update fitur Backup Manager.
+    *   Enhance System Info page.
+4.  **Validasi UI/UX:** Cek responsivitas dan estetika baru.
 
 ---
 *Dibuat oleh: Gemini CLI*
