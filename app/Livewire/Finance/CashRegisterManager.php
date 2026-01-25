@@ -19,9 +19,7 @@ class CashRegisterManager extends Component
 
     // View State
     public $activeRegister = null;
-    public $showOpenModal = false;
-    public $showCloseModal = false;
-    public $showTransactionModal = false;
+    public $activeAction = null; // null, 'open', 'close', 'transaction'
 
     // Open Register Inputs
     public $openingCash = 0;
@@ -40,6 +38,12 @@ class CashRegisterManager extends Component
     public function mount()
     {
         $this->checkActiveRegister();
+    }
+
+    public function setAction($action)
+    {
+        $this->activeAction = $action;
+        $this->resetValidation();
     }
 
     public function checkActiveRegister()
@@ -81,7 +85,7 @@ class CashRegisterManager extends Component
         ]);
 
         session()->flash('success', 'Shift Kasir Berhasil Dibuka!');
-        $this->reset(['openingCash', 'openNote', 'showOpenModal']);
+        $this->reset(['openingCash', 'openNote', 'activeAction']);
         $this->checkActiveRegister();
     }
 
@@ -106,7 +110,7 @@ class CashRegisterManager extends Component
         ]);
 
         session()->flash('success', 'Shift Kasir Ditutup. Laporan tersimpan.');
-        $this->reset(['closingCash', 'closeNote', 'showCloseModal']);
+        $this->reset(['closingCash', 'closeNote', 'activeAction']);
         $this->activeRegister = null;
     }
 
@@ -137,7 +141,7 @@ class CashRegisterManager extends Component
         ]);
 
         session()->flash('success', 'Transaksi berhasil dicatat.');
-        $this->reset(['trxAmount', 'trxDescription', 'showTransactionModal']);
+        $this->reset(['trxAmount', 'trxDescription', 'activeAction']);
         $this->checkActiveRegister(); // Refresh
     }
 
