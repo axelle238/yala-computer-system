@@ -1,55 +1,42 @@
-# Analisis Sistem - Yala Computer (Revisi: 26 Januari 2026)
+# Analisis Sistem - Yala Computer (Revisi: 26 Januari 2026 - Fase 2)
 
 ## Pendahuluan
-Dokumen ini berisi hasil analisis ulang terhadap sistem Yala Computer setelah sinkronisasi awal. Analisis ini menjadi dasar langkah "Indonesinisasi" total dan penyelesaian fitur sesuai instruksi.
+Dokumen ini memperbarui hasil analisis sebelumnya dengan fokus pada transformasi ke "Sistem V3" dan restrukturisasi navigasi Storefront serta modul Media & CS.
 
-## Temuan Utama
+## Temuan & Rencana Perubahan
 
-### A. Admin & Operasional
-1.  **Antarmuka (UI):**
-    *   Sebagian besar Layout Utama (Sidebar, Header, Dashboard) SUDAH menggunakan Bahasa Indonesia dengan baik.
-    *   **Dashboard:** Label metrik, judul kartu, dan status operasional sudah Bahasa Indonesia.
-    *   **Sidebar:** Struktur menu sudah rapi dan berbahasa Indonesia ("Gudang & Logistik", "Keuangan", dll).
-    *   **Inkomsistensi:** Masih ditemukan beberapa key data dari Controller yang dikirim ke View menggunakan Bahasa Inggris (contoh: `$analisis['low_stock']`, `stock_quantity`), meskipun label tampilannya sudah Indonesia.
-2.  **Fitur yang Hilang / Belum Ada:**
-    *   **Menu "Media dan Customer Service":** Belum ada grup menu khusus ini. Fitur CRM tersebar di "CRM & Pelanggan". Perlu pengelompokan ulang untuk: Berita/Artikel, CS, Email Masuk, Banner.
-    *   **Informasi Sistem:** Menu "Sistem & Pengaturan" sudah ada "Log Aktivitas User" dan "Konfigurasi Aplikasi", namun belum ada halaman khusus "Informasi Sistem" yang detail (PHP version, Laravel version, server status, dll).
-3.  **Layout & UX:**
-    *   Instruksi menyebutkan "Input teks tidak boleh transparan". Perlu pengecekan pada komponen Form.
-    *   Dashboard terlihat padat, perlu dipastikan tidak ada elemen yang bertabrakan di layar kecil.
+### A. Storefront (Navigasi & Layout)
+1.  **Navbar Utama:**
+    *   **Saat Ini:** Katalog, Merek, Rakit PC, Servis.
+    *   **Perubahan:** 
+        *   Hapus: "Merek", "Rakit PC", "Servis".
+        *   Tambah: "Berita".
+        *   Pindahkan "Merek", "Rakit PC", "Servis" ke Dropdown Menu Pelanggan (User Menu).
+2.  **Footer:**
+    *   **Saat Ini:** Ada link "Lacak Pesanan" dan "Berita".
+    *   **Perubahan:** Hapus link tersebut. "Lacak Pesanan" pindah ke Dropdown Menu Pelanggan.
+3.  **Dropdown Pelanggan:**
+    *   Akan menjadi pusat navigasi fitur fungsional (Rakit PC, Lacak Service, Lacak Pesanan, Merek).
 
-### B. Storefront (Halaman Pengguna)
-1.  **Bahasa:** Mayoritas UI sudah Bahasa Indonesia.
-2.  **Fitur:** Alur dasar (Katalog -> Checkout) tersedia. Halaman "Order Success" perlu pembaruan visual.
+### B. Admin / Operasional (Sistem V3)
+1.  **Layout:**
+    *   Perlu redesign `layouts/admin.blade.php` agar lebih "High-End Technology".
+    *   Penggunaan warna gradasi, glassmorphism, dan font modern (Inter/Exo 2 sudah bagus, perlu tuning CSS).
+2.  **Modul "Media dan Customer Service":**
+    *   **Berita & Artikel:** Sudah ada (`admin.news`).
+    *   **Banner:** Sudah ada (`admin.banners`).
+    *   **Inbox/Chat:** Sudah ada (`admin.customers.inbox`), perlu dipastikan live sync.
+    *   **Customer Service:** Perlu menu eksplisit yang menggabungkan Inbox dan Tiket Servis jika memungkinkan, atau penamaan ulang.
 
-### C. Kepatuhan Codebase (Backend)
-1.  **Struktur:** Route file sangat besar (`routes/web.php`) tapi terstruktur cukup baik dengan prefix.
-2.  **Bahasa Kode:** Variabel dan logika internal masih dominan Bahasa Inggris. Refactoring nama variabel lokal dianjurkan dilakukan bertahap saat menyentuh fitur tersebut.
+### C. Kepatuhan Bahasa
+*   Pemeriksaan ulang label menu dan tombol untuk memastikan 100% Bahasa Indonesia baku.
 
-## Rencana Aksi (Priority List)
+## Daftar Tugas (Prioritas)
 
-### 1. Perbaikan Layout & UI (Global)
-*   Memastikan input form memiliki background solid (tidak transparan).
-*   Standardisasi layout Admin agar konsisten.
-
-### 2. Implementasi Menu Baru
-*   **Media dan Customer Service:**
-    *   Pindahkan/Buat menu "Berita & Artikel".
-    *   Pindahkan/Buat menu "Customer Service" (Chat/Tiket).
-    *   Buat menu "Pesan Email Masuk" (Inbox).
-    *   Pindahkan/Buat menu "Banner & Media".
-*   **Sistem & Pengaturan:**
-    *   Tambahkan sub-menu "Informasi Sistem".
-
-### 3. Peningkatan Fitur
-*   **AI Live Chat:** Re-branding menjadi "YALA" dan integrasi pesan ke Dashboard Admin.
-*   **Order Success:** Redesign halaman sukses pesanan.
-*   **Log Aktivitas:** Pastikan mencatat semua aksi krusial.
-
-### 4. Validasi Bahasa
-*   Scanning file Blade untuk teks statis Inggris yang tersisa.
-*   Pastikan notifikasi (Flash Message) 100% Indonesia.
+1.  **Restrukturisasi Navigasi Store:** Ubah `layouts/store.blade.php`.
+2.  **Implementasi Modul Media & CS:** Pastikan Controller dan View siap dan dalam grup menu yang benar di Sidebar.
+3.  **Redesign Admin V3:** Update `layouts/admin.blade.php` dan `dashboard.blade.php`.
+4.  **Redesign Store V3:** Update `layouts/store.blade.php` (Visual) dan `home.blade.php`.
 
 ---
 *Dibuat oleh: Gemini CLI*
-*Status: Validated*
