@@ -39,9 +39,14 @@ class Dashboard extends Component
                 'pesan_baru' => PesanPelanggan::where('status', PesanPelanggan::STATUS_BARU)->count(), // Fitur baru
             ];
 
-            // Penyesuaian berdasarkan Peran (Contoh sederhana)
+            // Penyesuaian berdasarkan Peran
             if ($pengguna->peran && $pengguna->peran->nama === 'Teknisi') {
-                $data['tiket_milik_saya'] = ServiceTicket::where('technician_id', $pengguna->id)->whereNotIn('status', ['picked_up', 'cancelled'])->count();
+                $data['tiket_milik_saya'] = ServiceTicket::where('technician_id', $pengguna->id)
+                    ->whereNotIn('status', ['picked_up', 'cancelled'])
+                    ->count();
+                $data['servis_siap_ambil'] = ServiceTicket::where('technician_id', $pengguna->id)
+                    ->where('status', 'ready')
+                    ->count();
             }
 
             return $data;
