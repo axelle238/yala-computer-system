@@ -6,6 +6,7 @@ use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\StockOpname as ModelStokOpname;
 use App\Models\StockOpnameItem as ItemStokOpname;
+use App\Models\Warehouse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -33,10 +34,17 @@ class StockOpname extends Component
 
     public function mulaiSesi()
     {
+        $gudangUtama = Warehouse::first();
+        
+        if (!$gudangUtama) {
+            $this->dispatch('notify', message: 'Tidak ada data gudang ditemukan.', type: 'error');
+            return;
+        }
+
         // Buat sesi opname baru
         $this->opnameAktif = ModelStokOpname::create([
             'opname_number' => 'OPN-' . date('Ymd-His'),
-            'warehouse_id' => 1, // Asumsi gudang utama
+            'warehouse_id' => $gudangUtama->id,
             'creator_id' => Auth::id(),
             'status' => 'menghitung',
             'opname_date' => now(),
