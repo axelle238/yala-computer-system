@@ -22,9 +22,9 @@ class Manager extends Component
     public $statusFilter = '';
     public $search = '';
 
-    // Detail Modal State
+    // View State
+    public $activeAction = null; // null, 'detail'
     public $selectedRma = null;
-    public $showDetailModal = false;
     
     // Action Inputs
     public $adminNotes = '';
@@ -34,12 +34,19 @@ class Manager extends Component
     public function updatedStatusFilter() { $this->resetPage(); }
     public function updatedSearch() { $this->resetPage(); }
 
-    public function openDetail($id)
+    public function openDetailPanel($id)
     {
         $this->selectedRma = Rma::with(['items.product', 'user', 'order'])->findOrFail($id);
-        $this->showDetailModal = true;
+        $this->activeAction = 'detail';
         $this->adminNotes = $this->selectedRma->admin_notes; // Load existing notes
         $this->refundAmount = $this->selectedRma->refund_amount ?? 0;
+    }
+
+    public function closeDetailPanel()
+    {
+        $this->activeAction = null;
+        $this->selectedRma = null;
+        $this->reset(['adminNotes', 'resolutionAction', 'refundAmount']);
     }
     
     // ...
@@ -89,7 +96,7 @@ class Manager extends Component
             });
 
             $this->dispatch('notify', message: 'RMA diselesaikan (Resolved).', type: 'success');
-            $this->showDetailModal = false;
+            $this->closeDetailPanel();
 
         } catch (\Exception $e) {
             $this->dispatch('notify', message: 'Error: ' . $e->getMessage(), type: 'error');
