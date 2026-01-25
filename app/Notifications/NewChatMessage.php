@@ -43,7 +43,7 @@ class NewChatMessage extends Notification
         return [
             'title' => 'Pesan Baru dari ' . $this->senderName,
             'message' => substr($this->message, 0, 100),
-            'action' => route('customers.inbox'),
+            'action' => route('customers.live-chat'),
             'type' => 'chat'
         ];
     }
