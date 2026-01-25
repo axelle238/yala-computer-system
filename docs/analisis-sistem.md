@@ -1,44 +1,55 @@
-# Analisis Sistem - Yala Computer
+# Analisis Sistem - Yala Computer (Revisi: 26 Januari 2026)
 
 ## Pendahuluan
-Dokumen ini berisi hasil analisis menyeluruh terhadap sistem Yala Computer, mencakup area Admin/Operasional dan Storefront. Analisis dilakukan untuk memastikan kesiapan sistem dalam proses "Indonesinisasi" total sesuai aturan proyek.
+Dokumen ini berisi hasil analisis ulang terhadap sistem Yala Computer setelah sinkronisasi awal. Analisis ini menjadi dasar langkah "Indonesinisasi" total dan penyelesaian fitur sesuai instruksi.
 
 ## Temuan Utama
 
 ### A. Admin & Operasional
-1.  **Routing:** Struktur routing sudah sangat lengkap mencakup POS, Manajemen Stok, Layanan Servis, CRM, Keuangan, dan SDM. Namun, sebagian besar nama route dan prefix masih menggunakan Bahasa Inggris (contoh: `/admin/purchase-orders`).
-2.  **Antarmuka (UI):** Sidebar dan Header sudah menggunakan Bahasa Indonesia untuk label utama, namun masih terdapat istilah teknis Inggris seperti "Integrated System", "Front Office", "CRM", "HRM".
-3.  **Logika Backend:**
-    *   **Nama Class & Method:** Hampir seluruhnya masih dalam Bahasa Inggris (contoh: `Dashboard::render()`, `BusinessIntelligence::getProfitLoss()`).
-    *   **Variabel:** Penggunaan variabel internal masih didominasi Bahasa Inggris.
-    *   **Pesan Notifikasi:** Sebagian sudah Bahasa Indonesia, namun validasi bawaan Laravel kemungkinan masih Inggris.
+1.  **Antarmuka (UI):**
+    *   Sebagian besar Layout Utama (Sidebar, Header, Dashboard) SUDAH menggunakan Bahasa Indonesia dengan baik.
+    *   **Dashboard:** Label metrik, judul kartu, dan status operasional sudah Bahasa Indonesia.
+    *   **Sidebar:** Struktur menu sudah rapi dan berbahasa Indonesia ("Gudang & Logistik", "Keuangan", dll).
+    *   **Inkomsistensi:** Masih ditemukan beberapa key data dari Controller yang dikirim ke View menggunakan Bahasa Inggris (contoh: `$analisis['low_stock']`, `stock_quantity`), meskipun label tampilannya sudah Indonesia.
+2.  **Fitur yang Hilang / Belum Ada:**
+    *   **Menu "Media dan Customer Service":** Belum ada grup menu khusus ini. Fitur CRM tersebar di "CRM & Pelanggan". Perlu pengelompokan ulang untuk: Berita/Artikel, CS, Email Masuk, Banner.
+    *   **Informasi Sistem:** Menu "Sistem & Pengaturan" sudah ada "Log Aktivitas User" dan "Konfigurasi Aplikasi", namun belum ada halaman khusus "Informasi Sistem" yang detail (PHP version, Laravel version, server status, dll).
+3.  **Layout & UX:**
+    *   Instruksi menyebutkan "Input teks tidak boleh transparan". Perlu pengecekan pada komponen Form.
+    *   Dashboard terlihat padat, perlu dipastikan tidak ada elemen yang bertabrakan di layar kecil.
 
 ### B. Storefront (Halaman Pengguna)
-1.  **Alur Pengguna:** Alur dari Katalog -> Produk -> Keranjang -> Checkout sudah tersedia.
-2.  **Integrasi:** Frontend dan Backend sudah terhubung (Livewire).
-3.  **Bahasa:** Teks UI di Storefront lebih banyak menggunakan Bahasa Indonesia dibanding area Admin, namun beberapa placeholder dan pesan error masih perlu diperbaiki.
+1.  **Bahasa:** Mayoritas UI sudah Bahasa Indonesia.
+2.  **Fitur:** Alur dasar (Katalog -> Checkout) tersedia. Halaman "Order Success" perlu pembaruan visual.
 
-### C. Basis Data & Model
-1.  **Skema Database:** Seluruh tabel dan kolom menggunakan Bahasa Inggris (contoh: `products`, `stock_quantity`, `buy_price`).
-2.  **Relasi Eloquent:** Nama fungsi relasi masih Inggris (contoh: `Product::category()`).
+### C. Kepatuhan Codebase (Backend)
+1.  **Struktur:** Route file sangat besar (`routes/web.php`) tapi terstruktur cukup baik dengan prefix.
+2.  **Bahasa Kode:** Variabel dan logika internal masih dominan Bahasa Inggris. Refactoring nama variabel lokal dianjurkan dilakukan bertahap saat menyentuh fitur tersebut.
 
-## Rencana Perbaikan (Indonesinisasi)
+## Rencana Aksi (Priority List)
 
-### Tahap 1: Pembersihan Komentar & Teks UI
-*   Mengubah seluruh komentar kode ke Bahasa Indonesia.
-*   Memastikan 100% teks yang muncul di browser adalah Bahasa Indonesia.
+### 1. Perbaikan Layout & UI (Global)
+*   Memastikan input form memiliki background solid (tidak transparan).
+*   Standardisasi layout Admin agar konsisten.
 
-### Tahap 2: Refactoring Backend (Bertahap)
-*   Mengubah nama variabel dalam fungsi.
-*   Mengubah nama method secara hati-hati (1 commit per perubahan logis).
-*   Mengubah nama Class/Model.
+### 2. Implementasi Menu Baru
+*   **Media dan Customer Service:**
+    *   Pindahkan/Buat menu "Berita & Artikel".
+    *   Pindahkan/Buat menu "Customer Service" (Chat/Tiket).
+    *   Buat menu "Pesan Email Masuk" (Inbox).
+    *   Pindahkan/Buat menu "Banner & Media".
+*   **Sistem & Pengaturan:**
+    *   Tambahkan sub-menu "Informasi Sistem".
 
-### Tahap 3: Migrasi Basis Data
-*   Melakukan migrasi untuk mengubah nama kolom tabel ke Bahasa Indonesia (contoh: `buy_price` -> `harga_beli`). *Catatan: Ini adalah perubahan berisiko tinggi dan akan dilakukan dengan checkpoint yang ketat.*
+### 3. Peningkatan Fitur
+*   **AI Live Chat:** Re-branding menjadi "YALA" dan integrasi pesan ke Dashboard Admin.
+*   **Order Success:** Redesign halaman sukses pesanan.
+*   **Log Aktivitas:** Pastikan mencatat semua aksi krusial.
 
-## Kesimpulan
-Sistem secara fungsional sudah sangat kaya fitur, namun secara bahasa masih sangat "Inggris-sentris" di level kode. Diperlukan upaya refactoring besar-besaran untuk mematuhi aturan "Bahasa Indonesia 100%".
+### 4. Validasi Bahasa
+*   Scanning file Blade untuk teks statis Inggris yang tersisa.
+*   Pastikan notifikasi (Flash Message) 100% Indonesia.
 
 ---
 *Dibuat oleh: Gemini CLI*
-*Tanggal: 25 Januari 2026*
+*Status: Validated*
