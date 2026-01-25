@@ -23,7 +23,7 @@
          x-transition:leave-end="opacity-0"
          @click="$wire.close()"></div>
 
-    <!-- Modal -->
+    <!-- Spotlight Overlay -->
     <div class="fixed inset-0 z-[101] overflow-y-auto p-4 sm:p-6 md:p-20">
         <div class="mx-auto max-w-2xl transform divide-y divide-slate-100 dark:divide-slate-700 overflow-hidden rounded-2xl bg-white dark:bg-slate-800 shadow-2xl transition-all border border-slate-200 dark:border-slate-700"
              x-show="isOpen"

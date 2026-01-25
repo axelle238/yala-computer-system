@@ -18,8 +18,8 @@ class Manager extends Component
     public $search = '';
     public $statusFilter = '';
 
-    // Modal State
-    public $showDetail = false;
+    // View State
+    public $activeAction = null; // null, 'detail'
     public $selectedAssembly = null;
     
     // Technician Input
@@ -32,7 +32,7 @@ class Manager extends Component
         $this->resetPage();
     }
 
-    public function openDetail($id)
+    public function openDetailPanel($id)
     {
         $this->selectedAssembly = PcAssembly::with(['order.user', 'order.items.product'])->find($id);
         
@@ -53,13 +53,13 @@ class Manager extends Component
                 })->toArray();
             }
 
-            $this->showDetail = true;
+            $this->activeAction = 'detail';
         }
     }
 
-    public function closeDetail()
+    public function closePanel()
     {
-        $this->showDetail = false;
+        $this->activeAction = null;
         $this->selectedAssembly = null;
     }
 
