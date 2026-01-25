@@ -25,8 +25,8 @@ Route::get('/track-order', \App\Livewire\Front\TrackOrder::class)->name('track-o
 Route::get('/contact-us', \App\Livewire\Store\ContactUs::class)->name('store.contact'); // New
 Route::get('/about-us', \App\Livewire\Store\AboutUs::class)->name('store.about'); // New
 Route::get('/cart', \App\Livewire\Store\Cart::class)->name('cart');
-Route::get('/checkout-secure', \App\Livewire\Store\Checkout::class)->name('checkout.secure');
-Route::get('/checkout', \App\Livewire\Store\Checkout::class)->name('checkout');
+Route::get('/checkout-secure', \App\Livewire\Store\Checkout::class)->name('checkout.secure')->middleware('store.configured');
+Route::get('/checkout', \App\Livewire\Store\Checkout::class)->name('checkout')->middleware('store.configured');
 Route::get('/wishlist', \App\Livewire\Store\Wishlist::class)->name('wishlist');
 Route::get('/order-success/{id}', \App\Livewire\Store\OrderSuccess::class)->name('order.success');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
@@ -148,7 +148,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // Online Orders (Sales)
     Route::get('/orders', \App\Livewire\Orders\Index::class)->name('orders.index');
-    Route::get('/pos', \App\Livewire\Sales\PointOfSale::class)->name('sales.pos'); // New POS
+    Route::get('/pos', \App\Livewire\Sales\PointOfSale::class)->name('sales.pos')->middleware('store.configured'); // New POS
     Route::get('/orders/logistics', \App\Livewire\Logistics\Manager::class)->name('logistics.manager'); // New
     Route::get('/orders/{id}', \App\Livewire\Orders\Show::class)->name('orders.show');
 

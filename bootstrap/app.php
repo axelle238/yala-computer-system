@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(\App\Http\Middleware\CheckForMaintenanceMode::class);
         $middleware->alias([
             'shift.open' => \App\Http\Middleware\EnsureCashRegisterOpen::class,
+            'store.configured' => \App\Http\Middleware\EnsureStoreConfigured::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
