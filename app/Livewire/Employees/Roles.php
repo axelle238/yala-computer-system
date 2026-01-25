@@ -3,7 +3,6 @@
 namespace App\Livewire\Employees;
 
 use App\Models\Role;
-use App\Models\Permission;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -12,40 +11,24 @@ use Livewire\Attributes\Title;
 #[Title('Manajemen Akses & Jabatan')]
 class Roles extends Component
 {
-    public $roles = [];
-    public $permissions = [];
+    public $permissionsList = [];
+    public $showForm = false;
     
     // Form
-    public $showForm = false;
     public $roleId;
     public $name;
     public $selectedPermissions = [];
 
     public function mount()
     {
-        $this->loadData();
-    }
-
-    public function loadData()
-    {
-        // Mock Data Logic (Asuming Spatie Permission or Custom Table structure)
-        // In real app: Role::with('permissions')->get();
-        
-        $this->permissions = [
-            'pos' => ['access_pos', 'process_refund'],
-            'inventory' => ['view_product', 'create_product', 'edit_product', 'adjust_stock'],
-            'finance' => ['view_reports', 'manage_expenses', 'close_register'],
-            'users' => ['view_employees', 'manage_roles'],
-            'settings' => ['update_settings', 'view_logs'],
+        // Define system permissions map
+        $this->permissionsList = [
+            'POS' => ['access_pos', 'process_refund'],
+            'Inventory' => ['view_product', 'create_product', 'edit_product', 'adjust_stock'],
+            'Finance' => ['view_reports', 'manage_expenses', 'close_register'],
+            'HRM' => ['view_employees', 'manage_roles', 'view_payroll'],
+            'System' => ['update_settings', 'view_logs', 'backup_db'],
         ];
-
-        // Mock Roles if DB empty or not migrated
-        $this->roles = collect([
-            ['id' => 1, 'name' => 'Super Admin', 'permissions' => ['*']],
-            ['id' => 2, 'name' => 'Store Manager', 'permissions' => ['view_reports', 'manage_expenses', 'view_product', 'adjust_stock']],
-            ['id' => 3, 'name' => 'Kasir', 'permissions' => ['access_pos']],
-            ['id' => 4, 'name' => 'Teknisi', 'permissions' => ['view_product']],
-        ]);
     }
 
     public function create()
@@ -56,24 +39,24 @@ class Roles extends Component
 
     public function edit($id)
     {
-        // Mock finding role
-        $role = $this->roles->firstWhere('id', $id);
-        
-        $this->roleId = $role['id'];
-        $this->name = $role['name'];
-        $this->selectedPermissions = $role['permissions'];
+        $role = Role::findOrFail($id);
+        $this->roleId = $role->id;
+        $this->name = $role->name;
+        $this->selectedPermissions = $role->permissions ?? [];
         $this->showForm = true;
     }
 
     public function save()
     {
         $this->validate([
-            'name' => 'required|min:3',
+            'name' => 'required|min:3|unique:roles,name,' . $this->roleId,
             'selectedPermissions' => 'required|array'
         ]);
 
-        // Logic to save to DB would go here
-        // Role::updateOrCreate(...)
+        Role::updateOrCreate(['id' => $this->roleId], [
+            'name' => $this->name,
+            'permissions' => $this->selectedPermissions
+        ]);
         
         $this->dispatch('notify', message: 'Role & Hak Akses berhasil disimpan.', type: 'success');
         $this->showForm = false;
@@ -81,12 +64,19 @@ class Roles extends Component
 
     public function delete($id)
     {
-        // Role::destroy($id);
+        $role = Role::find($id);
+        if ($role->users()->exists()) {
+            $this->dispatch('notify', message: 'Gagal! Masih ada user dengan role ini.', type: 'error');
+            return;
+        }
+        
+        $role->delete();
         $this->dispatch('notify', message: 'Role dihapus.', type: 'success');
     }
 
     public function render()
     {
-        return view('livewire.employees.roles');
+        $roles = Role::latest()->get();
+        return view('livewire.employees.roles', ['roles' => $roles, 'permissions' => $this->permissionsList]);
     }
 }
