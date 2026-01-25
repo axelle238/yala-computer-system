@@ -51,12 +51,12 @@ class Index extends Component
         DB::transaction(function () use ($path) {
             $expense = Expense::create([
                 'user_id' => Auth::id(),
-                'description' => $this->description,
+                'title' => $this->description,
                 'amount' => $this->amount,
                 'category' => $this->category,
-                'date' => $this->date,
-                'payment_method' => $this->payment_method,
-                'receipt_path' => $path,
+                'expense_date' => $this->date,
+                // 'payment_method' => $this->payment_method, // Tidak ada di schema
+                // 'receipt_path' => $path, // Tidak ada di schema
             ]);
 
             // Jika tunai, potong dari kasir aktif
@@ -89,12 +89,12 @@ class Index extends Component
     public function render()
     {
         $expenses = Expense::with('user')
-            ->where('description', 'like', '%'.$this->search.'%')
-            ->latest('date')
+            ->where('title', 'like', '%'.$this->search.'%')
+            ->latest('expense_date')
             ->paginate(10);
 
         // Simple Stats
-        $monthlyTotal = Expense::whereMonth('date', now()->month)->sum('amount');
+        $monthlyTotal = Expense::whereMonth('expense_date', now()->month)->sum('amount');
         
         return view('livewire.expenses.index', [
             'expenses' => $expenses,
