@@ -4,6 +4,8 @@ namespace App\Livewire\Rma;
 
 use App\Models\Rma;
 use App\Models\InventoryTransaction;
+use App\Models\CashRegister;
+use App\Models\CashTransaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -55,28 +57,29 @@ class Manager extends Component
                 // 1. Update RMA
                 $this->selectedRma->update([
                     'status' => Rma::STATUS_RESOLVED,
-                    'resolution' => $this->resolutionAction, // Pastikan kolom ini ada di migrasi, atau gunakan resolution_type
+                    'resolution_type' => $this->resolutionAction,
                     'admin_notes' => $this->adminNotes,
                     'refund_amount' => $this->resolutionAction === 'refund' ? $this->refundAmount : 0,
-                    'resolved_at' => now(), // Pastikan kolom ini ada atau gunakan updated_at
                 ]);
                 
-                // ... (Inventory Impact)
+                // 2. Inventory Impact (Only for Replace)
 
                 // 3. Refund Logic
                 if ($this->resolutionAction === 'refund') {
-                     // ... (Logic sebelumnya)
-                     // Gunakan $this->refundAmount langsung
-                     $amount = $this->refundAmount;
-                     
-                     // ...
-                     
+                    $activeRegister = CashRegister::where('user_id', Auth::id())
+                        ->where('status', 'open')
+                        ->first();
+
+                    if (!$activeRegister) {
+                        throw new \Exception('Gagal: Anda harus membuka sesi Kasir (Cash Register) terlebih dahulu untuk memproses Refund Tunai.');
+                    }
+
                     CashTransaction::create([
                         'cash_register_id' => $activeRegister->id,
                         'transaction_number' => 'REF-' . time(),
                         'type' => 'out',
                         'category' => 'refund',
-                        'amount' => $amount,
+                        'amount' => $this->refundAmount,
                         'description' => 'Refund RMA #' . $this->selectedRma->rma_number,
                         'reference_type' => Rma::class,
                         'reference_id' => $this->selectedRma->id,
