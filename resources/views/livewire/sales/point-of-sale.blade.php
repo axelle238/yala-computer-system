@@ -57,7 +57,7 @@
                         </svg>
                     </div>
                     <input type="text" 
-                           wire:model.live.debounce.300ms="searchQuery" 
+                           wire:model.live.debounce.300ms="kataKunciCari" 
                            class="block w-full pl-12 pr-4 py-3.5 border-slate-200 dark:border-slate-700 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm text-lg font-medium" 
                            placeholder="Scan Barcode atau Cari Nama Produk... [Tekan F2]"
                            id="productSearchInput"
@@ -69,12 +69,12 @@
                 
                 <!-- Category Tabs -->
                 <div class="flex gap-2 mt-4 overflow-x-auto pb-1 scrollbar-hide">
-                    <button wire:click="$set('categoryId', null)" class="px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all transform active:scale-95 {{ is_null($categoryId) ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700' }}">
+                    <button wire:click="$set('idKategori', null)" class="px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all transform active:scale-95 {{ is_null($idKategori) ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700' }}">
                         Semua
                     </button>
-                    @foreach($categories as $cat)
-                        <button wire:click="$set('categoryId', {{ $cat->id }})" class="px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all transform active:scale-95 {{ $categoryId == $cat->id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700' }}">
-                            {{ $cat->name }}
+                    @foreach($daftarKategori as $kat)
+                        <button wire:click="$set('idKategori', {{ $kat->id }})" class="px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all transform active:scale-95 {{ $idKategori == $kat->id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700' }}">
+                            {{ $kat->name }}
                         </button>
                     @endforeach
                 </div>
@@ -83,30 +83,30 @@
             <!-- Product Grid -->
             <div class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-100 dark:bg-slate-950">
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-20">
-                    @forelse($products as $product)
-                        <button wire:click="addToCart({{ $product->id }})" class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-xl hover:border-indigo-400 dark:hover:border-indigo-500 transition-all duration-200 group text-left flex flex-col h-full transform hover:-translate-y-1 relative">
+                    @forelse($produkList as $produk)
+                        <button wire:click="tambahKeKeranjang({{ $produk->id }})" class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-xl hover:border-indigo-400 dark:hover:border-indigo-500 transition-all duration-200 group text-left flex flex-col h-full transform hover:-translate-y-1 relative">
                             
                             <!-- Stock Indicator -->
                             <div class="absolute top-2 right-2 z-10">
-                                <span class="px-2 py-1 rounded-md text-[10px] font-bold backdrop-blur-md {{ $product->stock_quantity <= 5 ? 'bg-rose-500/90 text-white' : 'bg-slate-900/70 text-white' }}">
-                                    {{ $product->stock_quantity }} Unit
+                                <span class="px-2 py-1 rounded-md text-[10px] font-bold backdrop-blur-md {{ $produk->stock_quantity <= 5 ? 'bg-rose-500/90 text-white' : 'bg-slate-900/70 text-white' }}">
+                                    {{ $produk->stock_quantity }} Unit
                                 </span>
                             </div>
 
                             <div class="h-36 bg-slate-100 dark:bg-slate-800 relative overflow-hidden flex items-center justify-center">
-                                @if($product->image_path)
-                                    <img src="{{ Storage::url($product->image_path) }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                @if($produk->image_path)
+                                    <img src="{{ Storage::url($produk->image_path) }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                                 @else
                                     <svg class="w-12 h-12 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                 @endif
                             </div>
                             
                             <div class="p-4 flex-1 flex flex-col">
-                                <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm line-clamp-2 leading-snug mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ $product->name }}</h3>
-                                <div class="text-[10px] font-mono text-slate-400 mb-3">{{ $product->sku }}</div>
+                                <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm line-clamp-2 leading-snug mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ $produk->name }}</h3>
+                                <div class="text-[10px] font-mono text-slate-400 mb-3">{{ $produk->sku }}</div>
                                 <div class="mt-auto flex items-center justify-between">
                                     <div class="font-black text-lg text-indigo-600 dark:text-indigo-400">
-                                        <span class="text-xs font-normal text-slate-400 mr-0.5">Rp</span>{{ number_format($product->sell_price, 0, ',', '.') }}
+                                        <span class="text-xs font-normal text-slate-400 mr-0.5">Rp</span>{{ number_format($produk->sell_price, 0, ',', '.') }}
                                     </div>
                                     <div class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -128,7 +128,7 @@
             
             <!-- Pagination -->
             <div class="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
-                {{ $products->links() }}
+                {{ $produkList->links() }}
             </div>
         </div>
 
@@ -142,18 +142,18 @@
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                         Pelanggan
                     </label>
-                    @if($selectedMemberId)
-                        <button wire:click="$set('selectedMemberId', null)" class="text-[10px] font-bold text-rose-500 hover:text-rose-600 transition-colors uppercase tracking-wider">Ganti</button>
+                    @if($idMemberTerpilih)
+                        <button wire:click="$set('idMemberTerpilih', null)" class="text-[10px] font-bold text-rose-500 hover:text-rose-600 transition-colors uppercase tracking-wider">Ganti</button>
                     @endif
                 </div>
                 <div class="relative">
-                    @if($selectedMemberId)
+                    @if($idMemberTerpilih)
                         <div class="flex items-center gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 rounded-xl">
                             <div class="w-10 h-10 rounded-full bg-indigo-200 dark:bg-indigo-800 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold shadow-sm">
-                                {{ substr($guestName, 0, 1) }}
+                                {{ substr($namaTamu, 0, 1) }}
                             </div>
                             <div>
-                                <div class="font-bold text-indigo-900 dark:text-indigo-300 text-sm leading-tight">{{ $guestName }}</div>
+                                <div class="font-bold text-indigo-900 dark:text-indigo-300 text-sm leading-tight">{{ $namaTamu }}</div>
                                 <div class="text-[10px] font-bold text-indigo-500 uppercase tracking-wider mt-0.5">Member Terdaftar</div>
                             </div>
                             <div class="ml-auto">
@@ -162,13 +162,13 @@
                         </div>
                     @else
                         <div class="relative">
-                            <input type="text" wire:model.live.debounce="memberSearch" class="w-full text-sm rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent py-2.5 pl-9 transition-shadow" placeholder="Cari Nama / No. HP...">
+                            <input type="text" wire:model.live.debounce="cariMember" class="w-full text-sm rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent py-2.5 pl-9 transition-shadow" placeholder="Cari Nama / No. HP...">
                             <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </div>
-                        @if(!empty($searchResultsMember))
+                        @if(!empty($hasilCariMember))
                             <div class="absolute z-50 w-full bg-white dark:bg-slate-800 mt-2 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar">
-                                @foreach($searchResultsMember as $member)
-                                    <button wire:click="selectMember({{ $member->id }})" class="w-full text-left px-4 py-3 hover:bg-indigo-50 dark:hover:bg-slate-700 text-sm border-b border-slate-50 dark:border-slate-700 last:border-0 transition-colors group">
+                                @foreach($hasilCariMember as $member)
+                                    <button wire:click="pilihMember({{ $member->id }})" class="w-full text-left px-4 py-3 hover:bg-indigo-50 dark:hover:bg-slate-700 text-sm border-b border-slate-50 dark:border-slate-700 last:border-0 transition-colors group">
                                         <div class="font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-400">{{ $member->name }}</div>
                                         <div class="text-xs text-slate-500 dark:text-slate-400">{{ $member->phone ?? $member->email }}</div>
                                     </button>
@@ -181,30 +181,30 @@
 
             <!-- Cart Items -->
             <div class="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar bg-white dark:bg-slate-900">
-                @forelse($cart as $productId => $item)
+                @forelse($keranjang as $idProduk => $item)
                     <div class="flex gap-4 relative group animate-fade-in-up">
                         <div class="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center shrink-0 text-slate-400 border border-slate-200 dark:border-slate-700">
-                             @if(isset($item['image']) && $item['image'])
-                                <img src="{{ Storage::url($item['image']) }}" class="w-full h-full object-cover rounded-xl">
+                             @if(isset($item['gambar']) && $item['gambar'])
+                                <img src="{{ Storage::url($item['gambar']) }}" class="w-full h-full object-cover rounded-xl">
                             @else
                                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                             @endif
                         </div>
                         <div class="flex-1 min-w-0 flex flex-col justify-center">
                             <div class="flex justify-between items-start mb-1">
-                                <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate pr-2 leading-tight">{{ $item['name'] }}</h4>
-                                <div class="font-bold text-slate-900 dark:text-white text-sm">Rp {{ number_format($item['price'] * $item['qty'], 0, ',', '.') }}</div>
+                                <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate pr-2 leading-tight">{{ $item['nama'] }}</h4>
+                                <div class="font-bold text-slate-900 dark:text-white text-sm">Rp {{ number_format($item['harga'] * $item['qty'], 0, ',', '.') }}</div>
                             </div>
                             <div class="flex items-center justify-between">
-                                <div class="text-xs text-slate-500 dark:text-slate-400">@ {{ number_format($item['price'], 0, ',', '.') }}</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400">@ {{ number_format($item['harga'], 0, ',', '.') }}</div>
                                 <div class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700">
-                                    <button wire:click="updateQty({{ $productId }}, {{ $item['qty'] - 1 }})" class="w-6 h-6 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-rose-500 dark:hover:text-rose-400 rounded-md transition-all shadow-sm font-bold text-sm">-</button>
+                                    <button wire:click="perbaruiJumlah({{ $idProduk }}, {{ $item['qty'] - 1 }})" class="w-6 h-6 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-rose-500 dark:hover:text-rose-400 rounded-md transition-all shadow-sm font-bold text-sm">-</button>
                                     <input type="number" value="{{ $item['qty'] }}" class="w-8 text-center border-0 p-0 text-xs font-bold focus:ring-0 bg-transparent text-slate-800 dark:text-white" readonly>
-                                    <button wire:click="updateQty({{ $productId }}, {{ $item['qty'] + 1 }})" class="w-6 h-6 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-emerald-500 dark:hover:text-emerald-400 rounded-md transition-all shadow-sm font-bold text-sm">+</button>
+                                    <button wire:click="perbaruiJumlah({{ $idProduk }}, {{ $item['qty'] + 1 }})" class="w-6 h-6 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-emerald-500 dark:hover:text-emerald-400 rounded-md transition-all shadow-sm font-bold text-sm">+</button>
                                 </div>
                             </div>
                         </div>
-                        <button wire:click="removeItem({{ $productId }})" class="absolute -left-2 -top-2 bg-white dark:bg-slate-800 text-rose-500 border border-slate-200 dark:border-slate-700 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-50 dark:hover:bg-rose-900 shadow-sm z-10 hover:scale-110">
+                        <button wire:click="hapusItem({{ $idProduk }})" class="absolute -left-2 -top-2 bg-white dark:bg-slate-800 text-rose-500 border border-slate-200 dark:border-slate-700 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-50 dark:hover:bg-rose-900 shadow-sm z-10 hover:scale-110">
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
@@ -226,16 +226,16 @@
                         <span>Subtotal</span>
                         <span class="font-mono">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                     </div>
-                    @if($discount > 0)
+                    @if($diskon > 0)
                     <div class="flex justify-between text-sm text-emerald-600 dark:text-emerald-400 font-medium">
                         <span>Diskon Member</span>
-                        <span class="font-mono">- Rp {{ number_format($discount, 0, ',', '.') }}</span>
+                        <span class="font-mono">- Rp {{ number_format($diskon, 0, ',', '.') }}</span>
                     </div>
                     @endif
                     
                     <div class="flex justify-between items-end border-t border-dashed border-slate-200 dark:border-slate-700 pt-3 mt-2">
                         <span class="font-bold text-slate-800 dark:text-white text-lg">Total Akhir</span>
-                        <span class="font-black text-3xl text-indigo-600 dark:text-indigo-400 font-mono tracking-tight">Rp {{ number_format($grandTotal, 0, ',', '.') }}</span>
+                        <span class="font-black text-3xl text-indigo-600 dark:text-indigo-400 font-mono tracking-tight">Rp {{ number_format($totalAkhir, 0, ',', '.') }}</span>
                     </div>
                 </div>
 
@@ -243,11 +243,11 @@
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Metode Pembayaran</label>
                     <div class="grid grid-cols-2 gap-3">
-                        <button wire:click="$set('paymentMethod', 'cash')" class="py-2.5 px-3 text-sm font-bold rounded-xl border-2 transition-all flex items-center justify-center gap-2 {{ $paymentMethod == 'cash' ? 'bg-indigo-50 border-indigo-500 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-400 dark:text-indigo-300' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600' }}">
+                        <button wire:click="$set('metodePembayaran', 'tunai')" class="py-2.5 px-3 text-sm font-bold rounded-xl border-2 transition-all flex items-center justify-center gap-2 {{ $metodePembayaran == 'tunai' ? 'bg-indigo-50 border-indigo-500 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-400 dark:text-indigo-300' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600' }}">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                             TUNAI
                         </button>
-                        <button wire:click="$set('paymentMethod', 'qris')" class="py-2.5 px-3 text-sm font-bold rounded-xl border-2 transition-all flex items-center justify-center gap-2 {{ $paymentMethod == 'qris' ? 'bg-indigo-50 border-indigo-500 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-400 dark:text-indigo-300' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600' }}">
+                        <button wire:click="$set('metodePembayaran', 'qris')" class="py-2.5 px-3 text-sm font-bold rounded-xl border-2 transition-all flex items-center justify-center gap-2 {{ $metodePembayaran == 'qris' ? 'bg-indigo-50 border-indigo-500 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-400 dark:text-indigo-300' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600' }}">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                             QRIS / TF
                         </button>
@@ -255,7 +255,7 @@
                 </div>
 
                 <!-- Cash Calculation -->
-                @if($paymentMethod == 'cash')
+                @if($metodePembayaran == 'tunai')
                     <div class="animate-fade-in-up">
                         <label class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                             <span>Uang Diterima</span>
@@ -264,29 +264,29 @@
                         <div class="relative">
                             <span class="absolute left-4 top-3.5 text-slate-400 font-bold">Rp</span>
                             <input type="number" 
-                                   wire:model.live.debounce.300ms="cashGiven" 
+                                   wire:model.live.debounce.300ms="uangDibayar" 
                                    class="w-full text-right font-mono text-xl font-bold border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent py-3 pl-10 pr-4 transition-all" 
                                    placeholder="0"
                                    id="cashInput">
                         </div>
-                        @if($change > 0)
+                        @if($kembalian > 0)
                             <div class="flex justify-between items-center mt-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50 px-4 py-3 rounded-xl">
                                 <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Kembalian</span>
-                                <span class="font-mono font-bold text-xl text-emerald-600 dark:text-emerald-400">Rp {{ number_format($change, 0, ',', '.') }}</span>
+                                <span class="font-mono font-bold text-xl text-emerald-600 dark:text-emerald-400">Rp {{ number_format($kembalian, 0, ',', '.') }}</span>
                             </div>
                         @endif
-                        @if($cashGiven > 0 && $change < 0)
+                        @if($uangDibayar > 0 && $kembalian < 0)
                              <div class="flex justify-between items-center mt-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/50 px-4 py-3 rounded-xl">
                                 <span class="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">Kurang Bayar</span>
-                                <span class="font-mono font-bold text-xl text-rose-600 dark:text-rose-400">Rp {{ number_format(abs($change), 0, ',', '.') }}</span>
+                                <span class="font-mono font-bold text-xl text-rose-600 dark:text-rose-400">Rp {{ number_format(abs($kembalian), 0, ',', '.') }}</span>
                             </div>
                         @endif
                     </div>
                 @endif
 
-                <button wire:click="processCheckout" 
+                <button wire:click="prosesCheckout" 
                         class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 text-lg transition-all transform active:scale-[0.98] flex justify-center items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none group"
-                        {{ empty($cart) ? 'disabled' : '' }}>
+                        {{ empty($keranjang) ? 'disabled' : '' }}>
                     <span>PROSES PEMBAYARAN</span>
                     <div class="bg-indigo-500 rounded px-2 py-0.5 text-xs font-mono opacity-80 group-hover:opacity-100 transition-opacity">F9</div>
                 </button>
@@ -359,21 +359,18 @@
                     cashInput.focus();
                     cashInput.select();
                 } else {
-                    // If payment method is not cash, maybe switch to cash first? 
-                    // For now, let's assume user manually switches or we add logic later.
-                    @this.set('paymentMethod', 'cash');
+                    @this.set('metodePembayaran', 'tunai');
                 }
             }
             if (e.key === 'F9') {
                 e.preventDefault();
-                @this.processCheckout();
+                @this.prosesCheckout();
             }
             if (e.key === 'Escape') {
-                // Optional: Close modals or clear search
                 if(document.querySelector('[x-data]').__x.$data.showShortcuts) {
                     document.querySelector('[x-data]').__x.$data.showShortcuts = false;
                 } else {
-                     @this.set('searchQuery', '');
+                     @this.set('kataKunciCari', '');
                 }
             }
         });

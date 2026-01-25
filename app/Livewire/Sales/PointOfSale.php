@@ -15,298 +15,285 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.admin')] // Menggunakan layout admin, tapi nanti kita buat full-width di view
+#[Layout('layouts.admin')]
 #[Title('Point of Sales (POS)')]
 class PointOfSale extends Component
 {
-    // Search & Filter
-    public $searchQuery = '';
+    // Cari & Filter
+    public $kataKunciCari = '';
 
-    public $categoryId = null;
+    public $idKategori = null;
 
-    // Cart
-    public $cart = []; // [product_id => [id, name, price, qty, subtotal, stock]]
+    // Keranjang
+    public $keranjang = []; // [id_produk => [id, nama, harga, qty, subtotal, stok]]
 
     public $subtotal = 0;
 
-    public $discount = 0;
+    public $diskon = 0;
 
-    public $grandTotal = 0;
+    public $totalAkhir = 0;
 
-    // Customer
-    public $selectedMemberId = null;
+    // Pelanggan
+    public $idMemberTerpilih = null;
 
-    public $guestName = 'Tamu';
+    public $namaTamu = 'Tamu';
 
-    public $memberSearch = '';
+    public $cariMember = '';
 
-    public $searchResultsMember = [];
+    public $hasilCariMember = [];
 
-    // Payment
-    public $paymentMethod = 'cash'; // cash, transfer, qris
+    // Pembayaran
+    public $metodePembayaran = 'tunai'; // tunai, transfer, qris
 
-    public $cashGiven = 0;
+    public $uangDibayar = 0;
 
-    public $change = 0;
+    public $kembalian = 0;
 
-    // System State
-    public $activeRegister;
+    // Status Sistem
+    public $kasirAktif;
 
     public function mount()
     {
-        $this->checkRegister();
+        $this->periksaKasir();
     }
 
-    public function checkRegister()
+    public function periksaKasir()
     {
-        $this->activeRegister = CashRegister::where('user_id', Auth::id())
+        $this->kasirAktif = CashRegister::where('user_id', Auth::id())
             ->where('status', 'open')
             ->latest()
             ->first();
 
-        if (! $this->activeRegister) {
-            // Redirect jika belum buka kasir
+        if (! $this->kasirAktif) {
             return redirect()->route('finance.cash-register')->with('error', 'Silakan buka shift kasir terlebih dahulu.');
         }
     }
 
-    // --- Product Logic ---
+    // --- Logika Produk ---
 
-    public function addToCart($productId)
+    public function tambahKeKeranjang($idProduk)
     {
-        $product = Product::find($productId);
+        $produk = Product::find($idProduk);
 
-        if (! $product) {
+        if (! $produk) {
             return;
         }
-        if ($product->stock_quantity <= 0) {
+        if ($produk->stock_quantity <= 0) {
             $this->dispatch('notify', message: 'Stok habis!', type: 'error');
 
             return;
         }
 
-        if (isset($this->cart[$productId])) {
-            // Cek stok sebelum nambah
-            if ($this->cart[$productId]['qty'] + 1 > $product->stock_quantity) {
+        if (isset($this->keranjang[$idProduk])) {
+            if ($this->keranjang[$idProduk]['qty'] + 1 > $produk->stock_quantity) {
                 $this->dispatch('notify', message: 'Stok tidak mencukupi!', type: 'error');
 
                 return;
             }
-            $this->cart[$productId]['qty']++;
+            $this->keranjang[$idProduk]['qty']++;
         } else {
-            $this->cart[$productId] = [
-                'id' => $product->id,
-                'name' => $product->name,
-                'sku' => $product->sku,
-                'price' => $product->sell_price,
+            $this->keranjang[$idProduk] = [
+                'id' => $produk->id,
+                'nama' => $produk->name,
+                'sku' => $produk->sku,
+                'harga' => $produk->sell_price,
                 'qty' => 1,
-                'max_stock' => $product->stock_quantity,
+                'stok_maks' => $produk->stock_quantity,
             ];
         }
 
-        $this->calculateTotals();
-        $this->searchQuery = ''; // Reset search focus
+        $this->hitungTotal();
+        $this->kataKunciCari = '';
     }
 
-    public function updateQty($productId, $qty)
+    public function perbaruiJumlah($idProduk, $jumlah)
     {
-        if (! isset($this->cart[$productId])) {
+        if (! isset($this->keranjang[$idProduk])) {
             return;
         }
 
-        $qty = intval($qty);
+        $jumlah = intval($jumlah);
 
-        if ($qty <= 0) {
-            unset($this->cart[$productId]);
+        if ($jumlah <= 0) {
+            unset($this->keranjang[$idProduk]);
         } else {
-            // Validasi Stok
-            if ($qty > $this->cart[$productId]['max_stock']) {
+            if ($jumlah > $this->keranjang[$idProduk]['stok_maks']) {
                 $this->dispatch('notify', message: 'Melebihi stok tersedia!', type: 'error');
-                $qty = $this->cart[$productId]['max_stock'];
+                $jumlah = $this->keranjang[$idProduk]['stok_maks'];
             }
-            $this->cart[$productId]['qty'] = $qty;
+            $this->keranjang[$idProduk]['qty'] = $jumlah;
         }
 
-        $this->calculateTotals();
+        $this->hitungTotal();
     }
 
-    public function removeItem($productId)
+    public function hapusItem($idProduk)
     {
-        unset($this->cart[$productId]);
-        $this->calculateTotals();
+        unset($this->keranjang[$idProduk]);
+        $this->hitungTotal();
     }
 
-    public function calculateTotals()
+    public function hitungTotal()
     {
         $this->subtotal = 0;
-        foreach ($this->cart as $item) {
-            $this->subtotal += $item['price'] * $item['qty'];
+        foreach ($this->keranjang as $item) {
+            $this->subtotal += $item['harga'] * $item['qty'];
         }
 
-        // Diskon logic (bisa dikembangkan)
-        $this->grandTotal = max(0, $this->subtotal - $this->discount);
-        $this->calculateChange();
+        $this->totalAkhir = max(0, $this->subtotal - $this->diskon);
+        $this->hitungKembalian();
     }
 
-    public function updatedCashGiven()
+    public function updatedUangDibayar()
     {
-        $this->calculateChange();
+        $this->hitungKembalian();
     }
 
-    public function calculateChange()
+    public function hitungKembalian()
     {
-        if ($this->paymentMethod == 'cash') {
-            $this->change = max(0, floatval($this->cashGiven) - $this->grandTotal);
+        if ($this->metodePembayaran == 'tunai') {
+            $this->kembalian = max(0, floatval($this->uangDibayar) - $this->totalAkhir);
         } else {
-            $this->change = 0;
-            $this->cashGiven = $this->grandTotal; // Auto fill for non-cash
+            $this->kembalian = 0;
+            $this->uangDibayar = $this->totalAkhir;
         }
     }
 
-    // --- Member Logic ---
+    // --- Logika Member ---
 
-    public function updatedMemberSearch()
+    public function updatedCariMember()
     {
-        if (strlen($this->memberSearch) > 2) {
-            $this->searchResultsMember = User::where('name', 'like', '%'.$this->memberSearch.'%')
-                ->orWhere('email', 'like', '%'.$this->memberSearch.'%')
-                ->orWhere('phone', 'like', '%'.$this->memberSearch.'%')
+        if (strlen($this->cariMember) > 2) {
+            $this->hasilCariMember = User::where('name', 'like', '%'.$this->cariMember.'%')
+                ->orWhere('email', 'like', '%'.$this->cariMember.'%')
+                ->orWhere('phone', 'like', '%'.$this->cariMember.'%')
                 ->limit(5)
                 ->get();
         } else {
-            $this->searchResultsMember = [];
+            $this->hasilCariMember = [];
         }
     }
 
-    public function selectMember($id)
+    public function pilihMember($id)
     {
         $member = User::find($id);
-        $this->selectedMemberId = $id;
-        $this->guestName = $member->name;
-        $this->memberSearch = '';
-        $this->searchResultsMember = [];
+        $this->idMemberTerpilih = $id;
+        $this->namaTamu = $member->name;
+        $this->cariMember = '';
+        $this->hasilCariMember = [];
     }
 
-    // --- Checkout Logic ---
+    // --- Logika Checkout ---
 
-    public function processCheckout()
+    public function prosesCheckout()
     {
-        // 1. Validasi
-        if (empty($this->cart)) {
+        if (empty($this->keranjang)) {
             $this->dispatch('notify', message: 'Keranjang belanja kosong!', type: 'error');
 
             return;
         }
 
-        if ($this->paymentMethod == 'cash' && $this->cashGiven < $this->grandTotal) {
+        if ($this->metodePembayaran == 'tunai' && $this->uangDibayar < $this->totalAkhir) {
             $this->dispatch('notify', message: 'Uang pembayaran kurang!', type: 'error');
 
             return;
         }
 
-        // Cek ulang stok (untuk mencegah race condition sederhana)
-        foreach ($this->cart as $id => $item) {
-            $product = Product::find($id);
-            if ($product->stock_quantity < $item['qty']) {
-                $this->dispatch('notify', message: "Stok {$product->name} berubah/tidak cukup!", type: 'error');
+        foreach ($this->keranjang as $id => $item) {
+            $produk = Product::find($id);
+            if ($produk->stock_quantity < $item['qty']) {
+                $this->dispatch('notify', message: "Stok {$produk->name} berubah/tidak cukup!", type: 'error');
 
                 return;
             }
         }
 
-        DB::transaction(function () {
-            // 2. Buat Order
-            $order = Order::create([
-                'order_number' => 'ORD-'.date('ymd').'-'.rand(1000, 9999),
-                'cash_register_id' => $this->activeRegister->id,
-                'user_id' => $this->selectedMemberId, // Null if guest
-                'guest_name' => $this->selectedMemberId ? null : $this->guestName,
-                'total_amount' => $this->grandTotal,
-                'discount_amount' => $this->discount,
-                'payment_method' => $this->paymentMethod,
-                'payment_status' => 'paid',
-                'status' => 'completed', // Langsung selesai karena POS (barang dibawa)
-                'paid_at' => now(),
-            ]);
-
-            foreach ($this->cart as $id => $item) {
-                $product = Product::find($id);
-
-                // 3. Buat Order Item
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $id,
-                    'quantity' => $item['qty'],
-                    'price' => $item['price'],
+        try {
+            DB::transaction(function () {
+                $pesanan = Order::create([
+                    'order_number' => 'ORD-'.date('ymd').'-'.rand(1000, 9999),
+                    'cash_register_id' => $this->kasirAktif->id,
+                    'user_id' => $this->idMemberTerpilih,
+                    'guest_name' => $this->idMemberTerpilih ? null : $this->namaTamu,
+                    'total_amount' => $this->totalAkhir,
+                    'discount_amount' => $this->diskon,
+                    'payment_method' => $this->metodePembayaran,
+                    'payment_status' => 'paid',
+                    'status' => 'completed',
+                    'paid_at' => now(),
                 ]);
 
-                // 4. Potong Stok & Log Inventory
-                $product->decrement('stock_quantity', $item['qty']);
+                foreach ($this->keranjang as $id => $item) {
+                    $produk = Product::find($id);
 
-                InventoryTransaction::create([
-                    'product_id' => $product->id,
-                    'user_id' => Auth::id(),
-                    'warehouse_id' => 1,
-                    'type' => 'out', // Sales
-                    'quantity' => $item['qty'],
-                    'remaining_stock' => $product->stock_quantity,
-                    'unit_price' => $item['price'], // Selling Price
-                    'cogs' => $product->buy_price, // HPP
-                    'reference_number' => $order->order_number,
-                    'notes' => 'POS Transaction',
+                    OrderItem::create([
+                        'order_id' => $pesanan->id,
+                        'product_id' => $id,
+                        'quantity' => $item['qty'],
+                        'price' => $item['harga'],
+                    ]);
+
+                    $produk->decrement('stock_quantity', $item['qty']);
+
+                    InventoryTransaction::create([
+                        'product_id' => $produk->id,
+                        'user_id' => Auth::id(),
+                        'warehouse_id' => 1,
+                        'type' => 'out',
+                        'quantity' => $item['qty'],
+                        'remaining_stock' => $produk->stock_quantity,
+                        'unit_price' => $item['harga'],
+                        'cogs' => $produk->buy_price,
+                        'reference_number' => $pesanan->order_number,
+                        'notes' => 'Transaksi POS',
+                    ]);
+                }
+
+                CashTransaction::create([
+                    'cash_register_id' => $this->kasirAktif->id,
+                    'transaction_number' => 'TRX-POS-'.$pesanan->id,
+                    'type' => 'in',
+                    'category' => 'sales',
+                    'amount' => $this->totalAkhir,
+                    'description' => "Penjualan POS #{$pesanan->order_number} ({$this->metodePembayaran})",
+                    'reference_id' => $pesanan->id,
+                    'reference_type' => Order::class,
+                    'created_by' => Auth::id(),
                 ]);
-            }
 
-            // 5. Catat Uang Masuk ke Kasir
-            // Hanya jika Cash atau metode lain yang masuk ke laci kasir (opsional logic)
-            // Biasanya Transfer masuk Bank, bukan Laci. Tapi untuk pencatatan Sales tetap masuk.
-            // Kita catat semua sebagai Sales, tapi mungkin perlu flag 'cash_drawer' true/false.
-            // Untuk simplifikasi, kita catat semua di CashTransaction dengan tipe metode.
+                $this->dispatch('print-receipt', orderId: $pesanan->id);
+            });
 
-            CashTransaction::create([
-                'cash_register_id' => $this->activeRegister->id,
-                'transaction_number' => 'TRX-POS-'.$order->id,
-                'type' => 'in',
-                'category' => 'sales',
-                'amount' => $this->grandTotal,
-                'description' => "Penjualan POS #{$order->order_number} ({$this->paymentMethod})",
-                'reference_id' => $order->id,
-                'reference_type' => Order::class,
-                'created_by' => Auth::id(),
-            ]);
-
-            // Trigger Print Receipt
-            $this->dispatch('print-receipt', orderId: $order->id);
-        });
-
-        // 6. Reset
-        $this->reset(['cart', 'subtotal', 'discount', 'grandTotal', 'cashGiven', 'change', 'selectedMemberId']);
-        $this->guestName = 'Tamu';
-        session()->flash('success', 'Transaksi Berhasil!');
+            $this->reset(['keranjang', 'subtotal', 'diskon', 'totalAkhir', 'uangDibayar', 'kembalian', 'idMemberTerpilih']);
+            $this->namaTamu = 'Tamu';
+            $this->dispatch('notify', message: 'Transaksi Berhasil!', type: 'success');
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: 'Terjadi kesalahan: '.$e->getMessage(), type: 'error');
+        }
     }
 
     public function render()
     {
-        $products = Product::query()
-            ->when($this->searchQuery, function ($q) {
-                $q->where('name', 'like', '%'.$this->searchQuery.'%')
-                    ->orWhere('sku', 'like', '%'.$this->searchQuery.'%');
+        $produkList = Product::query()
+            ->when($this->kataKunciCari, function ($q) {
+                $q->where('name', 'like', '%'.$this->kataKunciCari.'%')
+                    ->orWhere('sku', 'like', '%'.$this->kataKunciCari.'%');
             })
-            ->when($this->categoryId, function ($q) {
-                $q->where('category_id', $this->categoryId);
+            ->when($this->idKategori, function ($q) {
+                $q->where('category_id', $this->idKategori);
             })
             ->where('is_active', true)
             ->whereHas('category', function ($q) {
-                $q->where('slug', '!=', 'services'); // Hanya produk fisik
+                $q->where('slug', '!=', 'services');
             })
             ->latest()
             ->paginate(12);
 
-        $categories = \App\Models\Category::all();
+        $daftarKategori = \App\Models\Category::all();
 
         return view('livewire.sales.point-of-sale', [
-            'products' => $products,
-            'categories' => $categories,
+            'produkList' => $produkList,
+            'daftarKategori' => $daftarKategori,
         ]);
     }
 }
