@@ -6,7 +6,7 @@ use App\Models\CashRegister;
 use App\Models\CashTransaction;
 use App\Models\Product;
 use App\Models\ServiceTicket;
-use App\Models\ServiceTicketPart;
+use App\Models\SukuCadangServis;
 use App\Models\ServiceTicketProgress;
 use App\Models\InventoryTransaction;
 use Illuminate\Support\Facades\Auth;
@@ -16,248 +16,288 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.admin')]
-#[Title('Technician Workbench')]
+#[Title('Meja Kerja Teknisi - Yala Computer')]
 class Workbench extends Component
 {
-    public ServiceTicket $ticket;
+    /**
+     * Data Tiket Servis.
+     */
+    public ServiceTicket $tiket;
     
-    // Status Management
-    public $currentStatus;
-    public $noteInput = '';
-    public $isPublicNote = true;
+    // Manajemen Status & Catatan
+    public $statusSaatIni;
+    public $inputCatatan = '';
+    public $catatanPublik = true;
 
-    // Parts Management
-    public $partSearch = '';
-    public $searchResults = [];
-    public $selectedProduct = null;
-    public $quantity = 1;
-    public $customPrice = 0;
-    public $serialNumberOut = '';
+    // Manajemen Suku Cadang (Sparepart)
+    public $cariSukuCadang = '';
+    public $hasilPencarian = [];
+    public $produkTerpilih = null;
+    public $jumlah = 1;
+    public $hargaKustom = 0;
 
-    // Payment Logic
-    public $showPaymentModal = false;
-    public $paymentMethod = 'cash'; // cash, transfer
-    public $paymentNote = '';
+    // Logika Pembayaran (Tanpa Modal)
+    public $tampilkanFormPembayaran = false;
+    public $metodePembayaran = 'tunai'; // tunai, transfer
+    public $catatanPembayaran = '';
 
     public function mount($id)
     {
-        $this->ticket = ServiceTicket::with([
-            'parts.product', 
+        $this->tiket = ServiceTicket::with([
+            'parts.produk', 
             'progressLogs',
             'technician',
             'customerMember'
         ])->findOrFail($id);
         
-        $this->currentStatus = $this->ticket->status;
+        $this->statusSaatIni = $this->tiket->status;
     }
 
-    public function updatedPartSearch()
+    /**
+     * Pencarian produk/suku cadang secara real-time.
+     */
+    public function updatedCariSukuCadang()
     {
-        if (strlen($this->partSearch) > 2) {
-            $this->searchResults = Product::with('category')
-                ->where('name', 'like', '%' . $this->partSearch . '%')
-                ->orWhere('sku', 'like', '%' . $this->partSearch . '%')
+        if (strlen($this->cariSukuCadang) > 2) {
+            $this->hasilPencarian = Product::with('category')
+                ->where('is_active', true)
+                ->where(function($q) {
+                    $q->where('name', 'like', '%' . $this->cariSukuCadang . '%')
+                      ->orWhere('sku', 'like', '%' . $this->cariSukuCadang . '%');
+                })
                 ->limit(5)
                 ->get();
         } else {
-            $this->searchResults = [];
+            $this->hasilPencarian = [];
         }
     }
 
-    public function selectProduct($productId)
+    /**
+     * Memilih produk dari hasil pencarian.
+     */
+    public function pilihProduk($idProduk)
     {
-        $this->selectedProduct = Product::with('category')->find($productId);
-        if ($this->selectedProduct) {
-            $this->customPrice = $this->selectedProduct->sell_price; 
+        $this->produkTerpilih = Product::with('category')->find($idProduk);
+        if ($this->produkTerpilih) {
+            $this->hargaKustom = $this->produkTerpilih->sell_price; 
         }
-        $this->partSearch = '';
-        $this->searchResults = [];
+        $this->cariSukuCadang = '';
+        $this->hasilPencarian = [];
     }
 
-    private function isTracked($product)
+    /**
+     * Mengecek apakah produk perlu dilacak stoknya.
+     */
+    private function dipantauStoknya($produk)
     {
-        if ($product->category && $product->category->slug === 'services') {
+        // Jika kategori adalah 'jasa' atau 'layanan', tidak perlu kurangi stok fisik
+        if ($produk->category && in_array($produk->category->slug, ['services', 'jasa', 'layanan'])) {
             return false;
         }
         return true;
     }
 
-    public function addPart()
+    /**
+     * Menambahkan suku cadang ke tiket servis dan mengurangi stok.
+     */
+    public function tambahSukuCadang()
     {
-        if (!$this->selectedProduct) return;
+        if (!$this->produkTerpilih) return;
 
         $this->validate([
-            'quantity' => 'required|integer|min:1',
-            'customPrice' => 'required|numeric|min:0',
+            'jumlah' => 'required|integer|min:1',
+            'hargaKustom' => 'required|numeric|min:0',
+        ], [
+            'jumlah.min' => 'Jumlah minimal adalah 1.',
+            'hargaKustom.min' => 'Harga tidak boleh negatif.',
         ]);
 
-        $isTracked = $this->isTracked($this->selectedProduct);
+        $lacakStok = $this->dipantauStoknya($this->produkTerpilih);
 
-        if ($isTracked && $this->selectedProduct->stock_quantity < $this->quantity) {
-            $this->addError('quantity', 'Stok tidak mencukupi (Tersedia: ' . $this->selectedProduct->stock_quantity . ')');
+        if ($lacakStok && $this->produkTerpilih->stock_quantity < $this->jumlah) {
+            $this->addError('jumlah', 'Stok tidak mencukupi (Tersedia: ' . $this->produkTerpilih->stock_quantity . ')');
             return;
         }
 
-        DB::transaction(function () use ($isTracked) {
-            if ($isTracked) {
-                $this->selectedProduct->decrement('stock_quantity', $this->quantity);
+        DB::transaction(function () use ($lacakStok) {
+            if ($lacakStok) {
+                // Kurangi Stok Global
+                $this->produkTerpilih->decrement('stock_quantity', $this->jumlah);
                 
+                // Catat Transaksi Inventaris
                 InventoryTransaction::create([
-                    'product_id' => $this->selectedProduct->id,
+                    'product_id' => $this->produkTerpilih->id,
                     'user_id' => Auth::id() ?? 1,
-                    'warehouse_id' => 1,
+                    'warehouse_id' => 1, // Gudang Utama
                     'type' => 'out',
-                    'quantity' => $this->quantity,
-                    'unit_price' => $this->customPrice,
-                    'cogs' => $this->selectedProduct->buy_price ?? 0,
-                    'remaining_stock' => $this->selectedProduct->stock_quantity, 
-                    'reference_number' => $this->ticket->ticket_number,
-                    'notes' => 'Used in Service Ticket #' . $this->ticket->ticket_number,
+                    'quantity' => $this->jumlah,
+                    'unit_price' => $this->hargaKustom,
+                    'cogs' => $this->produkTerpilih->buy_price ?? 0,
+                    'remaining_stock' => $this->produkTerpilih->stock_quantity, 
+                    'reference_number' => $this->tiket->ticket_number,
+                    'notes' => 'Digunakan dalam Tiket Servis #' . $this->tiket->ticket_number,
                 ]);
             }
 
-            ServiceTicketPart::create([
-                'service_ticket_id' => $this->ticket->id,
-                'product_id' => $this->selectedProduct->id,
-                'quantity' => $this->quantity,
-                'price_per_unit' => $this->customPrice,
-                'subtotal' => $this->quantity * $this->customPrice,
+            // Simpan pemakaian suku cadang
+            SukuCadangServis::create([
+                'id_tiket_servis' => $this->tiket->id,
+                'id_produk' => $this->produkTerpilih->id,
+                'jumlah' => $this->jumlah,
+                'harga_satuan' => $this->hargaKustom,
+                'catatan' => 'Ditambahkan teknisi: ' . (Auth::user()->name ?? 'Sistem'),
             ]);
         });
 
-        $this->selectedProduct = null;
-        $this->quantity = 1;
-        $this->customPrice = 0;
+        $this->produkTerpilih = null;
+        $this->jumlah = 1;
+        $this->hargaKustom = 0;
         
-        $this->ticket->refresh();
-        session()->flash('success', 'Sparepart berhasil ditambahkan.');
+        $this->tiket->refresh();
+        $this->dispatch('notify', message: 'Suku cadang berhasil ditambahkan.', type: 'success');
     }
 
-    public function removePart($partId)
+    /**
+     * Menghapus suku cadang dan mengembalikan stok.
+     */
+    public function hapusSukuCadang($idSukuCadang)
     {
-        $part = ServiceTicketPart::findOrFail($partId);
+        $item = SukuCadangServis::findOrFail($idSukuCadang);
 
-        DB::transaction(function () use ($part) {
-            $product = Product::with('category')->find($part->product_id);
-            $isTracked = $product && $this->isTracked($product);
+        DB::transaction(function () use ($item) {
+            $produk = Product::find($item->id_produk);
+            $lacakStok = $produk && $this->dipantauStoknya($produk);
 
-            if ($isTracked) {
-                $product->increment('stock_quantity', $part->quantity);
+            if ($lacakStok) {
+                $produk->increment('stock_quantity', $item->jumlah);
 
                 InventoryTransaction::create([
-                    'product_id' => $product->id,
+                    'product_id' => $produk->id,
                     'user_id' => Auth::id() ?? 1,
                     'warehouse_id' => 1,
                     'type' => 'in',
-                    'quantity' => $part->quantity,
-                    'unit_price' => $part->price_per_unit,
-                    'cogs' => $product->buy_price ?? 0,
-                    'remaining_stock' => $product->stock_quantity,
-                    'reference_number' => $this->ticket->ticket_number,
-                    'notes' => 'Removed/Returned from Service Ticket #' . $this->ticket->ticket_number,
+                    'quantity' => $item->jumlah,
+                    'unit_price' => $item->harga_satuan,
+                    'remaining_stock' => $produk->stock_quantity,
+                    'reference_number' => $this->tiket->ticket_number,
+                    'notes' => 'Dibatalkan/Dikembalikan dari Tiket Servis #' . $this->tiket->ticket_number,
                 ]);
             }
 
-            $part->delete();
+            $item->delete();
         });
 
-        $this->ticket->refresh();
-        session()->flash('success', 'Sparepart dibatalkan dan stok dikembalikan.');
+        $this->tiket->refresh();
+        $this->dispatch('notify', message: 'Suku cadang dihapus dan stok dikembalikan.', type: 'success');
     }
 
-    public function saveProgress()
+    /**
+     * Menyimpan catatan progres servis.
+     */
+    public function simpanProgres()
     {
         $this->validate([
-            'noteInput' => 'required|string|min:3',
+            'inputCatatan' => 'required|string|min:3',
+        ], [
+            'inputCatatan.required' => 'Catatan wajib diisi.',
+            'inputCatatan.min' => 'Catatan minimal 3 karakter.',
         ]);
 
         ServiceTicketProgress::create([
-            'service_ticket_id' => $this->ticket->id,
-            'status_label' => $this->ticket->status,
-            'description' => $this->noteInput,
+            'service_ticket_id' => $this->tiket->id,
+            'status_label' => $this->tiket->status,
+            'description' => $this->inputCatatan,
             'technician_id' => Auth::id() ?? 1,
-            'is_public' => $this->isPublicNote,
+            'is_public' => $this->catatanPublik,
         ]);
 
-        $this->noteInput = '';
-        $this->ticket->refresh();
-        session()->flash('success', 'Catatan progres tersimpan.');
+        $this->inputCatatan = '';
+        $this->tiket->refresh();
+        $this->dispatch('notify', message: 'Catatan progres berhasil disimpan.', type: 'success');
     }
 
-    public function updateStatus($newStatus)
+    /**
+     * Memperbarui status tiket servis.
+     */
+    public function perbaruiStatus($statusBaru)
     {
-        if ($this->ticket->status === $newStatus) return;
+        if ($this->tiket->status === $statusBaru) return;
 
-        $oldStatus = $this->ticket->status;
-        $this->ticket->status = $newStatus;
-        $this->ticket->save();
+        $statusLama = $this->tiket->status;
+        $this->tiket->status = $statusBaru;
+        $this->tiket->save();
 
         ServiceTicketProgress::create([
-            'service_ticket_id' => $this->ticket->id,
-            'status_label' => $newStatus,
-            'description' => "Status diubah dari " . ucfirst(str_replace('_', ' ', $oldStatus)) . " ke " . ucfirst(str_replace('_', ' ', $newStatus)),
+            'service_ticket_id' => $this->tiket->id,
+            'status_label' => $statusBaru,
+            'description' => "Status diubah dari " . ucfirst(str_replace('_', ' ', $statusLama)) . " ke " . ucfirst(str_replace('_', ' ', $statusBaru)),
             'technician_id' => Auth::id() ?? 1,
             'is_public' => true,
         ]);
 
-        $this->currentStatus = $newStatus;
-        $this->ticket->refresh();
-        session()->flash('success', 'Status tiket diperbarui.');
+        $this->statusSaatIni = $statusBaru;
+        $this->tiket->refresh();
+        $this->dispatch('notify', message: 'Status tiket berhasil diperbarui.', type: 'success');
     }
 
-    public function processPayment()
+    /**
+     * Memproses pembayaran tiket servis.
+     */
+    public function prosesPembayaran()
     {
         // 1. Cek Kasir Aktif
-        $activeRegister = CashRegister::where('user_id', Auth::id())
+        $kasirAktif = CashRegister::where('user_id', Auth::id())
             ->where('status', 'open')
             ->latest()
             ->first();
         
-        if (!$activeRegister) {
-            $this->addError('payment', 'Anda belum membuka sesi kasir! Silakan buka kasir di menu Keuangan.');
+        if (!$kasirAktif) {
+            $this->dispatch('notify', message: 'Sesi kasir belum dibuka! Silakan buka kasir terlebih dahulu.', type: 'error');
             return;
         }
 
-        // 2. Hitung Total
-        $total = $this->ticket->parts->sum('subtotal');
-        if ($total <= 0) {
-            $this->addError('payment', 'Total tagihan Rp 0. Pastikan sudah input jasa/sparepart.');
+        // 2. Hitung Total Tagihan (Sum dari SukuCadangServis)
+        // Kita perlu menyesuaikan query ini karena nama tabel/model sudah berubah
+        $totalTagihan = SukuCadangServis::where('id_tiket_servis', $this->tiket->id)->sum(DB::raw('jumlah * harga_satuan'));
+        
+        if ($totalTagihan <= 0) {
+            $this->dispatch('notify', message: 'Tagihan Rp 0. Masukkan jasa atau sparepart dahulu.', type: 'error');
             return;
         }
 
-        DB::transaction(function () use ($activeRegister, $total) {
-            // Catat Transaksi Masuk
+        DB::transaction(function () use ($kasirAktif, $totalTagihan) {
+            // Catat Transaksi Kas
             CashTransaction::create([
-                'cash_register_id' => $activeRegister->id,
-                'transaction_number' => 'PAY-' . date('ymd') . '-' . $this->ticket->id,
+                'cash_register_id' => $kasirAktif->id,
+                'transaction_number' => 'PAY-' . date('ymd') . '-' . $this->tiket->id,
                 'type' => 'in',
-                'category' => 'service_payment', // Kategori Pendapatan Servis
-                'amount' => $total,
-                'description' => "Pembayaran Servis Tiket #{$this->ticket->ticket_number}. " . $this->paymentNote,
-                'reference_id' => $this->ticket->id,
+                'category' => 'service_payment',
+                'amount' => $totalTagihan,
+                'description' => "Pembayaran Servis Tiket #{$this->tiket->ticket_number}. " . $this->catatanPembayaran,
+                'reference_id' => $this->tiket->id,
                 'reference_type' => ServiceTicket::class,
                 'created_by' => Auth::id(),
             ]);
 
-            // Update Status Tiket
-            $this->ticket->status = 'picked_up';
-            $this->ticket->final_cost = $total;
-            $this->ticket->save();
+            // Selesaikan Tiket
+            $this->tiket->status = 'picked_up';
+            $this->tiket->final_cost = $totalTagihan;
+            $this->tiket->save();
 
-            // Log Progress
+            // Log Progres Akhir
             ServiceTicketProgress::create([
-                'service_ticket_id' => $this->ticket->id,
+                'service_ticket_id' => $this->tiket->id,
                 'status_label' => 'picked_up',
-                'description' => "Pembayaran diterima (Rp " . number_format($total) . ") via " . ucfirst($this->paymentMethod) . ". Unit diambil.",
+                'description' => "Pembayaran diterima sebesar Rp " . number_format($totalTagihan) . " via " . ucfirst($this->metodePembayaran) . ". Unit telah diambil.",
                 'technician_id' => Auth::id(),
                 'is_public' => true,
             ]);
         });
 
-        $this->showPaymentModal = false;
-        $this->currentStatus = 'picked_up';
-        $this->ticket->refresh();
-        session()->flash('success', 'Pembayaran berhasil diproses. Tiket selesai.');
+        $this->tampilkanFormPembayaran = false;
+        $this->statusSaatIni = 'picked_up';
+        $this->tiket->refresh();
+        $this->dispatch('notify', message: 'Pembayaran berhasil! Tiket telah diselesaikan.', type: 'success');
     }
 
     public function render()
