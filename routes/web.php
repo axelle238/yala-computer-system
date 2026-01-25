@@ -99,7 +99,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/employees/attendance', \App\Livewire\Employees\Attendance::class)->name('employees.attendance');
     Route::get('/employees/payroll-manager', \App\Livewire\Employees\PayrollManager::class)->name('employees.payroll-manager');
     Route::get('/employees', \App\Livewire\Employees\Index::class)->name('employees.index');
-    Route::get('/employees/roles', \App\Livewire\Admin\RoleManager::class)->name('employees.roles'); // Updated to RoleManager
+    Route::get('/employees/roles', \App\Livewire\Admin\RoleManager::class)->name('employees.roles'); // Role List
+    Route::get('/employees/roles/create', \App\Livewire\Admin\RoleForm::class)->name('employees.roles.create'); // Create Role
+    Route::get('/employees/roles/{id}/edit', \App\Livewire\Admin\RoleForm::class)->name('employees.roles.edit'); // Edit Role
     Route::get('/employees/create', \App\Livewire\Employees\Form::class)->name('employees.create');
     Route::get('/employees/{id}/edit', \App\Livewire\Employees\Form::class)->name('employees.edit');
     Route::get('/payroll', \App\Livewire\Employees\Payroll::class)->name('employees.payroll');
