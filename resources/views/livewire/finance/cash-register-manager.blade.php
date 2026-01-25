@@ -1,3 +1,4 @@
+<div>
     <!-- 1. STATE: KASIR TERTUTUP (CLOSED) -->
     @if(!$activeRegister)
         <div class="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 p-12 text-center max-w-3xl mx-auto relative overflow-hidden group">
@@ -301,4 +302,5 @@
             </div>
         </div>
     </div>
+</div>
 </div>
