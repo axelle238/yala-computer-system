@@ -1,81 +1,93 @@
-<div class="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans">
-    
-    <!-- Hero Banner -->
-    <div class="relative py-24 md:py-32 overflow-hidden bg-slate-900">
-        <div class="absolute inset-0">
-            <div class="absolute inset-0 bg-gradient-to-r from-cyan-900/20 to-blue-900/20"></div>
-            <div class="cyber-grid opacity-30"></div>
-        </div>
-        <div class="container mx-auto px-4 relative z-10 text-center">
-            <h1 class="text-5xl md:text-7xl font-black font-tech text-white mb-6 uppercase tracking-tighter">
-                Future <span class="text-cyan-500">Tech</span> Store
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
+    <!-- Hero Section -->
+    <div class="relative py-24 bg-slate-900 overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+        <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] animate-pulse"></div>
+        
+        <div class="container mx-auto px-4 lg:px-8 relative z-10 text-center">
+            <h1 class="text-5xl md:text-7xl font-black font-tech text-white uppercase tracking-tighter mb-6 animate-fade-in-up">
+                Building The <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Future</span>
             </h1>
-            <p class="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                Membangun masa depan komputasi dengan hardware terbaik dan layanan profesional.
+            <p class="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-100">
+                Yala Computer bukan sekadar toko. Kami adalah arsitek performa yang mendedikasikan diri untuk menyediakan teknologi terbaik bagi para profesional dan gamers.
             </p>
         </div>
     </div>
 
-    <!-- Content Sections -->
-    <div class="container mx-auto px-4 lg:px-8 py-20">
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center mb-24">
-            <div class="order-2 md:order-1">
-                <h2 class="text-3xl font-black text-slate-900 dark:text-white mb-6">Siapa Kami?</h2>
-                <div class="prose dark:prose-invert text-slate-600 dark:text-slate-400">
-                    <p class="text-lg leading-relaxed mb-4">
-                        {{ $storeName }} adalah pusat belanja teknologi terdepan yang berdedikasi untuk menyediakan komponen PC high-end, laptop gaming, dan perlengkapan IT profesional.
+    <!-- Stats Section -->
+    <div class="py-16 bg-white dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700">
+        <div class="container mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div class="space-y-2">
+                <h3 class="text-4xl font-black text-slate-900 dark:text-white">5+</h3>
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Tahun Pengalaman</p>
+            </div>
+            <div class="space-y-2">
+                <h3 class="text-4xl font-black text-slate-900 dark:text-white">10K+</h3>
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-500">PC Terakit</p>
+            </div>
+            <div class="space-y-2">
+                <h3 class="text-4xl font-black text-slate-900 dark:text-white">50+</h3>
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Brand Partner</p>
+            </div>
+            <div class="space-y-2">
+                <h3 class="text-4xl font-black text-slate-900 dark:text-white">4.9</h3>
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Rating Kepuasan</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Story Section -->
+    <div class="py-20 container mx-auto px-4 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <div class="space-y-6">
+                <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Lebih Dari Sekadar Hardware</h2>
+                <div class="prose prose-lg prose-slate dark:prose-invert">
+                    <p>
+                        Berdiri sejak 2020, Yala Computer bermula dari garasi kecil dengan mimpi besar: membuat komputasi performa tinggi dapat diakses oleh siapa saja.
                     </p>
                     <p>
-                        Berdiri sejak tahun 2024, kami telah melayani ribuan gamers, content creator, dan profesional di seluruh Indonesia. Komitmen kami bukan hanya menjual produk, tetapi memberikan solusi komputasi yang tepat guna.
+                        Kami percaya bahwa setiap komponen memiliki cerita. Dari pemilihan prosesor hingga manajemen kabel yang presisi, tim teknisi kami memperlakukan setiap rakitan PC seperti sebuah karya seni.
                     </p>
                 </div>
+                <div class="flex gap-4 pt-4">
+                    <div class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Garansi Resmi
+                    </div>
+                    <div class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Konsultasi Gratis
+                    </div>
+                </div>
             </div>
-            <div class="order-1 md:order-2 relative">
-                <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500 to-blue-500 rounded-3xl blur-3xl opacity-20 transform rotate-6"></div>
-                <div class="relative bg-slate-800 rounded-3xl p-1 overflow-hidden shadow-2xl transform -rotate-2 hover:rotate-0 transition-all duration-500">
-                    <div class="bg-slate-900 rounded-[20px] h-64 md:h-80 flex items-center justify-center">
-                        <span class="font-tech font-black text-6xl text-slate-800 dark:text-slate-700">YALA</span>
+            <div class="relative">
+                <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-3xl transform rotate-3 opacity-20 blur-lg"></div>
+                <div class="relative bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border border-slate-700">
+                    <!-- Placeholder Image -->
+                    <div class="aspect-video bg-slate-900 flex items-center justify-center">
+                        <svg class="w-20 h-20 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Values -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700 text-center">
-                <div class="w-16 h-16 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Original & Resmi</h3>
-                <p class="text-slate-500">Jaminan 100% produk original dengan garansi resmi distributor Indonesia.</p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700 text-center">
-                <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                </div>
-                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Rakit Profesional</h3>
-                <p class="text-slate-500">Teknisi berpengalaman dengan standar cable management yang rapi dan presisi.</p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700 text-center">
-                <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Support 24/7</h3>
-                <p class="text-slate-500">Layanan purna jual yang responsif dan siap membantu masalah teknis Anda.</p>
+    <!-- Team Section -->
+    <div class="py-20 bg-slate-100 dark:bg-slate-800/50">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white mb-12 uppercase tracking-wide">The <span class="text-cyan-600">Squad</span></h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                @foreach($teams as $member)
+                    <div class="group bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
+                        <div class="w-24 h-24 mx-auto mb-6 rounded-full overflow-hidden border-4 border-slate-100 dark:border-slate-700 group-hover:border-cyan-500 transition-colors">
+                            <img src="{{ $member['image'] }}" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">{{ $member['name'] }}</h3>
+                        <p class="text-sm text-cyan-600 font-bold uppercase tracking-wider mt-1">{{ $member['role'] }}</p>
+                    </div>
+                @endforeach
             </div>
         </div>
-
-        <!-- CTA -->
-        <div class="bg-indigo-600 rounded-3xl p-12 text-center relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-            <div class="relative z-10">
-                <h2 class="text-3xl md:text-4xl font-black text-white mb-6">Siap Membangun PC Impianmu?</h2>
-                <a href="{{ route('pc-builder') }}" class="inline-block px-10 py-4 bg-white text-indigo-600 font-black uppercase tracking-widest rounded-xl hover:bg-slate-100 transition-all transform hover:-translate-y-1 shadow-xl">
-                    Mulai Rakit Sekarang
-                </a>
-            </div>
-        </div>
-
     </div>
 </div>

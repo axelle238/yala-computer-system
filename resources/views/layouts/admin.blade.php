@@ -81,10 +81,10 @@
                 <!-- Right: Actions -->
                 <div class="flex items-center gap-3">
                     
-                    <!-- Global Search Trigger -->
-                    <button @click="$dispatch('open-spotlight')" class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-md text-slate-500 dark:text-slate-400 text-xs font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-transparent hover:border-slate-300 dark:hover:border-slate-600">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                        <span>Cari Fitur (Ctrl + K)</span>
+                    <!-- Global Search Trigger (Spotlight) -->
+                    <button @click="$dispatch('open-spotlight')" class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-md text-slate-500 dark:text-slate-400 text-xs font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-transparent hover:border-slate-300 dark:hover:border-slate-600 group">
+                        <svg class="w-4 h-4 group-hover:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        <span>Cari (Ctrl + K)</span>
                     </button>
 
                     <button @click="$dispatch('open-spotlight')" class="md:hidden p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
@@ -93,7 +93,7 @@
 
                     <div class="h-6 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
 
-                    <!-- Notifications -->
+                    <!-- Notifications (Livewire Component) -->
                     <livewire:components.admin-notification />
 
                     <!-- Dark Mode Toggle -->

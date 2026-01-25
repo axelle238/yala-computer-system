@@ -3,79 +3,109 @@
 namespace App\Livewire\Components;
 
 use App\Models\Product;
-use App\Models\ServiceTicket;
+use App\Models\Customer;
+use App\Models\Order;
 use Livewire\Component;
 
 class Spotlight extends Component
 {
     public $search = '';
+    public $results = [];
     public $isOpen = false;
+
+    // Listen to keyboard shortcut from global JS
+    protected $listeners = ['open-spotlight' => 'open'];
+
+    public function open()
+    {
+        $this->isOpen = true;
+        $this->dispatch('focus-spotlight');
+    }
+
+    public function close()
+    {
+        $this->isOpen = false;
+        $this->search = '';
+        $this->results = [];
+    }
 
     public function updatedSearch()
     {
-        // No operation needed, render updates results
+        if (strlen($this->search) < 2) {
+            $this->results = [];
+            return;
+        }
+
+        $this->results = [
+            'Menus' => $this->searchMenus(),
+            'Products' => $this->searchProducts(),
+            'Customers' => $this->searchCustomers(),
+            'Orders' => $this->searchOrders(),
+        ];
     }
 
-    public function getResultsProperty()
+    private function searchMenus()
     {
-        if (strlen($this->search) < 2) {
-            return [];
-        }
-
-        $results = collect();
-
-        // 1. Menu Navigation
         $menus = [
-            ['title' => 'Dashboard', 'url' => route('dashboard'), 'subtitle' => 'Go to Dashboard', 'type' => 'menu'],
-            ['title' => 'Produk', 'url' => route('products.index'), 'subtitle' => 'Manage Inventory', 'type' => 'menu'],
-            ['title' => 'Transaksi', 'url' => route('transactions.index'), 'subtitle' => 'View Transactions', 'type' => 'menu'],
-            ['title' => 'Service Center', 'url' => route('services.index'), 'subtitle' => 'Manage Services', 'type' => 'menu'],
-            ['title' => 'Pegawai', 'url' => route('employees.index'), 'subtitle' => 'Manage Employees', 'type' => 'menu'],
+            ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'home'],
+            ['label' => 'Kasir (POS)', 'route' => 'sales.pos', 'icon' => 'shopping-cart'],
+            ['label' => 'Daftar Produk', 'route' => 'products.index', 'icon' => 'tag'],
+            ['label' => 'Stok Opname', 'route' => 'warehouses.stock-opname', 'icon' => 'clipboard-check'],
+            ['label' => 'Purchase Orders', 'route' => 'purchase-orders.index', 'icon' => 'truck'],
+            ['label' => 'Service Workbench', 'route' => 'services.index', 'icon' => 'wrench'],
+            ['label' => 'Laporan Keuangan', 'route' => 'reports.finance', 'icon' => 'chart-pie'],
+            ['label' => 'Manajemen Pegawai', 'route' => 'employees.index', 'icon' => 'users'],
+            ['label' => 'Pengaturan Sistem', 'route' => 'settings.index', 'icon' => 'cog'],
         ];
 
-        foreach ($menus as $menu) {
-            if (stripos($menu['title'], $this->search) !== false) {
-                $results->push($menu);
-            }
-        }
+        return collect($menus)->filter(function ($menu) {
+            return stripos($menu['label'], $this->search) !== false;
+        })->take(3)->all();
+    }
 
-        // 2. Search Products
-        $products = Product::where('name', 'like', '%' . $this->search . '%')
+    private function searchProducts()
+    {
+        return Product::where('name', 'like', '%' . $this->search . '%')
             ->orWhere('sku', 'like', '%' . $this->search . '%')
-            ->take(5)
-            ->get();
-
-        foreach ($products as $product) {
-            $results->push([
-                'title' => $product->name,
-                'url' => route('products.edit', $product->id), // Assuming edit route exists
-                'subtitle' => 'Product • ' . $product->sku,
-                'type' => 'product'
-            ]);
-        }
-
-        // 3. Search Service Tickets
-        $tickets = ServiceTicket::where('ticket_number', 'like', '%' . $this->search . '%')
-            ->orWhere('customer_name', 'like', '%' . $this->search . '%')
             ->take(3)
-            ->get();
-
-        foreach ($tickets as $ticket) {
-            $results->push([
-                'title' => $ticket->ticket_number . ' - ' . $ticket->customer_name,
-                'url' => route('services.edit', $ticket->id),
-                'subtitle' => 'Service • ' . $ticket->status,
-                'type' => 'service'
+            ->get()
+            ->map(fn($p) => [
+                'label' => $p->name,
+                'sub' => 'Stok: ' . $p->stock_quantity,
+                'route' => route('products.edit', $p->id), // Asumsi ada route edit
+                'icon' => 'box'
             ]);
-        }
+    }
 
-        return $results->all();
+    private function searchCustomers()
+    {
+        return Customer::where('name', 'like', '%' . $this->search . '%')
+            ->orWhere('phone', 'like', '%' . $this->search . '%')
+            ->take(3)
+            ->get()
+            ->map(fn($c) => [
+                'label' => $c->name,
+                'sub' => $c->phone,
+                'route' => route('customers.edit', $c->id),
+                'icon' => 'user'
+            ]);
+    }
+
+    private function searchOrders()
+    {
+        return Order::where('order_number', 'like', '%' . $this->search . '%')
+            ->take(3)
+            ->get()
+            ->map(fn($o) => [
+                'label' => 'Order #' . $o->order_number,
+                'sub' => $o->status . ' - ' . $o->guest_name,
+                'route' => route('orders.show', $o->id), // Asumsi route show order admin
+                'icon' => 'receipt-tax'
+            ]);
     }
 
     public function render()
     {
-        return view('livewire.components.spotlight', [
-            'results' => $this->results
-        ]);
+        return view('livewire.components.spotlight');
     }
 }

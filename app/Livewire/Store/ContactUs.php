@@ -16,13 +16,13 @@ class ContactUs extends Component
     public $subject;
     public $message;
 
-    public function sendMessage()
+    public function submit()
     {
         $this->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'subject' => 'required|string|max:255',
-            'message' => 'required|string|min:10',
+            'name' => 'required|min:3',
+            'email' => 'required|email',
+            'subject' => 'required|min:5',
+            'message' => 'required|min:10',
         ]);
 
         ContactMessage::create([
@@ -33,7 +33,7 @@ class ContactUs extends Component
         ]);
 
         $this->reset();
-        $this->dispatch('notify', message: 'Pesan Anda berhasil dikirim. Kami akan segera membalasnya!', type: 'success');
+        $this->dispatch('notify', message: 'Pesan terkirim! Kami akan segera menghubungi Anda.', type: 'success');
     }
 
     public function render()

@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Store;
 
-use App\Models\Setting;
+use App\Models\User;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -13,9 +13,13 @@ class AboutUs extends Component
 {
     public function render()
     {
-        return view('livewire.store.about-us', [
-            'storeName' => Setting::get('store_name', 'Yala Computer'),
-            'description' => Setting::get('footer_description', ''),
-        ]);
+        // Mock Team Data (In real app, this could be from DB)
+        $teams = [
+            ['name' => 'Axelle Bazyli', 'role' => 'Founder & CEO', 'image' => 'https://ui-avatars.com/api/?name=Axelle+Bazyli&background=0D8ABC&color=fff'],
+            ['name' => 'Sarah Tech', 'role' => 'Lead Technician', 'image' => 'https://ui-avatars.com/api/?name=Sarah+Tech&background=6D28D9&color=fff'],
+            ['name' => 'John Sales', 'role' => 'Sales Manager', 'image' => 'https://ui-avatars.com/api/?name=John+Sales&background=059669&color=fff'],
+        ];
+
+        return view('livewire.store.about-us', ['teams' => $teams]);
     }
 }
