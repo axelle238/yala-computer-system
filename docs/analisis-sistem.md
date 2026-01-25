@@ -1,7 +1,7 @@
-# Analisis Sistem - Yala Computer (Revisi: 26 Januari 2026 - Fase 4 - Upgrade V3 High-End)
+# Analisis Sistem - Yala Computer (Revisi: 26 Januari 2026 - Fase 5 - Upgrade V3 High-End & No-Modal Policy)
 
 ## Pendahuluan
-Dokumen ini adalah pembaruan untuk fase implementasi "Sistem V3 (High-End Enterprise)". Fokus utama adalah perombakan visual total menjadi lebih modern dan berwarna, peningkatan fitur log aktivitas yang naratif, manajemen database, serta penyempurnaan manajemen peran dan navigasi media.
+Dokumen ini adalah pembaruan untuk fase implementasi "Sistem V3 (High-End Enterprise)". Fokus utama adalah perombakan visual total, kebijakan "No-Modal", peningkatan fitur log aktivitas yang naratif, manajemen database, serta penyempurnaan manajemen peran dan navigasi media.
 
 ## Rencana Pengembangan V3
 
@@ -13,7 +13,8 @@ Dokumen ini adalah pembaruan untuk fase implementasi "Sistem V3 (High-End Enterp
     *   Aksesibilitas: User-friendly dan mudah digunakan.
 2.  **Layout Frontend & Backend:**
     *   Redesign `layouts/admin.blade.php` dan `layouts/store.blade.php`.
-    *   Pastikan konsistensi visual antara Dashboard dan Storefront dengan nuansa "High-End".
+    *   **Uniform Layout:** SEMUA halaman harus menggunakan layout yang seragam.
+    *   **No-Modal Policy:** DILARANG menggunakan modal untuk form input layout apapun. Semua form harus menggunakan halaman terpisah atau komponen inline yang rapi.
 
 ### B. Fitur Sistem & Pengaturan (Peningkatan)
 1.  **Log Aktivitas (Detail & Naratif):**
@@ -29,6 +30,7 @@ Dokumen ini adalah pembaruan untuk fase implementasi "Sistem V3 (High-End Enterp
     *   Update menu side navbar SDM & Karyawan -> Peran & Hak Akses.
     *   Tambahkan fitur untuk membuat Peran dan Hak Akses baru secara manual sesuai jabatan.
     *   Admin dapat memilih hak akses apa saja yang diberikan untuk peran tersebut.
+    *   **Refactor Form:** Ubah form modal saat ini menjadi halaman/view standar.
 
 ### D. Navigasi Media & Customer Service
 1.  **Sidebar Behavior:**
@@ -37,10 +39,10 @@ Dokumen ini adalah pembaruan untuk fase implementasi "Sistem V3 (High-End Enterp
 ## Daftar Tugas Prioritas
 
 1.  **Update Dokumen Analisis:** (Selesai).
-2.  **Redesign Layout V3:** Implementasi CSS baru, ikon berwarna, dan struktur layout high-end.
-3.  **Upgrade Sistem Log:** Implementasi log naratif dan pemisahan tipe log.
-4.  **Fitur Backup & Info Sistem:** Integrasi backup database ke menu Informasi Sistem.
-5.  **Upgrade Manajemen Peran:** Implementasi UI/UX untuk custom role & permission.
+2.  **Refactor Role Manager (No-Modal):** Ubah UI Role Manager untuk menghapus modal dan menggunakan layout standar.
+3.  **Redesign Layout V3:** Implementasi CSS baru, ikon berwarna, dan struktur layout high-end.
+4.  **Upgrade Sistem Log:** Implementasi log naratif dan pemisahan tipe log.
+5.  **Fitur Backup & Info Sistem:** Integrasi backup database ke menu Informasi Sistem.
 6.  **Fix Navigasi Media:** Sesuaikan behavior sidebar untuk menu pesan dan chat.
 
 ---
