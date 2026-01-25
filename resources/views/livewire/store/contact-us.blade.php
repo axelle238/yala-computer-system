@@ -1,12 +1,12 @@
 <div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12 relative overflow-hidden">
-    <!-- Map Background (Abstract) -->
+    <!-- Latar Belakang Peta (Abstrak) -->
     <div class="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg')] bg-cover bg-center"></div>
 
     <div class="container mx-auto px-4 lg:px-8 relative z-10">
         
         <div class="text-center mb-16 animate-fade-in-up">
             <h1 class="text-4xl md:text-5xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tighter mb-4">
-                Get In <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-600">Touch</span>
+                Hubungi <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-600">Kami</span>
             </h1>
             <p class="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
                 Punya pertanyaan seputar rakit PC atau butuh penawaran untuk kantor? Tim kami siap membantu Anda.
@@ -15,7 +15,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             
-            <!-- Contact Info -->
+            <!-- Info Kontak -->
             <div class="space-y-8 animate-fade-in-up delay-100">
                 <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700">
                     <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">Markas Operasional</h3>
@@ -50,71 +50,71 @@
                                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                             </div>
                             <div>
-                                <p class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Email</p>
+                                <p class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Surel</p>
                                 <p class="text-slate-800 dark:text-slate-200 font-medium">
-                                    hello@yalacomputer.id
+                                    halo@yalacomputer.id
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- FAQ Accordion (Simple) -->
+                <!-- FAQ Sederhana -->
                 <div class="space-y-3">
-                    <div x-data="{ open: false }" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                        <button @click="open = !open" class="w-full px-6 py-4 text-left flex justify-between items-center font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                    <div x-data="{ terbuka: false }" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <button @click="terbuka = !terbuka" class="w-full px-6 py-4 text-left flex justify-between items-center font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
                             <span>Berapa lama garansi produk?</span>
-                            <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            <svg class="w-4 h-4 transition-transform" :class="terbuka ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
-                        <div x-show="open" class="px-6 pb-4 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <div x-show="terbuka" class="px-6 pb-4 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                             Semua produk baru bergaransi resmi distributor (1-3 tahun tergantung brand). Untuk PC rakitan, kami memberikan garansi servis tambahan selama 1 tahun.
                         </div>
                     </div>
-                    <div x-data="{ open: false }" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                        <button @click="open = !open" class="w-full px-6 py-4 text-left flex justify-between items-center font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                    <div x-data="{ terbuka: false }" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <button @click="terbuka = !terbuka" class="w-full px-6 py-4 text-left flex justify-between items-center font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
                             <span>Apakah bisa kirim ke luar kota?</span>
-                            <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            <svg class="w-4 h-4 transition-transform" :class="terbuka ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
-                        <div x-show="open" class="px-6 pb-4 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Ya, kami melayani pengiriman ke seluruh Indonesia menggunakan ekspedisi terpercaya (JNE, J&T, SiCepat) dengan packing kayu wajib untuk PC rakitan.
+                        <div x-show="terbuka" class="px-6 pb-4 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Ya, kami melayani pengiriman ke seluruh Indonesia menggunakan ekspedisi terpercaya (JNE, J&T, SiCepat) dengan pengemasan kayu wajib untuk PC rakitan.
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Contact Form -->
+            <!-- Formulir Kontak -->
             <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl border border-slate-200 dark:border-slate-700 animate-fade-in-up delay-200">
                 <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-6">Kirim Pesan</h3>
                 
-                <form wire:submit.prevent="submit" class="space-y-5">
+                <form wire:submit.prevent="kirimPesan" class="space-y-5">
                     <div>
                         <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Nama Lengkap</label>
-                        <input wire:model="name" type="text" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-rose-500 dark:text-white py-3 px-4 transition-all">
-                        @error('name') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        <input wire:model="nama" type="text" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-rose-500 dark:text-white py-3 px-4 transition-all">
+                        @error('nama') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
                     </div>
                     
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Alamat Email</label>
-                        <input wire:model="email" type="email" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-rose-500 dark:text-white py-3 px-4 transition-all">
-                        @error('email') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Alamat Surel</label>
+                        <input wire:model="surel" type="email" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-rose-500 dark:text-white py-3 px-4 transition-all">
+                        @error('surel') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Subjek</label>
-                        <select wire:model="subject" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-rose-500 dark:text-white py-3 px-4 transition-all">
+                        <select wire:model="subjek" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-rose-500 dark:text-white py-3 px-4 transition-all">
                             <option value="">-- Pilih Topik --</option>
                             <option value="Penawaran Rakit PC">Penawaran Rakit PC</option>
                             <option value="Status Pesanan">Status Pesanan</option>
                             <option value="Klaim Garansi">Klaim Garansi</option>
                             <option value="Lainnya">Lainnya</option>
                         </select>
-                        @error('subject') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        @error('subjek') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Pesan</label>
-                        <textarea wire:model="message" rows="5" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-rose-500 dark:text-white py-3 px-4 transition-all"></textarea>
-                        @error('message') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        <textarea wire:model="pesan" rows="5" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-rose-500 dark:text-white py-3 px-4 transition-all"></textarea>
+                        @error('pesan') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
                     <button type="submit" class="w-full py-4 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg shadow-rose-600/30 transition-all transform hover:-translate-y-1">

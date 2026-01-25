@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Store;
 
-use App\Models\ContactMessage;
+use App\Models\PesanPelanggan;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -11,29 +11,49 @@ use Livewire\Attributes\Title;
 #[Title('Hubungi Kami - Yala Computer')]
 class ContactUs extends Component
 {
-    public $name;
-    public $email;
-    public $subject;
-    public $message;
+    /**
+     * Properti formulir dalam Bahasa Indonesia.
+     */
+    public $nama;
+    public $surel;
+    public $subjek;
+    public $pesan;
 
-    public function submit()
+    /**
+     * Mengirim pesan pelanggan ke database.
+     */
+    public function kirimPesan()
     {
         $this->validate([
-            'name' => 'required|min:3',
-            'email' => 'required|email',
-            'subject' => 'required|min:5',
-            'message' => 'required|min:10',
+            'nama' => 'required|min:3',
+            'surel' => 'required|email',
+            'subjek' => 'required|min:5',
+            'pesan' => 'required|min:10',
+        ], [
+            'nama.required' => 'Nama wajib diisi.',
+            'nama.min' => 'Nama minimal 3 karakter.',
+            'surel.required' => 'Surel wajib diisi.',
+            'surel.email' => 'Format surel tidak valid.',
+            'subjek.required' => 'Subjek wajib diisi.',
+            'subjek.min' => 'Subjek minimal 5 karakter.',
+            'pesan.required' => 'Pesan wajib diisi.',
+            'pesan.min' => 'Isi pesan minimal 10 karakter.',
         ]);
 
-        ContactMessage::create([
-            'name' => $this->name,
-            'email' => $this->email,
-            'subject' => $this->subject,
-            'message' => $this->message,
+        PesanPelanggan::create([
+            'nama' => $this->nama,
+            'surel' => $this->surel,
+            'subjek' => $this->subjek,
+            'isi_pesan' => $this->pesan,
+            'status' => PesanPelanggan::STATUS_BARU,
         ]);
 
-        $this->reset();
-        $this->dispatch('notify', message: 'Pesan terkirim! Kami akan segera menghubungi Anda.', type: 'success');
+        $this->reset(['nama', 'surel', 'subjek', 'pesan']);
+        
+        $this->dispatch('notify', 
+            message: 'Pesan berhasil terkirim! Tim kami akan segera menghubungi Anda melalui surel.', 
+            type: 'success'
+        );
     }
 
     public function render()
