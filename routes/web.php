@@ -109,8 +109,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/customers', \App\Livewire\Customers\Index::class)->name('customers.index');
     Route::get('/customers/inbox', \App\Livewire\Admin\Inbox::class)->name('customers.inbox');
     Route::get('/customers/loyalty', \App\Livewire\CRM\LoyaltyManager::class)->name('customers.loyalty'); // New
-    Route::get('/customers/{id}', \App\Livewire\CRM\CustomerDetail::class)->name('customers.show'); // New 360 View
+    Route::get('/customers/live-chat', \App\Livewire\Admin\LiveChatManager::class)->name('customers.live-chat'); // Moved up
     Route::get('/customers/create', \App\Livewire\Customers\Form::class)->name('customers.create');
+    Route::get('/customers/{id}', \App\Livewire\CRM\CustomerDetail::class)->name('customers.show'); // New 360 View
     Route::get('/customers/{id}/edit', \App\Livewire\Customers\Form::class)->name('customers.edit');
 
     // Audit Log
@@ -165,9 +166,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/news', \App\Livewire\News\Index::class)->name('admin.news.index');
     Route::get('/news/create', \App\Livewire\News\Form::class)->name('admin.news.create');
     Route::get('/news/{id}/edit', \App\Livewire\News\Form::class)->name('admin.news.edit');
-
-    // Customer Service & Media
-    Route::get('/customers/live-chat', \App\Livewire\Admin\LiveChatManager::class)->name('customers.live-chat');
 
     // Printing Routes
     Route::get('/print/transaction/{id}', [\App\Http\Controllers\PrintController::class, 'transaction'])->name('print.transaction');
