@@ -11,94 +11,114 @@ use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Layout('layouts.app')]
-#[Title('Form Produk - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Formulir Produk - Yala Computer')]
 class Form extends Component
 {
     use WithFileUploads;
 
-    public ?Product $product = null;
+    /**
+     * Model Produk (jika mode edit).
+     */
+    public ?Product $produk = null;
 
-    // Form Properties
-    public $name = '';
+    // Properti Formulir
+    public $nama = '';
     public $sku = '';
     public $barcode = '';
-    public $category_id = '';
-    public $supplier_id = '';
-    public $buy_price = 0;
-    public $sell_price = 0;
-    public $stock_quantity = 0;
-    public $min_stock_alert = 5;
-    public $description = '';
-    public $image; // Temporary upload
-    public $image_path; // Existing path
+    public $idKategori = '';
+    public $idPemasok = '';
+    public $hargaBeli = 0;
+    public $hargaJual = 0;
+    public $jumlahStok = 0;
+    public $peringatanStokMin = 5;
+    public $deskripsi = '';
+    public $gambar; // Unggahan sementara
+    public $pathGambar; // Path yang sudah ada
 
     public function mount($id = null)
     {
         if ($id) {
-            $this->product = Product::findOrFail($id);
-            $this->name = $this->product->name;
-            $this->sku = $this->product->sku;
-            $this->barcode = $this->product->barcode;
-            $this->category_id = $this->product->category_id;
-            $this->supplier_id = $this->product->supplier_id;
-            $this->buy_price = $this->product->buy_price;
-            $this->sell_price = $this->product->sell_price;
-            $this->stock_quantity = $this->product->stock_quantity;
-            $this->min_stock_alert = $this->product->min_stock_alert;
-            $this->description = $this->product->description;
-            $this->image_path = $this->product->image_path;
+            $this->produk = Product::findOrFail($id);
+            $this->nama = $this->produk->name;
+            $this->sku = $this->produk->sku;
+            $this->barcode = $this->produk->barcode;
+            $this->idKategori = $this->produk->category_id;
+            $this->idPemasok = $this->produk->supplier_id;
+            $this->hargaBeli = $this->produk->buy_price;
+            $this->hargaJual = $this->produk->sell_price;
+            $this->jumlahStok = $this->produk->stock_quantity;
+            $this->peringatanStokMin = $this->produk->min_stock_alert;
+            $this->deskripsi = $this->produk->description;
+            $this->pathGambar = $this->produk->image_path;
         }
     }
 
-    public function updatedName()
+    /**
+     * Otomatis generate SKU saat nama berubah.
+     */
+    public function updatedNama()
     {
-        // Auto generate SKU if empty (optional helper)
         if (empty($this->sku)) {
-            $this->sku = strtoupper(Str::slug($this->name));
+            $this->sku = strtoupper(Str::slug($this->nama));
         }
     }
 
-    public function save()
+    /**
+     * Menyimpan data produk ke basis data.
+     */
+    public function simpan()
     {
         $this->validate([
-            'name' => 'required|string|max:255',
-            'sku' => 'required|string|unique:products,sku,' . ($this->product->id ?? 'NULL'),
-            'category_id' => 'required|exists:categories,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
-            'buy_price' => 'required|numeric|min:0',
-            'sell_price' => 'required|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
-            'min_stock_alert' => 'required|integer|min:0',
-            'image' => 'nullable|image|max:2048', // 2MB Max
+            'nama' => 'required|string|max:255',
+            'sku' => 'required|string|unique:products,sku,' . ($this->produk->id ?? 'NULL'),
+            'idKategori' => 'required|exists:categories,id',
+            'idPemasok' => 'nullable|exists:suppliers,id',
+            'hargaBeli' => 'required|numeric|min:0',
+            'hargaJual' => 'required|numeric|min:0',
+            'jumlahStok' => 'required|integer|min:0',
+            'peringatanStokMin' => 'required|integer|min:0',
+            'gambar' => 'nullable|image|max:2048', // Maksimal 2MB
+        ], [
+            'nama.required' => 'Nama produk wajib diisi.',
+            'sku.unique' => 'Kode SKU sudah digunakan.',
+            'idKategori.required' => 'Kategori wajib dipilih.',
+            'hargaBeli.min' => 'Harga beli tidak boleh negatif.',
+            'hargaJual.min' => 'Harga jual tidak boleh negatif.',
+            'jumlahStok.min' => 'Stok tidak boleh negatif.',
+            'gambar.image' => 'File harus berupa gambar.',
+            'gambar.max' => 'Ukuran gambar maksimal 2MB.',
         ]);
 
         $data = [
-            'name' => $this->name,
-            'slug' => Str::slug($this->name),
+            'name' => $this->nama,
+            'slug' => Str::slug($this->nama),
             'sku' => $this->sku,
             'barcode' => $this->barcode,
-            'category_id' => $this->category_id,
-            'supplier_id' => $this->supplier_id ?: null,
-            'buy_price' => $this->buy_price,
-            'sell_price' => $this->sell_price,
-            'stock_quantity' => $this->stock_quantity,
-            'min_stock_alert' => $this->min_stock_alert,
-            'description' => $this->description,
+            'category_id' => $this->idKategori,
+            'supplier_id' => $this->idPemasok ?: null,
+            'buy_price' => $this->hargaBeli,
+            'sell_price' => $this->hargaJual,
+            'stock_quantity' => $this->jumlahStok,
+            'min_stock_alert' => $this->peringatanStokMin,
+            'description' => $this->deskripsi,
             'is_active' => true,
         ];
 
-        if ($this->image) {
-            $data['image_path'] = $this->image->store('products', 'public');
+        if ($this->gambar) {
+            $data['image_path'] = $this->gambar->store('produk', 'public');
         }
 
-        if ($this->product) {
-            $this->product->update($data);
-            session()->flash('success', 'Produk berhasil diperbarui!');
+        if ($this->produk) {
+            $this->produk->update($data);
+            $pesan = 'Produk berhasil diperbarui!';
         } else {
             Product::create($data);
-            session()->flash('success', 'Produk baru berhasil ditambahkan!');
+            $pesan = 'Produk baru berhasil ditambahkan!';
         }
+
+        // Notifikasi CRUD
+        $this->dispatch('notify', message: $pesan, type: 'success');
 
         return redirect()->route('products.index');
     }
@@ -106,8 +126,8 @@ class Form extends Component
     public function render()
     {
         return view('livewire.products.form', [
-            'categories' => Category::all(),
-            'suppliers' => Supplier::all(),
+            'daftarKategori' => Category::all(),
+            'daftarPemasok' => Supplier::all(),
         ]);
     }
 }

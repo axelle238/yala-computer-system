@@ -7,45 +7,57 @@ use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Layout('layouts.app')]
-#[Title('Form Pelanggan - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Formulir Pelanggan - Yala Computer')]
 class Form extends Component
 {
-    public $customer_id;
-    public $name;
-    public $phone;
-    public $email;
+    /**
+     * Properti Formulir Pelanggan.
+     */
+    public $idPelanggan;
+    public $nama;
+    public $telepon;
+    public $surel;
 
     public function mount($id = null)
     {
         if ($id) {
-            $customer = Customer::findOrFail($id);
-            $this->customer_id = $customer->id;
-            $this->name = $customer->name;
-            $this->phone = $customer->phone;
-            $this->email = $customer->email;
+            $pelanggan = Customer::findOrFail($id);
+            $this->idPelanggan = $pelanggan->id;
+            $this->nama = $pelanggan->name;
+            $this->telepon = $pelanggan->phone;
+            $this->surel = $pelanggan->email;
         }
     }
 
-    public function save()
+    /**
+     * Menyimpan data pelanggan ke database.
+     */
+    public function simpan()
     {
         $this->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20|unique:customers,phone,' . $this->customer_id,
-            'email' => 'nullable|email|max:255',
+            'nama' => 'required|string|max:255',
+            'telepon' => 'required|string|max:20|unique:customers,phone,' . $this->idPelanggan,
+            'surel' => 'nullable|email|max:255',
+        ], [
+            'nama.required' => 'Nama pelanggan wajib diisi.',
+            'telepon.required' => 'Nomor telepon wajib diisi.',
+            'telepon.unique' => 'Nomor telepon sudah terdaftar.',
+            'surel.email' => 'Format surel tidak valid.',
         ]);
 
         Customer::updateOrCreate(
-            ['id' => $this->customer_id],
+            ['id' => $this->idPelanggan],
             [
-                'name' => $this->name,
-                'phone' => $this->phone,
-                'email' => $this->email,
-                'join_date' => $this->customer_id ? Customer::find($this->customer_id)->join_date : now(),
+                'name' => $this->nama,
+                'phone' => $this->telepon,
+                'email' => $this->surel,
+                'join_date' => $this->idPelanggan ? Customer::find($this->idPelanggan)->join_date : now(),
             ]
         );
 
         $this->dispatch('notify', message: 'Data pelanggan berhasil disimpan!', type: 'success');
+        
         return redirect()->route('customers.index');
     }
 

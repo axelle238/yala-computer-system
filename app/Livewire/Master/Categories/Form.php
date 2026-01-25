@@ -8,41 +8,51 @@ use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Layout('layouts.app')]
-#[Title('Form Kategori - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Formulir Kategori - Yala Computer')]
 class Form extends Component
 {
-    public $category_id;
-    public $name;
-    public $description;
+    /**
+     * Properti Formulir Kategori.
+     */
+    public $idKategori;
+    public $nama;
+    public $deskripsi;
 
     public function mount($id = null)
     {
         if ($id) {
-            $category = Category::findOrFail($id);
-            $this->category_id = $category->id;
-            $this->name = $category->name;
-            $this->description = $category->description;
+            $kategori = Category::findOrFail($id);
+            $this->idKategori = $kategori->id;
+            $this->nama = $kategori->name;
+            $this->deskripsi = $kategori->description;
         }
     }
 
-    public function save()
+    /**
+     * Menyimpan data kategori ke database.
+     */
+    public function simpan()
     {
         $this->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'nama' => 'required|string|max:255|unique:categories,name,' . $this->idKategori,
+            'deskripsi' => 'nullable|string',
+        ], [
+            'nama.required' => 'Nama kategori wajib diisi.',
+            'nama.unique' => 'Nama kategori sudah ada.',
         ]);
 
         Category::updateOrCreate(
-            ['id' => $this->category_id],
+            ['id' => $this->idKategori],
             [
-                'name' => $this->name,
-                'slug' => Str::slug($this->name),
-                'description' => $this->description
+                'name' => $this->nama,
+                'slug' => Str::slug($this->nama),
+                'description' => $this->deskripsi
             ]
         );
 
         $this->dispatch('notify', message: 'Kategori berhasil disimpan!', type: 'success');
+        
         return redirect()->route('master.categories');
     }
 
