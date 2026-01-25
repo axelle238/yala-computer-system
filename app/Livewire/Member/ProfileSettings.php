@@ -5,61 +5,109 @@ namespace App\Livewire\Member;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.store')]
-#[Title('Pengaturan Profil - Member Area')]
+#[Title('Pengaturan Profil - Yala Computer')]
 class ProfileSettings extends Component
 {
-    // Profile
-    public $name;
-    public $email;
-    public $phone;
+    use WithFileUploads;
 
-    // Password
-    public $current_password;
-    public $password;
-    public $password_confirmation;
+    /**
+     * Properti Data Profil
+     */
+    public $nama;
+    public $surel;
+    public $telepon;
+    public $nomorKtp;
+    public $alamatLengkap;
+    public $fotoProfil;
+    public $pathFotoSaatIni;
+
+    /**
+     * Properti Keamanan (Kata Sandi)
+     */
+    public $kataSandiSaatIni;
+    public $kataSandiBaru;
+    public $konfirmasiKataSandi;
 
     public function mount()
     {
-        $user = Auth::user();
-        $this->name = $user->name;
-        $this->email = $user->email;
-        $this->phone = $user->phone;
+        $pengguna = Auth::user();
+        $this->nama = $pengguna->name;
+        $this->surel = $pengguna->email;
+        $this->telepon = $pengguna->phone;
+        $this->nomorKtp = $pengguna->nomor_ktp;
+        $this->alamatLengkap = $pengguna->alamat_lengkap;
+        $this->pathFotoSaatIni = $pengguna->path_foto_profil;
     }
 
-    public function updateProfile()
+    /**
+     * Memperbarui informasi profil pengguna.
+     */
+    public function perbaruiProfil()
     {
         $this->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
+            'nama' => 'required|string|max:255',
+            'telepon' => 'nullable|string|max:20',
+            'nomorKtp' => 'nullable|digits:16',
+            'alamatLengkap' => 'nullable|string|max:500',
+            'fotoProfil' => 'nullable|image|max:2048', // Maksimal 2MB
+        ], [
+            'nama.required' => 'Nama lengkap wajib diisi.',
+            'nomorKtp.digits' => 'Nomor KTP harus 16 digit.',
+            'fotoProfil.image' => 'File harus berupa gambar.',
+            'fotoProfil.max' => 'Ukuran gambar maksimal 2MB.',
         ]);
 
-        $user = Auth::user();
-        $user->update([
-            'name' => $this->name,
-            'phone' => $this->phone,
-        ]);
+        $pengguna = Auth::user();
+        
+        $data = [
+            'name' => $this->nama,
+            'phone' => $this->telepon,
+            'nomor_ktp' => $this->nomorKtp,
+            'alamat_lengkap' => $this->alamatLengkap,
+        ];
 
-        $this->dispatch('notify', message: 'Profil berhasil diperbarui.', type: 'success');
+        if ($this->fotoProfil) {
+            $path = $this->fotoProfil->store('foto-profil', 'public');
+            $data['path_foto_profil'] = $path;
+            $this->pathFotoSaatIni = $path;
+        }
+
+        $pengguna->update($data);
+
+        $this->dispatch('notify', message: 'Profil Anda berhasil diperbarui!', type: 'success');
     }
 
-    public function updatePassword()
+    /**
+     * Memperbarui kata sandi pengguna.
+     */
+    public function perbaruiKataSandi()
     {
         $this->validate([
-            'current_password' => 'required|current_password',
-            'password' => 'required|min:8|confirmed',
+            'kataSandiSaatIni' => 'required|current_password',
+            'kataSandiBaru' => 'required|min:8|different:kataSandiSaatIni',
+            'konfirmasiKataSandi' => 'required|same:kataSandiBaru',
+        ], [
+            'kataSandiSaatIni.required' => 'Kata sandi saat ini wajib diisi.',
+            'kataSandiSaatIni.current_password' => 'Kata sandi saat ini salah.',
+            'kataSandiBaru.required' => 'Kata sandi baru wajib diisi.',
+            'kataSandiBaru.min' => 'Kata sandi baru minimal 8 karakter.',
+            'kataSandiBaru.different' => 'Kata sandi baru harus berbeda dengan kata sandi lama.',
+            'konfirmasiKataSandi.required' => 'Konfirmasi kata sandi wajib diisi.',
+            'konfirmasiKataSandi.same' => 'Konfirmasi kata sandi tidak cocok.',
         ]);
 
-        $user = Auth::user();
-        $user->update([
-            'password' => Hash::make($this->password),
+        $pengguna = Auth::user();
+        $pengguna->update([
+            'password' => Hash::make($this->kataSandiBaru),
         ]);
 
-        $this->reset(['current_password', 'password', 'password_confirmation']);
-        $this->dispatch('notify', message: 'Password berhasil diubah.', type: 'success');
+        $this->reset(['kataSandiSaatIni', 'kataSandiBaru', 'konfirmasiKataSandi']);
+        $this->dispatch('notify', message: 'Kata sandi berhasil diubah.', type: 'success');
     }
 
     public function render()

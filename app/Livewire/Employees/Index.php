@@ -3,6 +3,7 @@
 namespace App\Livewire\Employees;
 
 use App\Models\User;
+use App\Models\Peran;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -29,17 +30,19 @@ class Index extends Component
     public $idPengguna;
     public $nama;
     public $surel;
-    public $peran = 'technician';
+    public $idPeran; // Menggunakan sistem Peran (RBAC)
     public $kataSandi;
     public $telepon;
     public $gaji;
+    public $nomorKtp;
+    public $alamatLengkap;
 
     /**
      * Mempersiapkan form untuk menambah karyawan baru.
      */
     public function buat()
     {
-        $this->reset(['idPengguna', 'nama', 'surel', 'peran', 'kataSandi', 'telepon', 'gaji']);
+        $this->reset(['idPengguna', 'nama', 'surel', 'idPeran', 'kataSandi', 'telepon', 'gaji', 'nomorKtp', 'alamatLengkap']);
         $this->tampilkanForm = true;
     }
 
@@ -52,9 +55,11 @@ class Index extends Component
         $this->idPengguna = $pengguna->id;
         $this->nama = $pengguna->name;
         $this->surel = $pengguna->email;
-        $this->peran = $pengguna->role;
+        $this->idPeran = $pengguna->id_peran;
         $this->telepon = $pengguna->phone;
         $this->gaji = $pengguna->salary;
+        $this->nomorKtp = $pengguna->nomor_ktp;
+        $this->alamatLengkap = $pengguna->alamat_lengkap;
         $this->tampilkanForm = true;
     }
 
@@ -66,7 +71,8 @@ class Index extends Component
         $aturan = [
             'nama' => 'required',
             'surel' => 'required|email|unique:users,email,'.$this->idPengguna,
-            'peran' => 'required',
+            'idPeran' => 'required',
+            'nomorKtp' => 'nullable|digits:16',
         ];
 
         if (!$this->idPengguna) {
@@ -76,9 +82,9 @@ class Index extends Component
         $this->validate($aturan, [
             'nama.required' => 'Nama wajib diisi.',
             'surel.required' => 'Surel wajib diisi.',
-            'surel.email' => 'Format surel tidak valid.',
             'surel.unique' => 'Surel sudah terdaftar.',
-            'peran.required' => 'Peran wajib dipilih.',
+            'idPeran.required' => 'Peran wajib dipilih.',
+            'nomorKtp.digits' => 'Nomor KTP harus 16 digit.',
             'kataSandi.required' => 'Kata sandi wajib diisi.',
             'kataSandi.min' => 'Kata sandi minimal 6 karakter.',
         ]);
@@ -86,9 +92,11 @@ class Index extends Component
         $data = [
             'name' => $this->nama,
             'email' => $this->surel,
-            'role' => $this->peran,
+            'id_peran' => $this->idPeran,
             'phone' => $this->telepon,
             'salary' => $this->gaji,
+            'nomor_ktp' => $this->nomorKtp,
+            'alamat_lengkap' => $this->alamatLengkap,
         ];
 
         if ($this->kataSandi) {
@@ -116,7 +124,11 @@ class Index extends Component
 
     public function render()
     {
-        $karyawan = User::whereIn('role', ['admin', 'technician', 'cashier', 'warehouse', 'owner', 'hr'])
+        // Ambil peran untuk dropdown
+        $daftarOpsiPeran = Peran::all();
+
+        $karyawan = User::whereNotNull('id_peran') // Asumsi karyawan adalah yang punya peran
+            ->orWhereIn('role', ['admin', 'technician', 'cashier', 'warehouse', 'hr'])
             ->where(function($q) {
                 $q->where('name', 'like', '%'.$this->cari.'%')
                   ->orWhere('email', 'like', '%'.$this->cari.'%');
@@ -125,7 +137,8 @@ class Index extends Component
             ->paginate(10);
 
         return view('livewire.employees.index', [
-            'karyawan' => $karyawan
+            'karyawan' => $karyawan,
+            'daftarOpsiPeran' => $daftarOpsiPeran
         ]);
     }
 }
