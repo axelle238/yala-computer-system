@@ -6,6 +6,8 @@ use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\ServiceTicket;
 use App\Models\Order;
+use App\Models\PcAssembly;
+use App\Models\Quotation;
 use App\Services\BusinessIntelligence;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +34,8 @@ class Dashboard extends Component
                 'net_profit' => $pl['net_profit'],
                 'active_tickets' => ServiceTicket::whereNotIn('status', ['cancelled', 'picked_up'])->count(),
                 'orders_today' => Order::whereDate('created_at', today())->count(),
+                'active_builds' => PcAssembly::whereNotIn('status', ['completed', 'cancelled'])->count(),
+                'pending_quotations' => Quotation::where('status', 'pending')->count(),
             ];
         });
 

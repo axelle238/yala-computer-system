@@ -81,6 +81,41 @@
         </div>
     </div>
 
+    <!-- Additional Stats for Complex Operations -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- PC Builds -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex items-center justify-between group hover:shadow-md transition-all">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-purple-100 dark:bg-purple-900/50 rounded-xl text-purple-600 dark:text-purple-400">
+                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Perakitan PC Berjalan</p>
+                    <p class="text-2xl font-black text-slate-800 dark:text-white">{{ $stats['active_builds'] }} <span class="text-sm font-normal text-slate-400">Unit</span></p>
+                </div>
+            </div>
+            <a href="{{ route('assembly.manager') }}" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-indigo-600 hover:text-white transition-colors">
+                Kelola
+            </a>
+        </div>
+
+        <!-- Pending Quotations -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex items-center justify-between group hover:shadow-md transition-all">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-cyan-100 dark:bg-cyan-900/50 rounded-xl text-cyan-600 dark:text-cyan-400">
+                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Penawaran (B2B) Menunggu</p>
+                    <p class="text-2xl font-black text-slate-800 dark:text-white">{{ $stats['pending_quotations'] }} <span class="text-sm font-normal text-slate-400">Dokumen</span></p>
+                </div>
+            </div>
+            <a href="{{ route('quotations.index') }}" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-indigo-600 hover:text-white transition-colors">
+                Tinjau
+            </a>
+        </div>
+    </div>
+
     <!-- Analytics Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 

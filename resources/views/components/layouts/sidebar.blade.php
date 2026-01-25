@@ -66,6 +66,9 @@
                 <a href="{{ route('orders.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('orders.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Riwayat Order
                 </a>
+                <a href="{{ route('quotations.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('quotations.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Penawaran (B2B)
+                </a>
                 <a href="{{ route('logistics.manager') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('logistics.manager') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Pengiriman & Logistik
                 </a>
@@ -75,10 +78,10 @@
         <!-- GROUP: SERVICE CENTER -->
         <div>
             <button @click="toggleGroup('service')" 
-                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('services.*', 'rma.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('services.*', 'rma.*', 'assembly.*', 'knowledge.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                 <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 {{ request()->routeIs('services.*', 'rma.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    <span>Service Center</span>
+                    <svg class="w-5 h-5 {{ request()->routeIs('services.*', 'rma.*', 'assembly.*', 'knowledge.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <span>Service & Perakitan</span>
                 </div>
                 <svg class="w-4 h-4 transition-transform duration-200" :class="activeGroup === 'service' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
@@ -89,8 +92,14 @@
                 <a href="{{ route('services.kanban') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('services.kanban') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Kanban Board
                 </a>
+                <a href="{{ route('assembly.manager') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('assembly.manager') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Perakitan PC (Assembly)
+                </a>
                 <a href="{{ route('rma.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('rma.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Manajemen RMA (Retur)
+                </a>
+                <a href="{{ route('knowledge.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('knowledge.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Knowledge Base
                 </a>
             </div>
         </div>
@@ -108,6 +117,12 @@
             <div x-show="activeGroup === 'inventory'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
                 <a href="{{ route('products.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('products.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Master Produk
+                </a>
+                <a href="{{ route('purchase-requisitions.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('purchase-requisitions.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Permintaan Pembelian
+                </a>
+                <a href="{{ route('purchase-orders.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('purchase-orders.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Purchase Order (PO)
                 </a>
                 <a href="{{ route('purchase-orders.receive') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('purchase-orders.receive') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Penerimaan Barang (Inbound)
@@ -166,6 +181,12 @@
                 </a>
                 <a href="{{ route('marketing.vouchers.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('marketing.vouchers.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Voucher & Promo
+                </a>
+                <a href="{{ route('marketing.flash-sale.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('marketing.flash-sale.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Flash Sale
+                </a>
+                <a href="{{ route('reviews.manager') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('reviews.manager') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Ulasan Produk
                 </a>
             </div>
         </div>
