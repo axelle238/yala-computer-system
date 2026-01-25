@@ -10,95 +10,122 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.admin')]
-#[Title('Manajemen Pegawai - Yala Computer')]
+#[Title('Manajemen Karyawan - Yala Computer')]
 class Index extends Component
 {
     use WithPagination;
 
-    public $search = '';
-    public $showForm = false;
+    /**
+     * Properti pencarian nama atau surel.
+     */
+    public $cari = '';
+
+    /**
+     * Flag untuk menampilkan form inputan.
+     */
+    public $tampilkanForm = false;
     
-    // Model Props
-    public $userId;
-    public $name;
-    public $email;
-    public $role = 'technician';
-    public $password;
-    public $phone;
-    public $salary;
+    // Properti Model Pengguna
+    public $idPengguna;
+    public $nama;
+    public $surel;
+    public $peran = 'technician';
+    public $kataSandi;
+    public $telepon;
+    public $gaji;
 
-    public function create()
+    /**
+     * Mempersiapkan form untuk menambah karyawan baru.
+     */
+    public function buat()
     {
-        $this->reset();
-        $this->showForm = true;
+        $this->reset(['idPengguna', 'nama', 'surel', 'peran', 'kataSandi', 'telepon', 'gaji']);
+        $this->tampilkanForm = true;
     }
 
-    public function edit($id)
+    /**
+     * Mempersiapkan form untuk mengubah data karyawan yang sudah ada.
+     */
+    public function ubah($id)
     {
-        $user = User::findOrFail($id);
-        $this->userId = $user->id;
-        $this->name = $user->name;
-        $this->email = $user->email;
-        $this->role = $user->role;
-        $this->phone = $user->phone;
-        $this->salary = $user->salary; // Assuming 'salary' column exists from previous migrations or needs to be added
-        $this->showForm = true;
+        $pengguna = User::findOrFail($id);
+        $this->idPengguna = $pengguna->id;
+        $this->nama = $pengguna->name;
+        $this->surel = $pengguna->email;
+        $this->peran = $pengguna->role;
+        $this->telepon = $pengguna->phone;
+        $this->gaji = $pengguna->salary;
+        $this->tampilkanForm = true;
     }
 
-    public function save()
+    /**
+     * Menyimpan data karyawan ke dalam database.
+     */
+    public function simpan()
     {
-        $rules = [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email,'.$this->userId,
-            'role' => 'required',
+        $aturan = [
+            'nama' => 'required',
+            'surel' => 'required|email|unique:users,email,'.$this->idPengguna,
+            'peran' => 'required',
         ];
 
-        if (!$this->userId) {
-            $rules['password'] = 'required|min:6';
+        if (!$this->idPengguna) {
+            $aturan['kataSandi'] = 'required|min:6';
         }
 
-        $this->validate($rules);
+        $this->validate($aturan, [
+            'nama.required' => 'Nama wajib diisi.',
+            'surel.required' => 'Surel wajib diisi.',
+            'surel.email' => 'Format surel tidak valid.',
+            'surel.unique' => 'Surel sudah terdaftar.',
+            'peran.required' => 'Peran wajib dipilih.',
+            'kataSandi.required' => 'Kata sandi wajib diisi.',
+            'kataSandi.min' => 'Kata sandi minimal 6 karakter.',
+        ]);
 
         $data = [
-            'name' => $this->name,
-            'email' => $this->email,
-            'role' => $this->role,
-            'phone' => $this->phone,
-            'salary' => $this->salary,
+            'name' => $this->nama,
+            'email' => $this->surel,
+            'role' => $this->peran,
+            'phone' => $this->telepon,
+            'salary' => $this->gaji,
         ];
 
-        if ($this->password) {
-            $data['password'] = Hash::make($this->password);
+        if ($this->kataSandi) {
+            $data['password'] = Hash::make($this->kataSandi);
         }
 
-        User::updateOrCreate(['id' => $this->userId], $data);
+        User::updateOrCreate(['id' => $this->idPengguna], $data);
 
-        $this->dispatch('notify', message: 'Data pegawai berhasil disimpan.', type: 'success');
-        $this->showForm = false;
+        $this->dispatch('notify', message: 'Data karyawan berhasil disimpan.', type: 'success');
+        $this->tampilkanForm = false;
     }
 
-    public function delete($id)
+    /**
+     * Menghapus data karyawan dari database.
+     */
+    public function hapus($id)
     {
         if ($id == auth()->id()) {
-            $this->dispatch('notify', message: 'Tidak dapat menghapus akun sendiri.', type: 'error');
+            $this->dispatch('notify', message: 'Tidak dapat menghapus akun Anda sendiri.', type: 'error');
             return;
         }
         User::find($id)->delete();
-        $this->dispatch('notify', message: 'Pegawai dihapus.');
+        $this->dispatch('notify', message: 'Data karyawan telah dihapus.', type: 'success');
     }
 
     public function render()
     {
-        $employees = User::whereIn('role', ['admin', 'technician', 'cashier', 'warehouse', 'owner', 'hr'])
+        $karyawan = User::whereIn('role', ['admin', 'technician', 'cashier', 'warehouse', 'owner', 'hr'])
             ->where(function($q) {
-                $q->where('name', 'like', '%'.$this->search.'%')
-                  ->orWhere('email', 'like', '%'.$this->search.'%');
+                $q->where('name', 'like', '%'.$this->cari.'%')
+                  ->orWhere('email', 'like', '%'.$this->cari.'%');
             })
             ->latest()
             ->paginate(10);
 
         return view('livewire.employees.index', [
-            'employees' => $employees
+            'karyawan' => $karyawan
         ]);
     }
 }
