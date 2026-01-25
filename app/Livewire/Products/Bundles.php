@@ -106,7 +106,7 @@ class Bundles extends Component
             ]);
         }
 
-        $this->dispatch('notify', message: 'Bundle saved successfully.', type: 'success');
+        $this->dispatch('notify', message: 'Paket bundling berhasil disimpan.', type: 'success');
         $this->viewMode = 'list';
     }
 

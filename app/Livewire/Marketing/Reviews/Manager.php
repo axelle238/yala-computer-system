@@ -18,7 +18,7 @@ class Manager extends Component
     {
         $review = Review::find($id);
         $review->update(['is_approved' => ! $review->is_approved]);
-        $this->dispatch('notify', message: 'Status review updated.', type: 'success');
+        $this->dispatch('notify', message: 'Status ulasan diperbarui.', type: 'success');
     }
 
     public function render()

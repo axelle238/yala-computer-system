@@ -85,7 +85,7 @@ class Manager extends Component
             $this->selectedAssembly->update(['completed_at' => now()]);
         }
 
-        $this->dispatch('notify', message: 'Status updated to '.ucfirst($newStatus), type: 'success');
+        $this->dispatch('notify', message: 'Status diperbarui menjadi '.ucfirst($newStatus), type: 'success');
     }
 
     public function saveNotes()
@@ -99,7 +99,7 @@ class Manager extends Component
             'benchmark_score' => $this->benchmarkScore,
         ]);
 
-        $this->dispatch('notify', message: 'Notes & Benchmark saved.', type: 'success');
+        $this->dispatch('notify', message: 'Catatan & Benchmark disimpan.', type: 'success');
     }
 
     public function render()

@@ -35,7 +35,7 @@ class Show extends Component
             }
 
             $this->order->update(['status' => $status]);
-            $this->dispatch('notify', message: "Order status updated to $status", type: 'success');
+            $this->dispatch('notify', message: "Status pesanan diperbarui menjadi $status", type: 'success');
         }
     }
 
@@ -117,7 +117,7 @@ class Show extends Component
         $validStatuses = ['unpaid', 'paid', 'refunded', 'pending_approval'];
         if (in_array($status, $validStatuses)) {
             $this->order->update(['payment_status' => $status]);
-            $this->dispatch('notify', message: "Payment status updated to $status", type: 'info');
+            $this->dispatch('notify', message: "Status pembayaran diperbarui menjadi $status", type: 'info');
         }
     }
 
