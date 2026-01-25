@@ -25,7 +25,7 @@
             @endif
 
             @if($po->status === 'ordered')
-                <button wire:click="openReceiveModal" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold text-sm hover:bg-emerald-700 shadow-lg shadow-emerald-500/30 flex items-center gap-2">
+                <button wire:click="openReceivePanel" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold text-sm hover:bg-emerald-700 shadow-lg shadow-emerald-500/30 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                     Terima Barang (Receive)
                 </button>
@@ -36,6 +36,57 @@
             </button>
         </div>
     </div>
+
+    <!-- Receiving Action Panel -->
+    @if($activeAction === 'receive')
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-emerald-200 dark:border-emerald-800/30 overflow-hidden animate-fade-in-up mb-6">
+            <div class="p-6 border-b border-emerald-100 dark:border-emerald-800/20 bg-emerald-50/50 dark:bg-emerald-900/10 flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                        </span>
+                        Form Penerimaan Barang
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1 ml-10">Masukkan jumlah fisik barang yang diterima saat ini. Stok akan otomatis bertambah.</p>
+                </div>
+                <button wire:click="closeReceivePanel" class="text-slate-400 hover:text-rose-500 transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <div class="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    @foreach($po->items as $item)
+                        @php $remaining = $item->quantity_ordered - $item->quantity_received; @endphp
+                        @if($remaining > 0)
+                        <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500/30 transition-all">
+                            <div class="flex-1 mr-4">
+                                <div class="font-bold text-slate-800 dark:text-white line-clamp-1" title="{{ $item->product->name }}">{{ $item->product->name }}</div>
+                                <div class="text-xs text-slate-500 mt-1 flex items-center gap-2">
+                                    <span class="font-mono bg-slate-200 dark:bg-slate-600 px-1.5 py-0.5 rounded text-[10px]">{{ $item->product->sku }}</span>
+                                    <span>Sisa: <span class="font-bold text-rose-500">{{ $remaining }}</span></span>
+                                </div>
+                            </div>
+                            <div class="w-24">
+                                <input type="number" wire:model="receiveData.{{ $item->id }}" min="0" max="{{ $remaining }}" 
+                                    class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 dark:bg-slate-800 text-center font-bold text-lg">
+                            </div>
+                        </div>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/20 flex justify-end gap-3">
+                <button wire:click="closeReceivePanel" class="px-5 py-2.5 text-slate-600 font-bold hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700 rounded-lg transition-colors text-sm">Batal</button>
+                <button wire:click="processReceiving" class="px-6 py-2.5 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 transition-all transform active:scale-95 text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    Konfirmasi Penerimaan
+                </button>
+            </div>
+        </div>
+    @endif
 
     <!-- Main Content -->
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -110,46 +161,4 @@
             </ul>
         </div>
     </div>
-
-    <!-- Receiving Modal -->
-    @if($showReceiveModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up">
-            <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
-                <h3 class="text-xl font-bold text-slate-900 dark:text-white">Form Penerimaan Barang</h3>
-                <button wire:click="$set('showReceiveModal', false)" class="text-slate-400 hover:text-slate-500">&times;</button>
-            </div>
-            
-            <div class="p-6 max-h-[60vh] overflow-y-auto">
-                <p class="text-sm text-slate-500 mb-4">Masukkan jumlah fisik barang yang diterima saat ini. Stok akan otomatis bertambah.</p>
-                
-                <div class="space-y-4">
-                    @foreach($po->items as $item)
-                        @php $remaining = $item->quantity_ordered - $item->quantity_received; @endphp
-                        @if($remaining > 0)
-                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-700">
-                            <div class="flex-1">
-                                <div class="font-bold text-slate-800 dark:text-white">{{ $item->product->name }}</div>
-                                <div class="text-xs text-slate-500">SKU: {{ $item->product->sku }} | Sisa Order: <span class="font-bold text-rose-500">{{ $remaining }}</span></div>
-                            </div>
-                            <div class="w-32">
-                                <input type="number" wire:model="receiveData.{{ $item->id }}" min="0" max="{{ $remaining }}" 
-                                    class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 dark:bg-slate-800 text-center font-bold">
-                            </div>
-                        </div>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-
-            <div class="p-6 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 flex justify-end gap-3">
-                <button wire:click="$set('showReceiveModal', false)" class="px-4 py-2 text-slate-600 font-bold hover:underline">Batal</button>
-                <button wire:click="processReceiving" class="px-6 py-2 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 shadow-lg shadow-emerald-500/20">
-                    Konfirmasi Penerimaan
-                </button>
-            </div>
-        </div>
-    </div>
-    @endif
-
 </div>

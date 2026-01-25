@@ -18,7 +18,7 @@ class Show extends Component
 {
     public PurchaseOrder $po;
     public $receiveData = []; // ['item_id' => received_qty_input]
-    public $showReceiveModal = false;
+    public $activeAction = null; // null, 'receive'
 
     public function mount(PurchaseOrder $po)
     {
@@ -30,14 +30,24 @@ class Show extends Component
         }
     }
 
-    public function openReceiveModal()
+    public function openReceivePanel()
     {
         // Pre-fill dengan sisa yang belum diterima
         foreach ($this->po->items as $item) {
             $remaining = $item->quantity_ordered - $item->quantity_received;
             $this->receiveData[$item->id] = max(0, $remaining);
         }
-        $this->showReceiveModal = true;
+        $this->activeAction = 'receive';
+    }
+
+    public function closeReceivePanel()
+    {
+        $this->activeAction = null;
+        $this->reset('receiveData');
+        // Re-init default values to avoid errors if reopened
+        foreach ($this->po->items as $item) {
+            $this->receiveData[$item->id] = 0;
+        }
     }
 
     public function processReceiving()
@@ -111,17 +121,17 @@ class Show extends Component
             if ($totalCostReceived > 0) {
                 Expense::create([
                     'category' => 'Pembelian Stok',
-                    'description' => "Pembayaran PO #{$this->po->po_number} (Auto)",
+                    'title' => "Pembayaran PO #{$this->po->po_number} (Auto)", // Changed description to title
                     'amount' => $totalCostReceived,
-                    'transaction_date' => now(),
-                    'reference_number' => $this->po->po_number,
-                    'status' => 'paid', // Asumsi Cash/Transfer. Jika fitur Hutang ada, set 'unpaid'
+                    'expense_date' => now(), // Changed transaction_date to expense_date
+                    // 'reference_number' => $this->po->po_number, // Removed non-existent column
+                    // 'status' => 'paid', // Removed non-existent column
                     'user_id' => auth()->id(),
                 ]);
             }
         });
 
-        $this->showReceiveModal = false;
+        $this->closeReceivePanel();
         $this->dispatch('notify', message: 'Barang berhasil diterima dan stok bertambah!', type: 'success');
         $this->mount($this->po); // Refresh data
     }
