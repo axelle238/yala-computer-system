@@ -19,8 +19,9 @@ class Manager extends Component
     public $employees = [];
     public $shifts = [];
     
-    // Modal State
-    public $showModal = false;
+    // View State
+    public $activeAction = null; // null, 'edit'
+
     public $selectedUserId;
     public $selectedDate;
     public $selectedShiftId;
@@ -76,12 +77,17 @@ class Manager extends Component
             });
     }
 
-    public function openShiftModal($userId, $date)
+    public function openShiftPanel($userId, $date)
     {
         $this->selectedUserId = $userId;
         $this->selectedDate = $date;
         $this->selectedShiftId = session()->get("roster_{$userId}_{$date}", 4);
-        $this->showModal = true;
+        $this->activeAction = 'edit';
+    }
+
+    public function closePanel()
+    {
+        $this->reset(['activeAction', 'selectedUserId', 'selectedDate', 'selectedShiftId']);
     }
 
     public function saveShift()
@@ -89,7 +95,7 @@ class Manager extends Component
         // In real app: EmployeeShift::updateOrCreate(...)
         session()->put("roster_{$this->selectedUserId}_{$this->selectedDate}", $this->selectedShiftId);
         
-        $this->showModal = false;
+        $this->closePanel();
         $this->loadData(); // Refresh UI
         $this->dispatch('notify', message: 'Jadwal berhasil diperbarui.', type: 'success');
     }

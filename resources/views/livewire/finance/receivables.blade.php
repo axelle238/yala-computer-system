@@ -19,6 +19,56 @@
         </div>
     </div>
 
+    <!-- Action Panel: Input Pembayaran -->
+    @if($activeAction === 'payment')
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-emerald-200 dark:border-emerald-800/30 p-6 shadow-lg shadow-emerald-900/5 animate-fade-in-up relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-bl-full pointer-events-none"></div>
+            
+            <div class="flex justify-between items-center mb-6 relative z-10">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    </span>
+                    Input Pembayaran (Invoice #{{ \App\Models\Order::find($selectedOrderId)->order_number ?? '-' }})
+                </h3>
+                <button wire:click="closePaymentPanel" class="text-slate-400 hover:text-rose-500 transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Jumlah Bayar</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-2.5 text-slate-400 font-bold text-sm">Rp</span>
+                        <input type="number" wire:model="paymentAmount" class="w-full pl-10 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-emerald-500 focus:border-emerald-500 font-bold text-slate-800 dark:text-white py-2.5">
+                    </div>
+                    @error('paymentAmount') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Metode Pembayaran</label>
+                    <select wire:model="paymentMethod" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-emerald-500 focus:border-emerald-500 text-sm py-2.5 text-slate-700 dark:text-slate-300">
+                        <option value="transfer">Transfer Bank</option>
+                        <option value="cash">Tunai</option>
+                        <option value="qris">QRIS</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Catatan</label>
+                    <input type="text" wire:model="paymentNote" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-emerald-500 focus:border-emerald-500 text-sm py-2.5 text-slate-700 dark:text-slate-300" placeholder="Opsional...">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-6 border-t border-slate-100 dark:border-slate-700/50 pt-4 relative z-10">
+                <button wire:click="closePaymentPanel" class="px-5 py-2.5 text-slate-500 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors text-sm">Batal</button>
+                <button wire:click="savePayment" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition-all text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    Simpan Pembayaran
+                </button>
+            </div>
+        </div>
+    @endif
+
     <!-- Data List -->
     <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
         <div class="p-4 border-b border-slate-100 dark:border-slate-700">
@@ -55,7 +105,7 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 text-center">
-                            <button wire:click="openPaymentModal({{ $inv->id }})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all">
+                            <button wire:click="openPaymentPanel({{ $inv->id }})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm hover:shadow-md">
                                 Bayar
                             </button>
                         </td>
@@ -72,41 +122,4 @@
             {{ $invoices->links() }}
         </div>
     </div>
-
-    <!-- Payment Modal -->
-    @if($showPaymentModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-            <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-6">
-                <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Input Pembayaran</h3>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Jumlah Bayar</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-2 text-slate-400 text-sm">Rp</span>
-                            <input type="number" wire:model="paymentAmount" class="w-full pl-10 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-emerald-500 font-bold">
-                        </div>
-                        @error('paymentAmount') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Metode</label>
-                        <select wire:model="paymentMethod" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl">
-                            <option value="transfer">Transfer Bank</option>
-                            <option value="cash">Tunai</option>
-                            <option value="qris">QRIS</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Catatan</label>
-                        <textarea wire:model="paymentNote" rows="2" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl"></textarea>
-                    </div>
-                </div>
-
-                <div class="flex justify-end gap-3 mt-6">
-                    <button wire:click="$set('showPaymentModal', false)" class="px-4 py-2 text-slate-500 hover:text-slate-700 font-bold text-sm">Batal</button>
-                    <button wire:click="savePayment" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg transition-all text-sm">Simpan Pembayaran</button>
-                </div>
-            </div>
-        </div>
-    @endif
 </div>

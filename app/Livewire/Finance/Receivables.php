@@ -20,19 +20,27 @@ class Receivables extends Component
 
     public $search = '';
     
-    // Payment Modal
-    public $showPaymentModal = false;
+    // View State
+    public $activeAction = null; // null, 'payment'
+
     public $selectedOrderId;
     public $paymentAmount;
     public $paymentMethod = 'transfer';
     public $paymentNote;
 
-    public function openPaymentModal($orderId)
+    public function openPaymentPanel($orderId)
     {
+        $this->resetValidation();
         $this->selectedOrderId = $orderId;
         $order = Order::find($orderId);
         $this->paymentAmount = $order->remaining_balance; // Default to full remaining
-        $this->showPaymentModal = true;
+        $this->activeAction = 'payment';
+    }
+
+    public function closePaymentPanel()
+    {
+        $this->reset(['activeAction', 'selectedOrderId', 'paymentAmount', 'paymentNote']);
+        $this->resetValidation();
     }
 
     public function savePayment()
@@ -70,9 +78,8 @@ class Receivables extends Component
             }
         });
 
-        $this->showPaymentModal = false;
+        $this->closePaymentPanel();
         $this->dispatch('notify', message: 'Pembayaran berhasil dicatat.', type: 'success');
-        $this->reset(['paymentAmount', 'paymentNote', 'selectedOrderId']);
     }
 
     public function render()
