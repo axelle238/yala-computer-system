@@ -120,18 +120,22 @@ class Form extends Component
             $data['image_path'] = $this->gambar->store('produk', 'public');
         }
 
-        if ($this->produk) {
-            $this->produk->update($data);
-            $pesan = 'Produk berhasil diperbarui!';
-        } else {
-            Product::create($data);
-            $pesan = 'Produk baru berhasil ditambahkan!';
+        try {
+            if ($this->produk) {
+                $this->produk->update($data);
+                $pesan = 'Produk berhasil diperbarui!';
+            } else {
+                Product::create($data);
+                $pesan = 'Produk baru berhasil ditambahkan!';
+            }
+
+            // Notifikasi CRUD
+            $this->dispatch('notify', message: $pesan, type: 'success');
+
+            return redirect()->route('products.index');
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: 'Gagal menyimpan produk: ' . $e->getMessage(), type: 'error');
         }
-
-        // Notifikasi CRUD
-        $this->dispatch('notify', message: $pesan, type: 'success');
-
-        return redirect()->route('products.index');
     }
 
     public function render()

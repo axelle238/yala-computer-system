@@ -111,59 +111,64 @@ class Form extends Component
             'address' => 'nullable|string',
         ]);
 
-        DB::transaction(function () {
-            // 1. Tentukan Role
-            $roleColumn = 'employee'; // Default legacy
-            $peranId = null;
+        try {
+            DB::transaction(function () {
+                // 1. Tentukan Role
+                $roleColumn = 'employee'; // Default legacy
+                $peranId = null;
 
-            if ($this->role_type === 'admin') {
-                $roleColumn = 'admin';
-            } elseif ($this->role_type === 'custom') {
-                $peranId = $this->selected_role_id;
-            }
+                if ($this->role_type === 'admin') {
+                    $roleColumn = 'admin';
+                } elseif ($this->role_type === 'custom') {
+                    $peranId = $this->selected_role_id;
+                }
 
-            // 2. Data User
-            $userData = [
-                'name' => $this->name,
-                'email' => $this->email,
-                'role' => $roleColumn,
-                'id_peran' => $peranId,
-                // 'access_rights' legacy jika dibutuhkan
-            ];
+                // 2. Data User
+                $userData = [
+                    'name' => $this->name,
+                    'email' => $this->email,
+                    'role' => $roleColumn,
+                    'id_peran' => $peranId,
+                    // 'access_rights' legacy jika dibutuhkan
+                ];
 
-            if ($this->password) {
-                $userData['password'] = bcrypt($this->password);
-            }
+                if ($this->password) {
+                    $userData['password'] = bcrypt($this->password);
+                }
 
-            // 3. Simpan User
-            if ($this->user) {
-                $this->user->update($userData);
-                $user = $this->user;
-            } else {
-                $user = User::create($userData);
-            }
+                // 3. Simpan User
+                if ($this->user) {
+                    $this->user->update($userData);
+                    $user = $this->user;
+                } else {
+                    $user = User::create($userData);
+                }
 
-            // 4. Simpan Employee Detail
-            $user->employeeDetail()->updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'base_salary' => $this->base_salary,
-                    'allowance_daily' => $this->allowance_daily,
-                    'commission_percentage' => $this->commission_percentage,
-                    'join_date' => $this->join_date ?: null,
-                    'nik' => $this->nik,
-                    'npwp' => $this->npwp,
-                    'phone_number' => $this->phone_number,
-                    'place_of_birth' => $this->place_of_birth,
-                    'date_of_birth' => $this->date_of_birth ?: null,
-                    'address' => $this->address,
-                ]
-            );
-        });
+                // 4. Simpan Employee Detail
+                $user->employeeDetail()->updateOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'base_salary' => $this->base_salary,
+                        'allowance_daily' => $this->allowance_daily,
+                        'commission_percentage' => $this->commission_percentage,
+                        'join_date' => $this->join_date ?: null,
+                        'nik' => $this->nik,
+                        'npwp' => $this->npwp,
+                        'phone_number' => $this->phone_number,
+                        'place_of_birth' => $this->place_of_birth,
+                        'date_of_birth' => $this->date_of_birth ?: null,
+                        'address' => $this->address,
+                    ]
+                );
+            });
 
-        session()->flash('success', $this->user ? 'Data karyawan diperbarui.' : 'Karyawan baru berhasil ditambahkan.');
+            $pesan = $this->user ? 'Data karyawan diperbarui.' : 'Karyawan baru berhasil ditambahkan.';
+            $this->dispatch('notify', message: $pesan, type: 'success');
 
-        return redirect()->route('employees.index');
+            return redirect()->route('employees.index');
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: 'Terjadi kesalahan: ' . $e->getMessage(), type: 'error');
+        }
     }
 
     public function render()
