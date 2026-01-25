@@ -1,80 +1,105 @@
-<div class="space-y-8 animate-fade-in-up">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="max-w-full mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6 animate-fade-in-up">
+    
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
-            <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
-                Shift <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-500">Manager</span>
+            <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tight">
+                Shift <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600">Roster</span>
             </h2>
-            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Pengaturan jadwal kerja mingguan.</p>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Pengaturan jadwal kerja tim operasional.</p>
         </div>
         
-        <div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-            <button wire:click="prevWeek" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+        <!-- Week Navigator -->
+        <div class="flex items-center bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-1">
+            <button wire:click="prevWeek" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-500">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
             </button>
-            <span class="font-bold text-slate-700 dark:text-white text-sm w-32 text-center">
-                {{ $dates[0]->format('d M') }} - {{ end($dates)->format('d M') }}
-            </span>
-            <button wire:click="nextWeek" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+            <div class="px-4 font-bold text-slate-700 dark:text-slate-200 text-sm whitespace-nowrap min-w-[200px] text-center">
+                {{ \Carbon\Carbon::parse($startDate)->format('d M') }} - {{ \Carbon\Carbon::parse($startDate)->addDays(6)->format('d M Y') }}
+            </div>
+            <button wire:click="nextWeek" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-500">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
             </button>
         </div>
     </div>
 
-    <!-- Shift Tools -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-wrap gap-4 items-center">
-        <span class="text-xs font-bold uppercase text-slate-500 mr-2">Pilih Shift:</span>
-        @foreach($shifts as $shift)
-            <button wire:click="$set('selectedShiftId', {{ $shift->id }})" 
-                    class="px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all {{ $selectedShiftId === $shift->id ? 'bg-orange-500 text-white shadow-lg ring-2 ring-orange-200' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200' }}">
-                {{ $shift->name }} ({{ \Carbon\Carbon::parse($shift->start_time)->format('H:i') }}-{{ \Carbon\Carbon::parse($shift->end_time)->format('H:i') }})
-            </button>
-        @endforeach
-    </div>
-
-    <!-- Schedule Grid -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-50 dark:bg-slate-900 text-slate-500 text-xs uppercase font-bold">
-                        <th class="p-4 border-b border-r border-slate-200 dark:border-slate-700 w-48 sticky left-0 bg-slate-50 dark:bg-slate-900 z-10">Karyawan</th>
-                        @foreach($dates as $date)
-                            <th class="p-4 border-b border-slate-200 dark:border-slate-700 text-center min-w-[100px] {{ $date->isToday() ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600' : '' }}">
-                                {{ $date->format('D') }}<br>
+    <!-- Roster Grid -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[1000px]">
+            <thead>
+                <tr class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 font-bold uppercase text-xs border-b border-slate-200 dark:border-slate-700">
+                    <th class="px-4 py-4 w-48 sticky left-0 bg-slate-50 dark:bg-slate-900 z-10 border-r border-slate-200 dark:border-slate-700">Pegawai</th>
+                    @foreach($weekDates as $date)
+                        <th class="px-2 py-4 text-center {{ $date->isToday() ? 'bg-blue-50/50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400' : '' }}">
+                            <div class="flex flex-col">
+                                <span>{{ $date->translatedFormat('D') }}</span>
                                 <span class="text-lg">{{ $date->format('d') }}</span>
-                            </th>
+                            </div>
+                        </th>
+                    @endforeach
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                @foreach($employees as $emp)
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors">
+                        <!-- Employee Info -->
+                        <td class="px-4 py-3 sticky left-0 bg-white dark:bg-slate-800 z-10 border-r border-slate-200 dark:border-slate-700 group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-500 text-xs">
+                                    {{ substr($emp->name, 0, 1) }}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-800 dark:text-white text-sm">{{ $emp->name }}</div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-wide">{{ $emp->role }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Shift Cells -->
+                        @foreach($weekDates as $date)
+                            @php 
+                                $dateStr = $date->format('Y-m-d');
+                                $shiftId = $emp->roster[$dateStr] ?? 4;
+                                $shiftData = $shifts->firstWhere('id', $shiftId);
+                            @endphp
+                            <td class="px-1 py-2 text-center h-16 relative group cursor-pointer" wire:click="openShiftModal({{ $emp->id }}, '{{ $dateStr }}')">
+                                <div class="w-full h-full rounded-lg border flex flex-col items-center justify-center p-1 transition-all hover:scale-95 shadow-sm {{ $shiftData['color'] }}">
+                                    <span class="font-bold text-xs">{{ $shiftData['name'] }}</span>
+                                    <span class="text-[9px] opacity-75">{{ $shiftData['time'] }}</span>
+                                </div>
+                            </td>
                         @endforeach
                     </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                    @foreach($users as $user)
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                            <td class="p-4 border-r border-slate-100 dark:border-slate-700 sticky left-0 bg-white dark:bg-slate-800 z-10">
-                                <div class="font-bold text-slate-900 dark:text-white">{{ $user->name }}</div>
-                                <div class="text-[10px] text-slate-500 uppercase">{{ $user->role }}</div>
-                            </td>
-                            @foreach($dates as $date)
-                                @php
-                                    $schedule = $schedules[$user->id] ?? collect();
-                                    $shift = $schedule->where('date', $date)->first();
-                                @endphp
-                                <td class="p-2 border-r border-slate-50 dark:border-slate-800 text-center relative group cursor-pointer {{ $date->isToday() ? 'bg-orange-50/30' : '' }}"
-                                    wire:click="assignShift({{ $user->id }}, '{{ $date->format('Y-m-d') }}')">
-                                    
-                                    @if($shift)
-                                        <div class="inline-block px-2 py-1 rounded text-[10px] font-bold uppercase bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 w-full truncate">
-                                            {{ $shift->shift->name }}
-                                        </div>
-                                    @else
-                                        <div class="h-6 w-full rounded border-2 border-dashed border-slate-200 dark:border-slate-700 group-hover:border-orange-300 transition-colors"></div>
-                                    @endif
-                                </td>
-                            @endforeach
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                @endforeach
+            </tbody>
+        </table>
     </div>
+
+    <!-- Modal Edit Shift -->
+    @if($showModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
+            <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 transform transition-all scale-100">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">Ubah Jadwal</h3>
+                
+                <div class="space-y-3">
+                    @foreach($shifts as $shift)
+                        <label class="flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all {{ $selectedShiftId == $shift['id'] ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 ring-1 ring-blue-500' : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700' }}">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" wire:model="selectedShiftId" value="{{ $shift['id'] }}" class="text-blue-600 focus:ring-blue-500">
+                                <div>
+                                    <div class="font-bold text-slate-800 dark:text-white text-sm">{{ $shift['name'] }}</div>
+                                    <div class="text-xs text-slate-500">{{ $shift['time'] }}</div>
+                                </div>
+                            </div>
+                            <div class="w-3 h-3 rounded-full {{ explode(' ', $shift['color'])[0] }} border"></div>
+                        </label>
+                    @endforeach
+                </div>
+
+                <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <button wire:click="$set('showModal', false)" class="px-4 py-2 text-slate-500 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">Batal</button>
+                    <button wire:click="saveShift" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg">Simpan</button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

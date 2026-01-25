@@ -2,88 +2,100 @@
 
 namespace App\Livewire\Shift;
 
-use App\Models\EmployeeShift;
-use App\Models\Shift;
 use App\Models\User;
+use App\Models\Shift; // Asumsi: id, name, start_time, end_time, color
+use App\Models\EmployeeShift; // Asumsi: user_id, shift_id, date
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Layout('layouts.app')]
-#[Title('Jadwal Shift Kerja - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Manajemen Jadwal Shift')]
 class Manager extends Component
 {
-    public $startOfWeek;
-    public $dates = [];
+    public $startDate; // Senin minggu ini
+    public $weekDates = [];
+    public $employees = [];
+    public $shifts = [];
     
-    // State
+    // Modal State
+    public $showModal = false;
+    public $selectedUserId;
+    public $selectedDate;
     public $selectedShiftId;
 
     public function mount()
     {
-        $this->startOfWeek = now()->startOfWeek();
-        $this->generateDates();
-        
-        $firstShift = Shift::first();
-        if ($firstShift) {
-            $this->selectedShiftId = $firstShift->id;
-        }
-    }
-
-    public function nextWeek()
-    {
-        $this->startOfWeek->addWeek();
-        $this->generateDates();
+        $this->startDate = now()->startOfWeek()->format('Y-m-d');
+        $this->loadData();
     }
 
     public function prevWeek()
     {
-        $this->startOfWeek->subWeek();
-        $this->generateDates();
+        $this->startDate = Carbon::parse($this->startDate)->subWeek()->format('Y-m-d');
+        $this->loadData();
     }
 
-    public function generateDates()
+    public function nextWeek()
     {
-        $this->dates = [];
+        $this->startDate = Carbon::parse($this->startDate)->addWeek()->format('Y-m-d');
+        $this->loadData();
+    }
+
+    public function loadData()
+    {
+        // 1. Generate Week Dates Headers
+        $this->weekDates = [];
+        $start = Carbon::parse($this->startDate);
         for ($i = 0; $i < 7; $i++) {
-            $this->dates[] = $this->startOfWeek->copy()->addDays($i);
+            $this->weekDates[] = $start->copy()->addDays($i);
         }
-    }
 
-    public function assignShift($userId, $dateStr)
-    {
-        $date = Carbon::parse($dateStr);
-        
-        // Remove existing
-        EmployeeShift::where('user_id', $userId)->where('date', $date)->delete();
-
-        // Add new if not 'Off' (assuming Off is just deleting or specific ID)
-        // Let's assume we always create record
-        EmployeeShift::create([
-            'user_id' => $userId,
-            'shift_id' => $this->selectedShiftId,
-            'date' => $date
+        // 2. Load Master Shifts (Mock if empty)
+        // In real app: $this->shifts = Shift::all();
+        $this->shifts = collect([
+            ['id' => 1, 'name' => 'Pagi', 'time' => '08:00 - 16:00', 'color' => 'bg-emerald-100 text-emerald-700 border-emerald-200'],
+            ['id' => 2, 'name' => 'Siang', 'time' => '14:00 - 22:00', 'color' => 'bg-blue-100 text-blue-700 border-blue-200'],
+            ['id' => 3, 'name' => 'Malam', 'time' => '18:00 - 02:00', 'color' => 'bg-indigo-100 text-indigo-700 border-indigo-200'],
+            ['id' => 4, 'name' => 'Libur', 'time' => 'OFF', 'color' => 'bg-slate-100 text-slate-500 border-slate-200'],
         ]);
 
-        $this->dispatch('notify', message: 'Jadwal diperbarui.');
+        // 3. Load Employees & Their Shifts
+        $this->employees = User::whereIn('role', ['technician', 'cashier', 'warehouse'])
+            ->get()
+            ->map(function ($user) {
+                // Mocking shift data attachment. In real app, use relation: $user->shifts
+                $user->roster = []; 
+                foreach($this->weekDates as $date) {
+                    $dateStr = $date->format('Y-m-d');
+                    // Randomize mock data for demo visual
+                    $user->roster[$dateStr] = session()->get("roster_{$user->id}_{$dateStr}", 4); // Default OFF
+                }
+                return $user;
+            });
+    }
+
+    public function openShiftModal($userId, $date)
+    {
+        $this->selectedUserId = $userId;
+        $this->selectedDate = $date;
+        $this->selectedShiftId = session()->get("roster_{$userId}_{$date}", 4);
+        $this->showModal = true;
+    }
+
+    public function saveShift()
+    {
+        // In real app: EmployeeShift::updateOrCreate(...)
+        session()->put("roster_{$this->selectedUserId}_{$this->selectedDate}", $this->selectedShiftId);
+        
+        $this->showModal = false;
+        $this->loadData(); // Refresh UI
+        $this->dispatch('notify', message: 'Jadwal berhasil diperbarui.', type: 'success');
     }
 
     public function render()
     {
-        $users = User::whereIn('role', ['technician', 'sales', 'staff'])->get();
-        $shifts = Shift::all();
-
-        // Eager load schedules
-        $schedules = EmployeeShift::whereIn('user_id', $users->pluck('id'))
-            ->whereBetween('date', [$this->dates[0], end($this->dates)])
-            ->get()
-            ->groupBy('user_id');
-
-        return view('livewire.shift.manager', [
-            'users' => $users,
-            'shifts' => $shifts,
-            'schedules' => $schedules
-        ]);
+        return view('livewire.shift.manager');
     }
 }
