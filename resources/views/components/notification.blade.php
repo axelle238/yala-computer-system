@@ -84,7 +84,7 @@
                             'text-blue-800 dark:text-blue-200': notif.type === 'info',
                             'text-amber-800 dark:text-amber-200': notif.type === 'warning'
                         }"
-                        x-text="notif.type === 'success' ? 'Success' : (notif.type === 'error' ? 'Error' : (notif.type === 'info' ? 'Information' : 'Warning'))"
+                        x-text="notif.type === 'success' ? 'Berhasil' : (notif.type === 'error' ? 'Kesalahan' : (notif.type === 'info' ? 'Informasi' : 'Peringatan'))"
                     ></h4>
                     <p class="text-sm font-medium text-slate-600 dark:text-slate-300 leading-snug" x-text="notif.message"></p>
                 </div>
