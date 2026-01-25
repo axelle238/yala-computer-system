@@ -2,26 +2,28 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Model Pengguna (User)
+ */
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
+     * Atribut yang dapat diisi massal.
      */
     protected $fillable = [
+        'id_peran',
         'name',
         'email',
         'phone',
         'password',
-        'role', // admin, technician, cashier, customer
+        'role', // Cadangan: admin, technician, cashier, customer
         'loyalty_points',
         'loyalty_tier',
         'total_spent',
@@ -30,9 +32,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
+     * Atribut yang disembunyikan untuk serialisasi.
      */
     protected $hidden = [
         'password',
@@ -40,9 +40,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * Casting atribut.
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
@@ -51,7 +49,15 @@ class User extends Authenticatable
         'total_spent' => 'decimal:2',
     ];
 
-    // --- Relationships ---
+    // --- Relasi ---
+
+    /**
+     * Relasi ke Peran (Role).
+     */
+    public function peran(): BelongsTo
+    {
+        return $this->belongsTo(Peran::class, 'id_peran');
+    }
 
     public function orders()
     {
@@ -60,7 +66,7 @@ class User extends Authenticatable
 
     public function serviceTickets()
     {
-        return $this->hasMany(ServiceTicket::class); // As customer
+        return $this->hasMany(ServiceTicket::class); // Sebagai pelanggan
     }
 
     public function rmas()
@@ -78,40 +84,36 @@ class User extends Authenticatable
         return $this->hasOne(EmployeeDetail::class);
     }
 
-    // --- Helpers ---
-
-    public function getTierColorAttribute()
-    {
-        return match($this->loyalty_tier) {
-            'bronze' => 'text-amber-700 bg-amber-100 border-amber-200',
-            'silver' => 'text-slate-700 bg-slate-200 border-slate-300',
-            'gold' => 'text-yellow-700 bg-yellow-100 border-yellow-300',
-            'platinum' => 'text-indigo-700 bg-indigo-100 border-indigo-300',
-            default => 'text-slate-600 bg-slate-100',
-        };
-    }
+    // --- Bantuan (Helpers) ---
 
     /**
-     * Check if user has a specific permission.
-     * Temporary implementation using 'role' column.
+     * Mengecek apakah pengguna memiliki hak akses tertentu.
+     * 
+     * @param string $kodeAkses
+     * @return bool
      */
-    public function hasPermissionTo($permission)
+    public function punyaAkses(string $kodeAkses): bool
     {
-        // 1. Admin always true
-        if ($this->role === 'admin') {
+        // 1. Pemilik/Admin Utama selalu punya akses penuh
+        if ($this->role === 'admin' || ($this->peran && $this->peran->nama === 'Admin')) {
             return true;
         }
 
-        // 2. Simple Role-Based Permission Mapping
-        $rolePermissions = [
+        // 2. Cek melalui sistem Peran baru
+        if ($this->peran) {
+            return $this->peran->punyaAkses($kodeAkses);
+        }
+
+        // 3. Cadangan (Fallback) logika lama
+        $petaAksesLama = [
             'technician' => ['service.', 'workbench.'],
             'cashier' => ['pos.', 'sales.', 'finance.'],
             'customer' => ['order.'],
         ];
 
-        if (isset($rolePermissions[$this->role])) {
-            foreach ($rolePermissions[$this->role] as $prefix) {
-                if (str_starts_with($permission, $prefix)) {
+        if (isset($petaAksesLama[$this->role])) {
+            foreach ($petaAksesLama[$this->role] as $prefiks) {
+                if (str_starts_with($kodeAkses, $prefiks)) {
                     return true;
                 }
             }
