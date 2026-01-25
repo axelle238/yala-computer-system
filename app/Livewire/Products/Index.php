@@ -7,56 +7,67 @@ use App\Models\Product;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
+use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
+#[Layout('layouts.admin')]
 #[Title('Manajemen Produk - Yala Computer')]
 class Index extends Component
 {
     use WithPagination;
 
     #[Url(history: true)]
-    public $search = '';
+    public $cari = '';
 
     #[Url(history: true)]
-    public $categoryFilter = '';
+    public $filterKategori = '';
 
-    public $sortField = 'created_at';
-    public $sortDirection = 'desc';
+    public $kolomUrut = 'created_at';
+    public $arahUrut = 'desc';
 
     // Reset pagination saat melakukan pencarian
-    public function updatedSearch()
+    public function updatedCari()
     {
         $this->resetPage();
     }
 
-    public function updatedCategoryFilter()
+    public function updatedFilterKategori()
     {
         $this->resetPage();
+    }
+
+    public function hapus($id)
+    {
+        $produk = Product::find($id);
+        if ($produk) {
+            $produk->delete();
+            $this->dispatch('notify', message: 'Produk berhasil dihapus.', type: 'success');
+        }
     }
 
     public function render()
     {
         // Query Builder untuk Produk
-        $products = Product::query()
+        $daftarProduk = Product::query()
             ->with(['category', 'supplier']) // Eager Load untuk performa
-            ->when($this->search, function ($query) {
+            ->when($this->cari, function ($query) {
                 $query->where(function ($subQuery) {
-                    $subQuery->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('sku', 'like', '%' . $this->search . '%')
-                        ->orWhere('barcode', 'like', '%' . $this->search . '%');
+                    $subQuery->where('name', 'like', '%' . $this->cari . '%')
+                        ->orWhere('sku', 'like', '%' . $this->cari . '%')
+                        ->orWhere('barcode', 'like', '%' . $this->cari . '%');
                 });
             })
-            ->when($this->categoryFilter, function ($query) {
-                $query->where('category_id', $this->categoryFilter);
+            ->when($this->filterKategori, function ($query) {
+                $query->where('category_id', $this->filterKategori);
             })
-            ->orderBy($this->sortField, $this->sortDirection)
+            ->orderBy($this->kolomUrut, $this->arahUrut)
             ->paginate(10);
 
-        $categories = Category::all();
+        $daftarKategori = Category::all();
 
         return view('livewire.products.index', [
-            'products' => $products,
-            'categories' => $categories,
+            'daftarProduk' => $daftarProduk,
+            'daftarKategori' => $daftarKategori,
         ]);
     }
 }
