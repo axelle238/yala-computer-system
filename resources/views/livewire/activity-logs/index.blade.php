@@ -16,13 +16,21 @@
             <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         </div>
         
-        <select wire:model.live="filterAction" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 cursor-pointer">
-            <option value="">Semua Aksi</option>
-            <option value="create">Create</option>
-            <option value="update">Update</option>
-            <option value="delete">Delete</option>
-            <option value="login">Login</option>
-        </select>
+        <div class="flex gap-2 w-full md:w-auto">
+            <select wire:model.live="filterUserType" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 cursor-pointer w-1/2 md:w-auto">
+                <option value="">Semua User</option>
+                <option value="customer">Pelanggan</option>
+                <option value="employee">Pegawai</option>
+            </select>
+
+            <select wire:model.live="filterAction" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 cursor-pointer w-1/2 md:w-auto">
+                <option value="">Semua Aksi</option>
+                <option value="create">Create</option>
+                <option value="update">Update</option>
+                <option value="delete">Delete</option>
+                <option value="login">Login</option>
+            </select>
+        </div>
     </div>
 
     <!-- Data List -->
@@ -36,6 +44,7 @@
                         <th class="px-6 py-4">Aksi</th>
                         <th class="px-6 py-4">Deskripsi</th>
                         <th class="px-6 py-4">IP Address</th>
+                        <th class="px-6 py-4 text-center">Opsi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
@@ -49,7 +58,10 @@
                                     <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-600 dark:text-slate-300">
                                         {{ substr($log->user->name ?? 'System', 0, 1) }}
                                     </div>
-                                    <span class="font-bold text-slate-800 dark:text-white">{{ $log->user->name ?? 'System' }}</span>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-slate-800 dark:text-white">{{ $log->user->name ?? 'System' }}</span>
+                                        <span class="text-[10px] text-slate-400 uppercase">{{ $log->user->role ?? 'System' }}</span>
+                                    </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
@@ -72,10 +84,15 @@
                             <td class="px-6 py-4 font-mono text-xs text-slate-500">
                                 {{ $log->ip_address }}
                             </td>
+                            <td class="px-6 py-4 text-center">
+                                <a href="{{ route('activity-logs.show', $log->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-violet-100 hover:text-violet-600 dark:hover:bg-violet-900/30 dark:hover:text-violet-400 transition-colors" title="Lihat Detail">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                </a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-slate-400">Belum ada log aktivitas.</td>
+                            <td colspan="6" class="px-6 py-12 text-center text-slate-400">Belum ada log aktivitas.</td>
                         </tr>
                     @endforelse
                 </tbody>
