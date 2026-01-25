@@ -4,44 +4,90 @@ namespace App\Livewire\Settings;
 
 use App\Models\Setting;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.admin')]
-#[Title('Pengaturan Toko & Sistem')]
+#[Title('Pusat Pengaturan Sistem - Yala Computer')]
 class Index extends Component
 {
-    public $settingsGrouped = [];
-    public $form = [];
+    use WithFileUploads;
+
+    public $grupPengaturan = [];
+    public $formulir = [];
+    public $logoBaru;
+    public $faviconBaru;
+
+    // Tab Aktif
+    public $tabAktif = 'umum';
 
     public function mount()
     {
-        $this->loadSettings();
+        $this->muatPengaturan();
     }
 
-    public function loadSettings()
+    public function gantiTab($tab)
     {
-        $allSettings = Setting::all();
-        
-        // Grouping logic (bisa based on key prefix or manual mapping)
-        $this->settingsGrouped = [
-            'Toko' => $allSettings->whereIn('key', ['store_name', 'store_address', 'store_phone']),
-            'Keuangan' => $allSettings->whereIn('key', ['tax_rate', 'receipt_footer']),
-            'Perangkat' => $allSettings->whereIn('key', ['printer_ip']),
+        $this->tabAktif = $tab;
+    }
+
+    public function muatPengaturan()
+    {
+        // Daftar semua kunci pengaturan yang didukung
+        $kunciWajib = [
+            // Umum
+            'store_name', 'store_address', 'store_phone', 'store_email',
+            'store_announcement_active', 'store_announcement_text',
+            // Keuangan & Midtrans
+            'midtrans_server_key', 'midtrans_client_key', 'midtrans_merchant_id', 'midtrans_is_production',
+            'tax_rate', 'service_charge',
+            // Sistem & Integrasi
+            'smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_encryption',
+            'whatsapp_gateway_url', 'printer_ip_address'
         ];
 
-        foreach ($allSettings as $s) {
-            $this->form[$s->key] = $s->value;
+        // Pastikan setting ada di database, jika tidak buat default kosong
+        foreach ($kunciWajib as $kunci) {
+            if (!Setting::where('key', $kunci)->exists()) {
+                Setting::create(['key' => $kunci, 'value' => null]);
+            }
         }
+
+        $semuaPengaturan = Setting::all();
+
+        foreach ($semuaPengaturan as $p) {
+            $this->formulir[$p->key] = $p->value;
+        }
+        
+        // Handling boolean checkbox
+        $this->formulir['store_announcement_active'] = (bool) ($this->formulir['store_announcement_active'] ?? false);
+        $this->formulir['midtrans_is_production'] = (bool) ($this->formulir['midtrans_is_production'] ?? false);
     }
 
-    public function save()
+    public function simpan()
     {
-        foreach ($this->form as $key => $value) {
-            Setting::set($key, $value);
+        // Upload Logo
+        if ($this->logoBaru) {
+            $path = $this->logoBaru->store('settings', 'public');
+            Setting::set('store_logo', $path);
         }
 
-        session()->flash('success', 'Konfigurasi berhasil diperbarui.');
+        // Upload Favicon
+        if ($this->faviconBaru) {
+            $path = $this->faviconBaru->store('settings', 'public');
+            Setting::set('store_favicon', $path);
+        }
+
+        // Simpan Form
+        foreach ($this->formulir as $kunci => $nilai) {
+            Setting::set($kunci, $nilai);
+        }
+
+        $this->logoBaru = null;
+        $this->faviconBaru = null;
+        
+        $this->dispatch('notify', message: 'Pengaturan sistem berhasil diperbarui.', type: 'success');
     }
 
     public function render()

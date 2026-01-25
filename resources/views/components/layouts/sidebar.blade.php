@@ -50,6 +50,7 @@
         <div class="mt-6 mb-2 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Operasional Bisnis</div>
 
         <!-- GRUP: FRONT OFFICE -->
+        @if(auth()->user()->punyaAkses('akses_pos') || auth()->user()->punyaAkses('lihat_pesanan'))
         <div>
             <button @click="toggleGrup('penjualan')" 
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('sales.*', 'orders.*', 'quotations.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
@@ -60,9 +61,11 @@
                 <svg class="w-4 h-4 transition-transform duration-200" :class="grupAktif === 'penjualan' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div x-show="grupAktif === 'penjualan'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
+                @if(auth()->user()->punyaAkses('akses_pos'))
                 <a href="{{ route('sales.pos') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('sales.pos') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Kasir (POS)
                 </a>
+                @endif
                 <a href="{{ route('orders.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('orders.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Riwayat Transaksi
                 </a>
@@ -71,8 +74,10 @@
                 </a>
             </div>
         </div>
+        @endif
 
         <!-- GRUP: PUSAT SERVIS -->
+        @if(auth()->user()->punyaAkses('akses_servis') || auth()->user()->punyaAkses('lihat_tiket'))
         <div>
             <button @click="toggleGrup('servis')" 
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('services.*', 'rma.*', 'assembly.*', 'knowledge.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
@@ -100,8 +105,10 @@
                 </a>
             </div>
         </div>
+        @endif
 
         <!-- GRUP: INVENTARIS -->
+        @if(auth()->user()->punyaAkses('akses_gudang') || auth()->user()->punyaAkses('lihat_produk'))
         <div>
             <button @click="toggleGrup('inventaris')" 
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('products.*', 'warehouses.*', 'purchase-orders.*', 'procurement.*', 'logistics.*', 'purchase-requisitions.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
@@ -112,9 +119,11 @@
                 <svg class="w-4 h-4 transition-transform duration-200" :class="grupAktif === 'inventaris' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div x-show="grupAktif === 'inventaris'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
+                @if(auth()->user()->punyaAkses('lihat_produk'))
                 <a href="{{ route('products.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('products.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Data Produk
                 </a>
+                @endif
                 <a href="{{ route('purchase-requisitions.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('purchase-requisitions.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Permintaan Stok
                 </a>
@@ -136,10 +145,15 @@
                 <a href="{{ route('products.labels') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('products.labels') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Cetak Label Barcode
                 </a>
+                <a href="{{ route('master.suppliers') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('master.suppliers') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Manajemen Supplier
+                </a>
             </div>
         </div>
+        @endif
 
         <!-- GRUP: KEUANGAN -->
+        @if(auth()->user()->punyaAkses('akses_keuangan') || auth()->user()->punyaAkses('lihat_laporan'))
         <div>
             <button @click="toggleGrup('keuangan')" 
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('finance.*', 'reports.*', 'expenses.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
@@ -150,12 +164,14 @@
                 <svg class="w-4 h-4 transition-transform duration-200" :class="grupAktif === 'keuangan' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div x-show="grupAktif === 'keuangan'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
+                @if(auth()->user()->punyaAkses('akses_keuangan'))
                 <a href="{{ route('finance.cash-register') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('finance.cash-register') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Buka/Tutup Kasir
                 </a>
                 <a href="{{ route('expenses.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('expenses.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Pengeluaran Operasional
                 </a>
+                @endif
                 <a href="{{ route('reports.sales') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('reports.sales') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Laporan Penjualan
                 </a>
@@ -164,11 +180,15 @@
                 </a>
             </div>
         </div>
+        @endif
 
         <!-- JUDUL MENU -->
+        @if(auth()->user()->punyaAkses('akses_admin'))
         <div class="mt-6 mb-2 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Manajemen Perusahaan</div>
+        @endif
 
         <!-- GRUP: CRM -->
+        @if(auth()->user()->punyaAkses('akses_admin') || auth()->user()->punyaAkses('lihat_pelanggan'))
         <div>
             <button @click="toggleGrup('crm')" 
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('customers.*', 'marketing.*', 'member.*', 'reviews.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
@@ -182,6 +202,9 @@
                 <a href="{{ route('customers.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('customers.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Database Pelanggan
                 </a>
+                <a href="{{ route('customers.inbox') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('customers.inbox') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Kotak Masuk Pesan
+                </a>
                 <a href="{{ route('marketing.vouchers.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('marketing.vouchers.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Voucher & Promo
                 </a>
@@ -193,8 +216,10 @@
                 </a>
             </div>
         </div>
+        @endif
 
         <!-- GRUP: SDM -->
+        @if(auth()->user()->punyaAkses('akses_admin') || auth()->user()->punyaAkses('lihat_karyawan'))
         <div>
             <button @click="toggleGrup('sdm')" 
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('employees.*', 'shift.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
@@ -208,6 +233,9 @@
                 <a href="{{ route('employees.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('employees.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Database Karyawan
                 </a>
+                <a href="{{ route('employees.roles') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('employees.roles') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Peran & Hak Akses
+                </a>
                 <a href="{{ route('employees.attendance') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('employees.attendance') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Presensi Kehadiran
                 </a>
@@ -216,13 +244,15 @@
                 </a>
             </div>
         </div>
+        @endif
 
         <!-- GRUP: SISTEM -->
+        @if(auth()->user()->punyaAkses('akses_admin'))
         <div>
             <button @click="toggleGrup('sistem')" 
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('settings.*', 'system.*', 'activity-logs.*', 'users.*', 'assets.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                 <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 {{ request()->routeIs('settings.*', 'system.*', 'activity-logs.*', 'users.*', 'assets.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <svg class="w-5 h-5 {{ request()->routeIs('settings.*', 'system.*', 'activity-logs.*', 'users.*', 'assets.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     <span>Sistem & Pengaturan</span>
                 </div>
                 <svg class="w-4 h-4 transition-transform duration-200" :class="grupAktif === 'sistem' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
@@ -239,6 +269,7 @@
                 </a>
             </div>
         </div>
+        @endif
 
     </div>
 
@@ -250,7 +281,7 @@
             </div>
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{{ auth()->user()->name ?? 'Administrator' }}</p>
-                <p class="text-xs text-slate-500 truncate">{{ auth()->user()->email ?? 'admin@yala.id' }}</p>
+                <p class="text-xs text-slate-500 truncate">{{ auth()->user()->peran->nama ?? auth()->user()->role }}</p>
             </div>
             
             <!-- Tombol Keluar -->
