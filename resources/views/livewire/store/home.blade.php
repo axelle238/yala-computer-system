@@ -140,34 +140,40 @@
         </div>
     </section>
 
-    <!-- Bar Fitur / Layanan -->
-    <section class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-12">
-        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-            <div class="flex flex-col md:flex-row items-center md:items-start gap-4 p-4">
-                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400 flex-shrink-0">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    <!-- Bar Fitur / Layanan (V3 Enhanced) -->
+    <section class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-16 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-purple-500/5 to-pink-500/5 opacity-50 pointer-events-none"></div>
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left relative z-10">
+            <!-- Feature 1 -->
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-5 p-6 rounded-2xl bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:border-blue-500/30 transition-all hover:-translate-y-1">
+                <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 flex-shrink-0 transform rotate-3 group-hover:rotate-6 transition-transform">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <div>
-                    <h4 class="font-bold text-slate-900 dark:text-white text-lg">Produk Original</h4>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Semua produk 100% asli bergaransi resmi distributor Indonesia.</p>
+                    <h4 class="font-black text-slate-900 dark:text-white text-lg uppercase tracking-tight">Produk Original</h4>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">Jaminan 100% keaslian produk dengan garansi resmi distributor Indonesia.</p>
                 </div>
             </div>
-            <div class="flex flex-col md:flex-row items-center md:items-start gap-4 p-4">
-                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center text-purple-600 dark:text-purple-400 flex-shrink-0">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            
+            <!-- Feature 2 -->
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-5 p-6 rounded-2xl bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:border-purple-500/30 transition-all hover:-translate-y-1">
+                <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-purple-500/20 flex-shrink-0 transform -rotate-3 group-hover:-rotate-6 transition-transform">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                 </div>
                 <div>
-                    <h4 class="font-bold text-slate-900 dark:text-white text-lg">Rakit Express</h4>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Layanan rakit PC cepat dengan manajemen kabel yang rapi dan profesional.</p>
+                    <h4 class="font-black text-slate-900 dark:text-white text-lg uppercase tracking-tight">Rakit Express</h4>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">Pengerjaan kilat oleh teknisi bersertifikat dengan cable management premium.</p>
                 </div>
             </div>
-            <div class="flex flex-col md:flex-row items-center md:items-start gap-4 p-4">
-                <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 flex-shrink-0">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+
+            <!-- Feature 3 -->
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-5 p-6 rounded-2xl bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:border-emerald-500/30 transition-all hover:-translate-y-1">
+                <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 flex-shrink-0 transform rotate-3 group-hover:rotate-6 transition-transform">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                 </div>
                 <div>
-                    <h4 class="font-bold text-slate-900 dark:text-white text-lg">Dukungan Handal</h4>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Tim teknis siap membantu konsultasi dan klaim garansi Anda.</p>
+                    <h4 class="font-black text-slate-900 dark:text-white text-lg uppercase tracking-tight">Layanan Prioritas</h4>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">Dukungan purna jual responsif untuk konsultasi dan klaim garansi tanpa ribet.</p>
                 </div>
             </div>
         </div>
