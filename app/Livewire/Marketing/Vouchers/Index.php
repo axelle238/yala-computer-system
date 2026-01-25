@@ -7,41 +7,26 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Illuminate\Support\Str;
 
 #[Layout('layouts.admin')]
-#[Title('Voucher & Kupon - Yala Computer')]
+#[Title('Manajemen Voucher & Promo')]
 class Index extends Component
 {
     use WithPagination;
 
-    public $showForm = false;
     public $search = '';
-
-    // Model Props
+    public $showForm = false;
+    
+    // Form Inputs
     public $voucherId;
-    public $code;
-    public $type = 'fixed'; // fixed, percent
-    public $discount_value;
-    public $max_discount_amount;
-    public $min_spend = 0;
-    public $usage_limit = 100;
-    public $start_date;
-    public $end_date;
+    public $code, $type = 'fixed', $amount, $min_spend = 0, $quota = 100, $start_date, $end_date;
     public $is_active = true;
 
     public function create()
     {
-        $this->reset();
-        $this->code = strtoupper(Str::random(8));
-        $this->start_date = now()->format('Y-m-d\TH:i');
-        $this->end_date = now()->addMonth()->format('Y-m-d\TH:i');
+        $this->reset(['voucherId', 'code', 'type', 'amount', 'min_spend', 'quota', 'start_date', 'end_date', 'is_active']);
+        $this->code = strtoupper(\Illuminate\Support\Str::random(8));
         $this->showForm = true;
-    }
-
-    public function generateCode()
-    {
-        $this->code = strtoupper(Str::random(8));
     }
 
     public function edit($id)
@@ -50,12 +35,11 @@ class Index extends Component
         $this->voucherId = $v->id;
         $this->code = $v->code;
         $this->type = $v->type;
-        $this->discount_value = $v->discount_value;
-        $this->max_discount_amount = $v->max_discount_amount;
+        $this->amount = $v->amount;
         $this->min_spend = $v->min_spend;
-        $this->usage_limit = $v->usage_limit;
-        $this->start_date = $v->start_date->format('Y-m-d\TH:i');
-        $this->end_date = $v->end_date->format('Y-m-d\TH:i');
+        $this->quota = $v->quota;
+        $this->start_date = $v->start_date ? $v->start_date->format('Y-m-d') : null;
+        $this->end_date = $v->end_date ? $v->end_date->format('Y-m-d') : null;
         $this->is_active = $v->is_active;
         $this->showForm = true;
     }
@@ -63,40 +47,31 @@ class Index extends Component
     public function save()
     {
         $this->validate([
-            'code' => 'required|unique:vouchers,code,'.$this->voucherId,
-            'discount_value' => 'required|numeric|min:1',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
+            'code' => 'required|unique:vouchers,code,' . $this->voucherId,
+            'type' => 'required|in:fixed,percentage',
+            'amount' => 'required|numeric|min:1',
+            'quota' => 'required|numeric|min:1',
         ]);
 
-        $data = [
+        Voucher::updateOrCreate(['id' => $this->voucherId], [
             'code' => strtoupper($this->code),
             'type' => $this->type,
-            'discount_value' => $this->discount_value,
-            'max_discount_amount' => $this->max_discount_amount,
+            'amount' => $this->amount,
             'min_spend' => $this->min_spend,
-            'usage_limit' => $this->usage_limit,
+            'quota' => $this->quota,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
             'is_active' => $this->is_active,
-        ];
+        ]);
 
-        Voucher::updateOrCreate(['id' => $this->voucherId], $data);
-
-        $this->dispatch('notify', message: 'Voucher berhasil disimpan.', type: 'success');
         $this->showForm = false;
-    }
-
-    public function toggleStatus($id)
-    {
-        $v = Voucher::find($id);
-        $v->update(['is_active' => !$v->is_active]);
+        $this->dispatch('notify', message: 'Voucher berhasil disimpan.', type: 'success');
     }
 
     public function delete($id)
     {
-        Voucher::find($id)->delete();
-        $this->dispatch('notify', message: 'Voucher dihapus.');
+        Voucher::destroy($id);
+        $this->dispatch('notify', message: 'Voucher dihapus.', type: 'success');
     }
 
     public function render()

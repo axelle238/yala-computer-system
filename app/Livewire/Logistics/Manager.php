@@ -3,80 +3,63 @@
 namespace App\Livewire\Logistics;
 
 use App\Models\Order;
-use App\Models\ShippingManifest;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.admin')]
-#[Title('Logistics & Shipping Manifest - Yala Computer')]
+#[Title('Manajemen Pengiriman (Logistics)')]
 class Manager extends Component
 {
     use WithPagination;
 
-    public $viewMode = 'list'; // list, create
-    public $courierFilter = 'jne'; // Default
-    public $selectedOrders = [];
+    public $filterStatus = 'processing'; // pending, processing, shipped, delivered
+    public $search = '';
     
-    public function toggleMode($mode) { $this->viewMode = $mode; }
+    // Tracking Update
+    public $updateTrackingModal = false;
+    public $selectedOrderId;
+    public $trackingNumber;
 
-    public function updatedCourierFilter() { $this->selectedOrders = []; }
+    public function updatedFilterStatus() { $this->resetPage(); }
 
-    public function createManifest()
+    public function markAsProcessing($id)
     {
-        if (empty($this->selectedOrders)) {
-            $this->dispatch('notify', message: 'Pilih pesanan terlebih dahulu.', type: 'error');
-            return;
-        }
-
-        DB::transaction(function () {
-            $manifest = ShippingManifest::create([
-                'manifest_number' => 'MNF-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
-                'courier_name' => $this->courierFilter,
-                'created_by' => Auth::id(),
-                'status' => 'generated',
-            ]);
-
-            Order::whereIn('id', $this->selectedOrders)->update([
-                'shipping_manifest_id' => $manifest->id,
-                'status' => 'shipped' // Update status pesanan jadi dikirim
-            ]);
-        });
-
-        $this->dispatch('notify', message: 'Manifest berhasil dibuat!', type: 'success');
-        $this->selectedOrders = [];
-        $this->toggleMode('list');
+        Order::find($id)->update(['status' => 'processing']);
+        $this->dispatch('notify', message: 'Status diubah: Diproses', type: 'success');
     }
 
-    public function printManifest($id)
+    public function openTrackingModal($id)
     {
-        // Placeholder for printing
-        $this->dispatch('notify', message: 'Mencetak Manifest ID: ' . $id, type: 'info');
+        $this->selectedOrderId = $id;
+        $this->trackingNumber = '';
+        $this->updateTrackingModal = true;
+    }
+
+    public function saveTracking()
+    {
+        $this->validate(['trackingNumber' => 'required|string|min:5']);
+        
+        Order::find($this->selectedOrderId)->update([
+            'status' => 'shipped',
+            'tracking_number' => $this->trackingNumber
+        ]);
+
+        $this->updateTrackingModal = false;
+        $this->dispatch('notify', message: 'Resi diinput. Status: Dikirim', type: 'success');
     }
 
     public function render()
     {
-        $manifests = [];
-        $pendingOrders = [];
+        $orders = Order::where('status', $this->filterStatus)
+            ->where(function($q) {
+                $q->where('order_number', 'like', '%'.$this->search.'%')
+                  ->orWhere('guest_name', 'like', '%'.$this->search.'%');
+            })
+            ->latest()
+            ->paginate(10);
 
-        if ($this->viewMode === 'list') {
-            $manifests = ShippingManifest::withCount('orders')
-                ->latest()
-                ->paginate(10);
-        } else {
-            $pendingOrders = Order::where('status', 'processing') // Ready to ship
-                ->where('shipping_courier', 'like', '%' . $this->courierFilter . '%')
-                ->whereNull('shipping_manifest_id')
-                ->get();
-        }
-
-        return view('livewire.logistics.manager', [
-            'manifests' => $manifests,
-            'pendingOrders' => $pendingOrders
-        ]);
+        return view('livewire.logistics.manager', ['orders' => $orders]);
     }
 }
