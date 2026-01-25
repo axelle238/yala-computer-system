@@ -1,47 +1,56 @@
-# Analisis Sistem - Yala Computer (Revisi: 26 Januari 2026 - Fase 6 - Refinement & Optimization)
+# Analisis Sistem Yala Computer
 
-## Pendahuluan
-Dokumen ini menandai masuknya fase refinement (penyempurnaan) setelah implementasi V3 High-End. Fokus utama adalah **optimalisasi alur kerja, kelengkapan validasi, dan kerapian struktur kode** pada fitur Dashboard dan Store yang sudah ada, tanpa menambah fitur besar baru kecuali yang kritis.
+**Tanggal:** 26 Januari 2026
+**Status:** DRAFT AWAL
 
-## Status Terkini (Checkpoint: Refactor Modals Selesai)
-*   **No-Modal Policy:** SUDAH DIIMPLEMENTASIKAN SEPENUHNYA. Semua form input yang sebelumnya menggunakan modal telah diubah menjadi **Inline Action Panels** atau halaman terpisah.
-*   **Navigasi:** Spotlight search tetap dipertahankan sebagai overlay navigasi global (bukan form input).
+## 1. Ringkasan Eksekutif
+Sistem Yala Computer adalah aplikasi skala besar yang mencakup manajemen operasional (ERP mini) dan e-commerce (Storefront). Saat ini, fondasi backend dan rute sudah tertata dengan baik. Fokus utama saat ini adalah stabilisasi fitur baru, konsistensi UI, dan validasi bahasa.
 
-## Rencana Pengembangan (Refinement)
+## 2. Area Admin / Operasional
 
-### A. Dashboard Admin (Operasional)
-1.  **Validasi & Error Handling:**
-    *   Review seluruh form input (Produk, Kategori, User, dll).
-    *   Pastikan pesan error bahasa Indonesia yang jelas dan spesifik.
-    *   Implementasi `try-catch` block yang konsisten di semua controller Livewire.
-2.  **UI/UX Polish:**
-    *   Pastikan tidak ada elemen layout yang "pecah" atau tumpang tindih.
-    *   Cek responsivitas tabel dan form di layar kecil.
-    *   Standardisasi tombol (ukuran, warna, ikon) di seluruh modul admin.
-3.  **Code Structure:**
-    *   Refactor controller yang terlalu gemuk (fat controllers).
-    *   Pastikan penggunaan Eloquent relationship yang efisien (hindari N+1 query).
+### Status Fitur Utama
+| Modul | Status Kode | Catatan |
+| :--- | :--- | :--- |
+| **Auth & Permissions** | Ada | Perlu validasi RoleManager & RoleForm baru. |
+| **Dashboard** | Ada | `Dashboard.php` perlu dicek widget-nya. |
+| **Keuangan (Cash Register)** | Perbaikan Baru | Baru saja diperbaiki `MultipleRootElementsDetectedException`. Perlu tes fungsional. |
+| **Karyawan (Employee)** | Perbaikan Baru | Migrasi `employee_details` baru dibuat. Relasi perlu dicek. |
+| **Produk & Inventaris** | Ada | Fitur inti. Perlu cek fitur baru seperti Bundles & LabelMaker. |
+| **Servis & Rakit PC** | Ada | Modul kompleks. Perlu validasi alur `Workbench` & `Assembly`. |
 
-### B. Storefront (Pengalaman Pengguna)
-1.  **Alur Belanja:**
-    *   Perhalus transisi antar halaman (Katalog -> Detail -> Cart -> Checkout).
-    *   Pastikan notifikasi "Add to Cart" jelas dan tidak mengganggu.
-2.  **Validasi Checkout:**
-    *   Validasi alamat pengiriman yang lebih ketat.
-    *   Penanganan error pembayaran (Midtrans) yang lebih ramah pengguna.
-3.  **Performa:**
-    *   Optimasi loading gambar produk (lazy loading).
+### Temuan Bug & Risiko
+1.  **Role Management**: Baru dibuat/disentuh. Validasi form dan penyimpanan data hak akses perlu diuji.
+2.  **Employee Details**: Tabel baru. Pastikan form input karyawan menyimpan data ke tabel ini.
+3.  **Konsistensi Bahasa**: Pastikan semua pesan error dan label form dalam Bahasa Indonesia.
 
-### C. Kepatuhan & Kebijakan
-1.  **Bahasa:** Scanning akhir untuk memastikan tidak ada teks bahasa Inggris yang tersisa (termasuk di komentar kode).
+## 3. Area Storefront (Halaman Pengguna)
 
-## Daftar Tugas Prioritas (Refinement)
+### Status Fitur Utama
+| Modul | Status Kode | Catatan |
+| :--- | :--- | :--- |
+| **Homepage** | Ada | `Store\Home`. Perlu cek performa load. |
+| **Katalog & Produk** | Ada | `Store\Catalog`, `Store\ProductDetail`. |
+| **Cart & Checkout** | Ada | Kritis. Harus berjalan mulus end-to-end. |
+| **Member Area** | Ada | Dashboard member, tracking order/service. |
 
-1.  **[DONE] Audit & Refactor No-Modal Policy.**
-2.  **Audit Validasi Admin:** Cek satu per satu modul (Produk, Kategori, User, Role) untuk kelengkapan validasi backend.
-3.  **UI Polish Admin:** Fix minor CSS issues pada sidebar dan tabel data.
-4.  **Audit Validasi Store:** Test stress pada form checkout dan profil member.
-5.  **Refactor Backend:** Bersihkan kode yang tidak terpakai dan optimasi query database.
+### Temuan Bug & Risiko
+1.  **UX**: Pastikan alur belanja dari Katalog -> Cart -> Checkout tidak terputus.
+2.  **Mobile Responsiveness**: Perlu dipastikan tampilan rapi di layar kecil (berdasarkan kelas Tailwind).
 
----
-*Dibuat oleh: Gemini CLI*
+## 4. Rencana Tindakan (Prioritas)
+
+### Prioritas 1: Stabilisasi Core Admin
+1.  Validasi **Manajemen Peran (Role Manager)**: Pastikan CRUD role berfungsi.
+2.  Validasi **Manajemen Karyawan**: Pastikan data detail karyawan tersimpan.
+3.  Validasi **Cash Register**: Pastikan buka/tutup shift berjalan lancar.
+
+### Prioritas 2: Validasi Storefront
+1.  Cek alur **Checkout**.
+2.  Cek fitur **Pelacakan Servis**.
+
+### Prioritas 3: Polish & Bahasa
+1.  Audit menyeluruh string text di View.
+2.  Standarisasi notifikasi (Toast/Flash Message).
+
+## 5. Log Perubahan (Checkpoint)
+- `checkpoint-baseline`: Kondisi awal (termasuk hotfix CashRegister & Migration).
