@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth dark">
+<html lang="id" class="scroll-smooth dark" x-data="{ darkMode: true }" :class="{ 'dark': darkMode }">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="robots" content="index, follow">
+    
     <title>{{ $title ?? 'Yala Computer - Toko Komputer & Rakit PC Terbaik Jakarta' }}</title>
     <meta name="description" content="{{ $description ?? 'Pusat belanja komputer, laptop, dan jasa rakit PC murah terbaik di Jakarta.' }}">
     <meta name="keywords" content="Beli Komputer, Rakit PC Jakarta, Laptop Murah Jakarta, Toko Komputer Terbaik, Yala Computer">
@@ -12,8 +15,14 @@
 
     <link rel="icon" href="{{ \App\Models\Setting::get('store_favicon') ? asset('storage/' . \App\Models\Setting::get('store_favicon')) : asset('favicon.ico') }}">
     
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    @stack('styles')
 
     <!-- Midtrans Snap -->
     <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
@@ -21,6 +30,7 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
         h1, h2, h3, h4, h5, h6, .font-tech { font-family: 'Exo 2', sans-serif; }
+        [x-cloak] { display: none !important; }
         .cyber-grid { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; background-color: #020617; 
             background-image: 
                 linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px), 
@@ -28,7 +38,6 @@
             background-size: 40px 40px; 
         }
         .cyber-grid::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, transparent 0%, #020617 100%); }
-        .tech-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); position: relative; overflow: hidden; }
         
         /* Modern Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
@@ -121,18 +130,19 @@
                         <div class="absolute right-0 pt-2 w-48 hidden group-hover:block">
                             <div class="bg-slate-900 border border-white/10 rounded-xl shadow-xl overflow-hidden">
                                 <a href="{{ route('member.dashboard') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Dashboard</a>
-                            <a href="{{ route('member.profile') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Pengaturan Profil</a>
-                            <a href="{{ route('member.orders') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Riwayat Pesanan</a>
-                            <a href="{{ route('member.quotations') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Penawaran Saya (B2B)</a>
-                            <a href="{{ route('member.rma.request') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Klaim Garansi (RMA)</a>
-                                                            <a href="{{ route('member.referrals') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Referral & Cuan</a>
-                                                            <div class="border-t border-white/10"></div>
-                                                            <form method="POST" action="{{ route('logout') }}">
-                                                                @csrf
-                                                                <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-rose-500 hover:bg-rose-500/10 transition-colors">Logout</button>
-                                                            </form>
-                                                        </div>
-                                                    </div>                    </div>
+                                <a href="{{ route('member.profile') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Pengaturan Profil</a>
+                                <a href="{{ route('member.orders') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Riwayat Pesanan</a>
+                                <a href="{{ route('member.quotations') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Penawaran Saya (B2B)</a>
+                                <a href="{{ route('member.rma.request') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Klaim Garansi (RMA)</a>
+                                <a href="{{ route('member.referrals') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Referral & Cuan</a>
+                                <div class="border-t border-white/10"></div>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-rose-500 hover:bg-rose-500/10 transition-colors">Logout</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 @else
                     <a href="{{ route('customer.login') }}" class="text-sm font-bold text-slate-400 hover:text-white transition-colors">Login</a>
                     <a href="{{ route('customer.register') }}" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full text-xs font-bold transition-all shadow-lg shadow-cyan-500/20">Register</a>
@@ -188,7 +198,7 @@
             <div class="flex flex-col md:flex-row justify-between items-center gap-8 mb-12">
                 <div class="text-center md:text-left">
                     <h3 class="font-tech text-white font-bold text-2xl uppercase tracking-widest mb-2">{{ \App\Models\Setting::get('store_name', 'YALA COMPUTER') }}</h3>
-                    <p class="text-xs text-slate-500 max-w-xs">Building the future, one PC at a time. Enterprise grade hardware for professionals and gamers.</p>
+                    <p class="text-xs text-slate-500 max-w-xs">Membangun masa depan, satu PC dalam satu waktu. Perangkat keras kelas enterprise untuk profesional dan gamer.</p>
                 </div>
                 <div class="flex flex-wrap justify-center gap-6 text-xs text-slate-400 font-bold uppercase tracking-widest">
                     <a href="{{ route('home') }}" class="hover:text-cyan-400 transition-colors">Katalog</a>
@@ -196,12 +206,12 @@
                     <a href="{{ route('news.index') }}" class="hover:text-cyan-400 transition-colors">Berita</a>
                     <a href="{{ route('store.about') }}" class="hover:text-cyan-400 transition-colors">Tentang Kami</a>
                     <a href="{{ route('store.contact') }}" class="hover:text-cyan-400 transition-colors">Hubungi Kami</a>
-                    <a href="{{ route('privacy-policy') }}" class="hover:text-cyan-400 transition-colors">Privacy</a>
-                    <a href="{{ route('terms-of-service') }}" class="hover:text-cyan-400 transition-colors">Terms</a>
+                    <a href="{{ route('privacy-policy') }}" class="hover:text-cyan-400 transition-colors">Privasi</a>
+                    <a href="{{ route('terms-of-service') }}" class="hover:text-cyan-400 transition-colors">Ketentuan</a>
                 </div>
             </div>
             <div class="text-center border-t border-white/5 pt-8">
-                <p class="text-[10px] text-slate-600 uppercase tracking-widest">© {{ date('Y') }} Yala Computer System. All Rights Reserved.</p>
+                <p class="text-[10px] text-slate-600 uppercase tracking-widest">© {{ date('Y') }} Yala Computer System. Hak Cipta Dilindungi.</p>
             </div>
         </div>
     </footer>
@@ -210,6 +220,7 @@
     <livewire:store.chat-widget />
     <livewire:store.quick-view />
     @livewireScripts
+    @stack('scripts')
 
     <script>
         document.addEventListener('livewire:initialized', () => {

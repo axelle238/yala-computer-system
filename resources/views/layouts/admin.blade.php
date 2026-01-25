@@ -24,7 +24,6 @@
     <title>{{ $title ?? 'Sistem Manajemen Yala Computer' }}</title>
     <link rel="icon" href="{{ \App\Models\Setting::get('store_favicon') ? asset('storage/' . \App\Models\Setting::get('store_favicon')) : asset('favicon.ico') }}">
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -36,20 +35,17 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, h4, .font-tech { font-family: 'Exo 2', sans-serif; }
+        [x-cloak] { display: none !important; }
         
-        /* Custom Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.5); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.8); }
-        
-        [x-cloak] { display: none !important; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased transition-colors duration-300 selection:bg-indigo-500 selection:text-white h-screen overflow-hidden font-sans">
     
     <div class="flex h-full w-full">
-        
         <!-- Global Command Palette -->
         <livewire:components.spotlight />
 
@@ -80,8 +76,6 @@
 
                 <!-- Right: Actions -->
                 <div class="flex items-center gap-3">
-                    
-                    <!-- Global Search Trigger (Spotlight) -->
                     <button @click="$dispatch('open-spotlight')" class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-md text-slate-500 dark:text-slate-400 text-xs font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-transparent hover:border-slate-300 dark:hover:border-slate-600 group">
                         <svg class="w-4 h-4 group-hover:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                         <span>Cari (Ctrl + K)</span>
@@ -93,10 +87,8 @@
 
                     <div class="h-6 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
 
-                    <!-- Notifications (Livewire Component) -->
                     <livewire:components.admin-notification />
 
-                    <!-- Dark Mode Toggle -->
                     <button @click="toggle()" class="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-full transition-colors relative" title="Ganti Mode Gelap/Terang">
                         <svg x-show="!darkMode" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                         <svg x-show="darkMode" class="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-cloak><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
@@ -128,13 +120,11 @@
                     {{ $slot }}
                 </div>
                 
-                <!-- Footer -->
                 <footer class="max-w-7xl mx-auto w-full mt-12 py-6 border-t border-slate-200 dark:border-slate-800 text-center md:text-left flex flex-col md:flex-row justify-between items-center text-xs text-slate-400">
                     <p>&copy; {{ date('Y') }} Yala Computer. Hak Cipta Dilindungi.</p>
                     <p>Sistem v2.5.0 (Enterprise)</p>
                 </footer>
             </div>
-
         </main>
     </div>
 
