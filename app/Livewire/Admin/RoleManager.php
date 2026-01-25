@@ -65,6 +65,12 @@ class RoleManager extends Component
         ]
     ];
 
+    public function mount()
+    {
+        $this->hak_akses = [];
+        $this->showModal = false;
+    }
+
     public function render()
     {
         return view('livewire.admin.role-manager', [
@@ -75,6 +81,7 @@ class RoleManager extends Component
     public function create()
     {
         $this->reset(['nama', 'hak_akses', 'peranId']);
+        $this->hak_akses = []; // Ensure it's an array
         $this->isEdit = false;
         $this->showModal = true;
     }
