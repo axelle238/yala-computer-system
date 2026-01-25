@@ -19,8 +19,9 @@ class Gallery extends Component
 
     public $search = '';
     
-    // Upload Form (Simplified: Using SavedBuild as source)
-    public $showUploadModal = false;
+    // View State
+    public $activeAction = null; // null, 'upload'
+
     public $selectedBuildId;
     public $galleryTitle;
     public $galleryDesc;
@@ -30,13 +31,19 @@ class Gallery extends Component
         // Mock data logic or real DB logic if migration exists
     }
 
-    public function openUploadModal()
+    public function openUploadPanel()
     {
         if (!Auth::check()) {
             return redirect()->route('login');
         }
         $this->reset(['selectedBuildId', 'galleryTitle', 'galleryDesc']);
-        $this->showUploadModal = true;
+        $this->activeAction = 'upload';
+    }
+
+    public function closePanel()
+    {
+        $this->activeAction = null;
+        $this->reset(['selectedBuildId', 'galleryTitle', 'galleryDesc']);
     }
 
     public function publishBuild()
@@ -51,7 +58,7 @@ class Gallery extends Component
         // SavedBuild::where('id', $this->selectedBuildId)->update([...]);
         
         // Mock success
-        $this->showUploadModal = false;
+        $this->closePanel();
         $this->dispatch('notify', message: 'Rakitan berhasil dipublikasikan ke galeri!', type: 'success');
     }
 

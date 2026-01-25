@@ -25,8 +25,7 @@ class PayrollManager extends Component
     use WithPagination;
 
     // View State
-    public $showGenerateModal = false;
-    public $showDetailModal = false;
+    public $activeAction = null; // null, 'generate', 'detail'
     
     // Generate Input
     public $selectedUserId;
@@ -43,10 +42,17 @@ class PayrollManager extends Component
         $this->selectedMonth = date('Y-m');
     }
 
-    public function openGenerateModal()
+    public function openGeneratePanel()
     {
         $this->reset(['selectedUserId', 'previewData']);
-        $this->showGenerateModal = true;
+        $this->activeAction = 'generate';
+    }
+
+    public function closePanel()
+    {
+        $this->activeAction = null;
+        $this->selectedPayroll = null;
+        $this->previewData = null;
     }
 
     public function calculatePreview()
@@ -181,14 +187,13 @@ class PayrollManager extends Component
         });
 
         session()->flash('success', 'Slip Gaji berhasil dibuat (Status: Draft).');
-        $this->showGenerateModal = false;
-        $this->previewData = null;
+        $this->closePanel();
     }
 
     public function viewDetail($id)
     {
         $this->selectedPayroll = Payroll::with(['user', 'user.employeeDetail'])->findOrFail($id);
-        $this->showDetailModal = true;
+        $this->activeAction = 'detail';
     }
 
     public function approveAndPay()
@@ -236,7 +241,7 @@ class PayrollManager extends Component
         });
 
         session()->flash('success', 'Gaji berhasil dibayarkan dan dicatat di Kasir.');
-        $this->showDetailModal = false;
+        $this->closePanel();
     }
 
     public function render()

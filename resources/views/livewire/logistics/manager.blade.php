@@ -75,7 +75,7 @@
                                 @endif
                                 
                                 @if($order->status == 'processing')
-                                    <button wire:click="openTrackingModal({{ $order->id }})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                    <button wire:click="openTrackingPanel({{ $order->id }})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                                         Input Resi
                                     </button>
@@ -100,15 +100,34 @@
         </div>
     </div>
 
-    <!-- Tracking Modal -->
-    @if($updateTrackingModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-xl p-6">
-                <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">Input Nomor Resi</h3>
-                <input wire:model="trackingNumber" type="text" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 mb-4 font-mono uppercase" placeholder="Contoh: JP1234567890">
-                <div class="flex justify-end gap-2">
-                    <button wire:click="$set('updateTrackingModal', false)" class="px-4 py-2 text-slate-500 font-bold hover:bg-slate-100 rounded-lg">Batal</button>
-                    <button wire:click="saveTracking" class="px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700">Kirim & Update</button>
+    <!-- Tracking Action Panel -->
+    @if($activeAction === 'tracking')
+        <div class="fixed inset-x-0 bottom-0 z-50 p-4 pointer-events-none flex justify-center">
+            <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl border border-indigo-200 dark:border-slate-700 pointer-events-auto animate-slide-up">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-800 dark:text-white text-lg">Input Nomor Resi</h3>
+                            <p class="text-xs text-slate-500">Order #{{ \App\Models\Order::find($selectedOrderId)->order_number }}</p>
+                        </div>
+                        <button wire:click="closeTrackingPanel" class="text-slate-400 hover:text-indigo-500 transition-colors">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <input wire:model="trackingNumber" type="text" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 mb-1 font-mono uppercase focus:ring-indigo-500 focus:border-indigo-500" placeholder="Contoh: JP1234567890">
+                            @error('trackingNumber') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button wire:click="closeTrackingPanel" class="px-4 py-2.5 text-slate-500 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Batal</button>
+                            <button wire:click="saveTracking" class="px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-500/30 transition-all transform active:scale-95">
+                                Kirim & Update
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

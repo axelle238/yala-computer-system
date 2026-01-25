@@ -17,8 +17,9 @@ class Manager extends Component
     public $filterStatus = 'processing'; // pending, processing, shipped, delivered
     public $search = '';
     
-    // Tracking Update
-    public $updateTrackingModal = false;
+    // View State
+    public $activeAction = null; // null, 'tracking'
+
     public $selectedOrderId;
     public $trackingNumber;
 
@@ -30,11 +31,18 @@ class Manager extends Component
         $this->dispatch('notify', message: 'Status diubah: Diproses', type: 'success');
     }
 
-    public function openTrackingModal($id)
+    public function openTrackingPanel($id)
     {
         $this->selectedOrderId = $id;
         $this->trackingNumber = '';
-        $this->updateTrackingModal = true;
+        $this->activeAction = 'tracking';
+        $this->resetValidation();
+    }
+
+    public function closeTrackingPanel()
+    {
+        $this->activeAction = null;
+        $this->reset(['selectedOrderId', 'trackingNumber']);
     }
 
     public function saveTracking()
@@ -46,7 +54,7 @@ class Manager extends Component
             'tracking_number' => $this->trackingNumber
         ]);
 
-        $this->updateTrackingModal = false;
+        $this->closeTrackingPanel();
         $this->dispatch('notify', message: 'Resi diinput. Status: Dikirim', type: 'success');
     }
 

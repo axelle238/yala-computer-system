@@ -11,11 +11,64 @@
             </p>
             
             <div class="mt-8">
-                <button wire:click="openUploadModal" class="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-full hover:scale-105 transition-transform shadow-lg shadow-purple-500/20">
+                <button wire:click="openUploadPanel" class="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-full hover:scale-105 transition-transform shadow-lg shadow-purple-500/20">
                     + Pamerkan Rakitan Saya
                 </button>
             </div>
         </div>
+
+        <!-- Upload Action Panel (Inline) -->
+        @if($activeAction === 'upload')
+            <div class="max-w-2xl mx-auto bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-purple-200 dark:border-purple-900/30 overflow-hidden animate-fade-in-up mb-12">
+                <div class="p-8 border-b border-slate-100 dark:border-slate-700 bg-purple-50/50 dark:bg-purple-900/10 flex justify-between items-center">
+                    <h3 class="font-black text-2xl text-slate-900 dark:text-white flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/30">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        </span>
+                        Publikasikan Rakitan
+                    </h3>
+                    <button wire:click="closePanel" class="text-slate-400 hover:text-purple-600 transition-colors">
+                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                
+                <div class="p-8 space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wide">Pilih Rakitan Tersimpan</label>
+                        <select wire:model="selectedBuildId" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-slate-800 dark:text-white focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all font-medium">
+                            <option value="">-- Pilih Rakitan --</option>
+                            @foreach($myBuilds as $b)
+                                <option value="{{ $b->id }}">{{ $b->name }} (Rp {{ number_format($b->total_price_estimated) }})</option>
+                            @endforeach
+                        </select>
+                        @if($myBuilds->isEmpty())
+                            <div class="mt-3 flex items-center gap-2 text-rose-500 text-sm font-medium bg-rose-50 dark:bg-rose-900/20 p-3 rounded-xl">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                Anda belum memiliki rakitan tersimpan. Buat dulu di menu Rakit PC.
+                            </div>
+                        @endif
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wide">Judul Postingan</label>
+                        <input wire:model="galleryTitle" type="text" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-slate-800 dark:text-white focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all font-bold placeholder-slate-400" placeholder="Contoh: The White Beast - RTX 4090 Build">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wide">Cerita di Balik Rakitan</label>
+                        <textarea wire:model="galleryDesc" rows="5" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-slate-800 dark:text-white focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all placeholder-slate-400" placeholder="Ceritakan konsep, tantangan, dan performa PC ini..."></textarea>
+                    </div>
+                </div>
+
+                <div class="p-8 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-4 border-t border-slate-100 dark:border-slate-700">
+                    <button wire:click="closePanel" class="px-8 py-3 text-slate-500 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors">Batal</button>
+                    <button wire:click="publishBuild" class="px-10 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-black rounded-xl shadow-xl shadow-purple-600/30 transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Posting Sekarang
+                    </button>
+                </div>
+            </div>
+        @endif
 
         <!-- Gallery Grid -->
         <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6 animate-fade-in-up delay-100">
@@ -67,48 +120,3 @@
             {{ $builds->links() }}
         </div>
     </div>
-
-    <!-- Upload Modal -->
-    @if($showUploadModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-scale-in">
-                <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
-                    <h3 class="font-bold text-xl text-slate-900 dark:text-white">Publikasikan Rakitan</h3>
-                    <button wire:click="$set('showUploadModal', false)" class="text-slate-400 hover:text-white transition-colors">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </div>
-                
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Pilih Rakitan Tersimpan</label>
-                        <select wire:model="selectedBuildId" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:ring-purple-500">
-                            <option value="">-- Pilih --</option>
-                            @foreach($myBuilds as $b)
-                                <option value="{{ $b->id }}">{{ $b->name }} (Rp {{ number_format($b->total_price_estimated) }})</option>
-                            @endforeach
-                        </select>
-                        @if($myBuilds->isEmpty())
-                            <p class="text-xs text-rose-500 mt-2">Anda belum memiliki rakitan tersimpan. Buat dulu di menu Rakit PC.</p>
-                        @endif
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Judul Postingan</label>
-                        <input wire:model="galleryTitle" type="text" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:ring-purple-500" placeholder="Contoh: The White Beast">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Cerita di Balik Rakitan</label>
-                        <textarea wire:model="galleryDesc" rows="4" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:ring-purple-500" placeholder="Ceritakan konsep dan performa PC ini..."></textarea>
-                    </div>
-                </div>
-
-                <div class="p-6 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-3">
-                    <button wire:click="$set('showUploadModal', false)" class="px-6 py-2 text-slate-500 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">Batal</button>
-                    <button wire:click="publishBuild" class="px-8 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg shadow-lg shadow-purple-600/30 transition-all">Posting</button>
-                </div>
-            </div>
-        </div>
-    @endif
-</div>
