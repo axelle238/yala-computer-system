@@ -9,10 +9,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\LogsActivity;
 
 /**
- * Class Product
+ * Class Product (Produk)
  * 
- * The central entity of the inventory system.
- * Handles stock levels, pricing, and technical specifications.
+ * Entitas pusat dalam sistem inventaris.
+ * Menangani tingkat stok, harga, dan spesifikasi teknis.
  * 
  * @package App\Models
  */
@@ -21,7 +21,7 @@ class Product extends Model
     use HasFactory, LogsActivity;
 
     /**
-     * The attributes that are mass assignable.
+     * Atribut yang dapat diisi secara massal.
      *
      * @var array<int, string>
      */
@@ -34,7 +34,7 @@ class Product extends Model
         'barcode',
         'description',
         'specifications',
-        'weight', // New
+        'weight',
         'warranty_duration',
         'buy_price',
         'sell_price',
@@ -46,7 +46,7 @@ class Product extends Model
     ];
 
     /**
-     * The attributes that should be cast.
+     * Atribut yang harus dikonversi tipe datanya.
      *
      * @var array<string, string>
      */
@@ -64,7 +64,7 @@ class Product extends Model
     }
 
     /**
-     * Get the category that owns the product.
+     * Dapatkan kategori pemilik produk.
      *
      * @return BelongsTo
      */
@@ -74,7 +74,7 @@ class Product extends Model
     }
 
     /**
-     * Get the supplier that provides the product.
+     * Dapatkan pemasok yang menyediakan produk.
      *
      * @return BelongsTo
      */
@@ -84,8 +84,8 @@ class Product extends Model
     }
 
     /**
-     * Get the inventory transactions for the product.
-     * Used for audit trails and history.
+     * Dapatkan transaksi inventaris untuk produk.
+     * Digunakan untuk jejak audit dan riwayat.
      *
      * @return HasMany
      */
@@ -105,16 +105,16 @@ class Product extends Model
     }
 
     /**
-     * Check if the product stock is below the alert threshold.
+     * Periksa apakah stok produk di bawah ambang batas peringatan.
      *
      * @return bool
      */
-    public function hasLowStock(): bool
+    public function stokMenipis(): bool
     {
         return $this->stock_quantity <= $this->min_stock_alert;
     }
 
-    // --- PC Builder Accessors ---
+    // --- Aksesor Rakit PC ---
 
     public function getSocketTypeAttribute()
     {
