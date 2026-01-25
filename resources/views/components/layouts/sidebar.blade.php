@@ -6,13 +6,13 @@
     x-data="{ 
         activeGroup: '{{ 
             request()->routeIs('dashboard') ? 'dashboard' : 
-            (request()->routeIs('sales.*', 'orders.*') ? 'sales' : 
-            (request()->routeIs('services.*', 'rma.*') ? 'service' : 
-            (request()->routeIs('products.*', 'warehouses.*', 'purchase-orders.*', 'procurement.*') ? 'inventory' : 
+            (request()->routeIs('sales.*', 'orders.*', 'quotations.*') ? 'sales' : 
+            (request()->routeIs('services.*', 'rma.*', 'assembly.*', 'knowledge.*') ? 'service' : 
+            (request()->routeIs('products.*', 'warehouses.*', 'purchase-orders.*', 'procurement.*', 'logistics.*', 'purchase-requisitions.*') ? 'inventory' : 
             (request()->routeIs('finance.*', 'reports.*', 'expenses.*') ? 'finance' : 
-            (request()->routeIs('customers.*', 'marketing.*', 'member.*') ? 'crm' : 
+            (request()->routeIs('customers.*', 'marketing.*', 'member.*', 'reviews.*') ? 'crm' : 
             (request()->routeIs('employees.*', 'shift.*') ? 'hrm' : 
-            (request()->routeIs('settings.*', 'system.*', 'activity-logs.*', 'users.*') ? 'system' : '')))))))
+            (request()->routeIs('settings.*', 'system.*', 'activity-logs.*', 'users.*', 'assets.*') ? 'system' : '')))))))
         }}',
         toggleGroup(group) {
             this.activeGroup = this.activeGroup === group ? null : group;
@@ -43,18 +43,18 @@
         <a href="{{ route('dashboard') }}" 
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 group {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400' }}">
             <svg class="w-5 h-5 {{ request()->routeIs('dashboard') ? 'text-white' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-            Dashboard
+            Dashboard Utama
         </a>
 
         <!-- MENU TITLE -->
-        <div class="mt-6 mb-2 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Operasional</div>
+        <div class="mt-6 mb-2 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Operasional Bisnis</div>
 
         <!-- GROUP: FRONT OFFICE -->
         <div>
             <button @click="toggleGroup('sales')" 
-                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('sales.*', 'orders.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('sales.*', 'orders.*', 'quotations.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                 <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 {{ request()->routeIs('sales.*', 'orders.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                    <svg class="w-5 h-5 {{ request()->routeIs('sales.*', 'orders.*', 'quotations.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                     <span>Penjualan (Front Office)</span>
                 </div>
                 <svg class="w-4 h-4 transition-transform duration-200" :class="activeGroup === 'sales' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
@@ -64,13 +64,10 @@
                     Kasir (POS)
                 </a>
                 <a href="{{ route('orders.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('orders.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Riwayat Order
+                    Riwayat Transaksi
                 </a>
                 <a href="{{ route('quotations.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('quotations.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Penawaran (B2B)
-                </a>
-                <a href="{{ route('logistics.manager') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('logistics.manager') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Pengiriman & Logistik
+                    Penawaran Harga (B2B)
                 </a>
             </div>
         </div>
@@ -81,25 +78,25 @@
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('services.*', 'rma.*', 'assembly.*', 'knowledge.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                 <div class="flex items-center gap-3">
                     <svg class="w-5 h-5 {{ request()->routeIs('services.*', 'rma.*', 'assembly.*', 'knowledge.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    <span>Service & Perakitan</span>
+                    <span>Layanan & Servis</span>
                 </div>
                 <svg class="w-4 h-4 transition-transform duration-200" :class="activeGroup === 'service' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div x-show="activeGroup === 'service'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
                 <a href="{{ route('services.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('services.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Daftar Tiket Servis
+                    Tiket Servis
                 </a>
                 <a href="{{ route('services.kanban') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('services.kanban') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Kanban Board
+                    Papan Kanban
                 </a>
                 <a href="{{ route('assembly.manager') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('assembly.manager') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Perakitan PC (Assembly)
+                    Perakitan PC
                 </a>
                 <a href="{{ route('rma.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('rma.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Manajemen RMA (Retur)
+                    Garansi & Retur (RMA)
                 </a>
                 <a href="{{ route('knowledge.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('knowledge.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Knowledge Base
+                    Basis Pengetahuan
                 </a>
             </div>
         </div>
@@ -107,31 +104,34 @@
         <!-- GROUP: INVENTORY -->
         <div>
             <button @click="toggleGroup('inventory')" 
-                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('products.*', 'warehouses.*', 'purchase-orders.*', 'procurement.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('products.*', 'warehouses.*', 'purchase-orders.*', 'procurement.*', 'logistics.*', 'purchase-requisitions.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                 <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 {{ request()->routeIs('products.*', 'warehouses.*', 'purchase-orders.*', 'procurement.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                    <span>Inventory & Logistik</span>
+                    <svg class="w-5 h-5 {{ request()->routeIs('products.*', 'warehouses.*', 'purchase-orders.*', 'procurement.*', 'logistics.*', 'purchase-requisitions.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                    <span>Gudang & Logistik</span>
                 </div>
                 <svg class="w-4 h-4 transition-transform duration-200" :class="activeGroup === 'inventory' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div x-show="activeGroup === 'inventory'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
                 <a href="{{ route('products.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('products.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Master Produk
+                    Data Produk
                 </a>
                 <a href="{{ route('purchase-requisitions.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('purchase-requisitions.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Permintaan Pembelian
+                    Permintaan Stok
                 </a>
                 <a href="{{ route('purchase-orders.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('purchase-orders.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Purchase Order (PO)
+                    Pembelian (PO)
                 </a>
                 <a href="{{ route('purchase-orders.receive') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('purchase-orders.receive') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Penerimaan Barang (Inbound)
+                    Penerimaan Barang
                 </a>
                 <a href="{{ route('warehouses.stock-opname') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('warehouses.stock-opname') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Stok Opname
                 </a>
                 <a href="{{ route('warehouses.transfer') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('warehouses.transfer') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Transfer Gudang
+                    Mutasi Antar Gudang
+                </a>
+                <a href="{{ route('logistics.manager') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('logistics.manager') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Pengiriman & Kurir
                 </a>
                 <a href="{{ route('products.labels') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('products.labels') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Cetak Label Barcode
@@ -145,16 +145,19 @@
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('finance.*', 'reports.*', 'expenses.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                 <div class="flex items-center gap-3">
                     <svg class="w-5 h-5 {{ request()->routeIs('finance.*', 'reports.*', 'expenses.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span>Keuangan & Akuntansi</span>
+                    <span>Keuangan & Laporan</span>
                 </div>
                 <svg class="w-4 h-4 transition-transform duration-200" :class="activeGroup === 'finance' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div x-show="activeGroup === 'finance'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
                 <a href="{{ route('finance.cash-register') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('finance.cash-register') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Shift Kasir
+                    Buka/Tutup Kasir
                 </a>
                 <a href="{{ route('expenses.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('expenses.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Biaya Operasional
+                    Pengeluaran Operasional
+                </a>
+                <a href="{{ route('reports.sales') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('reports.sales') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Laporan Penjualan
                 </a>
                 <a href="{{ route('reports.finance') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('reports.finance') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Laporan Laba/Rugi
@@ -163,14 +166,14 @@
         </div>
 
         <!-- MENU TITLE -->
-        <div class="mt-6 mb-2 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Manajemen & Admin</div>
+        <div class="mt-6 mb-2 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Manajemen Perusahaan</div>
 
         <!-- GROUP: CRM -->
         <div>
             <button @click="toggleGroup('crm')" 
-                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('customers.*', 'marketing.*', 'member.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('customers.*', 'marketing.*', 'member.*', 'reviews.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                 <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 {{ request()->routeIs('customers.*', 'marketing.*', 'member.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <svg class="w-5 h-5 {{ request()->routeIs('customers.*', 'marketing.*', 'member.*', 'reviews.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                     <span>CRM & Pelanggan</span>
                 </div>
                 <svg class="w-4 h-4 transition-transform duration-200" :class="activeGroup === 'crm' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
@@ -186,7 +189,7 @@
                     Flash Sale
                 </a>
                 <a href="{{ route('reviews.manager') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('reviews.manager') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Ulasan Produk
+                    Ulasan & Rating
                 </a>
             </div>
         </div>
@@ -197,16 +200,16 @@
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('employees.*', 'shift.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                 <div class="flex items-center gap-3">
                     <svg class="w-5 h-5 {{ request()->routeIs('employees.*', 'shift.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                    <span>SDM (HRM)</span>
+                    <span>SDM & Karyawan</span>
                 </div>
                 <svg class="w-4 h-4 transition-transform duration-200" :class="activeGroup === 'hrm' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div x-show="activeGroup === 'hrm'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
                 <a href="{{ route('employees.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('employees.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Data Karyawan
+                    Database Karyawan
                 </a>
                 <a href="{{ route('employees.attendance') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('employees.attendance') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Absensi Kehadiran
+                    Presensi Kehadiran
                 </a>
                 <a href="{{ route('employees.payroll-manager') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('employees.payroll-manager') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Penggajian (Payroll)
@@ -217,22 +220,22 @@
         <!-- GROUP: SYSTEM -->
         <div>
             <button @click="toggleGroup('system')" 
-                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('settings.*', 'system.*', 'activity-logs.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('settings.*', 'system.*', 'activity-logs.*', 'users.*', 'assets.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                 <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 {{ request()->routeIs('settings.*', 'system.*', 'activity-logs.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    <span>System & Config</span>
+                    <svg class="w-5 h-5 {{ request()->routeIs('settings.*', 'system.*', 'activity-logs.*', 'users.*', 'assets.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <span>Sistem & Pengaturan</span>
                 </div>
                 <svg class="w-4 h-4 transition-transform duration-200" :class="activeGroup === 'system' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div x-show="activeGroup === 'system'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
                 <a href="{{ route('settings.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('settings.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Pengaturan Aplikasi
+                    Konfigurasi Aplikasi
                 </a>
                 <a href="{{ route('assets.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('assets.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Aset Perusahaan
+                    Manajemen Aset
                 </a>
                 <a href="{{ route('activity-logs.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('activity-logs.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Log Aktivitas
+                    Log Aktivitas User
                 </a>
             </div>
         </div>
@@ -246,14 +249,14 @@
                 {{ substr(auth()->user()->name ?? 'A', 0, 1) }}
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{{ auth()->user()->name ?? 'Admin' }}</p>
+                <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{{ auth()->user()->name ?? 'Administrator' }}</p>
                 <p class="text-xs text-slate-500 truncate">{{ auth()->user()->email ?? 'admin@yala.id' }}</p>
             </div>
             
             <!-- Logout Button -->
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Keluar">
+                <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Keluar Sistem">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                 </button>
             </form>

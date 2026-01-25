@@ -18,6 +18,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="robots" content="noindex, nofollow">
+    
     <title>{{ $title ?? 'Sistem Manajemen Yala Computer' }}</title>
     <link rel="icon" href="{{ \App\Models\Setting::get('store_favicon') ? asset('storage/' . \App\Models\Setting::get('store_favicon')) : asset('favicon.ico') }}">
     
@@ -28,6 +31,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    @stack('styles')
 
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -126,8 +130,8 @@
                 
                 <!-- Footer -->
                 <footer class="max-w-7xl mx-auto w-full mt-12 py-6 border-t border-slate-200 dark:border-slate-800 text-center md:text-left flex flex-col md:flex-row justify-between items-center text-xs text-slate-400">
-                    <p>&copy; {{ date('Y') }} Yala Computer. All rights reserved.</p>
-                    <p>System v2.5.0 (Enterprise)</p>
+                    <p>&copy; {{ date('Y') }} Yala Computer. Hak Cipta Dilindungi.</p>
+                    <p>Sistem v2.5.0 (Enterprise)</p>
                 </footer>
             </div>
 
@@ -137,5 +141,6 @@
     <x-notification />
 
     @livewireScripts
+    @stack('scripts')
 </body>
 </html>
