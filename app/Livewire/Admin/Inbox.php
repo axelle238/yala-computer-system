@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Admin;
 
+use App\Mail\ContactReplyMail;
 use App\Models\ContactMessage;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -22,20 +24,37 @@ class Inbox extends Component
     {
         $this->selectedMessage = ContactMessage::findOrFail($id);
         
-        // Mark as read logic (if column exists, else ignore)
-        // $this->selectedMessage->update(['is_read' => true]); 
+        if ($this->selectedMessage->status === 'new') {
+            $this->selectedMessage->update(['status' => 'read']);
+        }
     }
 
     public function sendReply()
     {
-        $this->validate(['replyBody' => 'required|min:10']);
+        $this->validate([
+            'replyBody' => 'required|min:10',
+        ]);
 
-        // In real app: Mail::to($this->selectedMessage->email)->send(new ReplyMail($this->replyBody));
-        
-        // Simulate sending
-        sleep(1);
-        
-        $this->dispatch('notify', message: 'Balasan terkirim ke ' . $this->selectedMessage->email, type: 'success');
+        if (!$this->selectedMessage) {
+            return;
+        }
+
+        try {
+            Mail::to($this->selectedMessage->email)
+                ->send(new ContactReplyMail($this->replyBody, $this->selectedMessage->subject));
+            
+            $this->selectedMessage->update(['status' => 'replied']);
+            
+            $this->dispatch('notify', message: 'Balasan berhasil dikirim ke ' . $this->selectedMessage->email, type: 'success');
+        } catch (\Exception $e) {
+            // Log error if mail fails (e.g. invalid config) but still update status or user feedback
+            // For now, we update status to indicate we TRIED to reply, or maybe we shouldn't?
+            // "Operational ready" means we should tell them it failed.
+            
+            $this->dispatch('notify', message: 'Gagal mengirim email (Cek konfigurasi SMTP). Pesan belum ditandai terbalas.', type: 'error');
+            return;
+        }
+
         $this->replyBody = '';
         $this->selectedMessage = null;
     }
@@ -46,7 +65,7 @@ class Inbox extends Component
         if ($this->selectedMessage && $this->selectedMessage->id == $id) {
             $this->selectedMessage = null;
         }
-        $this->dispatch('notify', message: 'Pesan dihapus.', type: 'success');
+        $this->dispatch('notify', message: 'Pesan berhasil dihapus.', type: 'success');
     }
 
     public function render()
