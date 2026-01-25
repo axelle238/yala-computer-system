@@ -52,56 +52,5 @@
             </div>
         @endforeach
     </div>
-
-    <!-- Modal Form -->
-    <div>
-        @if($showModal)
-            <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                    <div class="fixed inset-0 bg-slate-900/75 transition-opacity" aria-hidden="true" wire:click="$set('showModal', false)"></div>
-
-                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-                    <div class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full border border-slate-200 dark:border-slate-700">
-                        <div class="px-6 py-6">
-                            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">
-                                {{ $isEdit ? 'Edit Peran' : 'Buat Peran Baru' }}
-                            </h3>
-                            
-                            <div class="space-y-6">
-                                <div>
-                                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nama Peran / Jabatan</label>
-                                    <input wire:model="nama" type="text" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-blue-500 focus:border-blue-500 dark:text-white" placeholder="Contoh: Manager Gudang">
-                                    @error('nama') <span class="text-rose-500 text-xs mt-1">{{ $message }}</span> @enderror
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">Pilih Hak Akses</label>
-                                    <div class="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
-                                        @foreach($permissionsList as $group => $perms)
-                                            <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700">
-                                                <h4 class="font-bold text-slate-800 dark:text-white text-sm mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">{{ $group }}</h4>
-                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                    @foreach($perms as $key => $label)
-                                                        <label class="flex items-center gap-3 cursor-pointer group">
-                                                            <input wire:model="hak_akses" value="{{ $key }}" type="checkbox" class="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all">
-                                                            <span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-blue-600 transition-colors">{{ $label }}</span>
-                                                        </label>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-slate-50 dark:bg-slate-900/50 px-6 py-4 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-700">
-                            <button wire:click="$set('showModal', false)" type="button" class="px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700 font-bold text-sm transition-colors">Batal</button>
-                            <button wire:click="store" type="button" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-sm shadow-lg transition-all transform active:scale-95">Simpan</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-    </div>
+</div>
 </div>
