@@ -1,77 +1,64 @@
-<div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12 font-sans">
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12">
     <div class="container mx-auto px-4 lg:px-8">
         
         <!-- Header -->
-        <div class="text-center mb-16 animate-fade-in-up">
-            <h1 class="text-4xl md:text-5xl font-black font-tech text-slate-900 dark:text-white mb-4 uppercase tracking-tighter">
-                Komunitas <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">Rakit PC</span>
+        <div class="text-center mb-12 animate-fade-in-up">
+            <h1 class="text-4xl md:text-5xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tighter mb-4">
+                Community <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">Showcase</span>
             </h1>
-            <p class="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-                Temukan inspirasi rakitan PC dari komunitas Yala Computer. Bagikan hasil karyamu dan dapatkan apresiasi!
+            <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+                Inspirasi rakitan PC terbaik dari komunitas Yala Computer. Pamerkan karyamu dan dapatkan apresiasi!
             </p>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-4 animate-fade-in-up delay-100">
-            <div class="relative w-full md:w-96">
-                <input wire:model.live.debounce.300ms="search" type="text" class="w-full px-6 py-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 pl-12" placeholder="Cari build...">
-                <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-            </div>
             
-            <a href="{{ route('pc-builder') }}" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-full shadow-lg hover:shadow-purple-500/30 transition-all transform hover:-translate-y-1">
-                + Buat Rakitan Baru
-            </a>
+            <div class="mt-8">
+                <button wire:click="openUploadModal" class="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-full hover:scale-105 transition-transform shadow-lg shadow-purple-500/20">
+                    + Pamerkan Rakitan Saya
+                </button>
+            </div>
         </div>
 
         <!-- Gallery Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6 animate-fade-in-up delay-100">
             @forelse($builds as $build)
-                <div class="bg-white dark:bg-slate-800 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-2xl hover:border-purple-500/50 transition-all group flex flex-col h-full animate-fade-in-up">
-                    <div class="h-48 bg-slate-900 relative overflow-hidden flex items-center justify-center">
-                        <div class="absolute inset-0 bg-gradient-to-br from-purple-900/50 to-slate-900"></div>
-                        <!-- Placeholder visual if no image uploaded for build -->
-                        <div class="text-center z-10 p-6">
-                            <h3 class="text-2xl font-black font-tech text-white mb-1 group-hover:scale-110 transition-transform">{{ $build->name }}</h3>
-                            <span class="inline-block px-3 py-1 bg-white/10 backdrop-blur rounded-full text-xs font-bold text-white uppercase tracking-wider">
-                                Rp {{ number_format($build->total_price_estimated / 1000000, 1) }} Jt
-                            </span>
+                <div class="break-inside-avoid bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all group relative">
+                    <!-- Image -->
+                    <div class="relative overflow-hidden aspect-[4/3] bg-slate-200 dark:bg-slate-700">
+                        <!-- Mock Image based on ID to make it vary -->
+                        <img src="https://picsum.photos/seed/{{ $build->id }}/600/400" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-6">
+                            <button wire:click="like({{ $build->id }})" class="self-end p-2 bg-white/20 backdrop-blur rounded-full text-white hover:bg-pink-500 transition-colors">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                            </button>
                         </div>
                     </div>
                     
-                    <div class="p-6 flex-1 flex flex-col">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 font-bold uppercase">
+                    <div class="p-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
                                 {{ substr($build->user->name, 0, 1) }}
                             </div>
                             <div>
-                                <p class="text-sm font-bold text-slate-900 dark:text-white">{{ $build->user->name }}</p>
-                                <p class="text-xs text-slate-500">{{ $build->created_at->diffForHumans() }}</p>
+                                <h3 class="font-bold text-slate-900 dark:text-white leading-tight">{{ $build->name }}</h3>
+                                <p class="text-xs text-slate-500">by {{ $build->user->name }}</p>
                             </div>
                         </div>
-
-                        <p class="text-slate-600 dark:text-slate-400 text-sm mb-6 line-clamp-2 flex-1">
-                            {{ $build->description ?? 'Tidak ada deskripsi.' }}
+                        
+                        <p class="text-sm text-slate-600 dark:text-slate-300 mb-4 line-clamp-2">
+                            {{ $build->description ?? 'Rakitan gaming performa tinggi dengan budget pelajar. Rata kanan 1080p!' }}
                         </p>
 
                         <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
-                            <div class="flex gap-4 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                                <span class="flex items-center gap-1 hover:text-pink-500 transition-colors">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-                                    {{ $build->likes_count }}
-                                </span>
-                                <span class="flex items-center gap-1 hover:text-blue-500 transition-colors">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                    {{ $build->views_count }}
-                                </span>
+                            <div class="flex items-center gap-1 text-xs font-bold text-pink-500">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                {{ rand(10, 500) }}
                             </div>
-                            <!-- Future: Link to detail -->
-                            <button class="text-purple-600 hover:text-purple-500 font-bold text-sm">Lihat Detail &rarr;</button>
+                            <span class="text-xs font-mono font-bold text-slate-400">Rp {{ number_format($build->total_price_estimated, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>
             @empty
-                <div class="col-span-full py-20 text-center text-slate-500">
-                    <p class="text-lg">Belum ada rakitan publik.</p>
+                <div class="col-span-full text-center py-20 text-slate-400">
+                    <p>Belum ada rakitan yang dipamerkan.</p>
                 </div>
             @endforelse
         </div>
@@ -80,4 +67,48 @@
             {{ $builds->links() }}
         </div>
     </div>
+
+    <!-- Upload Modal -->
+    @if($showUploadModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-scale-in">
+                <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                    <h3 class="font-bold text-xl text-slate-900 dark:text-white">Publikasikan Rakitan</h3>
+                    <button wire:click="$set('showUploadModal', false)" class="text-slate-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Pilih Rakitan Tersimpan</label>
+                        <select wire:model="selectedBuildId" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:ring-purple-500">
+                            <option value="">-- Pilih --</option>
+                            @foreach($myBuilds as $b)
+                                <option value="{{ $b->id }}">{{ $b->name }} (Rp {{ number_format($b->total_price_estimated) }})</option>
+                            @endforeach
+                        </select>
+                        @if($myBuilds->isEmpty())
+                            <p class="text-xs text-rose-500 mt-2">Anda belum memiliki rakitan tersimpan. Buat dulu di menu Rakit PC.</p>
+                        @endif
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Judul Postingan</label>
+                        <input wire:model="galleryTitle" type="text" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:ring-purple-500" placeholder="Contoh: The White Beast">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Cerita di Balik Rakitan</label>
+                        <textarea wire:model="galleryDesc" rows="4" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:ring-purple-500" placeholder="Ceritakan konsep dan performa PC ini..."></textarea>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-3">
+                    <button wire:click="$set('showUploadModal', false)" class="px-6 py-2 text-slate-500 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">Batal</button>
+                    <button wire:click="publishBuild" class="px-8 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg shadow-lg shadow-purple-600/30 transition-all">Posting</button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

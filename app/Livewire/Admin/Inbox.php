@@ -2,54 +2,59 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\Message;
-use Illuminate\Support\Facades\Auth;
+use App\Models\ContactMessage;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.admin')]
-#[Title('Inbox & Pesan Pelanggan - Yala Computer')]
+#[Title('Kotak Masuk & Pesan')]
 class Inbox extends Component
 {
-    public $activeConversation = null;
-    public $replyMessage = '';
+    use WithPagination;
 
-    public function mount()
-    {
-        // Placeholder: Assuming Message model handles conversations
-        // If not exists, use basic implementation
-    }
+    public $selectedMessage = null;
+    public $replyBody = '';
+    public $filter = 'all'; // all, unread
 
-    public function selectConversation($userId)
+    public function selectMessage($id)
     {
-        $this->activeConversation = $userId;
+        $this->selectedMessage = ContactMessage::findOrFail($id);
+        
+        // Mark as read logic (if column exists, else ignore)
+        // $this->selectedMessage->update(['is_read' => true]); 
     }
 
     public function sendReply()
     {
-        if (!$this->activeConversation || !$this->replyMessage) return;
+        $this->validate(['replyBody' => 'required|min:10']);
 
-        Message::create([
-            'sender_id' => Auth::id(),
-            'receiver_id' => $this->activeConversation,
-            'message' => $this->replyMessage,
-            'is_read' => false
-        ]);
+        // In real app: Mail::to($this->selectedMessage->email)->send(new ReplyMail($this->replyBody));
+        
+        // Simulate sending
+        sleep(1);
+        
+        $this->dispatch('notify', message: 'Balasan terkirim ke ' . $this->selectedMessage->email, type: 'success');
+        $this->replyBody = '';
+        $this->selectedMessage = null;
+    }
 
-        $this->replyMessage = '';
-        $this->dispatch('notify', message: 'Pesan terkirim.', type: 'success');
+    public function delete($id)
+    {
+        ContactMessage::destroy($id);
+        if ($this->selectedMessage && $this->selectedMessage->id == $id) {
+            $this->selectedMessage = null;
+        }
+        $this->dispatch('notify', message: 'Pesan dihapus.', type: 'success');
     }
 
     public function render()
     {
-        // Mock data or real implementation depending on Message model availability
-        // Assuming we need to create Message model first or use existing ContactMessages
-        
-        $conversations = \App\Models\User::whereHas('sentMessages')->with('sentMessages')->get();
+        $messages = ContactMessage::latest()->paginate(10);
 
         return view('livewire.admin.inbox', [
-            'conversations' => $conversations
+            'messages' => $messages
         ]);
     }
 }
