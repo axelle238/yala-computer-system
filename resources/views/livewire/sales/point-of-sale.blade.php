@@ -319,6 +319,29 @@
 
     <!-- Global Shortcuts Listener -->
     <script>
+        // Print Receipt Handler
+        window.addEventListener('print-receipt', event => {
+            const orderId = event.detail.orderId;
+            const url = "{{ route('print.transaction', ':id') }}".replace(':id', orderId);
+            
+            // Seamless Print using Hidden Iframe
+            let iframe = document.getElementById('receipt-frame');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'receipt-frame';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+            }
+            iframe.src = url;
+            // Wait for load then print
+            iframe.onload = function() {
+                setTimeout(function() {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                }, 500);
+            };
+        });
+
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F1') {
                 e.preventDefault();

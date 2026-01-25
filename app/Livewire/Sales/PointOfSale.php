@@ -257,7 +257,7 @@ class PointOfSale extends Component
                 'created_by' => Auth::id(),
             ]);
 
-            // TODO: Print Receipt Trigger
+            // Trigger Print Receipt
             $this->dispatch('print-receipt', orderId: $order->id);
         });
 
