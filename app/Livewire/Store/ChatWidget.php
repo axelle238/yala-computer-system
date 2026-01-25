@@ -158,7 +158,8 @@ class ChatWidget extends Component
     public function render()
     {
         return view('livewire.store.chat-widget', [
-            'daftarPesan' => $this->sesi ? $this->sesi->pesan()->latest()->take(50)->get()->reverse() : []
+            // Perbaikan: Mengembalikan Collection kosong jika tidak ada sesi
+            'daftarPesan' => $this->sesi ? $this->sesi->pesan()->latest()->take(50)->get()->reverse() : collect([])
         ]);
     }
 }
