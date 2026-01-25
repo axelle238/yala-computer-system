@@ -256,3 +256,37 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+@php
+    $snapUrl = config('services.midtrans.is_production') 
+        ? 'https://app.midtrans.com/snap/snap.js' 
+        : 'https://app.sandbox.midtrans.com/snap/snap.js';
+@endphp
+<script src="{{ $snapUrl }}" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+<script>
+    document.addEventListener('livewire:initialized', () => {
+        Livewire.on('trigger-payment', (event) => {
+            // Event data might be nested depending on how it's dispatched (array or named args)
+            // Check if event is an array and pick first element if so, or use event directly
+            const data = Array.isArray(event) ? event[0] : event;
+            
+            snap.pay(data.token, {
+                onSuccess: function(result){
+                    window.location.href = "{{ route('order.success', ':id') }}".replace(':id', data.orderId);
+                },
+                onPending: function(result){
+                    window.location.href = "{{ route('order.success', ':id') }}".replace(':id', data.orderId);
+                },
+                onError: function(result){
+                    alert("Pembayaran gagal! Silakan coba lagi.");
+                },
+                onClose: function(){
+                    alert('Anda menutup popup tanpa menyelesaikan pembayaran. Pesanan tersimpan di status Pending.');
+                    window.location.href = "{{ route('member.orders') }}";
+                }
+            });
+        });
+    });
+</script>
+@endpush
