@@ -10,7 +10,7 @@
     <meta name="description" content="{{ $description ?? 'Pusat belanja komputer, laptop, dan jasa rakit PC murah terbaik di Jakarta.' }}">
     <meta name="keywords" content="Beli Komputer, Rakit PC Jakarta, Laptop Murah Jakarta, Toko Komputer Terbaik, Yala Computer">
     
-    <!-- Dynamic Meta Tags -->
+    <!-- Tag Meta Dinamis -->
     @stack('meta')
 
     <link rel="icon" href="{{ \App\Models\Setting::get('store_favicon') ? asset('storage/' . \App\Models\Setting::get('store_favicon')) : asset('favicon.ico') }}">
@@ -39,28 +39,28 @@
         }
         .cyber-grid::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, transparent 0%, #020617 100%); }
         
-        /* Modern Scrollbar */
+        /* Bilah Gulir Modern */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body class="antialiased selection:bg-cyan-500 selection:text-white" x-data="{ mobileMenuOpen: false, scrolled: false }" @scroll.window="scrolled = (window.pageYOffset > 20)">
+<body class="antialiased selection:bg-cyan-500 selection:text-white" x-data="{ menuSelulerTerbuka: false, digulir: false }" @scroll.window="digulir = (window.pageYOffset > 20)">
     <div class="cyber-grid"></div>
 
-    <!-- Announcement Bar -->
-    @php $announcement = \App\Models\Setting::get('store_announcement_active', false); @endphp
-    @if($announcement)
+    <!-- Bilah Pengumuman -->
+    @php $pengumumanAktif = \App\Models\Setting::get('store_announcement_active', false); @endphp
+    @if($pengumumanAktif)
         <div class="bg-gradient-to-r from-cyan-950 via-blue-950 to-purple-950 text-cyan-100 text-[10px] font-bold py-2.5 text-center uppercase tracking-[0.2em] border-b border-cyan-500/10 relative z-50 animate-fade-in-down">
             {{ \App\Models\Setting::get('store_announcement_text') }}
         </div>
     @endif
 
-    <!-- Modern Header -->
+    <!-- Header Modern -->
     <header class="fixed top-0 w-full z-40 transition-all duration-500 border-b border-transparent"
-            :class="{ 'bg-slate-950/80 backdrop-blur-xl border-white/5 shadow-2xl shadow-cyan-900/5 top-0': scrolled, 'bg-transparent top-0 pt-4': !scrolled }">
-        <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center transition-all duration-500" :class="{ 'h-16': scrolled }">
+            :class="{ 'bg-slate-950/80 backdrop-blur-xl border-white/5 shadow-2xl shadow-cyan-900/5 top-0': digulir, 'bg-transparent top-0 pt-4': !digulir }">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center transition-all duration-500" :class="{ 'h-16': digulir }">
             <!-- Logo -->
             <a href="/" class="group flex items-center gap-3 relative">
                 <div class="absolute -inset-2 bg-cyan-500/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -76,17 +76,17 @@
                 @endif
                 <div class="flex flex-col relative z-10">
                     <span class="font-tech font-bold text-xl text-white tracking-tight uppercase leading-none group-hover:text-cyan-400 transition-colors duration-300">{{ \App\Models\Setting::get('store_name', 'YALA COMPUTER') }}</span>
-                    <span class="text-[8px] font-bold text-slate-500 uppercase tracking-[0.3em] leading-none mt-1 group-hover:text-cyan-200 transition-colors duration-300">Future Tech Store</span>
+                    <span class="text-[8px] font-bold text-slate-500 uppercase tracking-[0.3em] leading-none mt-1 group-hover:text-cyan-200 transition-colors duration-300">Toko Teknologi Masa Depan</span>
                 </div>
             </a>
             
-            <!-- Desktop Navigation -->
+            <!-- Navigasi Desktop -->
             <nav class="hidden lg:flex items-center gap-8 ml-8">
                 @foreach([
                     ['label' => 'Katalog', 'route' => 'store.catalog'],
-                    ['label' => 'Brands', 'route' => 'store.brands'],
+                    ['label' => 'Merek', 'route' => 'store.brands'],
                     ['label' => 'Rakit PC', 'route' => 'pc-builder'],
-                    ['label' => 'Service', 'route' => 'track-service'],
+                    ['label' => 'Servis', 'route' => 'track-service'],
                 ] as $item)
                     <a href="{{ route($item['route']) }}" 
                        class="text-xs font-bold uppercase tracking-widest transition-all duration-300 relative group py-2
@@ -97,12 +97,12 @@
                 @endforeach
             </nav>
 
-            <!-- Search Bar (Centered) -->
+            <!-- Bilah Pencarian -->
             <div class="hidden md:block flex-1 px-8 max-w-lg">
                 <livewire:store.global-search />
             </div>
 
-            <!-- Desktop Icons -->
+            <!-- Ikon Desktop -->
             <div class="hidden md:flex items-center gap-4">
                 
                 @auth
@@ -115,11 +115,11 @@
                     </a>
                 @endauth
 
-                <!-- Mini Cart (Global) -->
+                <!-- Keranjang Mini -->
                 <livewire:store.mini-cart />
 
                 @auth
-                    <!-- Notifications -->
+                    <!-- Notifikasi -->
                     <livewire:store.navbar.notifications />
 
                     <div class="relative group">
@@ -138,27 +138,28 @@
                                 <div class="border-t border-white/10"></div>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-rose-500 hover:bg-rose-500/10 transition-colors">Logout</button>
+                                    <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-rose-500 hover:bg-rose-500/10 transition-colors">Keluar</button>
                                 </form>
                             </div>
                         </div>
                     </div>
                 @else
-                    <a href="{{ route('customer.login') }}" class="text-sm font-bold text-slate-400 hover:text-white transition-colors">Login</a>
-                    <a href="{{ route('customer.register') }}" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full text-xs font-bold transition-all shadow-lg shadow-cyan-500/20">Register</a>
+                    <a href="{{ route('customer.login') }}" class="text-sm font-bold text-slate-400 hover:text-white transition-colors">Masuk</a>
+                    <a href="{{ route('customer.register') }}" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full text-xs font-bold transition-all shadow-lg shadow-cyan-500/20">Daftar</a>
                 @endauth
             </div>
 
-            <button @click="mobileMenuOpen = !mobileMenuOpen" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 md:hidden hover:bg-white/10 hover:text-white transition-all">
+            <!-- Tombol Menu Seluler -->
+            <button @click="menuSelulerTerbuka = !menuSelulerTerbuka" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 md:hidden hover:bg-white/10 hover:text-white transition-all">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    <path x-show="mobileMenuOpen" style="display: none;" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    <path x-show="!menuSelulerTerbuka" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    <path x-show="menuSelulerTerbuka" style="display: none;" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
 
-        <!-- Mobile Menu Dropdown -->
-        <div x-show="mobileMenuOpen" 
+        <!-- Dropdown Menu Seluler -->
+        <div x-show="menuSelulerTerbuka" 
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="opacity-0 -translate-y-4"
              x-transition:enter-end="opacity-100 translate-y-0"
@@ -170,7 +171,7 @@
             <div class="px-4 pt-4 pb-6 space-y-2">
                 @foreach([
                     ['label' => 'Katalog Produk', 'route' => 'store.catalog'],
-                    ['label' => 'Mitra Brand', 'route' => 'store.brands'],
+                    ['label' => 'Mitra Merek', 'route' => 'store.brands'],
                     ['label' => 'Simulasi Rakit PC', 'route' => 'pc-builder'],
                     ['label' => 'Berita & Artikel', 'route' => 'news.index'],
                     ['label' => 'Cek Status Garansi', 'route' => 'warranty-check']
@@ -187,7 +188,7 @@
         {{ $slot }}
     </main>
 
-    <!-- Newsletter Section -->
+    <!-- Bagian Newsletter -->
     <div class="max-w-7xl mx-auto px-4 mt-20">
         <livewire:front.newsletter />
     </div>
@@ -225,7 +226,7 @@
     <script>
         document.addEventListener('livewire:initialized', () => {
             Livewire.on('trigger-payment', (event) => {
-                const token = event.token; // Access first param
+                const token = event.token;
                 const orderId = event.orderId;
 
                 snap.pay(token, {
