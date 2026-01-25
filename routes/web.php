@@ -9,39 +9,39 @@ use Illuminate\Support\Facades\Route;
 
 // Public Storefront
 Route::get('/', StoreHome::class)->name('home');
-Route::get('/catalog', \App\Livewire\Store\Catalog::class)->name('store.catalog');
-Route::get('/brands', \App\Livewire\Store\Brands::class)->name('store.brands'); // New
-Route::get('/product/{id}', \App\Livewire\Store\ProductDetail::class)->name('product.detail');
-Route::get('/bundle/{slug}', \App\Livewire\Store\BundleDetail::class)->name('store.bundle.detail'); // New
-Route::get('/compare', \App\Livewire\Store\Comparison::class)->name('product.compare');
+Route::get('/katalog', \App\Livewire\Store\Catalog::class)->name('store.catalog');
+Route::get('/merek', \App\Livewire\Store\Brands::class)->name('store.brands');
+Route::get('/produk/{id}', \App\Livewire\Store\ProductDetail::class)->name('product.detail');
+Route::get('/paket/{slug}', \App\Livewire\Store\BundleDetail::class)->name('store.bundle.detail');
+Route::get('/bandingkan', \App\Livewire\Store\Comparison::class)->name('product.compare');
 Route::get('/community', \App\Livewire\Community\Gallery::class)->name('community.index');
 Route::get('/berita', \App\Livewire\Store\News\Index::class)->name('news.index');
 Route::get('/berita/{slug}', \App\Livewire\Store\News\Show::class)->name('news.show');
-Route::get('/help-center', \App\Livewire\Store\HelpCenter::class)->name('help.center');
+Route::get('/pusat-bantuan', \App\Livewire\Store\HelpCenter::class)->name('help.center');
 Route::get('/rakit-pc', \App\Livewire\Store\PcBuilder::class)->name('pc-builder');
 Route::get('/garansi', \App\Livewire\Store\WarrantyCheck::class)->name('warranty-check');
-Route::get('/track-service', \App\Livewire\Front\TrackService::class)->name('track-service');
-Route::get('/track-order', \App\Livewire\Front\TrackOrder::class)->name('track-order');
-Route::get('/contact-us', \App\Livewire\Store\ContactUs::class)->name('store.contact'); // New
-Route::get('/about-us', \App\Livewire\Store\AboutUs::class)->name('store.about'); // New
-Route::get('/cart', \App\Livewire\Store\Cart::class)->name('cart');
-Route::get('/checkout-secure', \App\Livewire\Store\Checkout::class)->name('checkout.secure')->middleware('store.configured');
-Route::get('/checkout', \App\Livewire\Store\Checkout::class)->name('checkout')->middleware('store.configured');
-Route::get('/wishlist', \App\Livewire\Store\Wishlist::class)->name('wishlist');
-Route::get('/order-success/{id}', \App\Livewire\Store\OrderSuccess::class)->name('order.success');
+Route::get('/lacak-servis', \App\Livewire\Front\TrackService::class)->name('track-service');
+Route::get('/lacak-pesanan', \App\Livewire\Front\TrackOrder::class)->name('track-order');
+Route::get('/hubungi-kami', \App\Livewire\Store\ContactUs::class)->name('store.contact');
+Route::get('/tentang-kami', \App\Livewire\Store\AboutUs::class)->name('store.about');
+Route::get('/keranjang', \App\Livewire\Store\Cart::class)->name('cart');
+Route::get('/pembayaran-aman', \App\Livewire\Store\Checkout::class)->name('checkout.secure')->middleware('store.configured');
+Route::get('/pembayaran', \App\Livewire\Store\Checkout::class)->name('checkout')->middleware('store.configured');
+Route::get('/keinginan', \App\Livewire\Store\Wishlist::class)->name('wishlist');
+Route::get('/pesanan-berhasil/{id}', \App\Livewire\Store\OrderSuccess::class)->name('order.success');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
 Route::view('/privacy-policy', 'store.privacy-policy')->name('privacy-policy');
 Route::view('/terms-of-service', 'store.terms-of-service')->name('terms-of-service');
 
 // Customer Auth
-Route::get('/customer/login', \App\Livewire\Store\Auth\Login::class)->name('customer.login')->middleware('guest');
-Route::get('/customer/register', \App\Livewire\Store\Auth\Register::class)->name('customer.register')->middleware('guest');
-Route::get('/customer/forgot-password', \App\Livewire\Store\Auth\ForgotPassword::class)->name('customer.forgot-password')->middleware('guest'); // New
+Route::get('/pelanggan/masuk', \App\Livewire\Store\Auth\Login::class)->name('customer.login')->middleware('guest');
+Route::get('/pelanggan/daftar', \App\Livewire\Store\Auth\Register::class)->name('customer.register')->middleware('guest');
+Route::get('/pelanggan/lupa-sandi', \App\Livewire\Store\Auth\ForgotPassword::class)->name('customer.forgot-password')->middleware('guest');
 
 // Admin/Staff Login
-Route::get('/login', Login::class)->name('login')->middleware('guest');
-Route::post('/logout', function () {
+Route::get('/masuk', Login::class)->name('login')->middleware('guest');
+Route::post('/keluar', function () {
     auth()->logout();
     session()->invalidate();
     session()->regenerateToken();
@@ -50,155 +50,156 @@ Route::post('/logout', function () {
 })->name('logout');
 
 // Member Area (Protected)
-Route::prefix('member')->middleware('auth')->group(function () {
-    Route::get('/dashboard', \App\Livewire\Member\Dashboard::class)->name('member.dashboard');
-    Route::get('/addresses', \App\Livewire\Member\Addresses::class)->name('member.addresses');
-    Route::get('/service/booking', \App\Livewire\Service\Booking::class)->name('service.booking');
-    Route::get('/orders', \App\Livewire\Member\Orders::class)->name('member.orders');
-    Route::get('/orders/{id}', \App\Livewire\Member\OrderDetail::class)->name('member.orders.show');
-    Route::get('/quotations', \App\Livewire\Member\Quotations::class)->name('member.quotations'); // New
-    Route::get('/profile', \App\Livewire\Member\ProfileSettings::class)->name('member.profile'); // New
-    Route::get('/referrals', \App\Livewire\Member\Referrals::class)->name('member.referrals'); // New
-    Route::get('/loyalty', \App\Livewire\Member\LoyaltyPoints::class)->name('member.loyalty'); // New
-    Route::get('/rma/request', \App\Livewire\Member\RmaRequest::class)->name('member.rma.request');
+Route::prefix('anggota')->middleware('auth')->group(function () {
+    Route::get('/beranda', \App\Livewire\Member\Dashboard::class)->name('member.dashboard');
+    Route::get('/alamat', \App\Livewire\Member\Addresses::class)->name('member.addresses');
+    Route::get('/servis/pesan', \App\Livewire\Service\Booking::class)->name('service.booking');
+    Route::get('/pesanan', \App\Livewire\Member\Orders::class)->name('member.orders');
+    Route::get('/pesanan/{id}', \App\Livewire\Member\OrderDetail::class)->name('member.orders.show');
+    Route::get('/penawaran', \App\Livewire\Member\Quotations::class)->name('member.quotations');
+    Route::get('/profil', \App\Livewire\Member\ProfileSettings::class)->name('member.profile');
+    Route::get('/referal', \App\Livewire\Member\Referrals::class)->name('member.referrals');
+    Route::get('/loyalitas', \App\Livewire\Member\LoyaltyPoints::class)->name('member.loyalty');
+    Route::get('/garansi/ajukan', \App\Livewire\Member\RmaRequest::class)->name('member.rma.request');
 });
 
 // Admin Panel (Protected)
 Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/', Dashboard::class)->name('dashboard');
 
-    // Tasks & Collaboration
-    Route::get('/tasks', \App\Livewire\Admin\TaskManager::class)->name('admin.tasks'); // New
+    // Tugas & Kolaborasi
+    Route::get('/tugas', \App\Livewire\Admin\TaskManager::class)->name('admin.tasks');
 
-    // RMA (Admin) - UPGRADED TO MANAGER
-    Route::get('/rma', \App\Livewire\Rma\Manager::class)->name('rma.index'); // Updated to Manager
-    Route::get('/rma/create', \App\Livewire\Rma\Form::class)->name('rma.create');
-    Route::get('/rma/{id}/edit', \App\Livewire\Rma\Form::class)->name('rma.edit');
+    // Garansi (Admin)
+    Route::get('/garansi', \App\Livewire\Rma\Manager::class)->name('rma.index');
+    Route::get('/garansi/buat', \App\Livewire\Rma\Form::class)->name('rma.create');
+    Route::get('/garansi/{id}/ubah', \App\Livewire\Rma\Form::class)->name('rma.edit');
 
-    Route::get('/products', ProductIndex::class)->name('products.index');
-    Route::get('/products/bundles', \App\Livewire\Products\Bundles::class)->name('products.bundles');
-    Route::get('/products/create', \App\Livewire\Products\Form::class)->name('products.create');
-    Route::get('/products/{id}/edit', \App\Livewire\Products\Form::class)->name('products.edit');
-    Route::get('/products/labels', \App\Livewire\Products\LabelMaker::class)->name('products.labels');
+    // Produk
+    Route::get('/produk', ProductIndex::class)->name('products.index');
+    Route::get('/produk/paket', \App\Livewire\Products\Bundles::class)->name('products.bundles');
+    Route::get('/produk/buat', \App\Livewire\Products\Form::class)->name('products.create');
+    Route::get('/produk/{id}/ubah', \App\Livewire\Products\Form::class)->name('products.edit');
+    Route::get('/produk/label', \App\Livewire\Products\LabelMaker::class)->name('products.labels');
 
-    Route::get('/transactions', \App\Livewire\Transactions\Index::class)->name('transactions.index');
-    Route::get('/transactions/create', TransactionCreate::class)->name('transactions.create');
-    Route::get('/settings', \App\Livewire\Settings\Index::class)->name('settings.index');
+    // Transaksi
+    Route::get('/transaksi', \App\Livewire\Transactions\Index::class)->name('transactions.index');
+    Route::get('/transaksi/buat', TransactionCreate::class)->name('transactions.create');
+    
+    // Pengaturan
+    Route::get('/pengaturan', \App\Livewire\Settings\Index::class)->name('settings.index');
 
-    // Master Data
-    Route::get('/master/categories', \App\Livewire\Master\Categories::class)->name('master.categories');
-    Route::get('/master/categories/create', \App\Livewire\Master\Categories\Form::class)->name('master.categories.create');
-    Route::get('/master/categories/{id}/edit', \App\Livewire\Master\Categories\Form::class)->name('master.categories.edit');
+    // Data Master
+    Route::get('/master/kategori', \App\Livewire\Master\Categories::class)->name('master.categories');
+    Route::get('/master/kategori/buat', \App\Livewire\Master\Categories\Form::class)->name('master.categories.create');
+    Route::get('/master/kategori/{id}/ubah', \App\Livewire\Master\Categories\Form::class)->name('master.categories.edit');
+    Route::get('/master/pemasok', \App\Livewire\Master\Suppliers::class)->name('master.suppliers');
 
-    Route::get('/master/suppliers', \App\Livewire\Master\Suppliers::class)->name('master.suppliers');
+    Route::get('/spanduk', \App\Livewire\Banners\Index::class)->name('banners.index');
+    Route::get('/spanduk/buat', \App\Livewire\Banners\Form::class)->name('banners.create');
+    Route::get('/spanduk/{id}/ubah', \App\Livewire\Banners\Form::class)->name('banners.edit');
 
-    Route::get('/banners', \App\Livewire\Banners\Index::class)->name('banners.index');
-    Route::get('/banners/create', \App\Livewire\Banners\Form::class)->name('banners.create');
-    Route::get('/banners/{id}/edit', \App\Livewire\Banners\Form::class)->name('banners.edit');
-
-    // Employee Management (Admin Only)
-    Route::get('/employees/attendance', \App\Livewire\Employees\Attendance::class)->name('employees.attendance');
-    Route::get('/employees/payroll-manager', \App\Livewire\Employees\PayrollManager::class)->name('employees.payroll-manager');
-    Route::get('/employees', \App\Livewire\Employees\Index::class)->name('employees.index');
-    Route::get('/employees/roles', \App\Livewire\Admin\RoleManager::class)->name('employees.roles'); // Role List
-    Route::get('/employees/roles/create', \App\Livewire\Admin\RoleForm::class)->name('employees.roles.create'); // Create Role
-    Route::get('/employees/roles/{id}/edit', \App\Livewire\Admin\RoleForm::class)->name('employees.roles.edit'); // Edit Role
-    Route::get('/employees/create', \App\Livewire\Employees\Form::class)->name('employees.create');
-    Route::get('/employees/{id}/edit', \App\Livewire\Employees\Form::class)->name('employees.edit');
-    Route::get('/payroll', \App\Livewire\Employees\Payroll::class)->name('employees.payroll');
-    Route::get('/expenses', \App\Livewire\Expenses\Index::class)->name('expenses.index');
+    // Manajemen Karyawan
+    Route::get('/karyawan/kehadiran', \App\Livewire\Employees\Attendance::class)->name('employees.attendance');
+    Route::get('/karyawan/pengelola-gaji', \App\Livewire\Employees\PayrollManager::class)->name('employees.payroll-manager');
+    Route::get('/karyawan', \App\Livewire\Employees\Index::class)->name('employees.index');
+    Route::get('/karyawan/peran', \App\Livewire\Admin\RoleManager::class)->name('employees.roles');
+    Route::get('/karyawan/peran/buat', \App\Livewire\Admin\RoleForm::class)->name('employees.roles.create');
+    Route::get('/karyawan/peran/{id}/ubah', \App\Livewire\Admin\RoleForm::class)->name('employees.roles.edit');
+    Route::get('/karyawan/buat', \App\Livewire\Employees\Form::class)->name('employees.create');
+    Route::get('/karyawan/{id}/ubah', \App\Livewire\Employees\Form::class)->name('employees.edit');
+    Route::get('/gaji', \App\Livewire\Employees\Payroll::class)->name('employees.payroll');
+    Route::get('/pengeluaran', \App\Livewire\Expenses\Index::class)->name('expenses.index');
 
     // CRM
-    Route::get('/customers', \App\Livewire\Customers\Index::class)->name('customers.index');
-    Route::get('/customers/inbox', \App\Livewire\Admin\Inbox::class)->name('customers.inbox');
-    Route::get('/customers/loyalty', \App\Livewire\CRM\LoyaltyManager::class)->name('customers.loyalty'); // New
-    Route::get('/customers/live-chat', \App\Livewire\Admin\LiveChatManager::class)->name('customers.live-chat'); // Moved up
-    Route::get('/customers/create', \App\Livewire\Customers\Form::class)->name('customers.create');
-    Route::get('/customers/{id}', \App\Livewire\CRM\CustomerDetail::class)->name('customers.show'); // New 360 View
-    Route::get('/customers/{id}/edit', \App\Livewire\Customers\Form::class)->name('customers.edit');
+    Route::get('/pelanggan', \App\Livewire\Customers\Index::class)->name('customers.index');
+    Route::get('/pelanggan/kotak-masuk', \App\Livewire\Admin\Inbox::class)->name('customers.inbox');
+    Route::get('/pelanggan/loyalitas', \App\Livewire\CRM\LoyaltyManager::class)->name('customers.loyalty');
+    Route::get('/pelanggan/obrolan-langsung', \App\Livewire\Admin\LiveChatManager::class)->name('customers.live-chat');
+    Route::get('/pelanggan/buat', \App\Livewire\Customers\Form::class)->name('customers.create');
+    Route::get('/pelanggan/{id}', \App\Livewire\CRM\CustomerDetail::class)->name('customers.show');
+    Route::get('/pelanggan/{id}/ubah', \App\Livewire\Customers\Form::class)->name('customers.edit');
 
-    // Audit Log
-    Route::get('/activity-logs', \App\Livewire\ActivityLogs\Index::class)->name('activity-logs.index');
-    Route::get('/activity-logs/{id}', \App\Livewire\ActivityLogs\Show::class)->name('activity-logs.show');
+    // Log Audit
+    Route::get('/log-aktivitas', \App\Livewire\ActivityLogs\Index::class)->name('activity-logs.index');
+    Route::get('/log-aktivitas/{id}', \App\Livewire\ActivityLogs\Show::class)->name('activity-logs.show');
 
-    // Service Center
-    Route::get('/services/board', \App\Livewire\Services\Kanban::class)->name('services.kanban');
-    Route::get('/services', \App\Livewire\Services\Index::class)->name('services.index');
-    Route::get('/services/create', \App\Livewire\Services\Form::class)->name('services.create');
-    Route::get('/services/{id}/edit', \App\Livewire\Services\Form::class)->name('services.edit');
-    Route::get('/services/{id}/workbench', \App\Livewire\Services\Workbench::class)->name('services.workbench');
+    // Pusat Servis
+    Route::get('/servis/papan', \App\Livewire\Services\Kanban::class)->name('services.kanban');
+    Route::get('/servis', \App\Livewire\Services\Index::class)->name('services.index');
+    Route::get('/servis/buat', \App\Livewire\Services\Form::class)->name('services.create');
+    Route::get('/servis/{id}/ubah', \App\Livewire\Services\Form::class)->name('services.edit');
+    Route::get('/servis/{id}/meja-kerja', \App\Livewire\Services\Workbench::class)->name('services.workbench');
 
-    // PC Assembly (New)
-    Route::get('/assembly', \App\Livewire\Assembly\Manager::class)->name('assembly.manager');
+    // Perakitan PC
+    Route::get('/perakitan', \App\Livewire\Assembly\Manager::class)->name('assembly.manager');
 
-    // Knowledge Base (New)
-    Route::get('/knowledge', \App\Livewire\Knowledge\Index::class)->name('knowledge.index');
+    // Basis Pengetahuan
+    Route::get('/pengetahuan', \App\Livewire\Knowledge\Index::class)->name('knowledge.index');
 
-    // Purchase Requisitions
-    Route::get('/purchase-requisitions', \App\Livewire\PurchaseRequisitions\Index::class)->name('purchase-requisitions.index');
-    Route::get('/purchase-requisitions/create', \App\Livewire\PurchaseRequisitions\Create::class)->name('purchase-requisitions.create');
-    Route::get('/purchase-requisitions/{id}', \App\Livewire\PurchaseRequisitions\Show::class)->name('purchase-requisitions.show');
+    // Permintaan Pembelian
+    Route::get('/permintaan-pembelian', \App\Livewire\PurchaseRequisitions\Index::class)->name('purchase-requisitions.index');
+    Route::get('/permintaan-pembelian/buat', \App\Livewire\PurchaseRequisitions\Create::class)->name('purchase-requisitions.create');
+    Route::get('/permintaan-pembelian/{id}', \App\Livewire\PurchaseRequisitions\Show::class)->name('purchase-requisitions.show');
 
-    // Purchase Orders (Procurement)
-    Route::get('/purchase-orders', \App\Livewire\PurchaseOrders\Index::class)->name('purchase-orders.index');
-    Route::get('/purchase-orders/receive', \App\Livewire\Procurement\GoodsReceive\Create::class)->name('purchase-orders.receive');
-    Route::get('/purchase-orders/create', \App\Livewire\PurchaseOrders\Form::class)->name('purchase-orders.create');
-    Route::get('/purchase-orders/{id}/edit', \App\Livewire\PurchaseOrders\Form::class)->name('purchase-orders.edit');
-    Route::get('/purchase-orders/{po}', \App\Livewire\PurchaseOrders\Show::class)->name('purchase-orders.show');
+    // Pesanan Pembelian (Pengadaan)
+    Route::get('/pesanan-pembelian', \App\Livewire\PurchaseOrders\Index::class)->name('purchase-orders.index');
+    Route::get('/pesanan-pembelian/terima', \App\Livewire\Procurement\GoodsReceive\Create::class)->name('purchase-orders.receive');
+    Route::get('/pesanan-pembelian/buat', \App\Livewire\PurchaseOrders\Form::class)->name('purchase-orders.create');
+    Route::get('/pesanan-pembelian/{id}/ubah', \App\Livewire\PurchaseOrders\Form::class)->name('purchase-orders.edit');
+    Route::get('/pesanan-pembelian/{po}', \App\Livewire\PurchaseOrders\Show::class)->name('purchase-orders.show');
 
-    // Online Orders (Sales)
-    Route::get('/orders', \App\Livewire\Orders\Index::class)->name('orders.index');
-    Route::get('/pos', \App\Livewire\Sales\PointOfSale::class)->name('sales.pos')->middleware('store.configured'); // New POS
-    Route::get('/orders/logistics', \App\Livewire\Logistics\Manager::class)->name('logistics.manager'); // New
-    Route::get('/orders/{id}', \App\Livewire\Orders\Show::class)->name('orders.show');
+    // Pesanan Daring (Penjualan)
+    Route::get('/pesanan', \App\Livewire\Orders\Index::class)->name('orders.index');
+    Route::get('/kasir', \App\Livewire\Sales\PointOfSale::class)->name('sales.pos')->middleware('store.configured');
+    Route::get('/pesanan/logistik', \App\Livewire\Logistics\Manager::class)->name('logistics.manager');
+    Route::get('/pesanan/{id}', \App\Livewire\Orders\Show::class)->name('orders.show');
 
-    // Warehouse
-    Route::get('/warehouses/transfer', \App\Livewire\Warehouses\Transfer::class)->name('warehouses.transfer');
-    Route::get('/warehouses/stock-opname', \App\Livewire\Warehouses\StockOpname::class)->name('warehouses.stock-opname');
+    // Gudang
+    Route::get('/gudang/transfer', \App\Livewire\Warehouses\Transfer::class)->name('warehouses.transfer');
+    Route::get('/gudang/stok-opname', \App\Livewire\Warehouses\StockOpname::class)->name('warehouses.stock-opname');
 
-    // Marketing
-    Route::get('/marketing/flash-sale', \App\Livewire\Marketing\FlashSale\Index::class)->name('marketing.flash-sale.index');
-    Route::get('/marketing/flash-sale/create', \App\Livewire\Marketing\FlashSale\Form::class)->name('marketing.flash-sale.create');
-    Route::get('/marketing/reviews', \App\Livewire\Marketing\Reviews\Manager::class)->name('reviews.manager'); // New
+    // Pemasaran
+    Route::get('/pemasaran/obral-kilat', \App\Livewire\Marketing\FlashSale\Index::class)->name('marketing.flash-sale.index');
+    Route::get('/pemasaran/obral-kilat/buat', \App\Livewire\Marketing\FlashSale\Form::class)->name('marketing.flash-sale.create');
+    Route::get('/pemasaran/ulasan', \App\Livewire\Marketing\Reviews\Manager::class)->name('reviews.manager');
+    Route::get('/pemasaran/voucher', \App\Livewire\Marketing\Vouchers\Index::class)->name('marketing.vouchers.index');
+    Route::get('/pemasaran/voucher/buat', \App\Livewire\Marketing\Vouchers\Form::class)->name('marketing.vouchers.create');
 
-    // Vouchers (New)
-    Route::get('/marketing/vouchers', \App\Livewire\Marketing\Vouchers\Index::class)->name('marketing.vouchers.index');
-    Route::get('/marketing/vouchers/create', \App\Livewire\Marketing\Vouchers\Form::class)->name('marketing.vouchers.create');
+    // Manajemen Berita
+    Route::get('/berita', \App\Livewire\News\Index::class)->name('admin.news.index');
+    Route::get('/berita/buat', \App\Livewire\News\Form::class)->name('admin.news.create');
+    Route::get('/berita/{id}/ubah', \App\Livewire\News\Form::class)->name('admin.news.edit');
 
-    // News Management
-    Route::get('/news', \App\Livewire\News\Index::class)->name('admin.news.index');
-    Route::get('/news/create', \App\Livewire\News\Form::class)->name('admin.news.create');
-    Route::get('/news/{id}/edit', \App\Livewire\News\Form::class)->name('admin.news.edit');
+    // Cetak
+    Route::get('/cetak/transaksi/{id}', [\App\Http\Controllers\PrintController::class, 'transaction'])->name('print.transaction');
+    Route::get('/cetak/servis/{id}', [\App\Http\Controllers\PrintController::class, 'service'])->name('print.service');
+    Route::get('/cetak/label/{id}', [\App\Http\Controllers\PrintController::class, 'productLabel'])->name('print.label');
+    Route::get('/cetak/label-masal', [\App\Http\Controllers\PrintController::class, 'labels'])->name('print.labels');
 
-    // Printing Routes
-    Route::get('/print/transaction/{id}', [\App\Http\Controllers\PrintController::class, 'transaction'])->name('print.transaction');
-    Route::get('/print/service/{id}', [\App\Http\Controllers\PrintController::class, 'service'])->name('print.service');
-    Route::get('/print/label/{id}', [\App\Http\Controllers\PrintController::class, 'productLabel'])->name('print.label');
-    Route::get('/print/labels', [\App\Http\Controllers\PrintController::class, 'labels'])->name('print.labels');
+    // Manajemen Aset
+    Route::get('/aset', \App\Livewire\Assets\Index::class)->name('assets.index');
+    Route::get('/aset/buat', \App\Livewire\Assets\Form::class)->name('assets.create');
 
-    // Assets Management
-    Route::get('/assets', \App\Livewire\Assets\Index::class)->name('assets.index');
-    Route::get('/assets/create', \App\Livewire\Assets\Form::class)->name('assets.create');
-
-    // HR & Analytics
-    Route::get('/analytics', \App\Livewire\Reports\Index::class)->name('reports.index');
-    Route::get('/reports/finance', \App\Livewire\Reports\FinanceReport::class)->name('reports.finance'); // New
-    Route::get('/reports/stock', \App\Livewire\Reports\StockReport::class)->name('reports.stock'); // New
-    Route::get('/reports/sales', \App\Livewire\Reports\SalesReport::class)->name('reports.sales'); // New
+    // Analitik & HR
+    Route::get('/analitik', \App\Livewire\Reports\Index::class)->name('reports.index');
+    Route::get('/analitik/keuangan', \App\Livewire\Reports\FinanceReport::class)->name('reports.finance');
+    Route::get('/analitik/stok', \App\Livewire\Reports\StockReport::class)->name('reports.stock');
+    Route::get('/analitik/penjualan', \App\Livewire\Reports\SalesReport::class)->name('reports.sales');
 
     Route::get('/shift', \App\Livewire\Shift\Manager::class)->name('shift.manager');
     Route::get('/reimbursement', \App\Livewire\Employees\Reimbursement::class)->name('employees.reimbursement');
 
-    // B2B & Finance
-    Route::get('/quotations', \App\Livewire\Quotations\Index::class)->name('quotations.index');
-    Route::get('/quotations/create', \App\Livewire\Quotations\Form::class)->name('quotations.create'); // Updated
-    Route::get('/quotations/{id}/edit', \App\Livewire\Quotations\Form::class)->name('quotations.edit'); // Updated to Form
-    Route::get('/finance/cash-register', \App\Livewire\Finance\CashRegisterManager::class)->name('finance.cash-register');
-    Route::get('/finance/receivables', \App\Livewire\Finance\Receivables::class)->name('finance.receivables');
-    Route::get('/finance/profit-loss', \App\Livewire\Finance\ProfitLoss::class)->name('finance.profit-loss');
+    // B2B & Keuangan
+    Route::get('/penawaran', \App\Livewire\Quotations\Index::class)->name('quotations.index');
+    Route::get('/penawaran/buat', \App\Livewire\Quotations\Form::class)->name('quotations.create');
+    Route::get('/penawaran/{id}/ubah', \App\Livewire\Quotations\Form::class)->name('quotations.edit');
+    Route::get('/keuangan/kasir', \App\Livewire\Finance\CashRegisterManager::class)->name('finance.cash-register');
+    Route::get('/keuangan/piutang', \App\Livewire\Finance\Receivables::class)->name('finance.receivables');
+    Route::get('/keuangan/laba-rugi', \App\Livewire\Finance\ProfitLoss::class)->name('finance.profit-loss');
 
-    // System Maintenance
-    Route::get('/system/health', \App\Livewire\System\Health::class)->name('system.health');
-    Route::get('/system/info', \App\Livewire\System\Info::class)->name('system.info');
-    Route::get('/system/backups', \App\Livewire\System\Backups::class)->name('system.backups');
+    // Pemeliharaan Sistem
+    Route::get('/sistem/kesehatan', \App\Livewire\System\Health::class)->name('system.health');
+    Route::get('/sistem/info', \App\Livewire\System\Info::class)->name('system.info');
+    Route::get('/sistem/cadangan', \App\Livewire\System\Backups::class)->name('system.backups');
 });
