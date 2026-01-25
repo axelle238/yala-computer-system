@@ -1,123 +1,115 @@
 <div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12">
     <div class="container mx-auto px-4 lg:px-8">
         
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-3xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tighter">
-                    Buku <span class="text-blue-600">Alamat</span>
-                </h1>
-                <p class="text-slate-500 dark:text-slate-400 text-sm">Kelola alamat pengiriman untuk checkout lebih cepat.</p>
-            </div>
-            <div class="flex gap-3">
-                <a href="{{ route('member.dashboard') }}" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-sm hover:bg-slate-300 transition-colors">
-                    &larr; Dashboard
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 animate-fade-in-up">
+            <div class="flex items-center gap-4">
+                <a href="{{ route('member.dashboard') }}" class="p-2 rounded-full bg-white dark:bg-slate-800 text-slate-500 hover:text-indigo-500 shadow-sm transition-colors">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                 </a>
-                <button wire:click="create" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30 transition-all">
-                    + Tambah Alamat
-                </button>
+                <div>
+                    <h1 class="text-2xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tight">Buku Alamat</h1>
+                    <p class="text-slate-500 text-sm">Kelola alamat pengiriman Anda agar checkout lebih cepat.</p>
+                </div>
             </div>
+            <button wire:click="create" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                Tambah Alamat Baru
+            </button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Address List -->
-            <div class="lg:col-span-2 space-y-4">
-                @forelse($addresses as $address)
-                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative group overflow-hidden {{ $address->is_primary ? 'ring-2 ring-blue-500' : '' }}">
-                        @if($address->is_primary)
-                            <div class="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Utama</div>
-                        @endif
-                        
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                                    {{ $address->label }}
-                                </h3>
-                                <p class="text-slate-500 text-sm">{{ $address->recipient_name }} | {{ $address->phone_number }}</p>
-                            </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up delay-100">
+            @forelse($addresses as $addr)
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border {{ $addr->is_primary ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-slate-200 dark:border-slate-700' }} shadow-sm hover:shadow-md transition-all group relative">
+                    
+                    @if($addr->is_primary)
+                        <span class="absolute top-4 right-4 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Utama</span>
+                    @endif
+
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500">
+                            @if(stripos($addr->label, 'kantor') !== false)
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                            @else
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                            @endif
                         </div>
-                        
-                        <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4">
-                            {{ $address->address_line }}<br>
-                            {{ $address->city }} {{ $address->postal_code }}
-                        </p>
-
-                        <div class="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
-                            <button wire:click="edit({{ $address->id }})" class="text-xs font-bold text-blue-600 hover:underline">Edit</button>
-                            <button wire:click="delete({{ $address->id }})" wire:confirm="Hapus alamat ini?" class="text-xs font-bold text-rose-500 hover:underline">Hapus</button>
-                        </div>
+                        <h3 class="font-bold text-lg text-slate-800 dark:text-white">{{ $addr->label }}</h3>
                     </div>
-                @empty
-                    <div class="text-center py-12 bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
-                        <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                        <p class="text-slate-500">Belum ada alamat tersimpan.</p>
+
+                    <div class="space-y-2 mb-6">
+                        <p class="font-bold text-slate-700 dark:text-slate-300">{{ $addr->recipient_name }}</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">{{ $addr->phone_number }}</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ $addr->address_line }}, {{ $addr->city }}</p>
                     </div>
-                @endforelse
-            </div>
 
-            <!-- Form -->
-            @if($showForm)
-                <div class="lg:col-span-1">
-                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 sticky top-24 animate-fade-in-up">
-                        <h3 class="font-bold text-lg text-slate-900 dark:text-white mb-6">
-                            {{ $editId ? 'Edit Alamat' : 'Tambah Alamat Baru' }}
-                        </h3>
-                        
-                        <form wire:submit.prevent="save" class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Label Alamat</label>
-                                <input wire:model="label" type="text" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-blue-500" placeholder="Rumah, Kantor, dll">
-                                @error('label') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Penerima</label>
-                                    <input wire:model="recipient_name" type="text" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-blue-500">
-                                    @error('recipient_name') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">No. HP</label>
-                                    <input wire:model="phone_number" type="text" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-blue-500">
-                                    @error('phone_number') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Alamat Lengkap</label>
-                                <textarea wire:model="address_line" rows="3" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-blue-500"></textarea>
-                                @error('address_line') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Kota</label>
-                                    <select wire:model="city" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-blue-500">
-                                        <option value="">Pilih Kota</option>
-                                        @foreach($cities as $c)
-                                            <option value="{{ $c }}">{{ $c }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('city') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Kode Pos</label>
-                                    <input wire:model="postal_code" type="text" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-blue-500">
-                                </div>
-                            </div>
-
-                            <div class="flex items-center gap-2 py-2">
-                                <input wire:model="is_primary" type="checkbox" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                                <span class="text-sm text-slate-600 dark:text-slate-300">Jadikan Alamat Utama</span>
-                            </div>
-
-                            <div class="flex gap-3 pt-2">
-                                <button type="button" wire:click="$set('showForm', false)" class="flex-1 py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-sm hover:bg-slate-200 transition-colors">Batal</button>
-                                <button type="submit" class="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl text-sm hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all">Simpan</button>
-                            </div>
-                        </form>
+                    <div class="flex gap-2 pt-4 border-t border-slate-100 dark:border-slate-700">
+                        <button wire:click="edit({{ $addr->id }})" class="flex-1 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg transition-colors">Edit</button>
+                        <button wire:click="delete({{ $addr->id }})" wire:confirm="Hapus alamat ini?" class="flex-1 py-2 text-sm font-bold text-rose-500 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/40 rounded-lg transition-colors">Hapus</button>
                     </div>
                 </div>
-            @endif
+            @empty
+                <div class="col-span-full py-20 text-center text-slate-400 border border-dashed border-slate-200 dark:border-slate-700 rounded-3xl">
+                    <svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <p>Belum ada alamat tersimpan.</p>
+                </div>
+            @endforelse
         </div>
+
+        <!-- Form Modal -->
+        @if($showForm)
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+                    <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+                        <h3 class="font-bold text-lg text-slate-800 dark:text-white">{{ $addressId ? 'Edit Alamat' : 'Tambah Alamat Baru' }}</h3>
+                        <button wire:click="$set('showForm', false)" class="text-slate-400 hover:text-rose-500"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                    </div>
+                    
+                    <div class="p-6 overflow-y-auto space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Label Alamat</label>
+                            <input wire:model="label" type="text" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-indigo-500" placeholder="Contoh: Rumah, Kantor">
+                            @error('label') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nama Penerima</label>
+                                <input wire:model="recipient_name" type="text" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">No. HP / WA</label>
+                                <input wire:model="phone_number" type="text" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-indigo-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Kota</label>
+                            <select wire:model="city" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-indigo-500">
+                                <option value="">-- Pilih Kota --</option>
+                                @foreach($cities as $c)
+                                    <option value="{{ $c }}">{{ $c }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Alamat Lengkap</label>
+                            <textarea wire:model="address_line" rows="3" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-indigo-500" placeholder="Jalan, No. Rumah, RT/RW..."></textarea>
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-2">
+                            <input wire:model="is_primary" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500 w-5 h-5 border-slate-300">
+                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Jadikan Alamat Utama</label>
+                        </div>
+                    </div>
+
+                    <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
+                        <button wire:click="$set('showForm', false)" class="px-4 py-2 text-slate-500 font-bold hover:bg-slate-200 rounded-lg transition">Batal</button>
+                        <button wire:click="save" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-lg transition">Simpan</button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
     </div>
 </div>

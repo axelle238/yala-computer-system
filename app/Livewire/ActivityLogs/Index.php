@@ -9,22 +9,24 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.admin')]
-#[Title('Audit Log Aktivitas - Yala Computer')]
+#[Title('Audit Log & Keamanan')]
 class Index extends Component
 {
     use WithPagination;
 
     public $search = '';
-    public $actionFilter = '';
+    public $filterAction = '';
+
+    public function updatingSearch() { $this->resetPage(); }
 
     public function render()
     {
         $logs = ActivityLog::with('user')
-            ->when($this->search, function($q) {
+            ->where(function($q) {
                 $q->where('description', 'like', '%'.$this->search.'%')
-                  ->orWhereHas('user', fn($sq) => $sq->where('name', 'like', '%'.$this->search.'%'));
+                  ->orWhere('action', 'like', '%'.$this->search.'%');
             })
-            ->when($this->actionFilter, fn($q) => $q->where('action', $this->actionFilter))
+            ->when($this->filterAction, fn($q) => $q->where('action', $this->filterAction))
             ->latest()
             ->paginate(15);
 

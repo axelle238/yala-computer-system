@@ -9,69 +9,55 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.store')]
-#[Title('Buku Alamat - Member Area')]
+#[Title('Buku Alamat Saya')]
 class Addresses extends Component
 {
     public $addresses;
     public $showForm = false;
-    public $editId = null;
-
-    // Form Fields
+    public $addressId;
+    
+    // Form
     public $label = 'Rumah';
     public $recipient_name;
     public $phone_number;
     public $address_line;
     public $city;
-    public $postal_code;
     public $is_primary = false;
 
-    // Mock Cities (Same as Checkout)
+    // Static Cities (Should be from RajaOngkir/API in real app)
     public $cities = [
-        'Jakarta', 'Bogor', 'Depok', 'Tangerang', 'Bekasi', 
-        'Bandung', 'Surabaya', 'Semarang', 'Yogyakarta', 'Medan', 
-        'Denpasar', 'Makassar'
+        'Jakarta', 'Bogor', 'Depok', 'Tangerang', 'Bekasi', 'Bandung', 'Surabaya', 'Semarang', 'Yogyakarta', 'Medan', 'Denpasar', 'Makassar'
     ];
 
     public function mount()
     {
-        $this->loadAddresses();
+        $this->refreshAddresses();
     }
 
-    public function loadAddresses()
+    public function refreshAddresses()
     {
-        $this->addresses = UserAddress::where('user_id', Auth::id())->latest()->get();
+        $this->addresses = UserAddress::where('user_id', Auth::id())->orderBy('is_primary', 'desc')->get();
     }
 
     public function create()
     {
-        $this->resetForm();
+        $this->reset(['addressId', 'label', 'recipient_name', 'phone_number', 'address_line', 'city', 'is_primary']);
+        $this->recipient_name = Auth::user()->name;
+        $this->phone_number = Auth::user()->phone;
         $this->showForm = true;
     }
 
     public function edit($id)
     {
-        $address = UserAddress::where('user_id', Auth::id())->findOrFail($id);
-        $this->editId = $id;
-        $this->label = $address->label;
-        $this->recipient_name = $address->recipient_name;
-        $this->phone_number = $address->phone_number;
-        $this->address_line = $address->address_line;
-        $this->city = $address->city;
-        $this->postal_code = $address->postal_code;
-        $this->is_primary = $address->is_primary;
+        $addr = UserAddress::where('user_id', Auth::id())->findOrFail($id);
+        $this->addressId = $addr->id;
+        $this->label = $addr->label;
+        $this->recipient_name = $addr->recipient_name;
+        $this->phone_number = $addr->phone_number;
+        $this->address_line = $addr->address_line;
+        $this->city = $addr->city;
+        $this->is_primary = $addr->is_primary;
         $this->showForm = true;
-    }
-
-    public function resetForm()
-    {
-        $this->editId = null;
-        $this->label = 'Rumah';
-        $this->recipient_name = Auth::user()->name;
-        $this->phone_number = Auth::user()->phone ?? '';
-        $this->address_line = '';
-        $this->city = '';
-        $this->postal_code = '';
-        $this->is_primary = false;
     }
 
     public function save()
@@ -85,43 +71,30 @@ class Addresses extends Component
         ]);
 
         if ($this->is_primary) {
-            // Unset other primaries
+            // Unset other primary
             UserAddress::where('user_id', Auth::id())->update(['is_primary' => false]);
         }
 
-        $data = [
+        UserAddress::updateOrCreate(['id' => $this->addressId], [
             'user_id' => Auth::id(),
             'label' => $this->label,
             'recipient_name' => $this->recipient_name,
             'phone_number' => $this->phone_number,
             'address_line' => $this->address_line,
             'city' => $this->city,
-            'postal_code' => $this->postal_code,
             'is_primary' => $this->is_primary,
-        ];
-
-        if ($this->editId) {
-            UserAddress::where('id', $this->editId)->where('user_id', Auth::id())->update($data);
-            $message = 'Alamat diperbarui.';
-        } else {
-            // If first address, make primary automatically
-            if ($this->addresses->isEmpty()) {
-                $data['is_primary'] = true;
-            }
-            UserAddress::create($data);
-            $message = 'Alamat baru ditambahkan.';
-        }
+        ]);
 
         $this->showForm = false;
-        $this->loadAddresses();
-        $this->dispatch('notify', message: $message, type: 'success');
+        $this->refreshAddresses();
+        $this->dispatch('notify', message: 'Alamat berhasil disimpan.', type: 'success');
     }
 
     public function delete($id)
     {
-        UserAddress::where('id', $id)->where('user_id', Auth::id())->delete();
-        $this->loadAddresses();
-        $this->dispatch('notify', message: 'Alamat dihapus.');
+        UserAddress::where('user_id', Auth::id())->where('id', $id)->delete();
+        $this->refreshAddresses();
+        $this->dispatch('notify', message: 'Alamat dihapus.', type: 'success');
     }
 
     public function render()
