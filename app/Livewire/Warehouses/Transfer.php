@@ -4,7 +4,7 @@ namespace App\Livewire\Warehouses;
 
 use App\Models\Product;
 use App\Models\Warehouse;
-use App\Models\InventoryTransfer; // Asumsi model ini ada
+use App\Models\InventoryTransfer;
 use App\Models\InventoryTransferItem;
 use App\Models\InventoryTransaction;
 use Illuminate\Support\Facades\Auth;
@@ -15,116 +15,143 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Layout('layouts.admin')]
-#[Title('Mutasi Stok Antar Gudang')]
+#[Title('Mutasi Stok Antar Gudang - Yala Computer')]
 class Transfer extends Component
 {
     use WithPagination;
 
-    public $showForm = false;
+    public $tampilkanForm = false;
     
-    // Form Inputs
-    public $source_warehouse_id = 1; // Default Main
-    public $dest_warehouse_id;
-    public $notes;
-    public $items = []; // [[product_id, qty]]
+    // Input Form
+    public $idGudangAsal;
+    public $idGudangTujuan;
+    public $catatan;
+    public $daftarItem = []; // [[id_produk, qty]]
 
-    public function addItem()
+    public function mount()
     {
-        $this->items[] = ['product_id' => '', 'qty' => 1];
+        // Set default gudang asal ke gudang pertama jika ada
+        $gudangPertama = Warehouse::first();
+        if ($gudangPertama) {
+            $this->idGudangAsal = $gudangPertama->id;
+        }
+        $this->tambahItem();
     }
 
-    public function removeItem($index)
+    public function tambahItem()
     {
-        unset($this->items[$index]);
-        $this->items = array_values($this->items);
+        $this->daftarItem[] = ['id_produk' => '', 'qty' => 1];
     }
 
-    public function save()
+    public function hapusItem($index)
+    {
+        unset($this->daftarItem[$index]);
+        $this->daftarItem = array_values($this->daftarItem);
+    }
+
+    public function buat()
+    {
+        $this->reset(['idGudangTujuan', 'catatan']);
+        $this->daftarItem = [['id_produk' => '', 'qty' => 1]];
+        $this->tampilkanForm = true;
+    }
+
+    public function simpan()
     {
         $this->validate([
-            'source_warehouse_id' => 'required',
-            'dest_warehouse_id' => 'required|different:source_warehouse_id',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required',
-            'items.*.qty' => 'required|integer|min:1',
+            'idGudangAsal' => 'required',
+            'idGudangTujuan' => 'required|different:idGudangAsal',
+            'daftarItem' => 'required|array|min:1',
+            'daftarItem.*.id_produk' => 'required',
+            'daftarItem.*.qty' => 'required|integer|min:1',
+        ], [
+            'idGudangTujuan.required' => 'Gudang tujuan wajib dipilih.',
+            'idGudangTujuan.different' => 'Gudang tujuan tidak boleh sama dengan gudang asal.',
+            'daftarItem.*.id_produk.required' => 'Produk wajib dipilih.',
+            'daftarItem.*.qty.min' => 'Jumlah minimal 1.',
         ]);
 
         DB::transaction(function () {
-            // 1. Create Transfer Header
+            // 1. Buat Header Transfer
             $transfer = InventoryTransfer::create([
                 'transfer_number' => 'TRF-' . date('Ymd') . '-' . rand(100,999),
-                'source_warehouse_id' => $this->source_warehouse_id,
-                'destination_warehouse_id' => $this->dest_warehouse_id,
-                'status' => 'completed', // Direct transfer for simplicity in this version
-                'notes' => $this->notes,
+                'source_warehouse_id' => $this->idGudangAsal,
+                'destination_warehouse_id' => $this->idGudangTujuan,
+                'status' => 'completed', // Langsung selesai untuk versi ini
+                'notes' => $this->catatan,
                 'user_id' => Auth::id(),
                 'transfer_date' => now(),
             ]);
 
-            foreach ($this->items as $item) {
-                $product = Product::find($item['product_id']);
+            foreach ($this->daftarItem as $item) {
+                $produk = Product::find($item['id_produk']);
                 
-                // 2. Create Transfer Item
+                // 2. Buat Item Transfer
                 InventoryTransferItem::create([
                     'inventory_transfer_id' => $transfer->id,
-                    'product_id' => $item['product_id'],
+                    'product_id' => $item['id_produk'],
                     'quantity' => $item['qty'],
                 ]);
 
-                // 3. Adjust Stock (Source -)
-                // In a real multi-warehouse system, we would check stock per warehouse.
-                // For this simulation where Product->stock_quantity is global/main:
-                // We assume source=Main reduces global stock, Dest=Store increases "Store" stock logic (if implemented)
-                // OR simpler: Just log the movement for audit trail if stock is shared.
-                
-                // Let's implement Logic: Reduce Global Stock if moving to "Broken/Reserved" warehouse? 
-                // Or just log it. Let's assume standard behavior:
-                // Global Stock is Main Warehouse. Moving to 'Store Display' keeps it in global count but changes location.
-                // Moving to 'Sold/Lost' removes it.
-                
-                // For simplicity & safety: We will Log InventoryTransaction for history.
+                // 3. Sesuaikan Stok Fisik di Tabel Pivot (Warehouse Product)
+                $gudangAsal = Warehouse::find($this->idGudangAsal);
+                $gudangTujuan = Warehouse::find($this->idGudangTujuan);
+
+                // Kurangi Asal
+                $stokAsal = $gudangAsal->products()->where('product_id', $item['id_produk'])->first()->pivot->quantity ?? 0;
+                $gudangAsal->products()->syncWithoutDetaching([
+                    $item['id_produk'] => ['quantity' => max(0, $stokAsal - $item['qty'])]
+                ]);
+
+                // Tambah Tujuan
+                $stokTujuan = $gudangTujuan->products()->where('product_id', $item['id_produk'])->first()->pivot->quantity ?? 0;
+                $gudangTujuan->products()->syncWithoutDetaching([
+                    $item['id_produk'] => ['quantity' => $stokTujuan + $item['qty']]
+                ]);
+
+                // 4. Catat Riwayat Transaksi
                 InventoryTransaction::create([
-                    'product_id' => $item['product_id'],
+                    'product_id' => $item['id_produk'],
                     'user_id' => Auth::id(),
-                    'warehouse_id' => $this->source_warehouse_id,
+                    'warehouse_id' => $this->idGudangAsal,
                     'type' => 'transfer_out',
                     'quantity' => $item['qty'],
                     'reference_number' => $transfer->transfer_number,
-                    'notes' => 'Transfer Out to Warehouse #' . $this->dest_warehouse_id,
-                    'remaining_stock' => $product->stock_quantity, // Snapshot
+                    'notes' => 'Mutasi Keluar ke Gudang #' . $gudangTujuan->name,
+                    'remaining_stock' => max(0, $stokAsal - $item['qty']),
                 ]);
 
                 InventoryTransaction::create([
-                    'product_id' => $item['product_id'],
+                    'product_id' => $item['id_produk'],
                     'user_id' => Auth::id(),
-                    'warehouse_id' => $this->dest_warehouse_id,
+                    'warehouse_id' => $this->idGudangTujuan,
                     'type' => 'transfer_in',
                     'quantity' => $item['qty'],
                     'reference_number' => $transfer->transfer_number,
-                    'notes' => 'Transfer In from Warehouse #' . $this->source_warehouse_id,
-                    'remaining_stock' => $product->stock_quantity, // Snapshot
+                    'notes' => 'Mutasi Masuk dari Gudang #' . $gudangAsal->name,
+                    'remaining_stock' => $stokTujuan + $item['qty'],
                 ]);
             }
         });
 
-        $this->showForm = false;
-        $this->items = [];
+        $this->tampilkanForm = false;
+        $this->daftarItem = [['id_produk' => '', 'qty' => 1]];
         $this->dispatch('notify', message: 'Mutasi stok berhasil dicatat.', type: 'success');
     }
 
     public function render()
     {
-        $transfers = InventoryTransfer::with(['source', 'destination', 'user'])
+        $riwayatMutasi = InventoryTransfer::with(['source', 'destination', 'user'])
             ->latest()
             ->paginate(10);
             
-        $warehouses = Warehouse::all();
-        $products = Product::select('id', 'name', 'sku', 'stock_quantity')->get();
+        $daftarGudang = Warehouse::all();
+        $daftarProduk = Product::select('id', 'name', 'sku', 'stock_quantity')->get();
 
         return view('livewire.warehouses.transfer', [
-            'transfers' => $transfers,
-            'warehouses' => $warehouses,
-            'products' => $products
+            'riwayatMutasi' => $riwayatMutasi,
+            'daftarGudang' => $daftarGudang,
+            'daftarProduk' => $daftarProduk
         ]);
     }
 }
