@@ -15,87 +15,87 @@ class Catalog extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public $cari = '';
 
-    public $category = '';
+    public $kategori = '';
 
-    public $sort = 'latest'; // latest, price_asc, price_desc
+    public $urutkan = 'terbaru'; // latest, harga_rendah, harga_tinggi
 
-    public $minPrice = 0;
+    public $hargaMin = 0;
 
-    public $maxPrice = 50000000;
+    public $hargaMaks = 50000000;
 
-    public function updatedSearch()
+    public function updatedCari()
     {
         $this->resetPage();
     }
 
-    public function updatedCategory()
+    public function updatedKategori()
     {
         $this->resetPage();
     }
 
-    public function updatedSort()
+    public function updatedUrutkan()
     {
         $this->resetPage();
     }
 
-    public function addToCart($id)
+    public function tambahKeKeranjang($id)
     {
-        $cart = session()->get('cart', []);
-        if (isset($cart[$id])) {
-            $cart[$id]++;
+        $keranjang = session()->get('cart', []);
+        if (isset($keranjang[$id])) {
+            $keranjang[$id]++;
         } else {
-            $cart[$id] = 1;
+            $keranjang[$id] = 1;
         }
-        session()->put('cart', $cart);
+        session()->put('cart', $keranjang);
         $this->dispatch('cart-updated');
         $this->dispatch('notify', message: 'Produk ditambahkan ke keranjang!', type: 'success');
     }
 
-    public function addToCompare($id)
+    public function tambahKeBandingkan($id)
     {
-        $compare = session()->get('compare_products', []);
+        $bandingkan = session()->get('compare_products', []);
 
-        if (in_array($id, $compare)) {
+        if (in_array($id, $bandingkan)) {
             $this->dispatch('notify', message: 'Produk sudah ada di perbandingan.', type: 'info');
 
             return;
         }
 
-        if (count($compare) >= 4) {
+        if (count($bandingkan) >= 4) {
             $this->dispatch('notify', message: 'Maksimal 4 produk untuk dibandingkan.', type: 'error');
 
             return;
         }
 
-        $compare[] = $id;
-        session()->put('compare_products', $compare);
+        $bandingkan[] = $id;
+        session()->put('compare_products', $bandingkan);
         $this->dispatch('notify', message: 'Ditambahkan ke perbandingan!', type: 'success');
     }
 
     public function render()
     {
-        $products = Product::query()
+        $produk = Product::query()
             ->where('is_active', true)
-            ->when($this->search, function ($q) {
-                $q->where('name', 'like', '%'.$this->search.'%')
-                    ->orWhere('sku', 'like', '%'.$this->search.'%');
+            ->when($this->cari, function ($q) {
+                $q->where('name', 'like', '%'.$this->cari.'%')
+                    ->orWhere('sku', 'like', '%'.$this->cari.'%');
             })
-            ->when($this->category, function ($q) {
-                $q->whereHas('category', fn ($c) => $c->where('slug', $this->category));
+            ->when($this->kategori, function ($q) {
+                $q->whereHas('category', fn ($c) => $c->where('slug', $this->kategori));
             })
-            ->whereBetween('sell_price', [$this->minPrice, $this->maxPrice])
-            ->when($this->sort === 'latest', fn ($q) => $q->latest())
-            ->when($this->sort === 'price_asc', fn ($q) => $q->orderBy('sell_price', 'asc'))
-            ->when($this->sort === 'price_desc', fn ($q) => $q->orderBy('sell_price', 'desc'))
+            ->whereBetween('sell_price', [$this->hargaMin, $this->hargaMaks])
+            ->when($this->urutkan === 'terbaru', fn ($q) => $q->latest())
+            ->when($this->urutkan === 'harga_rendah', fn ($q) => $q->orderBy('sell_price', 'asc'))
+            ->when($this->urutkan === 'harga_tinggi', fn ($q) => $q->orderBy('sell_price', 'desc'))
             ->paginate(12);
 
-        $categories = Category::where('is_active', true)->get();
+        $daftarKategori = Category::where('is_active', true)->get();
 
         return view('livewire.store.catalog', [
-            'products' => $products,
-            'categories' => $categories,
+            'produk' => $produk,
+            'daftarKategori' => $daftarKategori,
         ]);
     }
 }
