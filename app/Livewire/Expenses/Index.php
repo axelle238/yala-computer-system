@@ -3,68 +3,102 @@
 namespace App\Livewire\Expenses;
 
 use App\Models\Expense;
+use App\Models\CashRegister;
+use App\Models\CashTransaction;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
-#[Layout('layouts.app')]
-#[Title('Biaya Operasional - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Biaya Operasional')]
 class Index extends Component
 {
     use WithPagination;
+    use WithFileUploads;
 
-    // Form
-    public $title, $amount, $expense_date, $category = 'operational', $notes;
-    public $isModalOpen = false;
+    public $search = '';
+    public $showForm = false;
+    
+    public $expenseId;
+    public $description, $amount, $category = 'operational', $date, $payment_method = 'cash';
+    public $receipt_image;
 
-    public function mount()
+    public function create()
     {
-        $this->expense_date = date('Y-m-d');
-    }
-
-    public function openModal()
-    {
-        $this->isModalOpen = true;
-    }
-
-    public function closeModal()
-    {
-        $this->isModalOpen = false;
-        $this->reset(['title', 'amount', 'notes']);
-        $this->expense_date = date('Y-m-d');
+        $this->reset(['expenseId', 'description', 'amount', 'category', 'date', 'payment_method', 'receipt_image']);
+        $this->date = date('Y-m-d');
+        $this->showForm = true;
     }
 
     public function save()
     {
         $this->validate([
-            'title' => 'required',
-            'amount' => 'required|numeric|min:0',
-            'expense_date' => 'required|date',
+            'description' => 'required|string|min:3',
+            'amount' => 'required|numeric|min:1',
+            'date' => 'required|date',
+            'category' => 'required',
         ]);
 
-        Expense::create([
-            'title' => $this->title,
-            'amount' => $this->amount,
-            'expense_date' => $this->expense_date,
-            'category' => $this->category,
-            'notes' => $this->notes,
-            'user_id' => auth()->id(),
-        ]);
+        $path = null;
+        if ($this->receipt_image) {
+            $path = $this->receipt_image->store('receipts', 'public');
+        }
 
-        session()->flash('success', 'Pengeluaran berhasil dicatat.');
-        $this->closeModal();
-    }
+        DB::transaction(function () use ($path) {
+            $expense = Expense::create([
+                'user_id' => Auth::id(),
+                'description' => $this->description,
+                'amount' => $this->amount,
+                'category' => $this->category,
+                'date' => $this->date,
+                'payment_method' => $this->payment_method,
+                'receipt_path' => $path,
+            ]);
 
-    public function delete($id)
-    {
-        Expense::findOrFail($id)->delete();
-        session()->flash('success', 'Data dihapus.');
+            // Jika tunai, potong dari kasir aktif
+            if ($this->payment_method == 'cash') {
+                $activeRegister = CashRegister::where('user_id', Auth::id())
+                    ->where('status', 'open')
+                    ->latest()
+                    ->first();
+
+                if ($activeRegister) {
+                    CashTransaction::create([
+                        'cash_register_id' => $activeRegister->id,
+                        'transaction_number' => 'EXP-' . $expense->id,
+                        'type' => 'out',
+                        'category' => 'expense',
+                        'amount' => $this->amount,
+                        'description' => 'Biaya: ' . $this->description,
+                        'reference_id' => $expense->id,
+                        'reference_type' => Expense::class,
+                        'created_by' => Auth::id(),
+                    ]);
+                }
+            }
+        });
+
+        $this->dispatch('notify', message: 'Pengeluaran tercatat.', type: 'success');
+        $this->showForm = false;
     }
 
     public function render()
     {
-        $expenses = Expense::latest()->paginate(10);
-        return view('livewire.expenses.index', ['expenses' => $expenses]);
+        $expenses = Expense::with('user')
+            ->where('description', 'like', '%'.$this->search.'%')
+            ->latest('date')
+            ->paginate(10);
+
+        // Simple Stats
+        $monthlyTotal = Expense::whereMonth('date', now()->month)->sum('amount');
+        
+        return view('livewire.expenses.index', [
+            'expenses' => $expenses,
+            'monthlyTotal' => $monthlyTotal
+        ]);
     }
 }

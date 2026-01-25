@@ -2,99 +2,142 @@
 
 namespace App\Livewire\Assets;
 
-use App\Models\AssetDepreciation;
 use App\Models\CompanyAsset;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Title;
+use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Carbon\Carbon;
 
 #[Layout('layouts.admin')]
-#[Title('Manajemen Aset & Inventaris Kantor')]
+#[Title('Manajemen Aset Tetap')]
 class Index extends Component
 {
     use WithPagination;
+    use WithFileUploads;
 
-    // View State
-    public $showCreateModal = false;
-    public $showDetailModal = false;
+    public $search = '';
+    public $showForm = false;
+    public $showDepreciationModal = false;
+
+    // Form Properties
+    public $assetId;
+    public $name, $serial_number, $purchase_date, $purchase_cost, $useful_life_years, $condition = 'good', $location;
+    public $image;
+
+    // Calculation Data
     public $selectedAsset;
+    public $depreciationSchedule = [];
 
-    // Input Form
-    public $name;
-    public $asset_tag;
-    public $category = 'Elektronik';
-    public $purchase_date;
-    public $purchase_price;
-    public $useful_life_years = 4;
-    public $location;
-    public $condition = 'good';
-
-    public function mount()
+    public function create()
     {
-        $this->purchase_date = date('Y-m-d');
+        $this->reset(['assetId', 'name', 'serial_number', 'purchase_date', 'purchase_cost', 'useful_life_years', 'condition', 'location', 'image']);
+        $this->showForm = true;
     }
 
-    public function store()
+    public function save()
     {
         $this->validate([
-            'name' => 'required',
-            'asset_tag' => 'required|unique:company_assets,asset_tag',
-            'purchase_price' => 'required|numeric|min:0',
+            'name' => 'required|string|min:3',
+            'purchase_date' => 'required|date',
+            'purchase_cost' => 'required|numeric|min:0',
             'useful_life_years' => 'required|integer|min:1',
         ]);
 
-        DB::transaction(function () {
-            // 1. Create Asset
-            $asset = CompanyAsset::create([
-                'name' => $this->name,
-                'asset_tag' => $this->asset_tag,
-                'category' => $this->category,
-                'purchase_date' => $this->purchase_date,
-                'purchase_price' => $this->purchase_price,
-                'current_value' => $this->purchase_price, // Awal = Harga Beli
-                'useful_life_years' => $this->useful_life_years,
-                'location' => $this->location,
-                'condition' => $this->condition,
-            ]);
+        $path = null;
+        if ($this->image) {
+            $path = $this->image->store('assets', 'public');
+        }
 
-            // 2. Generate Depreciation Schedule (Straight Line)
-            // Biaya Penyusutan Tahunan = Harga Perolehan / Umur Ekonomis
-            $annualDepreciation = $this->purchase_price / $this->useful_life_years;
-            $currentValue = $this->purchase_price;
+        CompanyAsset::updateOrCreate(['id' => $this->assetId], [
+            'name' => $this->name,
+            'serial_number' => $this->serial_number,
+            'purchase_date' => $this->purchase_date,
+            'purchase_cost' => $this->purchase_cost,
+            'useful_life_years' => $this->useful_life_years,
+            'condition' => $this->condition,
+            'location' => $this->location,
+            'image_path' => $path,
+            // Calculate current value simply for now (Straight Line)
+            'current_value' => $this->calculateCurrentValue($this->purchase_cost, $this->purchase_date, $this->useful_life_years),
+        ]);
 
-            for ($i = 1; $i <= $this->useful_life_years; $i++) {
-                $date = Carbon::parse($this->purchase_date)->addYears($i);
-                $currentValue -= $annualDepreciation;
-                
-                if ($currentValue < 0) $currentValue = 0;
-
-                AssetDepreciation::create([
-                    'company_asset_id' => $asset->id,
-                    'depreciation_date' => $date,
-                    'amount' => $annualDepreciation,
-                    'book_value_after' => $currentValue,
-                ]);
-            }
-        });
-
-        session()->flash('success', 'Aset berhasil didaftarkan dan jadwal penyusutan dibuat.');
-        $this->reset(['showCreateModal', 'name', 'asset_tag', 'purchase_price']);
+        $this->dispatch('notify', message: 'Data aset berhasil disimpan.', type: 'success');
+        $this->showForm = false;
     }
 
-    public function viewDetail($id)
+    private function calculateCurrentValue($cost, $date, $years)
     {
-        $this->selectedAsset = CompanyAsset::with('depreciations')->find($id);
-        $this->showDetailModal = true;
+        $ageInYears = Carbon::parse($date)->floatDiffInYears(now());
+        if ($ageInYears >= $years) return 0;
+        
+        $yearlyDepreciation = $cost / $years;
+        $value = $cost - ($yearlyDepreciation * $ageInYears);
+        
+        return max(0, $value);
+    }
+
+    public function edit($id)
+    {
+        $asset = CompanyAsset::findOrFail($id);
+        $this->assetId = $asset->id;
+        $this->name = $asset->name;
+        $this->serial_number = $asset->serial_number;
+        $this->purchase_date = $asset->purchase_date->format('Y-m-d');
+        $this->purchase_cost = $asset->purchase_cost;
+        $this->useful_life_years = $asset->useful_life_years;
+        $this->condition = $asset->condition;
+        $this->location = $asset->location;
+        $this->showForm = true;
+    }
+
+    public function showDepreciation($id)
+    {
+        $this->selectedAsset = CompanyAsset::findOrFail($id);
+        $this->generateSchedule();
+        $this->showDepreciationModal = true;
+    }
+
+    private function generateSchedule()
+    {
+        $cost = $this->selectedAsset->purchase_cost;
+        $years = $this->selectedAsset->useful_life_years;
+        $yearlyDepreciation = $cost / $years;
+        $purchaseYear = $this->selectedAsset->purchase_date->year;
+
+        $this->depreciationSchedule = [];
+        $currentVal = $cost;
+
+        for ($i = 0; $i <= $years; $i++) {
+            $year = $purchaseYear + $i;
+            $this->depreciationSchedule[] = [
+                'year' => $year,
+                'start_value' => $currentVal,
+                'depreciation' => $i == 0 ? 0 : $yearlyDepreciation, // Year 0 is purchase
+                'end_value' => $i == 0 ? $cost : max(0, $currentVal - $yearlyDepreciation)
+            ];
+            if ($i > 0) $currentVal -= $yearlyDepreciation;
+        }
+    }
+
+    public function delete($id)
+    {
+        CompanyAsset::destroy($id);
+        $this->dispatch('notify', message: 'Aset dihapus.', type: 'success');
     }
 
     public function render()
     {
-        $assets = CompanyAsset::latest()->paginate(10);
-        return view('livewire.assets.index', [
-            'assets' => $assets
-        ]);
+        $assets = CompanyAsset::where('name', 'like', '%'.$this->search.'%')
+            ->latest()
+            ->paginate(10);
+
+        // Recalculate current values on fly for display accuracy
+        foreach($assets as $asset) {
+            $asset->current_value = $this->calculateCurrentValue($asset->purchase_cost, $asset->purchase_date, $asset->useful_life_years);
+        }
+
+        return view('livewire.assets.index', ['assets' => $assets]);
     }
 }
