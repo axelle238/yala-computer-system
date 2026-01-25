@@ -3,6 +3,10 @@
 ## Pendahuluan
 Dokumen ini menandai masuknya fase refinement (penyempurnaan) setelah implementasi V3 High-End. Fokus utama adalah **optimalisasi alur kerja, kelengkapan validasi, dan kerapian struktur kode** pada fitur Dashboard dan Store yang sudah ada, tanpa menambah fitur besar baru kecuali yang kritis.
 
+## Status Terkini (Checkpoint: Refactor Modals Selesai)
+*   **No-Modal Policy:** SUDAH DIIMPLEMENTASIKAN SEPENUHNYA. Semua form input yang sebelumnya menggunakan modal telah diubah menjadi **Inline Action Panels** atau halaman terpisah.
+*   **Navigasi:** Spotlight search tetap dipertahankan sebagai overlay navigasi global (bukan form input).
+
 ## Rencana Pengembangan (Refinement)
 
 ### A. Dashboard Admin (Operasional)
@@ -29,15 +33,15 @@ Dokumen ini menandai masuknya fase refinement (penyempurnaan) setelah implementa
     *   Optimasi loading gambar produk (lazy loading).
 
 ### C. Kepatuhan & Kebijakan
-1.  **No-Modal Policy:** Audit ulang untuk memastikan TIDAK ADA modal yang tersisa untuk form input.
-2.  **Bahasa:** Scanning akhir untuk memastikan tidak ada teks bahasa Inggris yang tersisa (termasuk di komentar kode).
+1.  **Bahasa:** Scanning akhir untuk memastikan tidak ada teks bahasa Inggris yang tersisa (termasuk di komentar kode).
 
 ## Daftar Tugas Prioritas (Refinement)
 
-1.  **Audit Validasi Admin:** Cek satu per satu modul (Produk, Kategori, User, Role) untuk kelengkapan validasi backend.
-2.  **UI Polish Admin:** Fix minor CSS issues pada sidebar dan tabel data.
-3.  **Audit Validasi Store:** Test stress pada form checkout dan profil member.
-4.  **Refactor Backend:** Bersihkan kode yang tidak terpakai dan optimasi query database.
+1.  **[DONE] Audit & Refactor No-Modal Policy.**
+2.  **Audit Validasi Admin:** Cek satu per satu modul (Produk, Kategori, User, Role) untuk kelengkapan validasi backend.
+3.  **UI Polish Admin:** Fix minor CSS issues pada sidebar dan tabel data.
+4.  **Audit Validasi Store:** Test stress pada form checkout dan profil member.
+5.  **Refactor Backend:** Bersihkan kode yang tidak terpakai dan optimasi query database.
 
 ---
 *Dibuat oleh: Gemini CLI*
