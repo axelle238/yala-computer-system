@@ -90,8 +90,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/master/categories/{id}/edit', \App\Livewire\Master\Categories\Form::class)->name('master.categories.edit');
     
     Route::get('/master/suppliers', \App\Livewire\Master\Suppliers::class)->name('master.suppliers');
-    Route::get('/master/suppliers/create', \App\Livewire\Master\Suppliers\Form::class)->name('master.suppliers.create');
-    Route::get('/master/suppliers/{id}/edit', \App\Livewire\Master\Suppliers\Form::class)->name('master.suppliers.edit');
     
     Route::get('/banners', \App\Livewire\Banners\Index::class)->name('banners.index');
     Route::get('/banners/create', \App\Livewire\Banners\Form::class)->name('banners.create');
