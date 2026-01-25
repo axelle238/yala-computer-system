@@ -1,5 +1,5 @@
 <div>
-    <!-- Header Section -->
+    <!-- Bagian Header -->
     <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h1 class="text-3xl font-tech font-bold text-slate-800 dark:text-white tracking-tight">Dashboard Eksekutif</h1>
@@ -17,10 +17,10 @@
         </div>
     </div>
 
-    <!-- Key Metrics Grid -->
+    <!-- Grid Metrik Utama -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
-        <!-- Revenue Card -->
+        <!-- Kartu Pendapatan -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden group hover:shadow-xl hover:border-indigo-500/30 transition-all duration-300">
             <div class="absolute -right-6 -top-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
                 <svg class="w-32 h-32 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -32,7 +32,7 @@
                     </div>
                     <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pendapatan Bulan Ini</span>
                 </div>
-                <div class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Rp {{ number_format($stats['revenue'], 0, ',', '.') }}</div>
+                <div class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Rp {{ number_format($statistik['pendapatan'], 0, ',', '.') }}</div>
                 <div class="mt-2 text-xs font-medium text-emerald-500 flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/20 w-fit px-2 py-0.5 rounded-full">
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
                     <span>Update Real-time</span>
@@ -40,10 +40,10 @@
             </div>
         </div>
 
-        <!-- Net Profit Card -->
+        <!-- Kartu Laba Bersih -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden group hover:shadow-xl hover:border-emerald-500/30 transition-all duration-300">
             <div class="absolute -right-6 -top-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                <svg class="w-32 h-32 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                <svg class="w-32 h-32 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
             </div>
             <div class="relative z-10">
                 <div class="flex items-center gap-2 mb-2">
@@ -52,14 +52,14 @@
                     </div>
                     <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estimasi Laba Bersih</span>
                 </div>
-                <div class="text-2xl font-black {{ $stats['net_profit'] >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }} tracking-tight">
-                    Rp {{ number_format($stats['net_profit'], 0, ',', '.') }}
+                <div class="text-2xl font-black {{ $statistik['laba_bersih'] >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }} tracking-tight">
+                    Rp {{ number_format($statistik['laba_bersih'], 0, ',', '.') }}
                 </div>
                 <div class="mt-2 text-xs text-slate-400">Profitabilitas Operasional</div>
             </div>
         </div>
 
-        <!-- Active Services Card -->
+        <!-- Kartu Servis Aktif -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden group hover:shadow-xl hover:border-amber-500/30 transition-all duration-300 border-l-4 border-l-amber-400 dark:border-l-amber-500">
             <div class="absolute -right-6 -top-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
                 <svg class="w-32 h-32 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /></svg>
@@ -67,7 +67,7 @@
             <div class="relative z-10 flex flex-col justify-between h-full">
                 <div>
                     <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Servis Aktif</div>
-                    <div class="text-3xl font-black text-slate-800 dark:text-white">{{ $stats['active_tickets'] }} <span class="text-base font-normal text-slate-400">Unit</span></div>
+                    <div class="text-3xl font-black text-slate-800 dark:text-white">{{ $statistik['tiket_aktif'] }} <span class="text-base font-normal text-slate-400">Unit</span></div>
                 </div>
                 <a href="{{ route('services.index') }}" class="mt-4 inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
                     Lihat Antrian <svg class="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
@@ -75,7 +75,7 @@
             </div>
         </div>
 
-        <!-- Orders Today Card -->
+        <!-- Kartu Transaksi Hari Ini -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden group hover:shadow-xl hover:border-blue-500/30 transition-all duration-300 border-l-4 border-l-blue-400 dark:border-l-blue-500">
             <div class="absolute -right-6 -top-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
                 <svg class="w-32 h-32 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
@@ -83,7 +83,7 @@
             <div class="relative z-10 flex flex-col justify-between h-full">
                 <div>
                     <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Transaksi Hari Ini</div>
-                    <div class="text-3xl font-black text-slate-800 dark:text-white">{{ $stats['orders_today'] }} <span class="text-base font-normal text-slate-400">Order</span></div>
+                    <div class="text-3xl font-black text-slate-800 dark:text-white">{{ $statistik['pesanan_hari_ini'] }} <span class="text-base font-normal text-slate-400">Order</span></div>
                 </div>
                 <a href="{{ route('orders.index') }}" class="mt-4 inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
                     Lihat Riwayat <svg class="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
@@ -92,10 +92,10 @@
         </div>
     </div>
 
-    <!-- Operational Status Section -->
+    <!-- Bagian Status Operasional -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         
-        <!-- PC Build Status -->
+        <!-- Status Rakitan PC -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex items-center justify-between group hover:shadow-md transition-all relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-r from-purple-50 to-transparent dark:from-purple-900/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div class="relative flex items-center gap-5">
@@ -104,7 +104,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Perakitan PC Sedang Berjalan</p>
-                    <p class="text-3xl font-black text-slate-800 dark:text-white mt-1">{{ $stats['active_builds'] }} <span class="text-sm font-normal text-slate-400">Unit</span></p>
+                    <p class="text-3xl font-black text-slate-800 dark:text-white mt-1">{{ $statistik['rakitan_aktif'] }} <span class="text-sm font-normal text-slate-400">Unit</span></p>
                 </div>
             </div>
             <a href="{{ route('assembly.manager') }}" class="relative px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all shadow-sm">
@@ -112,7 +112,7 @@
             </a>
         </div>
 
-        <!-- Pending Quotations Status -->
+        <!-- Status Penawaran Pending -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex items-center justify-between group hover:shadow-md transition-all relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-r from-cyan-50 to-transparent dark:from-cyan-900/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div class="relative flex items-center gap-5">
@@ -121,7 +121,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Penawaran (B2B) Pending</p>
-                    <p class="text-3xl font-black text-slate-800 dark:text-white mt-1">{{ $stats['pending_quotations'] }} <span class="text-sm font-normal text-slate-400">Dokumen</span></p>
+                    <p class="text-3xl font-black text-slate-800 dark:text-white mt-1">{{ $statistik['penawaran_tertunda'] }} <span class="text-sm font-normal text-slate-400">Dokumen</span></p>
                 </div>
             </div>
             <a href="{{ route('quotations.index') }}" class="relative px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:border-cyan-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all shadow-sm">
@@ -130,10 +130,10 @@
         </div>
     </div>
 
-    <!-- Inventory & Analytics -->
+    <!-- Inventaris & Analisis -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <!-- Low Stock Alert Panel -->
+        <!-- Panel Peringatan Stok Menipis -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-full">
             <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex justify-between items-center">
                 <div class="flex items-center gap-3">
@@ -145,7 +145,7 @@
                         <p class="text-xs text-slate-500">Perlu tindakan restocking segera</p>
                     </div>
                 </div>
-                <span class="text-xs font-bold bg-rose-100 dark:bg-rose-900 text-rose-600 dark:text-rose-300 px-3 py-1 rounded-full shadow-sm border border-rose-200 dark:border-rose-700">{{ $analysis['low_stock']->count() }} Item</span>
+                <span class="text-xs font-bold bg-rose-100 dark:bg-rose-900 text-rose-600 dark:text-rose-300 px-3 py-1 rounded-full shadow-sm border border-rose-200 dark:border-rose-700">{{ $analisis['low_stock']->count() }} Item</span>
             </div>
             <div class="flex-1 overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -156,7 +156,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                        @forelse($analysis['low_stock']->take(5) as $item)
+                        @forelse($analisis['low_stock']->take(5) as $item)
                             <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                 <td class="px-6 py-3.5 text-sm text-slate-700 dark:text-slate-300 font-medium">
                                     {{ $item->name }}
@@ -187,7 +187,7 @@
             </div>
         </div>
 
-        <!-- Best Sellers Panel -->
+        <!-- Panel Produk Terlaris -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-full">
             <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex justify-between items-center">
                 <div class="flex items-center gap-3">
@@ -204,16 +204,16 @@
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-slate-50 dark:bg-slate-800/50 text-[10px] uppercase text-slate-500 dark:text-slate-400">
                         <tr>
-                            <th class="px-6 py-3 font-semibold tracking-wider">Rank</th>
+                            <th class="px-6 py-3 font-semibold tracking-wider">Peringkat</th>
                             <th class="px-6 py-3 font-semibold tracking-wider">Produk</th>
                             <th class="px-6 py-3 font-semibold tracking-wider text-right">Terjual</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                        @forelse($analysis['fast_moving']->take(5) as $index => $item)
+                        @forelse($analisis['fast_moving']->take(5) as $indeks => $item)
                             <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                 <td class="px-6 py-3.5 w-12 text-center text-sm font-bold text-slate-400">
-                                    #{{ $index + 1 }}
+                                    #{{ $indeks + 1 }}
                                 </td>
                                 <td class="px-6 py-3.5 text-sm text-slate-700 dark:text-slate-300 font-medium">
                                     {{ $item->product->name }}

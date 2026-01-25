@@ -16,37 +16,37 @@ use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.admin')]
-#[Title('Executive Dashboard - Yala Computer')]
+#[Title('Dashboard Eksekutif - Yala Computer')]
 class Dashboard extends Component
 {
     public function render()
     {
-        $bi = new BusinessIntelligence();
-        $month = now()->month;
-        $year = now()->year;
+        $intelBisnis = new BusinessIntelligence();
+        $bulan = now()->month;
+        $tahun = now()->year;
 
-        // 1. Core Stats (Cached 60s for performance)
-        $stats = Cache::remember('dashboard_core_stats', 60, function () use ($month, $year, $bi) {
-            $pl = $bi->getProfitLoss($month, $year);
+        // 1. Statistik Inti (Cache 60 detik untuk performa)
+        $statistik = Cache::remember('dashboard_core_stats', 60, function () use ($bulan, $tahun, $intelBisnis) {
+            $labaRugi = $intelBisnis->getProfitLoss($bulan, $tahun);
             
             return [
-                'revenue' => $pl['revenue']['total'],
-                'net_profit' => $pl['net_profit'],
-                'active_tickets' => ServiceTicket::whereNotIn('status', ['cancelled', 'picked_up'])->count(),
-                'orders_today' => Order::whereDate('created_at', today())->count(),
-                'active_builds' => PcAssembly::whereNotIn('status', ['completed', 'cancelled'])->count(),
-                'pending_quotations' => Quotation::where('status', 'pending')->count(),
+                'pendapatan' => $labaRugi['revenue']['total'],
+                'laba_bersih' => $labaRugi['net_profit'],
+                'tiket_aktif' => ServiceTicket::whereNotIn('status', ['cancelled', 'picked_up'])->count(),
+                'pesanan_hari_ini' => Order::whereDate('created_at', today())->count(),
+                'rakitan_aktif' => PcAssembly::whereNotIn('status', ['completed', 'cancelled'])->count(),
+                'penawaran_tertunda' => Quotation::where('status', 'pending')->count(),
             ];
         });
 
-        // 2. BI Analysis (Cached 5 mins)
-        $analysis = Cache::remember('dashboard_analysis', 300, function () use ($bi) {
-            return $bi->getStockAnalysis(); // returns fast_moving, low_stock, dead_stock
+        // 2. Analisis Intelijen Bisnis (Cache 5 menit)
+        $analisis = Cache::remember('dashboard_analysis', 300, function () use ($intelBisnis) {
+            return $intelBisnis->getStockAnalysis(); // mengembalikan fast_moving, low_stock, dead_stock
         });
 
         return view('livewire.dashboard', [
-            'stats' => $stats,
-            'analysis' => $analysis,
+            'statistik' => $statistik,
+            'analisis' => $analisis,
         ]);
     }
 }
