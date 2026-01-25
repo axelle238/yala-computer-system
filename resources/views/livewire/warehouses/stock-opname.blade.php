@@ -9,25 +9,25 @@
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Penyesuaian stok fisik dan sistem secara periodik.</p>
         </div>
         
-        @if($activeOpname)
+        @if($opnameAktif)
             <div class="flex gap-2">
-                <button wire:click="cancelSession" class="px-4 py-2 text-sm font-bold bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-50">Batalkan Sesi</button>
-                <button wire:click="finalizeOpname" class="px-6 py-2 text-sm font-bold bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-lg">Selesaikan & Sesuaikan Stok</button>
+                <button wire:click="batalkanSesi" class="px-4 py-2 text-sm font-bold bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-50">Batalkan Sesi</button>
+                <button wire:click="finalisasiOpname" class="px-6 py-2 text-sm font-bold bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-lg">Selesaikan & Sesuaikan Stok</button>
             </div>
         @else
-            <button wire:click="startSession" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex items-center gap-2">
+            <button wire:click="mulaiSesi" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Mulai Sesi Opname Baru
             </button>
         @endif
     </div>
 
-    @if($activeOpname)
+    @if($opnameAktif)
         <!-- Sesi Aktif -->
         <div class="space-y-4">
-            <!-- Filter & Search -->
+            <!-- Filter & Cari -->
             <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <input wire:model.live.debounce.300ms="search" type="text" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-emerald-500 text-sm" placeholder="Cari Nama atau SKU Produk...">
+                <input wire:model.live.debounce.300ms="cari" type="text" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-emerald-500 text-sm" placeholder="Cari Nama atau SKU Produk...">
             </div>
 
             <!-- Tabel Data Opname -->
@@ -43,7 +43,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($items as $item)
+                            @forelse($daftarItem as $item)
                                 <tr class="border-b border-slate-100 dark:border-slate-700 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
                                     <td class="px-6 py-3">
                                         <div class="font-bold text-slate-800 dark:text-white">{{ $item->product->name }}</div>
@@ -52,8 +52,7 @@
                                     <td class="px-6 py-3 text-center font-mono font-bold text-slate-600 dark:text-slate-300 text-lg">{{ $item->system_stock }}</td>
                                     <td class="px-6 py-3">
                                         <input type="number"
-                                               wire:model.blur="tempStock.{{ $item->product_id }}"
-                                               wire:change="updatePhysicalStock({{ $item->id }}, $event.target.value)"
+                                               wire:change="perbaruiStokFisik({{ $item->id }}, $event.target.value)"
                                                value="{{ $item->physical_stock }}"
                                                class="w-full text-center font-mono font-bold text-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
                                                x-ref="item_{{ $item->id }}">
@@ -70,9 +69,9 @@
                         </tbody>
                     </table>
                 </div>
-                @if($items)
+                @if($daftarItem)
                 <div class="p-4 border-t border-slate-200 dark:border-slate-700">
-                    {{ $items->links() }}
+                    {{ $daftarItem->links() }}
                 </div>
                 @endif
             </div>
