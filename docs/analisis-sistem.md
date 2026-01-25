@@ -1,49 +1,43 @@
-# Analisis Sistem - Yala Computer (Revisi: 26 Januari 2026 - Fase 5 - Upgrade V3 High-End & No-Modal Policy)
+# Analisis Sistem - Yala Computer (Revisi: 26 Januari 2026 - Fase 6 - Refinement & Optimization)
 
 ## Pendahuluan
-Dokumen ini adalah pembaruan untuk fase implementasi "Sistem V3 (High-End Enterprise)". Fokus utama adalah perombakan visual total, kebijakan "No-Modal", peningkatan fitur log aktivitas yang naratif, manajemen database, serta penyempurnaan manajemen peran dan navigasi media.
+Dokumen ini menandai masuknya fase refinement (penyempurnaan) setelah implementasi V3 High-End. Fokus utama adalah **optimalisasi alur kerja, kelengkapan validasi, dan kerapian struktur kode** pada fitur Dashboard dan Store yang sudah ada, tanpa menambah fitur besar baru kecuali yang kritis.
 
-## Rencana Pengembangan V3
+## Rencana Pengembangan (Refinement)
 
-### A. Tampilan & UX (Redesign Total)
-1.  **Konsep Visual:**
-    *   Tema: Modern, Enterprise, High-End Technology.
-    *   Warna: Lebih berani dan berwarna (colorful), tidak monoton.
-    *   Elemen: Ikon yang relevan untuk setiap menu dan sub-menu baik di dashboard maupun store.
-    *   Aksesibilitas: User-friendly dan mudah digunakan.
-2.  **Layout Frontend & Backend:**
-    *   Redesign `layouts/admin.blade.php` dan `layouts/store.blade.php`.
-    *   **Uniform Layout:** SEMUA halaman harus menggunakan layout yang seragam.
-    *   **No-Modal Policy:** DILARANG menggunakan modal untuk form input layout apapun. Semua form harus menggunakan halaman terpisah atau komponen inline yang rapi.
+### A. Dashboard Admin (Operasional)
+1.  **Validasi & Error Handling:**
+    *   Review seluruh form input (Produk, Kategori, User, dll).
+    *   Pastikan pesan error bahasa Indonesia yang jelas dan spesifik.
+    *   Implementasi `try-catch` block yang konsisten di semua controller Livewire.
+2.  **UI/UX Polish:**
+    *   Pastikan tidak ada elemen layout yang "pecah" atau tumpang tindih.
+    *   Cek responsivitas tabel dan form di layar kecil.
+    *   Standardisasi tombol (ukuran, warna, ikon) di seluruh modul admin.
+3.  **Code Structure:**
+    *   Refactor controller yang terlalu gemuk (fat controllers).
+    *   Pastikan penggunaan Eloquent relationship yang efisien (hindari N+1 query).
 
-### B. Fitur Sistem & Pengaturan (Peningkatan)
-1.  **Log Aktivitas (Detail & Naratif):**
-    *   **Log Sistem:** Detail teknis, dapat dibuka per item log, menggunakan bahasa naratif.
-    *   **Log Aktivitas Pelanggan:** Terpisah, detail, bahasa naratif.
-    *   **Log Aktivitas Pegawai:** Terpisah, detail, bahasa naratif.
-2.  **Informasi Sistem & Database:**
-    *   Fitur Backup Database manual yang dapat diakses langsung dari dashboard (submenu Informasi Sistem).
-    *   Halaman informasi sistem yang sangat detail, kompleks, dan terperinci.
+### B. Storefront (Pengalaman Pengguna)
+1.  **Alur Belanja:**
+    *   Perhalus transisi antar halaman (Katalog -> Detail -> Cart -> Checkout).
+    *   Pastikan notifikasi "Add to Cart" jelas dan tidak mengganggu.
+2.  **Validasi Checkout:**
+    *   Validasi alamat pengiriman yang lebih ketat.
+    *   Penanganan error pembayaran (Midtrans) yang lebih ramah pengguna.
+3.  **Performa:**
+    *   Optimasi loading gambar produk (lazy loading).
 
-### C. Manajemen Peran & Hak Akses (SDM)
-1.  **Peran & Hak Akses:**
-    *   Update menu side navbar SDM & Karyawan -> Peran & Hak Akses.
-    *   Tambahkan fitur untuk membuat Peran dan Hak Akses baru secara manual sesuai jabatan.
-    *   Admin dapat memilih hak akses apa saja yang diberikan untuk peran tersebut.
-    *   **Refactor Form:** Ubah form modal saat ini menjadi halaman/view standar.
+### C. Kepatuhan & Kebijakan
+1.  **No-Modal Policy:** Audit ulang untuk memastikan TIDAK ADA modal yang tersisa untuk form input.
+2.  **Bahasa:** Scanning akhir untuk memastikan tidak ada teks bahasa Inggris yang tersisa (termasuk di komentar kode).
 
-### D. Navigasi Media & Customer Service
-1.  **Sidebar Behavior:**
-    *   Menu "Pesan Email Masuk" dan "Live Chat Pelanggan" di sidebar Media & Customer Service harus berperilaku spesifik: hanya membuka menu navbar Media & Customer Service yang relevan, menjaga fokus user.
+## Daftar Tugas Prioritas (Refinement)
 
-## Daftar Tugas Prioritas
-
-1.  **Update Dokumen Analisis:** (Selesai).
-2.  **Refactor Role Manager (No-Modal):** Ubah UI Role Manager untuk menghapus modal dan menggunakan layout standar.
-3.  **Redesign Layout V3:** Implementasi CSS baru, ikon berwarna, dan struktur layout high-end.
-4.  **Upgrade Sistem Log:** Implementasi log naratif dan pemisahan tipe log.
-5.  **Fitur Backup & Info Sistem:** Integrasi backup database ke menu Informasi Sistem.
-6.  **Fix Navigasi Media:** Sesuaikan behavior sidebar untuk menu pesan dan chat.
+1.  **Audit Validasi Admin:** Cek satu per satu modul (Produk, Kategori, User, Role) untuk kelengkapan validasi backend.
+2.  **UI Polish Admin:** Fix minor CSS issues pada sidebar dan tabel data.
+3.  **Audit Validasi Store:** Test stress pada form checkout dan profil member.
+4.  **Refactor Backend:** Bersihkan kode yang tidak terpakai dan optimasi query database.
 
 ---
 *Dibuat oleh: Gemini CLI*
