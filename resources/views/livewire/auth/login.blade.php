@@ -10,9 +10,9 @@
     <form wire:submit="authenticate" class="space-y-6">
         <!-- Email -->
         <div>
-            <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
+            <label for="email" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
             <div class="relative">
-                <input wire:model="email" id="email" type="email" class="block w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all sm:text-sm" placeholder="admin@yala.com" autofocus autocomplete="username">
+                <input wire:model="email" id="email" type="email" class="block w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all sm:text-sm" placeholder="admin@yala.com" autofocus autocomplete="username">
                 @error('email') <span class="absolute right-3 top-3.5 text-rose-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span> @enderror
             </div>
             @error('email') <p class="mt-2 text-xs text-rose-500 font-semibold">{{ $message }}</p> @enderror
@@ -20,9 +20,9 @@
 
         <!-- Password -->
         <div>
-            <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
+            <label for="password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Password</label>
             <div class="relative">
-                <input wire:model="password" id="password" type="password" class="block w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all sm:text-sm" placeholder="••••••••" autocomplete="current-password">
+                <input wire:model="password" id="password" type="password" class="block w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all sm:text-sm" placeholder="••••••••" autocomplete="current-password">
             </div>
             @error('password') <p class="mt-2 text-xs text-rose-500 font-semibold">{{ $message }}</p> @enderror
         </div>

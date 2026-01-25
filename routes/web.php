@@ -195,5 +195,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // System Maintenance
     Route::get('/system/health', \App\Livewire\System\Health::class)->name('system.health');
+    Route::get('/system/info', \App\Livewire\System\Info::class)->name('system.info');
     Route::get('/system/backups', \App\Livewire\System\Backups::class)->name('system.backups');
 });

@@ -17,7 +17,7 @@
 
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b border-slate-100 dark:border-slate-700 pb-6">
                 <div>
-                    <p class="text-xs font-bold uppercase text-slate-400 tracking-wider">Order Number</p>
+                    <p class="text-xs font-bold uppercase text-slate-400 tracking-wider">Nomor Pesanan</p>
                     <p class="text-2xl font-black font-tech text-slate-900 dark:text-white tracking-widest">{{ $order->order_number }}</p>
                     <p class="text-sm text-slate-500 mt-1">{{ $order->created_at->format('d M Y, H:i') }}</p>
                 </div>
@@ -31,6 +31,7 @@
 
             <!-- Items -->
             <div class="space-y-4 mb-8">
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">Rincian Produk</h3>
                 @foreach($order->items as $item)
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-4">

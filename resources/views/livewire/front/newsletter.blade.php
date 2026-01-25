@@ -8,7 +8,7 @@
         <p class="text-indigo-200 mb-8">Dapatkan update produk terbaru, promo flash sale, dan artikel teknologi langsung di email Anda.</p>
         
         <form wire:submit.prevent="subscribe" class="flex flex-col sm:flex-row gap-3">
-            <input wire:model="email" type="email" placeholder="Masukkan alamat email Anda" class="flex-1 px-6 py-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder-indigo-300 focus:ring-2 focus:ring-cyan-400 focus:bg-white/20 transition-all font-medium backdrop-blur-sm">
+            <input wire:model="email" type="email" placeholder="Masukkan alamat email Anda" class="flex-1 px-6 py-4 rounded-xl bg-white border border-transparent text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-cyan-400 transition-all font-medium shadow-lg">
             <button type="submit" class="px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-black uppercase tracking-widest rounded-xl transition-all shadow-lg hover:shadow-cyan-500/50 hover:-translate-y-1">
                 Langganan
             </button>

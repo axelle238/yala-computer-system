@@ -12,7 +12,8 @@
             (request()->routeIs('finance.*', 'reports.*', 'expenses.*') ? 'keuangan' : 
             (request()->routeIs('customers.*', 'marketing.*', 'member.*', 'reviews.*') ? 'crm' : 
             (request()->routeIs('employees.*', 'shift.*') ? 'sdm' : 
-            (request()->routeIs('settings.*', 'system.*', 'activity-logs.*', 'users.*', 'assets.*') ? 'sistem' : '')))))))
+            (request()->routeIs('admin.news.*', 'banners.*', 'customers.inbox') ? 'media' :
+            (request()->routeIs('settings.*', 'system.*', 'activity-logs.*', 'users.*', 'assets.*') ? 'sistem' : ''))))))))
         }}',
         toggleGrup(grup) {
             this.grupAktif = this.grupAktif === grup ? null : grup;
@@ -187,6 +188,29 @@
         <div class="mt-6 mb-2 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Manajemen Perusahaan</div>
         @endif
 
+        <!-- GRUP: MEDIA & CS (BARU) -->
+        <div>
+            <button @click="toggleGrup('media')" 
+                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('admin.news.*', 'banners.*', 'customers.inbox') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 {{ request()->routeIs('admin.news.*', 'banners.*', 'customers.inbox') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
+                    <span>Media & Customer Service</span>
+                </div>
+                <svg class="w-4 h-4 transition-transform duration-200" :class="grupAktif === 'media' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+            </button>
+            <div x-show="grupAktif === 'media'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
+                <a href="{{ route('admin.news.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.news.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Berita & Artikel
+                </a>
+                <a href="{{ route('customers.inbox') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('customers.inbox') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Pesan Email Masuk
+                </a>
+                <a href="{{ route('banners.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('banners.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Banner & Media
+                </a>
+            </div>
+        </div>
+
         <!-- GRUP: CRM -->
         @if(auth()->user()->punyaAkses('akses_admin') || auth()->user()->punyaAkses('lihat_pelanggan'))
         <div>
@@ -201,9 +225,6 @@
             <div x-show="grupAktif === 'crm'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
                 <a href="{{ route('customers.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('customers.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Database Pelanggan
-                </a>
-                <a href="{{ route('customers.inbox') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('customers.inbox') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Kotak Masuk Pesan
                 </a>
                 <a href="{{ route('marketing.vouchers.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('marketing.vouchers.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Voucher & Promo
@@ -266,6 +287,9 @@
                 </a>
                 <a href="{{ route('activity-logs.index') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('activity-logs.index') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Log Aktivitas User
+                </a>
+                <a href="{{ route('system.info') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('system.info') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Informasi Sistem
                 </a>
             </div>
         </div>

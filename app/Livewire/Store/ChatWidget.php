@@ -5,8 +5,12 @@ namespace App\Livewire\Store;
 use App\Models\SesiObrolan;
 use App\Models\PesanObrolan;
 use App\Models\Product;
+use App\Models\Order;
+use App\Models\User;
+use App\Notifications\NewChatMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\Attributes\On;
@@ -101,35 +105,82 @@ class ChatWidget extends Component
     }
 
     /**
-     * Logika AI Chat sederhana untuk merespons pertanyaan produk.
+     * Logika AI Chat "YALA" untuk merespons pelanggan.
      */
     private function prosesBot($pesan)
     {
         $pesan = strtolower($pesan);
         $jawaban = '';
 
-        // Cek Kata Kunci: "Halo", "Hai"
-        if (str_contains($pesan, 'halo') || str_contains($pesan, 'hai') || str_contains($pesan, 'siang') || str_contains($pesan, 'pagi')) {
-            $jawaban = "Halo! Saya Asisten Virtual Yala. Ada yang bisa saya bantu? Ketik nama produk untuk cek stok.";
+        // 1. Sapaan
+        if (str_contains($pesan, 'halo') || str_contains($pesan, 'hai') || str_contains($pesan, 'siang') || str_contains($pesan, 'pagi') || str_contains($pesan, 'sore') || str_contains($pesan, 'malam')) {
+            $jawaban = "Halo! Saya **YALA**, asisten virtual Yala Computer. 👋\n\nSaya bisa bantu cek stok produk, status pesanan, atau info toko. Mau tanya apa kak?";
         }
-        // Cek Kata Kunci: "Admin", "CS", "Orang"
-        elseif (str_contains($pesan, 'admin') || str_contains($pesan, 'cs') || str_contains($pesan, 'manusia')) {
-            $jawaban = "Baik, saya akan menghubungkan Anda dengan Customer Service kami. Mohon tunggu sebentar.";
+        
+        // 2. Info Toko (Jam & Lokasi)
+        elseif (str_contains($pesan, 'jam') || str_contains($pesan, 'buka') || str_contains($pesan, 'tutup') || str_contains($pesan, 'operasional')) {
+            $jawaban = "**Jam Operasional Yala Computer:**\nSenin - Sabtu: 09:00 - 20:00 WIB\nMinggu: 10:00 - 18:00 WIB\n\nKami melayani pembelian online 24 jam!";
+        }
+        elseif (str_contains($pesan, 'lokasi') || str_contains($pesan, 'alamat') || str_contains($pesan, 'toko')) {
+            $jawaban = "Toko kami berlokasi di **Jl. Teknologi No. 88, Jakarta Selatan**. \n\nSilakan mampir untuk melihat koleksi PC rakitan kami!";
+        }
+
+        // 3. Cek Status Pesanan
+        elseif (str_contains($pesan, 'pesanan') || str_contains($pesan, 'order') || str_contains($pesan, 'resi')) {
+            // Ekstrak angka dari pesan (asumsi format sederhana)
+            if (preg_match('/#?(\d{4,})/', $pesan, $matches)) {
+                $orderId = $matches[1];
+                // Cari order berdasarkan ID atau Nomor Resi (jika ada kolom resi)
+                $order = Order::find($orderId) ?? Order::where('order_number', $orderId)->first();
+
+                if ($order) {
+                    $statusLabel = match($order->status) {
+                        'pending' => 'Menunggu Pembayaran',
+                        'processing' => 'Sedang Diproses',
+                        'shipped' => 'Dalam Pengiriman',
+                        'completed' => 'Selesai',
+                        'cancelled' => 'Dibatalkan',
+                        default => $order->status
+                    };
+                    $jawaban = "Status pesanan #{$order->id} saat ini: **{$statusLabel}**.\nTotal: Rp " . number_format($order->total_amount, 0, ',', '.');
+                } else {
+                    $jawaban = "Maaf, saya tidak menemukan pesanan dengan nomor tersebut. Pastikan nomor pesanan benar ya.";
+                }
+            } else {
+                $jawaban = "Untuk cek pesanan, silakan ketik nomor pesanan Anda. Contoh: **'Cek pesanan 1023'**.";
+            }
+        }
+
+        // 4. Eskalasi ke Admin (Handover)
+        elseif (str_contains($pesan, 'admin') || str_contains($pesan, 'cs') || str_contains($pesan, 'manusia') || str_contains($pesan, 'komplain') || str_contains($pesan, 'bantuan')) {
+            $jawaban = "Baik, saya akan menghubungkan Anda dengan Customer Service kami. Mohon tunggu sebentar, Admin akan segera membalas.";
             $this->modeBot = false; // Matikan bot untuk sesi ini
-            // Di sini bisa ditambahkan notifikasi ke dashboard admin (todo)
+            
+            // Kirim Notifikasi ke Admin
+            $admins = User::where('role', 'admin')->get(); // Sesuaikan dengan logika role Anda
+            if ($admins->count() > 0) {
+                Notification::send($admins, new NewChatMessage($pesan, Auth::user()->name ?? 'Tamu'));
+            }
         }
-        // Cek Stok Produk
+
+        // 5. Cek Stok Produk (Default fallback)
         else {
-            // Coba cari produk berdasarkan kata kunci di pesan
+            // Cari produk
             $produk = Product::where('name', 'like', '%' . $pesan . '%')
                 ->orWhere('sku', 'like', '%' . $pesan . '%')
                 ->where('is_active', true)
-                ->first();
+                ->take(3)
+                ->get();
 
-            if ($produk) {
-                $jawaban = "Produk **{$produk->name}** tersedia dengan stok **{$produk->stock_quantity} unit**. Harganya **Rp " . number_format($produk->sell_price, 0, ',', '.') . "**. Apakah Anda ingin memesannya?";
+            if ($produk->count() > 0) {
+                $jawaban = "Saya menemukan produk yang cocok:\n";
+                foreach ($produk as $p) {
+                    $stok = $p->stock_quantity > 0 ? "Stok: {$p->stock_quantity}" : "Stok Habis";
+                    $jawaban .= "- **[{$p->name}](" . route('product.detail', $p->id) . ")**\n  Rp " . number_format($p->sell_price, 0, ',', '.') . " | {$stok}\n";
+                }
+                $jawaban .= "\nKlik nama produk untuk detailnya.";
             } else {
-                $jawaban = "Maaf, saya tidak menemukan produk tersebut. Coba kata kunci lain atau ketik 'Admin' untuk bantuan staf.";
+                $jawaban = "Maaf, YALA tidak menemukan produk atau info terkait '{$pesan}'. \n\nCoba kata kunci lain atau ketik **'Admin'** untuk bantuan langsung.";
             }
         }
 
@@ -158,7 +209,6 @@ class ChatWidget extends Component
     public function render()
     {
         return view('livewire.store.chat-widget', [
-            // Perbaikan: Mengembalikan Collection kosong jika tidak ada sesi
             'daftarPesan' => $this->sesi ? $this->sesi->pesan()->latest()->take(50)->get()->reverse() : collect([])
         ]);
     }
