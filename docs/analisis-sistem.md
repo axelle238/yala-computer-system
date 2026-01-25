@@ -13,8 +13,8 @@ Sistem Yala Computer adalah aplikasi skala besar yang mencakup manajemen operasi
 | :--- | :--- | :--- | :--- |
 | **Auth & Permissions** | Ada | **OK** | `RoleManager` menggunakan validasi relasi user yang aman. |
 | **Dashboard** | Ada | Pending | Perlu dicek widget real-time. |
-| **Keuangan (Cash Register)** | Perbaikan Baru | Pending | Perlu tes fungsional buka/tutup kasir. |
-| **Karyawan (Employee)** | Perbaikan Baru | **RISIKO** | Tabel `employee_details` baru. Perlu verifikasi CRUD menyimpan data ke tabel ini dengan benar. |
+| **Keuangan (Cash Register)** | Perbaikan Baru | **OK (Stabil)** | Logika `system_balance` valid. Buka/Tutup shift aman. |
+| **Karyawan (Employee)** | Perbaikan Baru | **OK** | Tabel `employee_details` & fitur input data personal sudah lengkap. |
 | **Produk & Inventaris** | Ada | OK | Fitur inti stabil. |
 | **Servis & Rakit PC** | Ada | OK | Modul kompleks. Alur `Workbench` perlu validasi UI. |
 
