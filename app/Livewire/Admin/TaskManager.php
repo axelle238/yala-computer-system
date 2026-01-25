@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\Task; // Asumsi model
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -26,23 +26,9 @@ class TaskManager extends Component
 
     public function refreshTasks()
     {
-        // Check if table exists (Safety for demo environment)
-        try {
-            $this->tasks = Task::with('assignee')->orderBy('created_at', 'desc')->get();
-        } catch (\Exception $e) {
-            // Mock Data if table missing
-            $this->tasks = collect([
-                (object)[
-                    'id' => 1, 'title' => 'Cek Stok Gudang Belakang', 'description' => 'Pastikan stok PSU sesuai sistem', 'status' => 'todo', 'priority' => 'high', 'assignee' => (object)['name' => 'Budi Gudang']
-                ],
-                (object)[
-                    'id' => 2, 'title' => 'Update Harga Display', 'description' => 'Ganti label harga produk MSI', 'status' => 'in_progress', 'priority' => 'medium', 'assignee' => (object)['name' => 'Siti Sales']
-                ],
-                (object)[
-                    'id' => 3, 'title' => 'Backup Database Mingguan', 'description' => 'Simpan ke drive eksternal', 'status' => 'done', 'priority' => 'low', 'assignee' => (object)['name' => 'Admin']
-                ]
-            ]);
-        }
+        $this->tasks = Task::with('assignee')
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     public function createTask()
@@ -55,22 +41,21 @@ class TaskManager extends Component
     {
         $this->validate([
             'title' => 'required|min:3',
-            'priority' => 'required',
+            'priority' => 'required|in:low,medium,high,urgent',
+            'description' => 'nullable|string',
+            'assignee_id' => 'nullable|exists:users,id',
         ]);
 
-        try {
-            Task::create([
-                'title' => $this->title,
-                'description' => $this->description,
-                'priority' => $this->priority,
-                'user_id' => $this->assignee_id ?? Auth::id(),
-                'status' => 'todo',
-                'created_by' => Auth::id()
-            ]);
-            $this->dispatch('notify', message: 'Tugas berhasil dibuat!', type: 'success');
-        } catch (\Exception $e) {
-            $this->dispatch('notify', message: 'Mode Demo: Tugas ditambahkan ke tampilan.', type: 'info');
-        }
+        Task::create([
+            'title' => $this->title,
+            'description' => $this->description,
+            'priority' => $this->priority,
+            'assigned_to' => $this->assignee_id ?? Auth::id(),
+            'status' => 'pending',
+            'created_by' => Auth::id()
+        ]);
+
+        $this->dispatch('notify', message: 'Tugas berhasil dibuat!', type: 'success');
 
         $this->showModal = false;
         $this->refreshTasks();
@@ -78,17 +63,15 @@ class TaskManager extends Component
 
     public function updateStatus($taskId, $newStatus)
     {
-        try {
-            Task::where('id', $taskId)->update(['status' => $newStatus]);
-        } catch (\Exception $e) {
-            // Mock update for UI
-            $this->tasks = $this->tasks->map(function($t) use ($taskId, $newStatus) {
-                if($t->id == $taskId) $t->status = $newStatus;
-                return $t;
-            });
+        // Validation for status
+        if (!in_array($newStatus, ['pending', 'in_progress', 'completed', 'cancelled'])) {
+            return;
         }
+
+        Task::where('id', $taskId)->update(['status' => $newStatus]);
         
-        $this->dispatch('notify', message: 'Status diperbarui.', type: 'success');
+        $this->refreshTasks();
+        $this->dispatch('notify', message: 'Status tugas diperbarui.', type: 'success');
     }
 
     public function render()
@@ -97,9 +80,9 @@ class TaskManager extends Component
         
         return view('livewire.admin.task-manager', [
             'users' => $users,
-            'todoTasks' => $this->tasks->where('status', 'todo'),
+            'todoTasks' => $this->tasks->where('status', 'pending'),
             'progressTasks' => $this->tasks->where('status', 'in_progress'),
-            'doneTasks' => $this->tasks->where('status', 'done'),
+            'doneTasks' => $this->tasks->where('status', 'completed'),
         ]);
     }
 }

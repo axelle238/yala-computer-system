@@ -65,10 +65,10 @@
                                 {{ $task->priority }}
                             </span>
                             <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button wire:click="updateStatus({{ $task->id }}, 'todo')" class="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600" title="Back to Todo">
+                                <button wire:click="updateStatus({{ $task->id }}, 'pending')" class="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600" title="Back to Todo">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
                                 </button>
-                                <button wire:click="updateStatus({{ $task->id }}, 'done')" class="p-1 hover:bg-emerald-50 rounded text-emerald-400 hover:text-emerald-600" title="Mark Done">
+                                <button wire:click="updateStatus({{ $task->id }}, 'completed')" class="p-1 hover:bg-emerald-50 rounded text-emerald-400 hover:text-emerald-600" title="Mark Done">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                 </button>
                             </div>
