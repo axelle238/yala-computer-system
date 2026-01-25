@@ -9,14 +9,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rmas', function (Blueprint $table) {
-            $table->decimal('refund_amount', 15, 2)->default(0)->after('resolution_type');
-            $table->foreignId('supplier_id')->nullable()->after('order_id')->constrained(); // If returning to supplier
-            $table->boolean('stock_adjusted')->default(false)->after('status'); // Flag to prevent double stock reduction
+            if (!Schema::hasColumn('rmas', 'refund_amount')) {
+                $table->decimal('refund_amount', 15, 2)->default(0)->after('resolution_type');
+            }
+            if (!Schema::hasColumn('rmas', 'supplier_id')) {
+                $table->foreignId('supplier_id')->nullable()->after('order_id')->constrained();
+            }
+            if (!Schema::hasColumn('rmas', 'stock_adjusted')) {
+                $table->boolean('stock_adjusted')->default(false)->after('status');
+            }
         });
 
         Schema::table('rma_items', function (Blueprint $table) {
-            $table->foreignId('replacement_product_id')->nullable()->after('product_id')->constrained('products'); // If swapping with different product
-            $table->string('replacement_serial_number')->nullable()->after('serial_number'); // New SN for the customer
+            if (!Schema::hasColumn('rma_items', 'replacement_product_id')) {
+                $table->foreignId('replacement_product_id')->nullable()->after('product_id')->constrained('products');
+            }
+            if (!Schema::hasColumn('rma_items', 'replacement_serial_number')) {
+                $table->string('replacement_serial_number')->nullable()->after('serial_number');
+            }
         });
     }
 

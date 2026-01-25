@@ -83,6 +83,36 @@
                                     <textarea wire:model="description" rows="4" class="w-full bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-sm focus:ring-cyan-500 dark:text-white" placeholder="Jelaskan bagaimana kerusakan terjadi..."></textarea>
                                     @error('description') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
                                 </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Bukti Foto / Video (Opsional)</label>
+                                    <div class="flex items-center justify-center w-full">
+                                        <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-700 transition-all">
+                                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                <svg class="w-8 h-8 mb-2 text-slate-500 dark:text-slate-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                                </svg>
+                                                <p class="text-xs text-slate-500 dark:text-slate-400"><span class="font-bold">Klik untuk upload</span> atau drag and drop</p>
+                                                <p class="text-[10px] text-slate-400 dark:text-slate-500">SVG, PNG, JPG or MP4 (MAX. 5MB)</p>
+                                            </div>
+                                            <input wire:model="evidencePhotos" id="dropzone-file" type="file" class="hidden" multiple accept="image/*,video/*" />
+                                        </label>
+                                    </div>
+                                    @error('evidencePhotos.*') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
+                                    
+                                    <!-- Preview -->
+                                    @if($evidencePhotos)
+                                        <div class="flex flex-wrap gap-2 mt-3">
+                                            @foreach($evidencePhotos as $photo)
+                                                @if(str_starts_with($photo->getMimeType(), 'image'))
+                                                    <img src="{{ $photo->temporaryUrl() }}" class="w-16 h-16 object-cover rounded-lg border border-slate-200">
+                                                @else
+                                                    <div class="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center text-xs text-slate-500 border border-slate-200">Video</div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
                                 
                                 <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800 text-xs flex items-start gap-2">
                                     <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>

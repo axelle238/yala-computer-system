@@ -45,6 +45,7 @@ class RmaRequest extends Component
             'selectedOrderId' => 'required|exists:orders,id',
             'description' => 'required|string|min:10',
             'selectedItems' => 'required|array',
+            'evidencePhotos.*' => 'nullable|file|mimes:jpg,jpeg,png,mp4,mov|max:5120', // Max 5MB
         ]);
 
         // Filter item yang dicentang
@@ -55,6 +56,14 @@ class RmaRequest extends Component
             return;
         }
 
+        // Proses Upload File
+        $evidencePaths = [];
+        if ($this->evidencePhotos) {
+            foreach ($this->evidencePhotos as $photo) {
+                $evidencePaths[] = $photo->store('rma-evidence', 'public');
+            }
+        }
+
         $order = Order::find($this->selectedOrderId);
 
         // Create RMA Header
@@ -62,9 +71,8 @@ class RmaRequest extends Component
             'user_id' => Auth::id(),
             'order_id' => $order->id,
             'rma_number' => 'RMA-' . date('Ymd') . '-' . rand(100, 999),
-            'reason_description' => $this->description,
+            'reason' => $this->description,
             'status' => Rma::STATUS_REQUESTED,
-            'request_date' => now(),
         ]);
 
         // Create RMA Items
@@ -75,13 +83,12 @@ class RmaRequest extends Component
                     'rma_id' => $rma->id,
                     'product_id' => $orderItem->product_id,
                     'quantity' => $data['qty'] ?? 1,
-                    'reason' => $data['reason'] ?? 'Tidak disebutkan',
+                    'problem_description' => $data['reason'] ?? 'Tidak disebutkan',
                     'condition' => $data['condition'] ?? 'Lengkap',
+                    'evidence_files' => !empty($evidencePaths) ? json_encode($evidencePaths) : null,
                 ]);
             }
         }
-
-        // TODO: Handle File Uploads (Simpan path ke tabel attachment jika ada)
 
         session()->flash('success', 'Permintaan RMA #' . $rma->rma_number . ' berhasil dikirim. Tim kami akan segera meninjau.');
         return redirect()->route('member.dashboard');
