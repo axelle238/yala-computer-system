@@ -84,9 +84,7 @@
             <nav class="hidden lg:flex items-center gap-8 ml-8">
                 @foreach([
                     ['label' => 'Katalog', 'route' => 'store.catalog'],
-                    ['label' => 'Merek', 'route' => 'store.brands'],
-                    ['label' => 'Rakit PC', 'route' => 'pc-builder'],
-                    ['label' => 'Servis', 'route' => 'track-service'],
+                    ['label' => 'Berita', 'route' => 'news.index'],
                 ] as $item)
                     <a href="{{ route($item['route']) }}" 
                        class="text-xs font-bold uppercase tracking-widest transition-all duration-300 relative group py-2
@@ -127,15 +125,24 @@
                             <span>{{ auth()->user()->name }}</span>
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </button>
-                        <div class="absolute right-0 pt-2 w-48 hidden group-hover:block">
+                        <div class="absolute right-0 pt-2 w-56 hidden group-hover:block">
                             <div class="bg-slate-900 border border-white/10 rounded-xl shadow-xl overflow-hidden">
-                                <a href="{{ route('member.dashboard') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Dashboard</a>
-                                <a href="{{ route('member.profile') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Pengaturan Profil</a>
-                                <a href="{{ route('member.orders') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Riwayat Pesanan</a>
-                                <a href="{{ route('member.quotations') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Penawaran Saya (B2B)</a>
-                                <a href="{{ route('member.rma.request') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Klaim Garansi (RMA)</a>
-                                <a href="{{ route('member.referrals') }}" class="block px-4 py-3 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Referral & Cuan</a>
-                                <div class="border-t border-white/10"></div>
+                                <!-- Fitur Pindahan -->
+                                <div class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-950/50">Menu Utama</div>
+                                <a href="{{ route('store.brands') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Mitra Merek</a>
+                                <a href="{{ route('pc-builder') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Rakit PC</a>
+                                <a href="{{ route('track-service') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Lacak Servis</a>
+                                <a href="{{ route('track-order') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Lacak Pesanan</a>
+                                
+                                <div class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-950/50 mt-1">Area Member</div>
+                                <a href="{{ route('member.dashboard') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Dashboard</a>
+                                <a href="{{ route('member.profile') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Pengaturan Profil</a>
+                                <a href="{{ route('member.orders') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Riwayat Pesanan</a>
+                                <a href="{{ route('member.quotations') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Penawaran Saya (B2B)</a>
+                                <a href="{{ route('member.rma.request') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Klaim Garansi (RMA)</a>
+                                <a href="{{ route('member.referrals') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Referral & Cuan</a>
+                                
+                                <div class="border-t border-white/10 mt-1"></div>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-rose-500 hover:bg-rose-500/10 transition-colors">Keluar</button>
@@ -203,8 +210,6 @@
                 </div>
                 <div class="flex flex-wrap justify-center gap-6 text-xs text-slate-400 font-bold uppercase tracking-widest">
                     <a href="{{ route('home') }}" class="hover:text-cyan-400 transition-colors">Katalog</a>
-                    <a href="{{ route('track-order') }}" class="hover:text-cyan-400 transition-colors">Lacak Pesanan</a>
-                    <a href="{{ route('news.index') }}" class="hover:text-cyan-400 transition-colors">Berita</a>
                     <a href="{{ route('store.about') }}" class="hover:text-cyan-400 transition-colors">Tentang Kami</a>
                     <a href="{{ route('store.contact') }}" class="hover:text-cyan-400 transition-colors">Hubungi Kami</a>
                     <a href="{{ route('privacy-policy') }}" class="hover:text-cyan-400 transition-colors">Privasi</a>
