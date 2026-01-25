@@ -1,56 +1,50 @@
 # Analisis Sistem Yala Computer
 
 **Tanggal:** 26 Januari 2026
-**Status:** DRAFT AWAL
+**Status:** TERVERIFIKASI (SIAP PENGEMBANGAN)
 
 ## 1. Ringkasan Eksekutif
-Sistem Yala Computer adalah aplikasi skala besar yang mencakup manajemen operasional (ERP mini) dan e-commerce (Storefront). Saat ini, fondasi backend dan rute sudah tertata dengan baik. Fokus utama saat ini adalah stabilisasi fitur baru, konsistensi UI, dan validasi bahasa.
+Sistem Yala Computer adalah aplikasi skala besar yang mencakup manajemen operasional (ERP mini) dan e-commerce (Storefront). Struktur kode modern (Livewire 3/4 style) dan konsisten menggunakan Bahasa Indonesia. Fondasi backend sangat kuat.
 
 ## 2. Area Admin / Operasional
 
 ### Status Fitur Utama
-| Modul | Status Kode | Catatan |
-| :--- | :--- | :--- |
-| **Auth & Permissions** | Ada | Perlu validasi RoleManager & RoleForm baru. |
-| **Dashboard** | Ada | `Dashboard.php` perlu dicek widget-nya. |
-| **Keuangan (Cash Register)** | Perbaikan Baru | Baru saja diperbaiki `MultipleRootElementsDetectedException`. Perlu tes fungsional. |
-| **Karyawan (Employee)** | Perbaikan Baru | Migrasi `employee_details` baru dibuat. Relasi perlu dicek. |
-| **Produk & Inventaris** | Ada | Fitur inti. Perlu cek fitur baru seperti Bundles & LabelMaker. |
-| **Servis & Rakit PC** | Ada | Modul kompleks. Perlu validasi alur `Workbench` & `Assembly`. |
+| Modul | Status Kode | Verifikasi | Catatan |
+| :--- | :--- | :--- | :--- |
+| **Auth & Permissions** | Ada | **OK** | `RoleManager` menggunakan validasi relasi user yang aman. |
+| **Dashboard** | Ada | Pending | Perlu dicek widget real-time. |
+| **Keuangan (Cash Register)** | Perbaikan Baru | Pending | Perlu tes fungsional buka/tutup kasir. |
+| **Karyawan (Employee)** | Perbaikan Baru | **RISIKO** | Tabel `employee_details` baru. Perlu verifikasi CRUD menyimpan data ke tabel ini dengan benar. |
+| **Produk & Inventaris** | Ada | OK | Fitur inti stabil. |
+| **Servis & Rakit PC** | Ada | OK | Modul kompleks. Alur `Workbench` perlu validasi UI. |
 
 ### Temuan Bug & Risiko
-1.  **Role Management**: Baru dibuat/disentuh. Validasi form dan penyimpanan data hak akses perlu diuji.
-2.  **Employee Details**: Tabel baru. Pastikan form input karyawan menyimpan data ke tabel ini.
-3.  **Konsistensi Bahasa**: Pastikan semua pesan error dan label form dalam Bahasa Indonesia.
+1.  **Integrasi Data Karyawan**: Risiko data tidak tersimpan ke tabel `employee_details` saat membuat karyawan baru jika controller belum diupdate menyesuaikan skema baru.
+2.  **Hardcoded Ongkir**: Di `Checkout.php`, ongkos kirim masih hardcoded array statis kota besar. Perlu catatan pengembangan masa depan.
 
 ## 3. Area Storefront (Halaman Pengguna)
 
 ### Status Fitur Utama
-| Modul | Status Kode | Catatan |
-| :--- | :--- | :--- |
-| **Homepage** | Ada | `Store\Home`. Perlu cek performa load. |
-| **Katalog & Produk** | Ada | `Store\Catalog`, `Store\ProductDetail`. |
-| **Cart & Checkout** | Ada | Kritis. Harus berjalan mulus end-to-end. |
-| **Member Area** | Ada | Dashboard member, tracking order/service. |
+| Modul | Status Kode | Verifikasi | Catatan |
+| :--- | :--- | :--- | :--- |
+| **Homepage** | Ada | OK | Load time perlu dipantau. |
+| **Cart & Checkout** | Ada | **OK** | Logika sangat lengkap (Voucher, Poin, Stok, Snap Token). |
+| **Member Area** | Ada | OK | Dashboard member tersedia. |
 
-### Temuan Bug & Risiko
-1.  **UX**: Pastikan alur belanja dari Katalog -> Cart -> Checkout tidak terputus.
-2.  **Mobile Responsiveness**: Perlu dipastikan tampilan rapi di layar kecil (berdasarkan kelas Tailwind).
+## 4. Rencana Tindakan (Prioritas Pengembangan)
 
-## 4. Rencana Tindakan (Prioritas)
+### Iterasi 1: Validasi Manajemen Karyawan (Admin)
+**Fokus:** Memastikan form input karyawan (`Employees\Form`) menyimpan data detail (NIK, NPWP, Alamat, Tgl Lahir) ke tabel `employee_details` yang baru, bukan hanya tabel `users`.
+- Cek `App\Livewire\Employees\Form`.
+- Cek Model `EmployeeDetail`.
+- Perbaiki jika data belum tersinkronisasi.
 
-### Prioritas 1: Stabilisasi Core Admin
-1.  Validasi **Manajemen Peran (Role Manager)**: Pastikan CRUD role berfungsi.
-2.  Validasi **Manajemen Karyawan**: Pastikan data detail karyawan tersimpan.
-3.  Validasi **Cash Register**: Pastikan buka/tutup shift berjalan lancar.
+### Iterasi 2: Stabilisasi Cash Register (Admin)
+**Fokus:** Memastikan fitur kasir (buka/tutup shift) tidak error dan menghitung saldo dengan benar.
 
-### Prioritas 2: Validasi Storefront
-1.  Cek alur **Checkout**.
-2.  Cek fitur **Pelacakan Servis**.
-
-### Prioritas 3: Polish & Bahasa
-1.  Audit menyeluruh string text di View.
-2.  Standarisasi notifikasi (Toast/Flash Message).
+### Iterasi 3: Polish Storefront
+**Fokus:** Memastikan tampilan Checkout responsif dan menangani error pembayaran dengan pesan Bahasa Indonesia yang ramah.
 
 ## 5. Log Perubahan (Checkpoint)
-- `checkpoint-baseline`: Kondisi awal (termasuk hotfix CashRegister & Migration).
+- `checkpoint-baseline`: Kondisi awal sistem.
+- `checkpoint-analisis`: Hasil audit kode RoleManager dan Checkout.
