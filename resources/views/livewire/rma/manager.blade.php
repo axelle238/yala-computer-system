@@ -141,12 +141,24 @@
                                 @if(in_array($selectedRma->status, ['received', 'processing', 'vendor_process']))
                                     <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
                                         <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Solusi Akhir</label>
-                                        <select wire:model="resolutionAction" class="w-full mb-3 rounded-lg border-slate-300 text-sm">
+                                        <select wire:model.live="resolutionAction" class="w-full mb-3 rounded-lg border-slate-300 text-sm focus:ring-emerald-500">
                                             <option value="">-- Pilih Solusi --</option>
                                             <option value="replace">Ganti Baru (Stok Berkurang)</option>
                                             <option value="repair">Servis Selesai</option>
                                             <option value="refund">Refund Dana</option>
                                         </select>
+
+                                        @if($resolutionAction === 'refund')
+                                            <div class="mb-3 animate-fade-in">
+                                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nominal Refund (IDR)</label>
+                                                <div class="relative">
+                                                    <span class="absolute left-3 top-2.5 text-slate-400 font-bold text-xs">Rp</span>
+                                                    <input wire:model="refundAmount" type="number" class="w-full pl-10 pr-4 py-2 rounded-lg border-slate-300 text-sm focus:ring-emerald-500 font-mono" placeholder="0">
+                                                </div>
+                                                <p class="text-[10px] text-slate-400 mt-1">Pastikan saldo kasir mencukupi.</p>
+                                            </div>
+                                        @endif
+
                                         <button wire:click="resolveRma" class="w-full py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition-all">
                                             Selesaikan RMA (Resolve)
                                         </button>
