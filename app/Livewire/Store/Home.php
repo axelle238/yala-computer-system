@@ -15,37 +15,37 @@ use Livewire\Attributes\Title;
 #[Title('Yala Computer - Toko Komputer Terlengkap')]
 class Home extends Component
 {
-    public $trackingNumber = '';
+    public $nomorLacak = '';
 
-    public function trackService()
+    public function lacakServis()
     {
-        $this->validate(['trackingNumber' => 'required|string|min:5']);
-        return redirect()->route('track-service', ['ticket' => $this->trackingNumber]);
+        $this->validate(['nomorLacak' => 'required|string|min:5']);
+        return redirect()->route('track-service', ['ticket' => $this->nomorLacak]);
     }
 
-    public function addToCart($productId)
+    public function tambahKeKeranjang($idProduk)
     {
-        $cart = session()->get('cart', []);
-        if (isset($cart[$productId])) {
-            $cart[$productId]++;
+        $keranjang = session()->get('cart', []);
+        if (isset($keranjang[$idProduk])) {
+            $keranjang[$idProduk]++;
         } else {
-            $cart[$productId] = 1;
+            $keranjang[$idProduk] = 1;
         }
-        session()->put('cart', $cart);
+        session()->put('cart', $keranjang);
         $this->dispatch('cart-updated');
         $this->dispatch('notify', message: 'Produk ditambahkan ke keranjang!', type: 'success');
     }
 
-    public function addToCompare($productId)
+    public function tambahKePerbandingan($idProduk)
     {
-        $compare = session()->get('comparison_list', []);
-        if (!in_array($productId, $compare)) {
-            if(count($compare) >= 4) {
+        $perbandingan = session()->get('comparison_list', []);
+        if (!in_array($idProduk, $perbandingan)) {
+            if(count($perbandingan) >= 4) {
                 $this->dispatch('notify', message: 'Maksimal 4 produk untuk dibandingkan.', type: 'error');
                 return;
             }
-            $compare[] = $productId;
-            session()->put('comparison_list', $compare);
+            $perbandingan[] = $idProduk;
+            session()->put('comparison_list', $perbandingan);
             $this->dispatch('notify', message: 'Ditambahkan ke perbandingan!', type: 'success');
         } else {
             $this->dispatch('notify', message: 'Produk sudah ada di list.', type: 'info');
@@ -54,17 +54,17 @@ class Home extends Component
 
     public function render()
     {
-        $banners = Banner::where('is_active', true)
+        $banner = Banner::where('is_active', true)
             ->orderBy('order')
             ->get();
 
-        $categories = Category::withCount('products')
+        $kategori = Category::withCount('products')
             ->where('is_active', true)
             ->get();
 
-        $flashSaleEnabled = Setting::get('flash_sale_active', true); // Global toggle
+        $flashSaleAktif = Setting::get('flash_sale_active', true); // Toggle global
         
-        $flashSales = FlashSale::with('product')
+        $daftarFlashSale = FlashSale::with('product')
             ->where('is_active', true)
             ->where('start_time', '<=', now())
             ->where('end_time', '>=', now())
@@ -72,18 +72,18 @@ class Home extends Component
             ->take(4)
             ->get();
 
-        $products = Product::with('category')
+        $produk = Product::with('category')
             ->where('is_active', true)
             ->latest()
             ->take(8)
             ->get();
 
         return view('livewire.store.home', [
-            'banners' => $banners,
-            'categories' => $categories,
-            'products' => $products,
-            'flashSales' => $flashSales,
-            'flashSaleEnabled' => $flashSaleEnabled
+            'banner' => $banner,
+            'kategori' => $kategori,
+            'produk' => $produk,
+            'daftarFlashSale' => $daftarFlashSale,
+            'flashSaleAktif' => $flashSaleAktif
         ]);
     }
 }

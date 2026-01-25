@@ -1,31 +1,31 @@
 <div class="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans">
     
     <!-- Hero Slider -->
-    @if($banners->count() > 0)
-        <div class="relative w-full h-[500px] md:h-[600px] overflow-hidden group bg-slate-950" x-data="{ active: 0, count: {{ $banners->count() }}, timer: null }" x-init="timer = setInterval(() => active = (active + 1) % count, 6000)">
-            @foreach($banners as $index => $banner)
+    @if($banner->count() > 0)
+        <div class="relative w-full h-[500px] md:h-[600px] overflow-hidden group bg-slate-950" x-data="{ aktif: 0, jumlah: {{ $banner->count() }}, timer: null }" x-init="timer = setInterval(() => aktif = (aktif + 1) % jumlah, 6000)">
+            @foreach($banner as $indeks => $itemBanner)
                 <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
-                     x-show="active === {{ $index }}"
+                     x-show="aktif === {{ $indeks }}"
                      x-transition:enter="opacity-0"
                      x-transition:enter-end="opacity-100"
                      x-transition:leave="opacity-100"
                      x-transition:leave-end="opacity-0">
-                    <img src="{{ asset('storage/' . $banner->image_path) }}" class="w-full h-full object-cover opacity-60">
+                    <img src="{{ asset('storage/' . $itemBanner->image_path) }}" class="w-full h-full object-cover opacity-60">
                     <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/80 to-transparent flex items-center">
                         <div class="container mx-auto px-4 lg:px-8">
                             <div class="max-w-2xl animate-fade-in-up space-y-6">
                                 <span class="inline-block px-3 py-1 bg-cyan-500/20 text-cyan-400 font-bold tracking-[0.2em] uppercase text-xs rounded border border-cyan-500/30 backdrop-blur-md">
-                                    Official Store
+                                    Toko Resmi
                                 </span>
                                 <h2 class="text-5xl md:text-7xl font-black font-tech text-white leading-none shadow-black drop-shadow-2xl uppercase tracking-tight">
-                                    {{ $banner->title }}
+                                    {{ $itemBanner->title }}
                                 </h2>
                                 <p class="text-slate-300 text-lg md:text-xl font-light leading-relaxed drop-shadow-md max-w-lg border-l-4 border-cyan-500 pl-4">
-                                    {{ $banner->description }}
+                                    {{ $itemBanner->description }}
                                 </p>
-                                @if($banner->link_url)
+                                @if($itemBanner->link_url)
                                     <div class="pt-4">
-                                        <a href="{{ $banner->link_url }}" class="inline-flex items-center gap-3 px-8 py-4 bg-white text-slate-900 font-black uppercase tracking-widest rounded-none hover:bg-cyan-400 hover:text-slate-900 transition-all transform hover:-translate-y-1 shadow-[0_0_20px_rgba(255,255,255,0.3)] clip-path-polygon">
+                                        <a href="{{ $itemBanner->link_url }}" class="inline-flex items-center gap-3 px-8 py-4 bg-white text-slate-900 font-black uppercase tracking-widest rounded-none hover:bg-cyan-400 hover:text-slate-900 transition-all transform hover:-translate-y-1 shadow-[0_0_20px_rgba(255,255,255,0.3)] clip-path-polygon">
                                             Belanja Sekarang <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                                         </a>
                                     </div>
@@ -36,12 +36,12 @@
                 </div>
             @endforeach
             
-            <!-- Indicators -->
+            <!-- Indikator -->
             <div class="absolute bottom-10 right-10 flex gap-2 z-20">
-                @foreach($banners as $index => $banner)
-                    <button @click="active = {{ $index }}; clearInterval(timer); timer = setInterval(() => active = (active + 1) % count, 6000)" 
+                @foreach($banner as $indeks => $itemBanner)
+                    <button @click="aktif = {{ $indeks }}; clearInterval(timer); timer = setInterval(() => aktif = (aktif + 1) % jumlah, 6000)" 
                             class="h-1 transition-all duration-300 rounded-full"
-                            :class="active === {{ $index }} ? 'bg-cyan-400 w-12' : 'bg-white/20 w-4 hover:bg-white/50'">
+                            :class="aktif === {{ $indeks }} ? 'bg-cyan-400 w-12' : 'bg-white/20 w-4 hover:bg-white/50'">
                     </button>
                 @endforeach
             </div>
@@ -57,7 +57,7 @@
         </div>
     @endif
 
-    <!-- Feature: PC Builder Teaser -->
+    <!-- Fitur: Rakit PC -->
     <section class="relative py-20 bg-slate-950 border-y border-white/5 overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-cyan-900/10 to-transparent pointer-events-none"></div>
         <div class="container mx-auto px-4 relative z-10 flex flex-col md:flex-row items-center gap-12">
@@ -72,7 +72,7 @@
                 </div>
             </div>
             <div class="flex-1 relative">
-                <!-- Visual Abstract PC Case -->
+                <!-- Visual Rakit PC Case -->
                 <div class="relative w-full aspect-video bg-slate-900 rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex items-center justify-center group">
                     <div class="absolute inset-0 bg-cyan-500/5 group-hover:bg-cyan-500/10 transition-colors"></div>
                     <div class="grid grid-cols-2 gap-4 opacity-50 transform group-hover:scale-105 transition-transform duration-700">
@@ -89,7 +89,7 @@
         </div>
     </section>
 
-    <!-- Main Catalog Preview -->
+    <!-- Pratinjau Katalog Utama -->
     <section class="py-16 container mx-auto px-4">
         <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
             <div>
@@ -103,18 +103,18 @@
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            @foreach($products as $product)
+            @foreach($produk as $itemProduk)
                 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-cyan-500 dark:hover:border-cyan-500 hover:shadow-xl hover:shadow-cyan-500/10 transition-all group flex flex-col relative overflow-hidden">
                     
-                    @if($product->stock_quantity <= 5)
+                    @if($itemProduk->stock_quantity <= 5)
                         <div class="absolute top-2 left-2 z-20 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wider">
                             Stok Terbatas
                         </div>
                     @endif
 
-                    <a href="{{ route('product.detail', $product->id) }}" class="block relative aspect-square p-4 bg-white dark:bg-slate-900/50 overflow-hidden">
-                        @if($product->image_path)
-                            <img src="{{ asset('storage/' . $product->image_path) }}" class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500">
+                    <a href="{{ route('product.detail', $itemProduk->id) }}" class="block relative aspect-square p-4 bg-white dark:bg-slate-900/50 overflow-hidden">
+                        @if($itemProduk->image_path)
+                            <img src="{{ asset('storage/' . $itemProduk->image_path) }}" class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500">
                         @else
                             <div class="w-full h-full flex items-center justify-center text-slate-200 dark:text-slate-700">
                                 <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -123,14 +123,14 @@
                     </a>
 
                     <div class="p-4 flex-1 flex flex-col">
-                        <div class="text-[10px] text-cyan-600 dark:text-cyan-400 font-bold uppercase tracking-wider mb-1 opacity-80">{{ $product->category->name }}</div>
+                        <div class="text-[10px] text-cyan-600 dark:text-cyan-400 font-bold uppercase tracking-wider mb-1 opacity-80">{{ $itemProduk->category->name }}</div>
                         <h3 class="font-bold text-slate-800 dark:text-slate-100 leading-tight mb-3 line-clamp-2 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors text-sm">
-                            <a href="{{ route('product.detail', $product->id) }}">{{ $product->name }}</a>
+                            <a href="{{ route('product.detail', $itemProduk->id) }}">{{ $itemProduk->name }}</a>
                         </h3>
                         
                         <div class="mt-auto pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                            <span class="font-black text-base text-slate-900 dark:text-white">Rp {{ number_format($product->sell_price, 0, ',', '.') }}</span>
-                            <button wire:click="addToCart({{ $product->id }})" class="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-cyan-600 hover:text-white transition-all shadow-sm">
+                            <span class="font-black text-base text-slate-900 dark:text-white">Rp {{ number_format($itemProduk->sell_price, 0, ',', '.') }}</span>
+                            <button wire:click="tambahKeKeranjang({{ $itemProduk->id }})" class="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-cyan-600 hover:text-white transition-all shadow-sm">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                             </button>
                         </div>
@@ -140,7 +140,7 @@
         </div>
     </section>
 
-    <!-- Support / Features Bar -->
+    <!-- Bar Fitur / Layanan -->
     <section class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-12">
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div class="flex flex-col md:flex-row items-center md:items-start gap-4 p-4">
@@ -166,7 +166,7 @@
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                 </div>
                 <div>
-                    <h4 class="font-bold text-slate-900 dark:text-white text-lg">Support Handal</h4>
+                    <h4 class="font-bold text-slate-900 dark:text-white text-lg">Dukungan Handal</h4>
                     <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Tim teknis siap membantu konsultasi dan klaim garansi Anda.</p>
                 </div>
             </div>
