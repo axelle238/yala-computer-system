@@ -73,7 +73,7 @@ class PesanMassalWhatsapp extends Component
 
     public function hitungPenerima($target)
     {
-        $query = User::whereNotNull('phone');
+        $query = User::whereNotNull('phone')->where('phone', '!=', '');
 
         if ($target === 'loyal') {
             $query->where('total_spent', '>=', 10000000);
@@ -82,6 +82,17 @@ class PesanMassalWhatsapp extends Component
         }
 
         return $query->count();
+    }
+
+    public function getPreviewPesanProperty()
+    {
+        if (!$this->pesanTemplate) return 'Pratinjau pesan akan muncul di sini...';
+        
+        return str_replace(
+            ['{{ nama }}', '{{ telepon }}'],
+            ['[Nama Pelanggan]', '[Nomor WA]'],
+            $this->pesanTemplate
+        );
     }
 
     public function render()

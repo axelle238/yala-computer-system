@@ -56,9 +56,16 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Isi Pesan</label>
-                        <textarea wire:model="pesanTemplate" rows="8" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-emerald-500 font-mono text-sm" placeholder="Halo {{ nama }}, dapatkan diskon spesial..."></textarea>
+                        <textarea wire:model.live="pesanTemplate" rows="6" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-emerald-500 font-mono text-sm" placeholder="Halo {{ nama }}, dapatkan diskon spesial..."></textarea>
                         @error('pesanTemplate') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         <p class="text-[10px] text-slate-400 mt-1">Variabel tersedia: {{ nama }}, {{ telepon }}</p>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Pratinjau Pesan</label>
+                        <div class="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-wrap italic">
+                            {{ $this->previewPesan }}
+                        </div>
                     </div>
 
                     <div class="flex justify-end gap-3 pt-4">
