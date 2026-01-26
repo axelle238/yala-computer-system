@@ -14,7 +14,7 @@
     </div>
 
     <!-- Form Panel -->
-    @if($aksiAktif === 'create')
+    @if($aksiAktif === 'buat')
         <div class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-emerald-100 dark:border-emerald-900/30 p-6 shadow-lg animate-fade-in-up">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
@@ -85,15 +85,15 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                @forelse($blasts as $blast)
+                @forelse($daftarPesan as $pesan)
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
-                        <td class="px-6 py-4 font-bold text-slate-700 dark:text-white">{{ $blast->campaign_name }}</td>
+                        <td class="px-6 py-4 font-bold text-slate-700 dark:text-white">{{ $pesan->campaign_name }}</td>
                         <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
                             <span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-700 text-xs font-bold uppercase">
-                                {{ $blast->target_audience }}
+                                {{ $pesan->target_audience }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-center font-mono font-bold">{{ $blast->total_recipients }}</td>
+                        <td class="px-6 py-4 text-center font-mono font-bold">{{ $pesan->total_recipients }}</td>
                         <td class="px-6 py-4 text-center">
                             @php
                                 $statusColors = [
@@ -103,12 +103,12 @@
                                     'failed' => 'bg-rose-100 text-rose-700',
                                 ];
                             @endphp
-                            <span class="px-2 py-1 rounded-full text-xs font-bold uppercase {{ $statusColors[$blast->status] }}">
-                                {{ $blast->status }}
+                            <span class="px-2 py-1 rounded-full text-xs font-bold uppercase {{ $statusColors[$pesan->status] }}">
+                                {{ $pesan->status }}
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right text-sm text-slate-500">
-                            {{ $blast->scheduled_at ? $blast->scheduled_at->format('d/m/Y H:i') : 'Langsung' }}
+                            {{ $pesan->scheduled_at ? $pesan->scheduled_at->format('d/m/Y H:i') : 'Langsung' }}
                         </td>
                     </tr>
                 @empty
@@ -119,7 +119,7 @@
             </tbody>
         </table>
         <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-700">
-            {{ $blasts->links() }}
+            {{ $daftarPesan->links() }}
         </div>
     </div>
 </div>
