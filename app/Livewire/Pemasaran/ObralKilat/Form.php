@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Marketing\FlashSale;
+namespace App\Livewire\Pemasaran\ObralKilat;
 
 use App\Models\FlashSale;
 use App\Models\Product;
@@ -9,75 +9,75 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('layouts.admin')]
-#[Title('Tambah Flash Sale - Yala Computer')]
+#[Title('Tambah Obral Kilat - Yala Computer')]
 class Form extends Component
 {
-    public $product_id;
+    public $idProduk;
 
-    public $discount_price;
+    public $hargaDiskon;
 
-    public $start_time;
+    public $waktuMulai;
 
-    public $end_time;
+    public $waktuSelesai;
 
-    public $quota = 10;
+    public $kuota = 10;
 
     // Search
-    public $searchProduct = '';
+    public $cariProduk = '';
 
-    public $searchResults = [];
+    public $hasilPencarian = [];
 
-    public $selectedProductName = '';
+    public $namaProdukTerpilih = '';
 
-    public $originalPrice = 0;
+    public $hargaAsli = 0;
 
-    public function updatedSearchProduct()
+    public function updatedCariProduk()
     {
-        if (strlen($this->searchProduct) > 2) {
-            $this->searchResults = Product::where('name', 'like', '%'.$this->searchProduct.'%')
+        if (strlen($this->cariProduk) > 2) {
+            $this->hasilPencarian = Product::where('name', 'like', '%'.$this->cariProduk.'%')
                 ->where('is_active', true)
                 ->take(5)->get();
         } else {
-            $this->searchResults = [];
+            $this->hasilPencarian = [];
         }
     }
 
-    public function selectProduct($id)
+    public function pilihProduk($id)
     {
-        $product = Product::find($id);
-        $this->product_id = $product->id;
-        $this->selectedProductName = $product->name;
-        $this->originalPrice = $product->sell_price;
-        $this->searchProduct = ''; // Close dropdown
-        $this->searchResults = [];
+        $produk = Product::find($id);
+        $this->idProduk = $produk->id;
+        $this->namaProdukTerpilih = $produk->name;
+        $this->hargaAsli = $produk->sell_price;
+        $this->cariProduk = ''; // Close dropdown
+        $this->hasilPencarian = [];
     }
 
-    public function save()
+    public function simpan()
     {
         $this->validate([
-            'product_id' => 'required|exists:products,id',
-            'discount_price' => 'required|numeric|min:1|lt:originalPrice',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
-            'quota' => 'required|integer|min:1',
+            'idProduk' => 'required|exists:products,id',
+            'hargaDiskon' => 'required|numeric|min:1|lt:hargaAsli',
+            'waktuMulai' => 'required|date',
+            'waktuSelesai' => 'required|date|after:waktuMulai',
+            'kuota' => 'required|integer|min:1',
         ]);
 
         FlashSale::create([
-            'product_id' => $this->product_id,
-            'discount_price' => $this->discount_price,
-            'start_time' => $this->start_time,
-            'end_time' => $this->end_time,
-            'quota' => $this->quota,
+            'product_id' => $this->idProduk,
+            'discount_price' => $this->hargaDiskon,
+            'start_time' => $this->waktuMulai,
+            'end_time' => $this->waktuSelesai,
+            'quota' => $this->kuota,
             'is_active' => true,
         ]);
 
-        $this->dispatch('notify', message: 'Flash sale berhasil dibuat!', type: 'success');
+        $this->dispatch('notify', message: 'Obral Kilat berhasil dibuat!', type: 'success');
 
         return redirect()->route('marketing.flash-sale.index');
     }
 
     public function render()
     {
-        return view('livewire.marketing.flash-sale.form');
+        return view('livewire.pemasaran.obral-kilat.form');
     }
 }

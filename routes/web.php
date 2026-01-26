@@ -159,13 +159,12 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/gudang/transfer', \App\Livewire\Warehouses\Transfer::class)->name('warehouses.transfer');
     Route::get('/gudang/stok-opname', \App\Livewire\Warehouses\StockOpname::class)->name('warehouses.stock-opname');
 
-    // Pemasaran
+    // Pemasaran (Refactored to Pemasaran Namespace)
     Route::get('/pemasaran/obral-kilat', \App\Livewire\Pemasaran\ObralKilat\Index::class)->name('marketing.flash-sale.index');
     Route::get('/pemasaran/obral-kilat/buat', \App\Livewire\Pemasaran\ObralKilat\Form::class)->name('marketing.flash-sale.create');
     Route::get('/pemasaran/ulasan', \App\Livewire\Pemasaran\Ulasan\Pengelola::class)->name('reviews.manager');
     Route::get('/pemasaran/voucher', \App\Livewire\Pemasaran\Voucher\Index::class)->name('marketing.vouchers.index');
     Route::get('/pemasaran/voucher/buat', \App\Livewire\Pemasaran\Voucher\Form::class)->name('marketing.vouchers.create');
-    Route::get('/pemasaran/whatsapp', \App\Livewire\Pemasaran\PesanMassalWhatsapp::class)->name('marketing.whatsapp');
     Route::get('/pemasaran/whatsapp', \App\Livewire\Pemasaran\PesanMassalWhatsapp::class)->name('marketing.whatsapp');
 
     // Manajemen Berita
