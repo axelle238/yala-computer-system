@@ -14,7 +14,7 @@
     </div>
 
     <!-- Form Panel -->
-    @if($activeAction === 'create')
+    @if($aksiAktif === 'create')
         <div class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-emerald-100 dark:border-emerald-900/30 p-6 shadow-lg animate-fade-in-up">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">

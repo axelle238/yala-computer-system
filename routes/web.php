@@ -165,7 +165,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/pemasaran/ulasan', \App\Livewire\Marketing\Reviews\Manager::class)->name('reviews.manager');
     Route::get('/pemasaran/voucher', \App\Livewire\Marketing\Vouchers\Index::class)->name('marketing.vouchers.index');
     Route::get('/pemasaran/voucher/buat', \App\Livewire\Marketing\Vouchers\Form::class)->name('marketing.vouchers.create');
-    Route::get('/pemasaran/whatsapp', \App\Livewire\Marketing\WhatsappBlast::class)->name('marketing.whatsapp');
+    Route::get('/pemasaran/whatsapp', \App\Livewire\Pemasaran\PesanMassalWhatsapp::class)->name('marketing.whatsapp');
 
     // Manajemen Berita
     Route::get('/berita', \App\Livewire\News\Index::class)->name('admin.news.index');

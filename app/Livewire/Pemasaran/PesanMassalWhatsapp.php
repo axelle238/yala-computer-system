@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Marketing;
+namespace App\Livewire\Pemasaran;
 
 use App\Models\User;
 use App\Models\WhatsappBlast as WhatsappBlastModel;
@@ -11,21 +11,21 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
-#[Title('WhatsApp Blast - Yala Computer')]
-class WhatsappBlast extends Component
+#[Title('Pesan Massal WhatsApp - Yala Computer')]
+class PesanMassalWhatsapp extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public $pencarian = '';
 
-    // Form Properties
-    public $activeAction = null; // null, 'create'
+    // Properti Formulir
+    public $aksiAktif = null; // null, 'buat'
     public $namaKampanye;
     public $targetAudiens = 'all'; // all, loyal, inactive
     public $pesanTemplate;
     public $jadwalKirim;
 
-    public function updatingSearch()
+    public function updatingPencarian()
     {
         $this->resetPage();
     }
@@ -33,12 +33,12 @@ class WhatsappBlast extends Component
     public function bukaPanelBuat()
     {
         $this->reset(['namaKampanye', 'targetAudiens', 'pesanTemplate', 'jadwalKirim']);
-        $this->activeAction = 'create';
+        $this->aksiAktif = 'buat';
     }
 
     public function tutupPanel()
     {
-        $this->activeAction = null;
+        $this->aksiAktif = null;
     }
 
     public function simpan()
@@ -62,7 +62,7 @@ class WhatsappBlast extends Component
             'message_template' => $this->pesanTemplate,
             'target_audience' => $this->targetAudiens,
             'scheduled_at' => $this->jadwalKirim,
-            'status' => $this->jadwalKirim ? 'pending' : 'processing', // Jika langsung kirim, set processing (mock)
+            'status' => $this->jadwalKirim ? 'pending' : 'processing',
             'total_recipients' => $totalPenerima,
             'created_by' => Auth::id(),
         ]);
@@ -76,7 +76,7 @@ class WhatsappBlast extends Component
         $query = User::whereNotNull('phone');
 
         if ($target === 'loyal') {
-            $query->where('total_spent', '>=', 10000000); // Contoh logika loyal
+            $query->where('total_spent', '>=', 10000000);
         } elseif ($target === 'inactive') {
             $query->where('last_purchase_at', '<', now()->subMonths(3));
         }
@@ -86,15 +86,15 @@ class WhatsappBlast extends Component
 
     public function render()
     {
-        $blasts = WhatsappBlastModel::query()
-            ->when($this->search, function ($q) {
-                $q->where('campaign_name', 'like', '%'.$this->search.'%');
+        $daftarPesan = WhatsappBlastModel::query()
+            ->when($this->pencarian, function ($q) {
+                $q->where('campaign_name', 'like', '%'.$this->pencarian.'%');
             })
             ->latest()
             ->paginate(10);
 
-        return view('livewire.marketing.whatsapp-blast', [
-            'blasts' => $blasts,
+        return view('livewire.pemasaran.pesan-massal-whatsapp', [
+            'daftarPesan' => $daftarPesan,
         ]);
     }
 }
