@@ -11,7 +11,7 @@
         <!-- Featured -->
         @if($featured && !$category && $articles->currentPage() == 1)
             <div class="mb-12 animate-fade-in-up delay-100">
-                <a href="{{ route('news.show', $featured->slug) }}" class="group relative block h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-2xl">
+                <a href="{{ route('toko.berita.tampil', $featured->slug) }}" class="group relative block h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-2xl">
                     @if($featured->image_path)
                         <img src="{{ asset('storage/' . $featured->image_path) }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                     @else
@@ -53,7 +53,7 @@
             @forelse($articles as $article)
                 @if($featured && $article->id === $featured->id && !$category && $articles->currentPage() == 1) @continue @endif
                 
-                <a href="{{ route('news.show', $article->slug) }}" class="group bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
+                <a href="{{ route('toko.berita.tampil', $article->slug) }}" class="group bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
                     <div class="h-48 overflow-hidden relative">
                         @if($article->image_path)
                             <img src="{{ asset('storage/' . $article->image_path) }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">

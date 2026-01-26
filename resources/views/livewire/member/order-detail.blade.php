@@ -77,7 +77,7 @@
                                 <div class="text-right">
                                     <p class="font-mono font-bold text-slate-700 dark:text-slate-300">Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</p>
                                     @if($pesanan->status == 'completed')
-                                        <a href="{{ route('product.detail', $item->product_id) }}" class="text-[10px] text-blue-600 hover:underline mt-1 block">Beri Ulasan</a>
+                                        <a href="{{ route('toko.produk.detail', $item->product_id) }}" class="text-[10px] text-blue-600 hover:underline mt-1 block">Beri Ulasan</a>
                                     @endif
                                 </div>
                             </div>

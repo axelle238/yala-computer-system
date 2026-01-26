@@ -34,7 +34,7 @@
                     </div>
 
                     <div class="mt-auto">
-                        <a href="{{ route('product.detail', $product->id) }}" class="block w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl text-center transition-all shadow-lg shadow-cyan-500/20">
+                        <a href="{{ route('toko.produk.detail', $product->id) }}" class="block w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl text-center transition-all shadow-lg shadow-cyan-500/20">
                             Lihat Detail Lengkap
                         </a>
                     </div>

@@ -45,7 +45,7 @@
                 <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Artikel Terkait</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     @foreach($related as $rel)
-                        <a href="{{ route('news.show', $rel->slug) }}" class="group bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:-translate-y-1 transition-all">
+                        <a href="{{ route('toko.berita.tampil', $rel->slug) }}" class="group bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:-translate-y-1 transition-all">
                             <div class="h-32 overflow-hidden bg-slate-200">
                                 @if($rel->image_path)
                                     <img src="{{ asset('storage/' . $rel->image_path) }}" class="w-full h-full object-cover transition-transform group-hover:scale-110">

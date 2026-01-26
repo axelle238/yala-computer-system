@@ -42,7 +42,7 @@
         </div>
         
         <div class="mt-12">
-            <a href="{{ route('login') }}" class="text-xs font-bold text-slate-600 hover:text-white transition-colors uppercase tracking-widest">
+            <a href="{{ route('masuk') }}" class="text-xs font-bold text-slate-600 hover:text-white transition-colors uppercase tracking-widest">
                 Admin Access
             </a>
         </div>

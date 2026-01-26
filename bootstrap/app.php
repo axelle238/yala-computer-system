@@ -11,6 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->redirectGuestsTo(function (\Illuminate\Http\Request $request) {
+            if ($request->is('admin*')) {
+                return route('masuk');
+            }
+            return route('pelanggan.masuk');
+        });
+
         $middleware->append(\App\Http\Middleware\CheckForMaintenanceMode::class);
         $middleware->alias([
             'shift.open' => \App\Http\Middleware\EnsureCashRegisterOpen::class,

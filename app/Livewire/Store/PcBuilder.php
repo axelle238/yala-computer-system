@@ -170,7 +170,7 @@ class PcBuilder extends Component
         if (! Auth::check()) {
             $this->dispatch('notify', message: 'Silakan masuk untuk menyimpan rakitan.', type: 'error');
 
-            return redirect()->route('customer.login');
+            return redirect()->route('pelanggan.masuk');
         }
 
         SavedBuild::create([

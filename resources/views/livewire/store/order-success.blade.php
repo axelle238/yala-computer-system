@@ -95,7 +95,7 @@
         </div>
 
         <div class="text-center">
-            <a href="{{ route('home') }}" class="text-slate-400 hover:text-slate-600 font-bold text-sm">Kembali ke Beranda</a>
+            <a href="{{ route('beranda') }}" class="text-slate-400 hover:text-slate-600 font-bold text-sm">Kembali ke Beranda</a>
         </div>
     </div>
     

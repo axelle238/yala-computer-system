@@ -22,6 +22,6 @@
     </form>
 
     <div class="mt-6 text-center text-sm text-slate-500">
-        <a href="{{ route('customer.login') }}" class="text-cyan-500 hover:text-cyan-400 font-bold">Kembali ke Login</a>
+        <a href="{{ route('pelanggan.masuk') }}" class="text-cyan-500 hover:text-cyan-400 font-bold">Kembali ke Login</a>
     </div>
 </div>

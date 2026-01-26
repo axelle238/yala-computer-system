@@ -93,7 +93,7 @@ class Cart extends Component
         if (! Auth::check()) {
             $this->dispatch('notify', message: 'Silakan login untuk meminta penawaran.', type: 'warning');
 
-            return redirect()->route('login');
+            return redirect()->route('pelanggan.masuk');
         }
 
         if ($this->cartProducts->isEmpty()) {

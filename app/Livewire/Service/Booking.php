@@ -74,7 +74,7 @@ class Booking extends Component
         $this->dispatch('notify', message: 'Booking berhasil! Kami akan menghubungi Anda.', type: 'success');
 
         // Reset or redirect
-        return redirect()->route('home');
+        return redirect()->route('beranda');
     }
 
     public function render()

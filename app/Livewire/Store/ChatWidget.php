@@ -174,7 +174,7 @@ class ChatWidget extends Component
                 $jawaban = "Saya menemukan produk yang cocok:\n";
                 foreach ($produk as $p) {
                     $stok = $p->stock_quantity > 0 ? "Stok: {$p->stock_quantity}" : 'Stok Habis';
-                    $jawaban .= "- **[{$p->name}](".route('product.detail', $p->id).")**\n  Rp ".number_format($p->sell_price, 0, ',', '.')." | {$stok}\n";
+                    $jawaban .= "- **[{$p->name}](".route('toko.produk.detail', $p->id).")**\n  Rp ".number_format($p->sell_price, 0, ',', '.')." | {$stok}\n";
                 }
                 $jawaban .= "\nKlik nama produk untuk detailnya.";
             } else {

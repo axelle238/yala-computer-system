@@ -32,7 +32,7 @@
                                         </div>
                                         
                                         <h3 class="font-bold text-slate-900 dark:text-white mb-2 leading-tight h-10 line-clamp-2">
-                                            <a href="{{ route('product.detail', $product->id) }}" class="hover:text-cyan-500">{{ $product->name }}</a>
+                                            <a href="{{ route('toko.produk.detail', $product->id) }}" class="hover:text-cyan-500">{{ $product->name }}</a>
                                         </h3>
                                         <div class="text-xl font-black text-cyan-600 font-mono mb-4">
                                             Rp {{ number_format($product->sell_price, 0, ',', '.') }}
@@ -106,7 +106,7 @@
                 </div>
                 <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Belum Ada Produk</h3>
                 <p class="text-slate-500 mb-8">Pilih produk dari katalog untuk mulai membandingkan.</p>
-                <a href="{{ route('store.catalog') }}" class="px-8 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg transition-all">
+                <a href="{{ route('toko.katalog') }}" class="px-8 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg transition-all">
                     Buka Katalog
                 </a>
             </div>

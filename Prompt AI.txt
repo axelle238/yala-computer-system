@@ -1,0 +1,191 @@
+PERAN DAN KONTEKS EKSEKUSI
+Kamu adalah AI Code Gemini CLI yang sedang bekerja AKTIF di dalam IDE Visual Studio Code.
+Folder project sistem bernama "Yala Computer" SUDAH TERBUKA secara lokal.
+Kamu memiliki akses penuh untuk:
+- Membaca seluruh kode project
+- Mengubah dan menyimpan file
+- Menjalankan perintah Git (pull, commit, push)
+- Menjaga sinkronisasi dengan repository GitHub
+
+Repository GitHub resmi:
+https://github.com/axelle238/yala-computer-system.git
+
+==================================================
+ATURAN GLOBAL (WAJIB, ABSOLUT, TANPA PENGECUALIAN)
+==================================================
+1. SELURUH SISTEM WAJIB menggunakan Bahasa Indonesia 100% pada:
+   - Frontend: teks UI, menu, tombol, label, placeholder
+   - Backend: nama variabel, fungsi, class, komentar
+   - Pesan error, validasi, notifikasi
+   - Dokumentasi teknis
+   - Commit message Git
+2. DILARANG menggunakan bahasa selain Bahasa Indonesia (termasuk Inggris).
+3. SETIAP perubahan HARUS:
+   - Tercatat di Git (dapat dilacak)
+   - Dapat di-rollback ke checkpoint sebelumnya
+4. SETIAP permintaan pembaruan WAJIB menghasilkan SATU CHECKPOINT Git (1 commit).
+5. DILARANG:
+   - force push
+   - squash commit
+   - menggabungkan lebih dari satu perubahan logis dalam satu commit
+6. Semua fitur HARUS berfungsi END-TO-END:
+   frontend ↔ backend (tidak boleh ada UI tanpa backend atau sebaliknya).
+
+==================================================
+ATURAN SINKRONISASI REPOSITORY
+==================================================
+SETIAP memulai sesi kerja:
+
+1. Jalankan:
+   git pull origin main
+
+2. Pastikan:
+   - Tidak ada konflik merge
+   - Tidak ada perubahan lokal tersembunyi
+
+3. SETIAP perubahan WAJIB:
+   - Disimpan di folder lokal
+   - Di-commit sebagai checkpoint
+   - Di-push ke repository GitHub yang sama
+
+==================================================
+RUANG LINGKUP PENGEMBANGAN (WAJIB)
+==================================================
+Kamu WAJIB menangani DUA AREA UTAMA:
+
+1. ADMIN / OPERASIONAL
+2. STOREFRONT (HALAMAN PENGGUNA)
+
+Ketentuan MUTLAK:
+- Frontend dan backend HARUS selalu sinkron
+- Tidak boleh ada fitur setengah jadi
+- Tidak boleh ada menu kosong
+- Tidak boleh ada API mati
+
+==================================================
+TUJUAN AKHIR SISTEM
+==================================================
+1. Seluruh fitur Admin / Operasional berfungsi 100%
+2. Seluruh fitur StoreFront berfungsi 100%
+3. Tidak ada error fungsional
+4. Bahasa Indonesia konsisten di seluruh sistem
+5. Riwayat Git berfungsi sebagai sistem checkpoint & undo
+
+==================================================
+ALUR KERJA WAJIB (DI DALAM VS CODE)
+==================================================
+
+----------------------------------
+TAHAP 1 — CHECKPOINT BASELINE
+----------------------------------
+SEBELUM mengubah kode apa pun:
+
+1. Pastikan project sudah sinkron dengan GitHub.
+2. Buat checkpoint baseline sebagai titik awal aman.
+
+Commit message:
+"checkpoint-baseline: kondisi awal sistem sebelum pembaruan"
+
+Push ke GitHub.
+
+----------------------------------
+TAHAP 2 — ANALISIS SISTEM MENYELURUH
+----------------------------------
+Lakukan analisis teknis terhadap SELURUH kode project.
+
+AREA ADMIN / OPERASIONAL:
+- Autentikasi dan otorisasi
+- Dashboard
+- CRUD data
+- Validasi input
+- Penanganan error
+- Konsistensi Bahasa Indonesia
+
+AREA STOREFRONT:
+- Tampilan halaman pengguna
+- Alur interaksi pengguna
+- Integrasi frontend ↔ backend
+- Validasi data
+- UX dasar
+
+HASIL ANALISIS WAJIB berisi:
+- Daftar bug
+- Daftar fitur tidak berfungsi
+- Daftar fitur setengah jadi
+- Daftar inkonsistensi frontend-backend
+
+Simpan ke file:
+docs/analisis-sistem.md
+
+Gunakan Bahasa Indonesia 100%.
+
+Buat checkpoint:
+"checkpoint-analisis: audit admin, operasional, dan storefront"
+
+----------------------------------
+TAHAP 3 — PENGEMBANGAN & PERBAIKAN ITERATIF
+----------------------------------
+Lakukan pengembangan secara BERTAHAP dan TERKONTROL.
+
+ATURAN ITERASI KERAS:
+- 1 perubahan logis = 1 checkpoint
+- DILARANG menggabungkan beberapa perubahan
+- DILARANG menggunakan modal layout dalam bentuk apa pun
+- SEMUA halaman HARUS menggunakan layout yang sama seperti layout lainnya
+- SETIAP proses CRUD WAJIB memiliki notifikasi dan masuk log aktifitas sistem berhasil dan gagal
+
+CAKUPAN PENGEMBANGAN WAJIB:
+- Kembangkan dan tambahkan fitur Dashboard dan Store secara TERUKUR dengan prinsip:
+  - lebih jelas alurnya
+  - lebih lengkap validasinya
+  - lebih rapi struktur UI dan backend-nya
+- SETIAP perubahan backend WAJIB langsung diikuti perubahan frontend
+- DILARANG menambah fitur baru tanpa analisis dan checkpoint terpisah
+- Tambahkan fitur Whatsapp Blast di dashboard secara terukur dan lengkap dengan prinsip:
+  - lebih jelas alurnya
+  - lebih lengkap validasinya
+  - lebih rapi struktur UI dan backend-nya
+
+SETIAP ITERASI WAJIB:
+1. Edit kode di Visual Studio Code
+2. Pastikan frontend dan backend terhubung
+3. Pastikan Bahasa Indonesia konsisten
+4. Commit dengan format:
+   "checkpoint-[deskripsi-perubahan]"
+
+----------------------------------
+TAHAP 4 — VALIDASI END-TO-END
+----------------------------------
+Pastikan:
+- Semua tombol berfungsi
+- Semua form mengirim data ke backend
+- Tidak ada menu kosong
+- Tidak ada API mati
+
+Jika ditemukan error:
+- Perbaiki
+- Buat checkpoint baru
+- DILARANG menghapus atau mengubah checkpoint lama
+
+----------------------------------
+TAHAP 5 — CHECKPOINT FINAL
+----------------------------------
+Jika seluruh fitur Admin dan StoreFront stabil dan berfungsi sempurna:
+
+Commit message:
+"checkpoint-final: seluruh fitur admin, operasional, dan storefront berfungsi 100%"
+
+Push ke GitHub.
+
+==================================================
+KETENTUAN KRITIS
+==================================================
+Jika menemukan:
+- Konflik arsitektur
+- Struktur kode tidak jelas
+- Keputusan teknis besar dan berisiko
+
+MAKA:
+- DILARANG mengambil keputusan diam-diam
+- WAJIB dicatat di dokumentasi
+- WAJIB membuat checkpoint terpisah

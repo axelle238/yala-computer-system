@@ -65,7 +65,7 @@
                 <h2 class="text-4xl md:text-5xl font-black font-tech text-white uppercase leading-none">Rakit PC <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">Impianmu</span></h2>
                 <p class="text-slate-400 text-lg max-w-md">Simulasi rakit PC dengan fitur cek kompatibilitas otomatis. Pilih komponen, lihat estimasi harga, dan pesan langsung dirakit oleh teknisi ahli kami.</p>
                 <div class="flex gap-4 pt-4">
-                    <a href="{{ route('pc-builder') }}" class="px-8 py-4 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2">
+                    <a href="{{ route('toko.rakit-pc') }}" class="px-8 py-4 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
                         Mulai Simulasi
                     </a>
@@ -96,7 +96,7 @@
                 <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tighter">Katalog <span class="text-cyan-600 dark:text-cyan-400">Produk</span></h2>
                 <p class="text-slate-500 dark:text-slate-400 mt-1">Komponen terbaik untuk kebutuhan komputasi Anda.</p>
             </div>
-            <a href="{{ route('store.catalog') }}" class="group flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">
+            <a href="{{ route('toko.katalog') }}" class="group flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">
                 Lihat Semua Produk
                 <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
             </a>
@@ -112,7 +112,7 @@
                         </div>
                     @endif
 
-                    <a href="{{ route('product.detail', $itemProduk->id) }}" class="block relative aspect-square p-4 bg-white dark:bg-slate-900/50 overflow-hidden">
+                    <a href="{{ route('toko.produk.detail', $itemProduk->id) }}" class="block relative aspect-square p-4 bg-white dark:bg-slate-900/50 overflow-hidden">
                         @if($itemProduk->image_path)
                             <img src="{{ asset('storage/' . $itemProduk->image_path) }}" class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500">
                         @else
@@ -125,7 +125,7 @@
                     <div class="p-4 flex-1 flex flex-col">
                         <div class="text-[10px] text-cyan-600 dark:text-cyan-400 font-bold uppercase tracking-wider mb-1 opacity-80">{{ $itemProduk->category->name }}</div>
                         <h3 class="font-bold text-slate-800 dark:text-slate-100 leading-tight mb-3 line-clamp-2 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors text-sm">
-                            <a href="{{ route('product.detail', $itemProduk->id) }}">{{ $itemProduk->name }}</a>
+                            <a href="{{ route('toko.produk.detail', $itemProduk->id) }}">{{ $itemProduk->name }}</a>
                         </h3>
                         
                         <div class="mt-auto pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">

@@ -20,7 +20,7 @@
             </form>
         @else
             <div class="bg-slate-900/50 p-4 rounded-xl text-center border border-white/5">
-                <p class="text-slate-400 text-sm">Silakan <a href="{{ route('login') }}" class="text-cyan-400 hover:underline font-bold">Login</a> untuk bertanya.</p>
+                <p class="text-slate-400 text-sm">Silakan <a href="{{ route('pelanggan.masuk') }}" class="text-cyan-400 hover:underline font-bold">Login</a> untuk bertanya.</p>
             </div>
         @endauth
     </div>

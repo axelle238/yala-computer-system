@@ -79,7 +79,7 @@ class Form extends Component
 
         session()->flash('success', 'Artikel berhasil disimpan.');
 
-        return redirect()->route('news.index');
+        return redirect()->route('admin.berita.indeks');
     }
 
     public function render()

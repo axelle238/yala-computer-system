@@ -31,7 +31,7 @@ class RmaRequest extends Component
     public function mount()
     {
         if (! Auth::check()) {
-            return redirect()->route('login');
+            return redirect()->route('pelanggan.masuk');
         }
     }
 

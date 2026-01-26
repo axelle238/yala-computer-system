@@ -82,7 +82,7 @@ class Checkout extends Component
         $this->muatKeranjang();
 
         if (empty($this->itemKeranjang)) {
-            return redirect()->route('home');
+            return redirect()->route('beranda');
         }
 
         if (Auth::check()) {
