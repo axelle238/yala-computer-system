@@ -4,29 +4,30 @@
 **Status:** Audit Teknis & Lokalisasi
 
 ## 1. Ringkasan Eksekutif
-Sistem Yala Computer adalah platform ERP dan E-commerce terintegrasi. Secara fungsional, fondasi sistem sangat kuat dengan dukungan modul operasional lengkap (Servis, Inventaris, Keuangan, Karyawan). Namun, sistem masih memiliki ketergantungan tinggi pada istilah bahasa Inggris di level kode (Class, Variabel, Fungsi) dan rute, yang melanggar mandat lokalisasi 100%.
+Sistem Yala Computer telah mencapai tahap maturitas fungsional yang baik. Namun, audit lokalisasi menunjukkan masih banyak "hutang" penamaan bahasa Inggris di level rute (route names) dan variabel backend. Fitur WhatsApp Blast telah terdaftar di rute tetapi memerlukan integrasi UI yang lebih baik ke dalam menu utama.
 
 ## 2. Area Admin / Operasional
 ### Daftar Masalah & Bug:
-- **Inkonsistensi Folder**: Terdapat duplikasi/kemiripan antara folder `CRM` dan `crm` di `app/Livewire` serta `resources/views/livewire`.
-- **Lokalisasi Backend**: Sebagian besar nama Class Livewire masih bahasa Inggris (misal: `TaskManager`, `RoleManager`, `CashRegisterManager`).
-- **Fitur Setengah Jadi**: Folder `CRM` tampak baru dimulai dan belum terintegrasi sepenuhnya dengan data pelanggan utama.
-- **Log Aktivitas**: Belum semua proses CRUD di modul operasional masuk ke log secara standar.
+- **Lokalisasi Rute (Names)**: Nama rute di `web.php` masih didominasi bahasa Inggris (misal: `admin.tasks`, `marketing.whatsapp`). Ini melanggar mandat lokalisasi backend.
+- **WhatsApp Blast**: 
+    - Perlu integrasi ke sidebar Admin agar mudah diakses.
+    - Perlu validasi format nomor WhatsApp Indonesia (62xxx).
+    - Perlu log aktivitas saat melakukan pengiriman massal.
+- **Inkonsistensi Class**: Beberapa Class Livewire yang baru direfaktor (seperti `PesanMassalWhatsapp`) sudah bagus, namun pendukungnya di folder `Marketing` masih perlu dipastikan.
 
 ## 3. Area Storefront
 ### Daftar Masalah & Bug:
-- **UX Rute**: Banyak rute publik masih menggunakan bahasa Inggris (`/catalog`, `/pc-builder`, `/order-success`).
-- **Integrasi Frontend-Backend**: Validasi data pada formulir pendaftaran pelanggan perlu diperketat sesuai standar Indonesia (misal: format nomor telepon).
-- **Inkonsistensi Teks**: Beberapa placeholder dan pesan error sistem masih dalam bahasa Inggris (default Laravel).
+- **Lokalisasi Parameter**: Variabel yang dilempar ke view seringkali masih bahasa Inggris.
+- **UI Menu Anggota**: Perlu dipastikan sinkron dengan rute baru yang sudah di-Indonesiasi.
 
 ## 4. Inkonsistensi Frontend-Backend
-- Variabel data yang dikirim dari backend seringkali menggunakan camelCase Inggris (misal: `topProducts`) sementara mandat meminta Bahasa Indonesia.
+- Nama rute (name) tidak sinkron dengan URL (Indonesian URL vs English Name).
 
 ## 5. Rencana Perbaikan Segera:
-1.  **Refaktor Nama Class & File**: Mengubah seluruh nama Class Livewire ke Bahasa Indonesia (misal: `TaskManager` -> `PengelolaTugas`).
-2.  **Pembersihan Folder**: Mengonsolidasi folder `CRM` dan `crm`.
-3.  **Indonesiasi Rute**: Mengubah seluruh rute di `routes/web.php` ke Bahasa Indonesia.
-4.  **Standarisasi CRUD**: Memastikan setiap aksi CRUD memiliki log aktivitas dan notifikasi dalam Bahasa Indonesia.
+1.  **Indonesiasi Nama Rute**: Mengubah `->name('...')` di `routes/web.php` menjadi Bahasa Indonesia.
+2.  **Integrasi WhatsApp Blast**: Menyelesaikan UI `pesan-massal-whatsapp` dan menambahkan link di menu pemasaran.
+3.  **Validasi WhatsApp**: Menambahkan logika validasi nomor telepon di backend WhatsApp Blast.
+4.  **Audit CRUD**: Memastikan setiap aksi CRUD di fitur Pemasaran masuk ke log sistem.
 
 ---
-*Dokumen ini dibuat secara otomatis oleh AI Gemini CLI sebagai bagian dari audit sistem.*
+*Dokumen ini dibuat otomatis oleh AI Gemini CLI.*
