@@ -12,7 +12,8 @@
             (request()->routeIs('admin.keuangan.*', 'admin.analitik.*', 'admin.pengeluaran.*') ? 'keuangan' : 
             (request()->routeIs('admin.pelanggan.*', 'admin.berita.*', 'admin.spanduk.*', 'admin.pemasaran.*') ? 'media' : 
             (request()->routeIs('admin.karyawan.*', 'admin.shift.*') ? 'sdm' : 
-            (request()->routeIs('admin.pengaturan.*', 'admin.sistem.*', 'admin.log-aktivitas.*', 'admin.aset.*') ? 'sistem' : '')))))))
+            (request()->routeIs('admin.keamanan.*') ? 'keamanan' : 
+            (request()->routeIs('admin.pengaturan.*', 'admin.sistem.*', 'admin.log-aktivitas.*', 'admin.aset.*') ? 'sistem' : ''))))))))
         }}',
         toggleGrup(grup) {
             this.grupAktif = this.grupAktif === grup ? null : grup;
@@ -69,7 +70,7 @@
                 <a href="{{ route('admin.pesanan.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.pesanan.indeks') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Riwayat Transaksi
                 </a>
-                <a href="{{ route('admin.penawaran.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.penawaran.indeks') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                <a href="{{ route('admin.penawaran.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.penawaran.indeks', 'admin.penawaran.buat', 'admin.penawaran.ubah') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Penawaran (B2B)
                 </a>
             </div>
@@ -88,7 +89,7 @@
                 <svg class="w-4 h-4 transition-transform duration-200" :class="grupAktif === 'servis' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div x-show="grupAktif === 'servis'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
-                <a href="{{ route('admin.servis.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.servis.indeks') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                <a href="{{ route('admin.servis.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.servis.indeks', 'admin.servis.buat', 'admin.servis.ubah', 'admin.servis.meja-kerja') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Tiket Servis
                 </a>
                 <a href="{{ route('admin.servis.papan') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.servis.papan') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
@@ -119,13 +120,13 @@
                 <svg class="w-4 h-4 transition-transform duration-200" :class="grupAktif === 'inventaris' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div x-show="grupAktif === 'inventaris'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
-                <a href="{{ route('admin.produk.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.produk.indeks') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                <a href="{{ route('admin.produk.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.produk.indeks', 'admin.produk.buat', 'admin.produk.ubah') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Daftar Produk
                 </a>
                 <a href="{{ route('admin.permintaan-stok.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.permintaan-stok.indeks') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Permintaan Stok
                 </a>
-                <a href="{{ route('admin.pesanan-pembelian.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.pesanan-pembelian.indeks') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                <a href="{{ route('admin.pesanan-pembelian.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.pesanan-pembelian.indeks', 'admin.pesanan-pembelian.buat', 'admin.pesanan-pembelian.ubah', 'admin.pesanan-pembelian.tampil') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Pesanan Pembelian
                 </a>
                 <a href="{{ route('admin.pesanan-pembelian.terima') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.pesanan-pembelian.terima') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
@@ -179,6 +180,7 @@
         @endif
 
         <!-- GRUP: MEDIA & HUBUNGAN PELANGGAN -->
+        @if(auth()->user()->punyaAkses('akses_media') || auth()->user()->punyaAkses('lihat_pelanggan'))
         <div>
             <button @click="toggleGrup('media')" 
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('admin.pelanggan.*', 'admin.berita.*', 'admin.spanduk.*', 'admin.pemasaran.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
@@ -189,7 +191,7 @@
                 <svg class="w-4 h-4 transition-transform duration-200" :class="grupAktif === 'media' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div x-show="grupAktif === 'media'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
-                <a href="{{ route('admin.pelanggan.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.pelanggan.indeks') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                <a href="{{ route('admin.pelanggan.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.pelanggan.indeks', 'admin.pelanggan.buat', 'admin.pelanggan.tampil', 'admin.pelanggan.ubah') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Database Pelanggan
                 </a>
                 <a href="{{ route('admin.pelanggan.kotak-masuk') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.pelanggan.kotak-masuk') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
@@ -201,10 +203,10 @@
                 <a href="{{ route('admin.pemasaran.whatsapp') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.pemasaran.whatsapp') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Pesan Massal (WA)
                 </a>
-                <a href="{{ route('admin.berita.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.berita.indeks') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                <a href="{{ route('admin.berita.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.berita.indeks', 'admin.berita.buat', 'admin.berita.ubah') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Artikel & Berita
                 </a>
-                <a href="{{ route('admin.spanduk.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.spanduk.indeks') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                <a href="{{ route('admin.spanduk.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.spanduk.indeks', 'admin.spanduk.buat', 'admin.spanduk.ubah') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Banner Promosi
                 </a>
                 <a href="{{ route('admin.pemasaran.voucher.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.pemasaran.voucher.indeks') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
@@ -212,6 +214,7 @@
                 </a>
             </div>
         </div>
+        @endif
 
         <!-- GRUP: SDM & KARYAWAN -->
         @if(auth()->user()->punyaAkses('akses_admin') || auth()->user()->punyaAkses('lihat_karyawan'))
@@ -225,7 +228,7 @@
                 <svg class="w-4 h-4 transition-transform duration-200" :class="grupAktif === 'sdm' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div x-show="grupAktif === 'sdm'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
-                <a href="{{ route('admin.karyawan.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.karyawan.indeks') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                <a href="{{ route('admin.karyawan.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.karyawan.indeks', 'admin.karyawan.buat', 'admin.karyawan.ubah') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Manajemen Karyawan
                 </a>
                 <a href="{{ route('admin.karyawan.peran.indeks') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.karyawan.peran.indeks') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
@@ -236,6 +239,46 @@
                 </a>
                 <a href="{{ route('admin.karyawan.gaji-pengelola') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.karyawan.gaji-pengelola') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Manajemen Payroll
+                </a>
+            </div>
+        </div>
+        @endif
+
+        <!-- GRUP: KEAMANAN SISTEM -->
+        @if(auth()->user()->punyaAkses('akses_keamanan') || auth()->user()->punyaAkses('akses_admin'))
+        <div>
+            <button @click="toggleGrup('keamanan')" 
+                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 group {{ request()->routeIs('admin.keamanan.*') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800/50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 {{ request()->routeIs('admin.keamanan.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                    <span>Keamanan Sistem</span>
+                </div>
+                <svg class="w-4 h-4 transition-transform duration-200" :class="grupAktif === 'keamanan' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+            </button>
+            <div x-show="grupAktif === 'keamanan'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
+                <a href="{{ route('admin.keamanan.dashboard') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.keamanan.dashboard') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Dashboard Keamanan
+                </a>
+                <a href="{{ route('admin.keamanan.firewall') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.keamanan.firewall') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Firewall & Blokir IP
+                </a>
+                <a href="{{ route('admin.keamanan.ids') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.keamanan.ids') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Deteksi Ancaman
+                </a>
+                <a href="{{ route('admin.keamanan.audit') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.keamanan.audit') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Audit Keamanan
+                </a>
+                <a href="{{ route('admin.keamanan.scanner') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.keamanan.scanner') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Pemindai Kerentanan
+                </a>
+                <a href="{{ route('admin.keamanan.atm') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.keamanan.atm') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Respon Otomatis (ATM)
+                </a>
+                <a href="{{ route('admin.keamanan.honeypot') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.keamanan.honeypot') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Honeypot System
+                </a>
+                <a href="{{ route('admin.keamanan.traffic') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.keamanan.traffic') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    Inspeksi Trafik (Live)
                 </a>
             </div>
         </div>

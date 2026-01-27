@@ -54,6 +54,14 @@ class Order extends Model
     }
 
     /**
+     * Alias untuk relasi item (Plural).
+     */
+    public function items(): HasMany
+    {
+        return $this->item();
+    }
+
+    /**
      * Relasi ke Pengguna (Pelanggan).
      */
     public function pengguna(): BelongsTo

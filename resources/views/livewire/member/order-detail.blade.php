@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12">
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12" wire:poll.5s>
     <div class="container mx-auto px-4 lg:px-8">
         <!-- Header -->
         <div class="mb-8 animate-fade-in-up">

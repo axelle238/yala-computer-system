@@ -24,8 +24,11 @@ class PesanMassalWhatsapp extends Component
 
     // Data Formulir
     public $namaKampanye;
+
     public $kriteriaAudiens = 'semua'; // semua, loyal, tidak_aktif, gold_platinum
+
     public $templatePesan;
+
     public $jadwalKirim;
 
     /**
@@ -75,6 +78,7 @@ class PesanMassalWhatsapp extends Component
 
         if ($jumlahPenerima === 0) {
             $this->dispatch('notify', message: 'Gagal! Tidak ada data audiens yang masuk dalam kriteria tersebut.', type: 'error');
+
             return;
         }
 
@@ -118,6 +122,7 @@ class PesanMassalWhatsapp extends Component
 
         if ($kampanye->status === 'processing') {
             $this->dispatch('notify', message: 'Maaf, kampanye sedang berjalan dan tidak dapat dihapus.', type: 'error');
+
             return;
         }
 

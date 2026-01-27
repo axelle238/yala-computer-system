@@ -29,6 +29,7 @@ class PayrollManager extends Component
 
     // Input Pembuatan
     public $idUserTerpilih;
+
     public $bulanTerpilih; // Format: Y-m
 
     // Data Pratinjau
@@ -80,6 +81,7 @@ class PayrollManager extends Component
         $pegawai = EmployeeDetail::where('user_id', $this->idUserTerpilih)->first();
         if (! $pegawai) {
             $this->addError('idUserTerpilih', 'Data detail HR untuk karyawan ini belum diatur.');
+
             return;
         }
 
@@ -226,11 +228,13 @@ class PayrollManager extends Component
 
         if (! $kasirAktif) {
             $this->dispatch('notify', message: 'Gagal! Anda harus membuka shift kasir terlebih dahulu untuk mencatat pengeluaran.', type: 'error');
+
             return;
         }
 
         if ($kasirAktif->system_balance < $this->penggajianTerpilih->net_salary) {
             $this->dispatch('notify', message: 'Saldo kasir tidak mencukupi untuk melakukan pembayaran gaji.', type: 'error');
+
             return;
         }
 

@@ -60,9 +60,9 @@ class Dashboard extends Component
                 ->groupBy('tanggal')
                 ->orderBy('tanggal')
                 ->get()
-                ->map(fn($item) => [
+                ->map(fn ($item) => [
                     'tanggal' => \Carbon\Carbon::parse($item->tanggal)->format('d M'),
-                    'total' => (int) $item->total
+                    'total' => (int) $item->total,
                 ]);
 
             return $data;
@@ -71,7 +71,7 @@ class Dashboard extends Component
         // 2. Analisis Inventaris (Cache 5 menit)
         $analisis = Cache::remember('dashboard_analisis', 300, function () use ($intelBisnis) {
             $hasil = $intelBisnis->ambilAnalisisStok();
-            
+
             // Map kembali kunci untuk view agar tetap sinkron
             return [
                 'fast_moving' => $hasil['laku_pesat'],

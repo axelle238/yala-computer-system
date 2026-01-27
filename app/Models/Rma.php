@@ -37,14 +37,29 @@ class Rma extends Model
         return $this->hasMany(RmaItem::class);
     }
 
+    public function items()
+    {
+        return $this->item();
+    }
+
     public function pelacakan()
     {
         return $this->hasMany(RmaTrack::class);
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function pengguna()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
     }
 
     public function pesanan()
@@ -54,7 +69,7 @@ class Rma extends Model
 
     public function getCustomerNameAttribute()
     {
-        return $this->user ? $this->user->name : ($this->guest_name ?? 'Guest');
+        return $this->pengguna ? $this->pengguna->name : ($this->guest_name ?? 'Guest');
     }
 
     // Helper Status Label

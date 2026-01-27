@@ -106,7 +106,7 @@
                     <a href="{{ route('toko.keranjang') }}" class="py-3 text-center bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl transition-colors">
                         Lihat Cart
                     </a>
-                    <a href="{{ route('checkout.secure') }}" class="py-3 text-center bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 transition-all">
+                    <a href="{{ route('toko.pembayaran.aman') }}" class="py-3 text-center bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 transition-all">
                         Checkout
                     </a>
                 </div>

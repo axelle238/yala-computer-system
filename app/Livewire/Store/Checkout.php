@@ -337,8 +337,6 @@ class Checkout extends Component
             $this->dispatch('trigger-payment', token: $dataSnap['token'], orderId: $pesanan->id);
         } catch (\Exception $e) {
             $this->dispatch('notify', message: 'Kesalahan Pembayaran: '.$e->getMessage(), type: 'error');
-
-            return redirect()->route('order.success', $pesanan->id);
         }
     }
 

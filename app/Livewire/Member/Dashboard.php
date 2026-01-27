@@ -59,7 +59,7 @@ class Dashboard extends Component
         ];
 
         // Fetch Data
-        $recentOrders = Order::where('user_id', $user->id)->latest()->take(5)->get();
+        $recentOrders = Order::with('items.product')->where('user_id', $user->id)->latest()->take(5)->get();
 
         $activeServices = ServiceTicket::where(function ($q) use ($user) {
             $q->where('customer_phone', $user->phone)

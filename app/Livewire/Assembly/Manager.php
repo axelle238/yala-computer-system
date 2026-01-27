@@ -18,15 +18,19 @@ class Manager extends Component
 
     // Filter & Pencarian
     public $cari = '';
+
     public $filterStatus = '';
 
     // Status Tampilan (View State)
     public $aksiAktif = null; // null, 'detail'
+
     public $rakitanTerpilih = null;
 
     // Input Teknisi
     public $catatanTeknisi = '';
+
     public $skorBenchmark = '';
+
     public $spesifikasi = [];
 
     /**

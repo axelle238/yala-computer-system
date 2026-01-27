@@ -18,7 +18,9 @@ class Index extends Component
 
     // Data Formulir
     public $formulir = [];
+
     public $logoBaru;
+
     public $faviconBaru;
 
     // Navigasi Tab
@@ -62,6 +64,8 @@ class Index extends Component
             'store_open_fri', 'store_close_fri',
             'store_open_sat', 'store_close_sat',
             'store_open_sun', 'store_close_sun',
+            'rajaongkir_api_key', 'rajaongkir_type', 'shipping_origin_city_id', 'shipping_markup_fee',
+            'shipping_couriers_jne', 'shipping_couriers_pos', 'shipping_couriers_tiki', 'shipping_couriers_sicepat',
         ];
 
         // Pastikan integritas database
@@ -79,6 +83,12 @@ class Index extends Component
         // Konversi tipe data UI
         $this->formulir['store_announcement_active'] = (bool) ($this->formulir['store_announcement_active'] ?? false);
         $this->formulir['midtrans_is_production'] = (bool) ($this->formulir['midtrans_is_production'] ?? false);
+
+        // Konversi Boolean untuk Kurir
+        $this->formulir['shipping_couriers_jne'] = (bool) ($this->formulir['shipping_couriers_jne'] ?? false);
+        $this->formulir['shipping_couriers_pos'] = (bool) ($this->formulir['shipping_couriers_pos'] ?? false);
+        $this->formulir['shipping_couriers_tiki'] = (bool) ($this->formulir['shipping_couriers_tiki'] ?? false);
+        $this->formulir['shipping_couriers_sicepat'] = (bool) ($this->formulir['shipping_couriers_sicepat'] ?? false);
     }
 
     /**
@@ -103,34 +113,34 @@ class Index extends Component
         if ($this->logoBaru) {
             $jalur = $this->logoBaru->store('pengaturan', 'public');
             Setting::set('store_logo', $jalur);
-            $daftarPerubahan[] = "Memperbarui logo toko";
+            $daftarPerubahan[] = 'Memperbarui logo toko';
         }
 
         if ($this->faviconBaru) {
             $jalur = $this->faviconBaru->store('pengaturan', 'public');
             Setting::set('store_favicon', $jalur);
-            $daftarPerubahan[] = "Memperbarui favicon sistem";
+            $daftarPerubahan[] = 'Memperbarui favicon sistem';
         }
 
         // 2. Bandingkan dan Simpan Data Teks
         foreach ($this->formulir as $kunci => $nilaiBaru) {
             $nilaiLama = Setting::get($kunci);
-            
+
             // Logika deteksi perubahan string/bool
-            if (trim((string)$nilaiLama) !== trim((string)$nilaiBaru)) {
+            if (trim((string) $nilaiLama) !== trim((string) $nilaiBaru)) {
                 Setting::set($kunci, $nilaiBaru);
                 $daftarPerubahan[] = "Mengubah '{$kunci}'";
             }
         }
 
         // 3. Catat Audit Log Mendalam
-        if (!empty($daftarPerubahan)) {
+        if (! empty($daftarPerubahan)) {
             ActivityLog::create([
                 'user_id' => Auth::id(),
                 'action' => 'update',
                 'model_type' => 'Setting',
                 'model_id' => 0,
-                'description' => "Melakukan pembaruan konfigurasi sistem pada tab: " . strtoupper($this->tabAktif),
+                'description' => 'Melakukan pembaruan konfigurasi sistem pada tab: '.strtoupper($this->tabAktif),
                 'properties' => [
                     'item_yang_berubah' => $daftarPerubahan,
                 ],
@@ -173,6 +183,16 @@ class Index extends Component
             'store_open_fri' => '09:00', 'store_close_fri' => '17:00',
             'store_open_sat' => '09:00', 'store_close_sat' => '15:00',
             'store_open_sun' => 'Tutup', 'store_close_sun' => 'Tutup',
+
+            // Pengiriman
+            'rajaongkir_type' => 'starter',
+            'rajaongkir_api_key' => '',
+            'shipping_origin_city_id' => '',
+            'shipping_markup_fee' => 0,
+            'shipping_couriers_jne' => true,
+            'shipping_couriers_pos' => true,
+            'shipping_couriers_tiki' => true,
+            'shipping_couriers_sicepat' => false,
         ];
 
         $this->dispatch('notify', message: 'Setelan dikembalikan ke default. Klik simpan untuk menerapkan.', type: 'info');

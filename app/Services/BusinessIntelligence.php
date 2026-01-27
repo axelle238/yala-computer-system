@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\CashTransaction;
 use App\Models\InventoryTransaction;
-use App\Models\Order;
 use App\Models\Product;
 use App\Models\ServiceTicket;
 use Carbon\Carbon;

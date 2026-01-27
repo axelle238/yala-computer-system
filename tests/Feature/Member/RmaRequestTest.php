@@ -75,7 +75,7 @@ it('bisa membuat permintaan rma dengan upload bukti', function () {
     ]);
 
     // Check evidence path
-    $rmaItem = $rma->items->first();
+    $rmaItem = $rma->item->first();
     expect($rmaItem->evidence_files)->not->toBeNull();
     $files = json_decode($rmaItem->evidence_files);
     expect(count($files))->toBe(1);

@@ -23,9 +23,13 @@ class Reimbursement extends Component
 
     // Properti Formulir
     public $jumlah;
+
     public $tanggal;
+
     public $kategori = 'Transportasi';
+
     public $keterangan;
+
     public $bukti;
 
     /**
@@ -69,7 +73,7 @@ class Reimbursement extends Component
             'user_id' => Auth::id(),
             'action' => 'create',
             'model_type' => ModelKlaim::class,
-            'description' => "Mengajukan klaim reimbursement baru sebesar Rp " . number_format($this->jumlah),
+            'description' => 'Mengajukan klaim reimbursement baru sebesar Rp '.number_format($this->jumlah),
             'ip_address' => request()->ip(),
         ]);
 
@@ -83,17 +87,19 @@ class Reimbursement extends Component
     public function setujui($id)
     {
         $pengguna = Auth::user();
-        
+
         // Cek Otoritas (Admin atau Owner)
-        if (!($pengguna->peran && in_array($pengguna->peran->nama, ['Admin', 'Owner']))) {
+        if (! ($pengguna->peran && in_array($pengguna->peran->nama, ['Admin', 'Owner']))) {
             $this->dispatch('notify', message: 'Anda tidak memiliki otoritas untuk menyetujui klaim.', type: 'error');
+
             return;
         }
 
         $klaim = ModelKlaim::findOrFail($id);
-        
+
         if ($klaim->status !== 'pending') {
             $this->dispatch('notify', message: 'Klaim sudah diproses sebelumnya.', type: 'warning');
+
             return;
         }
 
@@ -131,8 +137,8 @@ class Reimbursement extends Component
             ]);
         });
 
-        $pesan = $kasirAktif 
-            ? 'Klaim disetujui dan saldo kasir telah dikurangi otomatis.' 
+        $pesan = $kasirAktif
+            ? 'Klaim disetujui dan saldo kasir telah dikurangi otomatis.'
             : 'Klaim disetujui. Catatan: Saldo kasir tidak terpotong karena tidak ada shift yang dibuka.';
 
         $this->dispatch('notify', message: $pesan, type: 'success');
@@ -144,7 +150,7 @@ class Reimbursement extends Component
     public function tolak($id)
     {
         $pengguna = Auth::user();
-        if (!($pengguna->peran && in_array($pengguna->peran->nama, ['Admin', 'Owner']))) {
+        if (! ($pengguna->peran && in_array($pengguna->peran->nama, ['Admin', 'Owner']))) {
             return;
         }
 
@@ -174,7 +180,7 @@ class Reimbursement extends Component
         $pengguna = Auth::user();
         $isManajer = ($pengguna->peran && in_array($pengguna->peran->nama, ['Admin', 'Owner']));
 
-        if (!$isManajer) {
+        if (! $isManajer) {
             $kueri->where('user_id', Auth::id());
         }
 

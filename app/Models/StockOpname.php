@@ -25,6 +25,11 @@ class StockOpname extends Model
         return $this->hasMany(StockOpnameItem::class);
     }
 
+    public function items()
+    {
+        return $this->item();
+    }
+
     public function pembuat()
     {
         return $this->belongsTo(User::class, 'creator_id');

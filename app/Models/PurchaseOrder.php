@@ -32,9 +32,19 @@ class PurchaseOrder extends Model
         return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
+    public function supplier()
+    {
+        return $this->pemasok();
+    }
+
     public function item()
     {
         return $this->hasMany(PurchaseOrderItem::class);
+    }
+
+    public function items()
+    {
+        return $this->item();
     }
 
     public function pembayaran(): MorphMany

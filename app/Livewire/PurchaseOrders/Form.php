@@ -80,7 +80,7 @@ class Form extends Component
     {
         $total = 0;
         foreach ($this->item_pesanan as $item) {
-            $total += ((int)$item['qty'] * (int)$item['harga']);
+            $total += ((int) $item['qty'] * (int) $item['harga']);
         }
 
         return $total;

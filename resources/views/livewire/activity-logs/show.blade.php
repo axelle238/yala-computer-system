@@ -27,7 +27,7 @@
                     {{ substr($log->user->name ?? 'S', 0, 1) }}
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">User</label>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Pelaku (User)</label>
                     <p class="text-lg font-bold text-slate-900 dark:text-white leading-tight">{{ $log->user->name ?? 'System' }}</p>
                     <p class="text-xs text-slate-500 font-mono mt-0.5">{{ $log->user->email ?? '-' }}</p>
                 </div>
@@ -43,7 +43,7 @@
                     @endif
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Aksi</label>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Jenis Aksi</label>
                     @php
                         $badgeColor = match($log->action) {
                             'create' => 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
@@ -52,57 +52,111 @@
                             'login' => 'bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-400 dark:border-violet-800',
                             default => 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600'
                         };
+                        $actionLabel = match($log->action) {
+                            'create' => 'Pembuatan Data',
+                            'update' => 'Pembaruan Data',
+                            'delete' => 'Penghapusan Data',
+                            'login' => 'Login Masuk',
+                            default => $log->action
+                        };
                     @endphp
                     <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-bold uppercase border {{ $badgeColor }}">
-                        {{ $log->action }}
+                        {{ $actionLabel }}
                     </span>
                 </div>
             </div>
         </div>
 
         <div class="p-8 space-y-8">
-            <!-- Description -->
-            <div class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-700/50 relative">
+            <!-- Narrative Story (Kompleks & Naratif) -->
+            <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-800 relative">
                 <div class="absolute top-4 right-4">
-                    <span class="text-xs font-mono text-slate-400">{{ $log->ip_address }}</span>
+                    <span class="text-xs font-mono text-indigo-400">{{ $log->ip_address }}</span>
                 </div>
-                <h4 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2">Deskripsi</h4>
-                <p class="text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-                    {{ $log->description }}
-                </p>
-            </div>
+                <h4 class="text-sm font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wider mb-3">Kronologi Kejadian</h4>
+                <div class="prose prose-sm dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
+                    <p>
+                        Pada hari <strong>{{ $log->created_at->isoFormat('dddd') }}</strong>, tanggal <strong>{{ $log->created_at->isoFormat('D MMMM Y') }}</strong> pukul <strong>{{ $log->created_at->format('H:i') }}</strong>, 
+                        pengguna <strong>{{ $log->user->name ?? 'System' }}</strong> melakukan aktivitas <strong>{{ strtolower($actionLabel) }}</strong> 
+                        pada modul <strong>{{ class_basename($log->model_type) }}</strong>.
+                    </p>
+                    <p class="mt-2">{{ $log->description }}</p>
 
-            <!-- Changes Table -->
-            @if(isset($log->properties['old']) || isset($log->properties['new']))
-                <div>
-                    <h4 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
-                        Perubahan Data
-                    </h4>
-                    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
-                        <table class="w-full text-left text-sm font-mono">
-                            <thead class="bg-slate-100 dark:bg-slate-900/80">
-                                <tr>
-                                    <th class="px-6 py-4 font-bold text-slate-500 uppercase text-xs w-1/4">Field</th>
-                                    <th class="px-6 py-4 font-bold text-rose-600 uppercase text-xs w-[37.5%] bg-rose-50/50 dark:bg-rose-900/10">Sebelum</th>
-                                    <th class="px-6 py-4 font-bold text-emerald-600 uppercase text-xs w-[37.5%] bg-emerald-50/50 dark:bg-emerald-900/10">Sesudah</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
+                    <!-- Auto-Generated Narrative from Changes -->
+                    @if(isset($log->properties['old']) || isset($log->properties['new']))
+                        <div class="mt-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-indigo-100 dark:border-slate-700 shadow-sm">
+                            <strong class="block mb-2 text-indigo-600 dark:text-indigo-400">Rincian Perubahan:</strong>
+                            <ul class="list-disc list-inside space-y-1">
                                 @php 
                                     $old = $log->properties['old'] ?? [];
                                     $new = $log->properties['new'] ?? [];
                                     $keys = array_unique(array_merge(array_keys($old), array_keys($new)));
                                 @endphp
                                 @foreach($keys as $key)
+                                    @php
+                                        $label = $this->readableKey($key);
+                                        $valOld = isset($old[$key]) ? $this->formatValue($key, $old[$key]) : null;
+                                        $valNew = isset($new[$key]) ? $this->formatValue($key, $new[$key]) : null;
+                                    @endphp
+
+                                    @if(isset($old[$key]) && isset($new[$key]) && $old[$key] != $new[$key])
+                                        <li>
+                                            <span class="font-bold text-slate-700 dark:text-slate-300">{{ $label }}</span> 
+                                            telah diubah dari <span class="font-bold text-rose-500">"{{ Str::limit($valOld, 50) }}"</span> 
+                                            menjadi <span class="font-bold text-emerald-500">"{{ Str::limit($valNew, 50) }}"</span>.
+                                        </li>
+                                    @elseif(isset($new[$key]) && !isset($old[$key]))
+                                        <li>
+                                            Menambahkan <span class="font-bold text-slate-700 dark:text-slate-300">{{ $label }}</span> 
+                                            baru dengan nilai <span class="font-bold text-emerald-500">"{{ Str::limit($valNew, 50) }}"</span>.
+                                        </li>
+                                    @elseif(isset($old[$key]) && !isset($new[$key]))
+                                        <li>
+                                            Menghapus data <span class="font-bold text-slate-700 dark:text-slate-300">{{ $label }}</span> 
+                                            yang sebelumnya bernilai <span class="font-bold text-rose-500">"{{ Str::limit($valOld, 50) }}"</span>.
+                                        </li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Detailed Changes Table (Technical View) -->
+            @if(isset($log->properties['old']) || isset($log->properties['new']))
+                <div>
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
+                        Data Teknis (Raw Data)
+                    </h4>
+                    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+                        <table class="w-full text-left text-sm font-mono">
+                            <thead class="bg-slate-100 dark:bg-slate-900/80">
+                                <tr>
+                                    <th class="px-6 py-4 font-bold text-slate-500 uppercase text-xs w-1/4">Atribut</th>
+                                    <th class="px-6 py-4 font-bold text-rose-600 uppercase text-xs w-[37.5%] bg-rose-50/50 dark:bg-rose-900/10">Sebelum</th>
+                                    <th class="px-6 py-4 font-bold text-emerald-600 uppercase text-xs w-[37.5%] bg-emerald-50/50 dark:bg-emerald-900/10">Sesudah</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
+                                @foreach($keys as $key)
+                                    @php
+                                        $label = $this->readableKey($key);
+                                        $valOld = isset($old[$key]) ? $this->formatValue($key, $old[$key]) : null;
+                                        $valNew = isset($new[$key]) ? $this->formatValue($key, $new[$key]) : null;
+                                    @endphp
                                     @if(isset($old[$key]) || isset($new[$key]))
                                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors {{ (isset($old[$key]) && isset($new[$key]) && $old[$key] != $new[$key]) ? 'bg-amber-50/30 dark:bg-amber-900/5' : '' }}">
-                                            <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 border-r border-slate-100 dark:border-slate-700">{{ $key }}</td>
+                                            <td class="px-6 py-4 border-r border-slate-100 dark:border-slate-700">
+                                                <span class="font-bold text-slate-700 dark:text-slate-300 block">{{ $label }}</span>
+                                                <span class="text-xs text-slate-400 font-normal">{{ $key }}</span>
+                                            </td>
                                             <td class="px-6 py-4 text-rose-600 dark:text-rose-400 break-all border-r border-slate-100 dark:border-slate-700 leading-relaxed">
-                                                {{ is_array($old[$key] ?? null) ? json_encode($old[$key], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : ($old[$key] ?? '-') }}
+                                                {{ $valOld ?? '-' }}
                                             </td>
                                             <td class="px-6 py-4 text-emerald-600 dark:text-emerald-400 break-all leading-relaxed">
-                                                {{ is_array($new[$key] ?? null) ? json_encode($new[$key], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : ($new[$key] ?? '-') }}
+                                                {{ $valNew ?? '-' }}
                                             </td>
                                         </tr>
                                     @endif

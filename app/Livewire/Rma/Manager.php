@@ -46,7 +46,7 @@ class Manager extends Component
 
     public function openDetailPanel($id)
     {
-        $this->selectedRma = Rma::with(['items.product', 'user', 'order'])->findOrFail($id);
+        $this->selectedRma = Rma::with(['item.product', 'user', 'order'])->findOrFail($id);
         $this->activeAction = 'detail';
         $this->adminNotes = $this->selectedRma->admin_notes; // Load existing notes
         $this->refundAmount = $this->selectedRma->refund_amount ?? 0;
@@ -115,7 +115,7 @@ class Manager extends Component
 
     public function render()
     {
-        $rmas = Rma::with('user')
+        $rmas = Rma::with('pengguna')
             ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter))
             ->when($this->search, fn ($q) => $q->where('rma_number', 'like', '%'.$this->search.'%'))
             ->latest()

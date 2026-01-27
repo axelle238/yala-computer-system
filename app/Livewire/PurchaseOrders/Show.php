@@ -84,6 +84,7 @@ class Show extends Component
         $totalBarangMasuk = array_sum($this->dataPenerimaan);
         if ($totalBarangMasuk <= 0) {
             $this->dispatch('notify', message: 'Silakan isi jumlah barang yang benar-benar diterima.', type: 'error');
+
             return;
         }
 
@@ -154,18 +155,18 @@ class Show extends Component
                     'action' => 'update',
                     'model_type' => PurchaseOrder::class,
                     'model_id' => $this->po->id,
-                    'description' => "Menerima barang dari PO #{$this->po->po_number}: " . implode(', ', $rincianLog),
+                    'description' => "Menerima barang dari PO #{$this->po->po_number}: ".implode(', ', $rincianLog),
                     'ip_address' => request()->ip(),
                 ]);
             });
 
             $this->tutupPanelTerima();
             $this->dispatch('notify', message: 'Penerimaan barang berhasil diproses dan stok telah diperbarui.', type: 'success');
-            
+
             // Refresh data PO
             $this->po = $this->po->fresh(['item.produk', 'pemasok', 'pembuat']);
         } catch (\Exception $e) {
-            $this->dispatch('notify', message: 'Gagal memproses: ' . $e->getMessage(), type: 'error');
+            $this->dispatch('notify', message: 'Gagal memproses: '.$e->getMessage(), type: 'error');
         }
     }
 
@@ -176,7 +177,7 @@ class Show extends Component
     {
         if ($this->po->status === 'draft') {
             $this->po->update(['status' => 'ordered']);
-            
+
             ActivityLog::create([
                 'user_id' => Auth::id(),
                 'action' => 'update',

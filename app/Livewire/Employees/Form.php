@@ -19,28 +19,42 @@ class Form extends Component
 
     // Data Akun
     public $nama = '';
+
     public $surel = '';
+
     public $kataSandi = '';
+
     public $tipePeran = 'khusus'; // 'admin' (bawaan) atau 'khusus' (dari tabel peran)
-    public $idPeranTerpilih = null; 
+
+    public $idPeranTerpilih = null;
 
     // Data Kompensasi
     public $gajiPokok = 0;
+
     public $uangHarian = 0;
+
     public $persentaseKomisi = 0;
 
     // Data Kontrak & Kepegawaian (Baru)
     public $tanggalBergabung = '';
+
     public $awalKontrak = '';
+
     public $akhirKontrak = '';
+
     public $statusKaryawan = 'Tetap'; // Tetap, Kontrak, Magang, Percobaan
 
     // Data Pribadi
     public $nik = '';
+
     public $npwp = '';
+
     public $nomorTelepon = '';
+
     public $tempatLahir = '';
+
     public $tanggalLahir = '';
+
     public $alamatLengkap = '';
 
     /**
@@ -81,9 +95,9 @@ class Form extends Component
             $this->gajiPokok = $detail->base_salary;
             $this->uangHarian = $detail->allowance_daily;
             $this->persentaseKomisi = $detail->commission_percentage;
-            
+
             $this->tanggalBergabung = $detail->join_date ? $detail->join_date->format('Y-m-d') : '';
-            
+
             // Data Pribadi
             $this->nik = $detail->nik;
             $this->npwp = $detail->npwp;
@@ -125,7 +139,7 @@ class Form extends Component
         try {
             DB::transaction(function () {
                 // 1. Tentukan Peran
-                $kolomRole = 'employee'; 
+                $kolomRole = 'employee';
                 $peranId = null;
 
                 if ($this->tipePeran === 'admin') {

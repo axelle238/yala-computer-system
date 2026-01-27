@@ -30,6 +30,14 @@ class Quotation extends Model
         return $this->hasMany(QuotationItem::class);
     }
 
+    /**
+     * Alias plural
+     */
+    public function items(): HasMany
+    {
+        return $this->item();
+    }
+
     public function pesananTerkonversi(): BelongsTo
     {
         return $this->belongsTo(Order::class, 'converted_order_id');

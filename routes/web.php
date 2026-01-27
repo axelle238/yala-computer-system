@@ -56,6 +56,7 @@ Route::prefix('anggota')->middleware('auth')->group(function () {
     Route::get('/servis/pesan', \App\Livewire\Service\Booking::class)->name('anggota.servis.pesan');
     Route::get('/pesanan', \App\Livewire\Member\Orders::class)->name('anggota.pesanan');
     Route::get('/pesanan/{id}', \App\Livewire\Member\OrderDetail::class)->name('anggota.pesanan.detail');
+    Route::get('/faktur/{order}', [\App\Http\Controllers\InvoiceController::class, 'show'])->name('anggota.pesanan.faktur');
     Route::get('/penawaran', \App\Livewire\Member\Quotations::class)->name('anggota.penawaran');
     Route::get('/profil', \App\Livewire\Member\ProfileSettings::class)->name('anggota.profil');
     Route::get('/referal', \App\Livewire\Member\Referrals::class)->name('anggota.referal');
@@ -175,6 +176,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     // Cetak
     Route::get('/cetak/transaksi/{id}', [\App\Http\Controllers\PrintController::class, 'transaction'])->name('admin.cetak.transaksi');
     Route::get('/cetak/servis/{id}', [\App\Http\Controllers\PrintController::class, 'service'])->name('admin.cetak.servis');
+    Route::get('/cetak/label-pengiriman/{id}', [\App\Http\Controllers\PrintController::class, 'shippingLabel'])->name('admin.cetak.label-pengiriman');
     Route::get('/cetak/label/{id}', [\App\Http\Controllers\PrintController::class, 'productLabel'])->name('admin.cetak.label');
     Route::get('/cetak/label-masal', [\App\Http\Controllers\PrintController::class, 'labels'])->name('admin.cetak.label-masal');
 
@@ -196,7 +198,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/penawaran/buat', \App\Livewire\Quotations\Form::class)->name('admin.penawaran.buat');
     Route::get('/penawaran/{id}/ubah', \App\Livewire\Quotations\Form::class)->name('admin.penawaran.ubah');
     Route::get('/keuangan/kasir', \App\Livewire\Finance\CashRegisterManager::class)->name('admin.keuangan.kasir');
-    Route::get('/keuangan/kasir/buka', \App\Livewire\Finance\CashRegisterManager::class)->name('admin.shift.buka'); 
+    Route::get('/keuangan/kasir/buka', \App\Livewire\Finance\CashRegisterManager::class)->name('admin.shift.buka');
     Route::get('/keuangan/piutang', \App\Livewire\Finance\Receivables::class)->name('admin.keuangan.piutang');
     Route::get('/keuangan/laba-rugi', \App\Livewire\Finance\ProfitLoss::class)->name('admin.keuangan.laba-rugi');
 
@@ -204,4 +206,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/sistem/kesehatan', \App\Livewire\System\Health::class)->name('admin.sistem.kesehatan');
     Route::get('/sistem/info', \App\Livewire\System\Info::class)->name('admin.sistem.info');
     Route::get('/sistem/cadangan', \App\Livewire\System\Backups::class)->name('admin.sistem.cadangan');
+
+    // Keamanan Sistem
+    Route::prefix('keamanan')->name('admin.keamanan.')->group(function () {
+        Route::get('/', \App\Livewire\Security\Dashboard::class)->name('dashboard');
+        Route::get('/firewall', \App\Livewire\Security\Firewall::class)->name('firewall');
+        Route::get('/ids', \App\Livewire\Security\IntrusionDetection::class)->name('ids');
+        Route::get('/audit', \App\Livewire\Security\AuditLog::class)->name('audit');
+        Route::get('/scanner', \App\Livewire\Security\VulnerabilityScan::class)->name('scanner');
+        Route::get('/atm', \App\Livewire\Security\AutomatedResponse::class)->name('atm');
+        Route::get('/honeypot', \App\Livewire\Security\Honeypot::class)->name('honeypot');
+        Route::get('/traffic', \App\Livewire\Security\TrafficInspector::class)->name('traffic');
+    });
 });

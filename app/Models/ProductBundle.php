@@ -13,11 +13,21 @@ class ProductBundle extends Model
         return $this->hasMany(ProductBundleItem::class);
     }
 
+    public function items()
+    {
+        return $this->item();
+    }
+
     public function produk()
     {
         return $this->belongsToMany(Product::class, 'product_bundle_items')
             ->withPivot('quantity')
             ->withTimestamps();
+    }
+
+    public function products()
+    {
+        return $this->produk();
     }
 
     // Kalkulasi stok dinamis berdasarkan komponen

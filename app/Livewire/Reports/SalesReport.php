@@ -16,7 +16,9 @@ class SalesReport extends Component
 {
     // Filter
     public $tanggalMulai;
+
     public $tanggalAkhir;
+
     public $periode = 'bulan_ini'; // hari_ini, minggu_ini, bulan_ini, manual
 
     /**
@@ -33,7 +35,7 @@ class SalesReport extends Component
     public function aturPeriode($p)
     {
         $this->periode = $p;
-        
+
         if ($p == 'hari_ini') {
             $this->tanggalMulai = now()->startOfDay()->format('Y-m-d');
             $this->tanggalAkhir = now()->endOfDay()->format('Y-m-d');
@@ -76,8 +78,8 @@ class SalesReport extends Component
 
         // Siapkan struktur data grafik (Label & Series)
         $grafikHarian = [
-            'label' => $penjualanHarian->map(fn($item) => Carbon::parse($item->tanggal)->format('d M'))->toArray(),
-            'data' => $penjualanHarian->map(fn($item) => $item->total)->toArray(),
+            'label' => $penjualanHarian->map(fn ($item) => Carbon::parse($item->tanggal)->format('d M'))->toArray(),
+            'data' => $penjualanHarian->map(fn ($item) => $item->total)->toArray(),
         ];
 
         // 3. Produk Terlaris (Top 5)
@@ -105,7 +107,7 @@ class SalesReport extends Component
 
         // Data Grafik Pembayaran
         $grafikBayar = [
-            'label' => $metodeBayar->pluck('payment_method')->map(fn($m) => strtoupper($m))->toArray(),
+            'label' => $metodeBayar->pluck('payment_method')->map(fn ($m) => strtoupper($m))->toArray(),
             'data' => $metodeBayar->pluck('total')->toArray(),
         ];
 

@@ -42,4 +42,9 @@ class InventoryTransfer extends Model
     {
         return $this->hasMany(InventoryTransferItem::class);
     }
+
+    public function items(): HasMany
+    {
+        return $this->item();
+    }
 }

@@ -18,16 +18,21 @@ class Index extends Component
 
     // Filter
     public $cari = '';
+
     public $filterKategori = '';
 
     // Status Panel
     public $sedangMengedit = false;
+
     public $sedangMembaca = false;
 
     // Data Formulir
     public $idArtikel;
+
     public $judul;
+
     public $kategori;
+
     public $konten;
 
     // Data Tampilan
@@ -53,7 +58,7 @@ class Index extends Component
         $this->judul = $artikel->title;
         $this->kategori = $artikel->category;
         $this->konten = $artikel->content;
-        
+
         $this->sedangMengedit = true;
         $this->sedangMembaca = false;
     }

@@ -22,27 +22,37 @@ class PointOfSale extends Component
 {
     // Cari & Filter
     public $kataKunciCari = '';
+
     public $idKategori = null;
 
     // Keranjang
-    public $keranjang = []; 
+    public $keranjang = [];
+
     public $subtotal = 0;
+
     public $diskon = 0;
+
     public $totalAkhir = 0;
 
     // Voucher
     public $kodeVoucher = '';
+
     public $voucherTerpakai = null;
 
     // Pelanggan
     public $idMemberTerpilih = null;
+
     public $namaTamu = 'Tamu';
+
     public $cariMember = '';
+
     public $hasilCariMember = [];
 
     // Pembayaran
-    public $metodePembayaran = 'tunai'; 
+    public $metodePembayaran = 'tunai';
+
     public $uangDibayar = 0;
+
     public $kembalian = 0;
 
     // Status Sistem
@@ -76,12 +86,14 @@ class PointOfSale extends Component
         }
         if ($produk->stock_quantity <= 0) {
             $this->dispatch('notify', message: 'Maaf, stok produk ini telah habis.', type: 'error');
+
             return;
         }
 
         if (isset($this->keranjang[$idProduk])) {
             if ($this->keranjang[$idProduk]['qty'] + 1 > $produk->stock_quantity) {
                 $this->dispatch('notify', message: 'Jumlah melebihi stok yang tersedia saat ini.', type: 'error');
+
                 return;
             }
             $this->keranjang[$idProduk]['qty']++;
@@ -135,6 +147,7 @@ class PointOfSale extends Component
             $this->voucherTerpakai = null;
             $this->diskon = 0;
             $this->hitungTotal();
+
             return;
         }
 
@@ -142,13 +155,14 @@ class PointOfSale extends Component
             ->where('is_active', true)
             ->where(function ($query) {
                 $query->whereNull('valid_until')
-                      ->orWhere('valid_until', '>=', now());
+                    ->orWhere('valid_until', '>=', now());
             })
             ->first();
 
         if ($voucher) {
             if ($voucher->usage_limit > 0 && $voucher->usage_count >= $voucher->usage_limit) {
                 $this->dispatch('notify', message: 'Kuota voucher telah habis.', type: 'error');
+
                 return;
             }
 
@@ -240,11 +254,13 @@ class PointOfSale extends Component
     {
         if (empty($this->keranjang)) {
             $this->dispatch('notify', message: 'Daftar belanja masih kosong.', type: 'error');
+
             return;
         }
 
         if ($this->metodePembayaran == 'tunai' && $this->uangDibayar < $this->totalAkhir) {
             $this->dispatch('notify', message: 'Nominal pembayaran tidak mencukupi.', type: 'error');
+
             return;
         }
 
@@ -252,6 +268,7 @@ class PointOfSale extends Component
             $produk = Product::find($id);
             if ($produk->stock_quantity < $item['qty']) {
                 $this->dispatch('notify', message: "Stok produk {$produk->name} tidak mencukupi untuk transaksi ini.", type: 'error');
+
                 return;
             }
         }
@@ -269,7 +286,7 @@ class PointOfSale extends Component
                     'payment_status' => 'paid',
                     'status' => 'completed',
                     'paid_at' => now(),
-                    'notes' => $this->voucherTerpakai ? 'Voucher: ' . $this->voucherTerpakai->code : null,
+                    'notes' => $this->voucherTerpakai ? 'Voucher: '.$this->voucherTerpakai->code : null,
                 ]);
 
                 foreach ($this->keranjang as $id => $item) {

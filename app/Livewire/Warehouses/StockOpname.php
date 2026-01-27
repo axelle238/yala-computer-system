@@ -48,6 +48,7 @@ class StockOpname extends Component
 
         if (! $gudang) {
             $this->dispatch('notify', message: 'Error: Data gudang utama tidak ditemukan.', type: 'error');
+
             return;
         }
 
@@ -67,12 +68,14 @@ class StockOpname extends Component
                 'stock_opname_id' => $this->opnameBerjalan->id,
                 'product_id' => $p->id,
                 'system_stock' => $p->stock_quantity,
+                'physical_stock' => null,
+                'variance' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
         }
         ItemStokOpname::insert($daftarInput);
-        
+
         $this->dispatch('notify', message: 'Sesi opname dimulai. Silakan isi stok fisik.', type: 'info');
     }
 
@@ -104,7 +107,9 @@ class StockOpname extends Component
      */
     public function selesaikanDanFinalisasi()
     {
-        if (! $this->opnameBerjalan) return;
+        if (! $this->opnameBerjalan) {
+            return;
+        }
 
         $kasirAktif = CashRegister::where('user_id', Auth::id())->where('status', 'open')->first();
 
@@ -160,15 +165,15 @@ class StockOpname extends Component
 
                 $this->opnameBerjalan->update([
                     'status' => 'selesai',
-                    'notes' => "Finalisasi sistem otomatis. Total kerugian tercatat: Rp " . number_format($totalKerugianFinansial)
+                    'notes' => 'Finalisasi sistem otomatis. Total kerugian tercatat: Rp '.number_format($totalKerugianFinansial),
                 ]);
-                
+
                 $this->opnameBerjalan = null;
             });
 
             $this->dispatch('notify', message: 'Stok opname berhasil difinalisasi. Stok sistem telah diperbarui.', type: 'success');
         } catch (\Exception $e) {
-            $this->dispatch('notify', message: 'Gagal melakukan finalisasi: ' . $e->getMessage(), type: 'error');
+            $this->dispatch('notify', message: 'Gagal melakukan finalisasi: '.$e->getMessage(), type: 'error');
         }
     }
 

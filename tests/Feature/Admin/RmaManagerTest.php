@@ -50,7 +50,7 @@ it('admin bisa memproses refund rma dengan sesi kasir aktif', function () {
     // 3. Eksekusi Livewire
     Livewire::actingAs($admin)
         ->test(Manager::class)
-        ->call('openDetail', $rma->id)
+        ->call('openDetailPanel', $rma->id)
         ->set('resolutionAction', 'refund')
         ->set('refundAmount', 150000)
         ->set('adminNotes', 'Refund disetujui sebagian.')
@@ -96,7 +96,7 @@ it('admin gagal refund jika tidak ada sesi kasir aktif', function () {
 
     Livewire::actingAs($admin)
         ->test(Manager::class)
-        ->call('openDetail', $rma->id)
+        ->call('openDetailPanel', $rma->id)
         ->set('resolutionAction', 'refund')
         ->set('refundAmount', 50000)
         ->set('adminNotes', 'Coba refund tanpa kasir.')

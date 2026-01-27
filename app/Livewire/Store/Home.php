@@ -24,10 +24,10 @@ class Home extends Component
     public function lacakServis()
     {
         $this->validate([
-            'nomorLacakTiket' => 'required|string|min:5'
+            'nomorLacakTiket' => 'required|string|min:5',
         ], [
             'nomorLacakTiket.required' => 'Masukkan nomor tiket servis.',
-            'nomorLacakTiket.min' => 'Nomor tiket tidak valid.'
+            'nomorLacakTiket.min' => 'Nomor tiket tidak valid.',
         ]);
 
         return redirect()->route('toko.lacak-servis', ['ticket' => $this->nomorLacakTiket]);
@@ -44,9 +44,9 @@ class Home extends Component
         } else {
             $keranjang[$idProduk] = 1;
         }
-        
+
         session()->put('cart', $keranjang);
-        
+
         $this->dispatch('cart-updated');
         $this->dispatch('notify', message: 'Item berhasil masuk ke keranjang belanja.', type: 'success');
     }
@@ -57,10 +57,11 @@ class Home extends Component
     public function tambahKePerbandingan($idProduk)
     {
         $daftarBanding = session()->get('comparison_list', []);
-        
+
         if (! in_array($idProduk, $daftarBanding)) {
             if (count($daftarBanding) >= 4) {
                 $this->dispatch('notify', message: 'Batas perbandingan maksimal adalah 4 produk.', type: 'error');
+
                 return;
             }
             $daftarBanding[] = $idProduk;

@@ -62,6 +62,8 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased transition-colors duration-300 selection:bg-indigo-500 selection:text-white h-screen overflow-hidden font-sans">
     
+    <livewire:security.alert-overlay />
+
     <div class="admin-grid"></div>
 
     <!-- Mobile Backdrop -->

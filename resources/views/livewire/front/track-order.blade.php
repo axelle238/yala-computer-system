@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12 flex items-center justify-center">
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12 flex items-center justify-center" wire:poll.10s>
     <div class="w-full max-w-lg px-4">
         
         <div class="text-center mb-8 animate-fade-in-up">
@@ -26,16 +26,16 @@
                                     'pending' => 'Menunggu Konfirmasi',
                                     'processing' => 'Sedang Dikemas',
                                     'shipped' => 'Dalam Pengiriman',
-                                    'delivered' => 'Pesanan Selesai',
+                                    'completed' => 'Pesanan Selesai',
                                     'cancelled' => 'Dibatalkan',
                                     default => 'Status Tidak Diketahui'
                                 } }}
                             </div>
                         </div>
-                        @if($order->tracking_number)
+                        @if($order->shipping_tracking_number)
                             <div class="text-right">
                                 <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">No. Resi</div>
-                                <div class="text-lg font-mono font-bold text-cyan-500 mt-1 select-all">{{ $order->tracking_number }}</div>
+                                <div class="text-lg font-mono font-bold text-cyan-500 mt-1 select-all">{{ $order->shipping_tracking_number }}</div>
                                 <div class="text-xs font-bold text-slate-500 uppercase">{{ $order->shipping_courier }}</div>
                             </div>
                         @endif
@@ -51,21 +51,21 @@
                         </div>
 
                         <!-- Processing -->
-                        <div class="relative {{ in_array($order->status, ['processing', 'shipped', 'delivered']) ? '' : 'opacity-30' }}">
-                            <div class="absolute -left-[21px] top-1 w-4 h-4 rounded-full {{ in_array($order->status, ['processing', 'shipped', 'delivered']) ? 'bg-emerald-500' : 'bg-slate-300' }} border-2 border-white dark:border-slate-800"></div>
+                        <div class="relative {{ in_array($order->status, ['processing', 'shipped', 'completed']) ? '' : 'opacity-30' }}">
+                            <div class="absolute -left-[21px] top-1 w-4 h-4 rounded-full {{ in_array($order->status, ['processing', 'shipped', 'completed']) ? 'bg-emerald-500' : 'bg-slate-300' }} border-2 border-white dark:border-slate-800"></div>
                             <div class="text-sm font-bold text-slate-800 dark:text-white">Pembayaran Diterima & Dipacking</div>
                         </div>
 
                         <!-- Shipped -->
-                        <div class="relative {{ in_array($order->status, ['shipped', 'delivered']) ? '' : 'opacity-30' }}">
-                            <div class="absolute -left-[21px] top-1 w-4 h-4 rounded-full {{ in_array($order->status, ['shipped', 'delivered']) ? 'bg-emerald-500' : 'bg-slate-300' }} border-2 border-white dark:border-slate-800"></div>
+                        <div class="relative {{ in_array($order->status, ['shipped', 'completed']) ? '' : 'opacity-30' }}">
+                            <div class="absolute -left-[21px] top-1 w-4 h-4 rounded-full {{ in_array($order->status, ['shipped', 'completed']) ? 'bg-emerald-500' : 'bg-slate-300' }} border-2 border-white dark:border-slate-800"></div>
                             <div class="text-sm font-bold text-slate-800 dark:text-white">Diserahkan ke Kurir</div>
                             @if($order->status == 'shipped') <div class="text-xs text-emerald-500 font-bold animate-pulse">Sedang Berjalan...</div> @endif
                         </div>
 
                         <!-- Delivered -->
-                        <div class="relative {{ $order->status == 'delivered' ? '' : 'opacity-30' }}">
-                            <div class="absolute -left-[21px] top-1 w-4 h-4 rounded-full {{ $order->status == 'delivered' ? 'bg-emerald-500' : 'bg-slate-300' }} border-2 border-white dark:border-slate-800"></div>
+                        <div class="relative {{ $order->status == 'completed' ? '' : 'opacity-30' }}">
+                            <div class="absolute -left-[21px] top-1 w-4 h-4 rounded-full {{ $order->status == 'completed' ? 'bg-emerald-500' : 'bg-slate-300' }} border-2 border-white dark:border-slate-800"></div>
                             <div class="text-sm font-bold text-slate-800 dark:text-white">Paket Diterima</div>
                         </div>
                     </div>

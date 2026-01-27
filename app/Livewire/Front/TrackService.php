@@ -13,10 +13,12 @@ class TrackService extends Component
 {
     // Input Pencarian
     public $nomorTiket = '';
+
     public $verifikasiNomor = ''; // Nomor HP untuk keamanan
 
     // Hasil
     public $hasil = null;
+
     public $riwayatProgres = [];
 
     /**
@@ -26,17 +28,17 @@ class TrackService extends Component
     {
         $this->validate([
             'nomorTiket' => 'required|string|min:5',
-            'verifikasiNomor' => 'required|string|min:4', 
+            'verifikasiNomor' => 'required|string|min:4',
         ], [
             'nomorTiket.required' => 'Nomor tiket wajib diisi.',
             'verifikasiNomor.required' => 'Masukkan nomor HP untuk verifikasi.',
         ]);
 
         // Cari tiket yang cocok dengan Nomor Tiket DAN Nomor HP (Match sebagian)
-        $tiket = ServiceTicket::with(['teknisi', 'logProgres' => function($q) {
-                // Hanya ambil log yang publik
-                $q->where('is_publik', true)->orderBy('created_at', 'desc');
-            }])
+        $tiket = ServiceTicket::with(['teknisi', 'logProgres' => function ($q) {
+            // Hanya ambil log yang publik
+            $q->where('is_publik', true)->orderBy('created_at', 'desc');
+        }])
             ->where('ticket_number', $this->nomorTiket)
             ->where('customer_phone', 'like', '%'.$this->verifikasiNomor.'%')
             ->first();

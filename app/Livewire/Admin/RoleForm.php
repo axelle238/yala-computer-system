@@ -21,47 +21,63 @@ class RoleForm extends Component
 
     // Definisi Hak Akses yang tersedia (Grouping)
     public $permissionsList = [
-        'Dashboard' => [
+        'Dashboard & Umum' => [
             'dashboard' => 'Akses Dashboard Utama',
         ],
         'Penjualan (POS)' => [
             'akses_pos' => 'Akses Mesin Kasir (POS)',
-            'lihat_pesanan' => 'Lihat Riwayat Pesanan',
-            'kelola_pesanan' => 'Kelola Pesanan (Update Status)',
+            'lihat_pesanan' => 'Lihat Riwayat Transaksi',
+            'kelola_pesanan' => 'Kelola Pesanan (Refund/Batal)',
+            'akses_penawaran' => 'Kelola Penawaran (B2B)',
         ],
-        'Inventaris & Produk' => [
-            'akses_gudang' => 'Akses Menu Gudang',
+        'Produk & Gudang' => [
+            'akses_gudang' => 'Akses Menu Gudang Utama',
             'lihat_produk' => 'Lihat Daftar Produk',
             'tambah_produk' => 'Tambah Produk Baru',
             'edit_produk' => 'Edit Data Produk',
             'hapus_produk' => 'Hapus Produk',
             'stok_opname' => 'Lakukan Stok Opname',
+            'akses_logistik' => 'Kelola Pengiriman & Kurir',
+            'akses_procurement' => 'Kelola Pesanan Pembelian (PO)',
+            'terima_barang' => 'Penerimaan Barang Masuk (GR)',
         ],
-        'Servis & Layanan' => [
+        'Servis & RMA' => [
             'akses_servis' => 'Akses Menu Servis',
             'lihat_tiket' => 'Lihat Tiket Servis',
             'buat_tiket' => 'Buat Tiket Baru',
             'update_progres' => 'Update Progres Servis',
+            'akses_rma' => 'Kelola Klaim Garansi (RMA)',
+            'akses_perakitan' => 'Akses Workbench Perakitan PC',
+            'kelola_pengetahuan' => 'Kelola Basis Pengetahuan',
         ],
         'Keuangan' => [
             'akses_keuangan' => 'Akses Menu Keuangan',
-            'lihat_laporan' => 'Lihat Laporan Keuangan',
+            'lihat_laporan' => 'Lihat Laporan Bisnis',
             'kelola_kas' => 'Kelola Kas & Expenses',
+            'analisa_profit' => 'Akses Analisa Profit/Laba',
+        ],
+        'CRM & Pemasaran (Media)' => [
+            'akses_media' => 'Akses Menu Media & Pemasaran',
+            'lihat_pelanggan' => 'Lihat Database Pelanggan',
+            'kelola_pelanggan' => 'Edit Data Pelanggan',
+            'akses_chat' => 'Akses Live Chat & Inbox',
+            'kelola_berita' => 'Kelola Artikel & Berita',
+            'kelola_spanduk' => 'Kelola Banner Promosi',
+            'kelola_voucher' => 'Buat Voucher & Diskon',
+            'kirim_wa' => 'Kirim Pesan Massal (WA Blast)',
         ],
         'SDM & Karyawan' => [
             'lihat_karyawan' => 'Lihat Data Karyawan',
-            'kelola_karyawan' => 'Tambah/Edit Karyawan',
-            'kelola_gaji' => 'Kelola Penggajian (Payroll)',
+            'kelola_karyawan' => 'Manajemen Karyawan & Shift',
+            'kelola_peran' => 'Manajemen Hak Akses & Peran',
+            'kelola_gaji' => 'Akses Data Penggajian',
         ],
-        'CRM & Pelanggan' => [
-            'lihat_pelanggan' => 'Lihat Data Pelanggan',
-            'kelola_pelanggan' => 'Kelola Data Pelanggan',
-            'akses_chat' => 'Akses Live Chat & Inbox',
-        ],
-        'Sistem' => [
+        'Sistem & Administrator' => [
             'akses_admin' => 'Akses Penuh Administrator',
-            'kelola_pengaturan' => 'Ubah Pengaturan Sistem',
-            'lihat_log' => 'Lihat Log Aktivitas',
+            'kelola_pengaturan' => 'Ubah Konfigurasi Sistem',
+            'kelola_aset' => 'Manajemen Aset Perusahaan',
+            'lihat_log' => 'Audit Log Aktivitas',
+            'akses_sistem_info' => 'Lihat Informasi Server',
         ],
     ];
 

@@ -265,7 +265,7 @@ class Create extends Component
         if ($tarifPajak > 0) {
             return ($this->subtotal - $this->discount) * ($tarifPajak / 100);
         }
-        
+
         return 0;
     }
 

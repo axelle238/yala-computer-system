@@ -35,6 +35,7 @@ class HelpCenter extends Component
                     'akun', 'keamanan' => 'user-group',
                     default => 'book-open'
                 };
+
                 return ['name' => $cat, 'icon' => $icon];
             });
 

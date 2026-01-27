@@ -237,10 +237,10 @@
 
                 snap.pay(token, {
                     onSuccess: function(result) {
-                        window.location.href = "/order-success/" + orderId;
+                        window.location.href = "/pesanan-berhasil/" + orderId;
                     },
                     onPending: function(result) {
-                        window.location.href = "/order-success/" + orderId;
+                        window.location.href = "/pesanan-berhasil/" + orderId;
                     },
                     onError: function(result) {
                         alert("Maaf, pembayaran gagal diproses. Silakan coba lagi.");

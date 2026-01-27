@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InventoryTransaction;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\ServiceTicket;
 use App\Models\Setting;
@@ -11,6 +12,16 @@ use Illuminate\Support\Facades\Session;
 
 class PrintController extends Controller
 {
+    public function shippingLabel($id)
+    {
+        $order = Order::with('items.product', 'user')->findOrFail($id);
+        $shopName = Setting::get('store_name', 'Yala Computer');
+        $shopAddress = Setting::get('store_address', 'Jakarta'); // Corrected key based on Settings seeder/form
+        $shopPhone = Setting::get('store_phone', '-'); // Corrected key
+
+        return view('print.shipping_label', compact('order', 'shopName', 'shopAddress', 'shopPhone'));
+    }
+
     public function labels(Request $request)
     {
         $queue = Session::get('label_print_queue', []);

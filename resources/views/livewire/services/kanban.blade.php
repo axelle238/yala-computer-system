@@ -22,7 +22,7 @@
 
     <!-- Papan Kanban -->
     <div class="flex-1 overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
-        <div class="flex gap-6 h-full min-w-max px-1">
+        <div class="flex gap-6 h-full min-w-max px-6">
             @php
                 // Mapping status ke Bahasa Indonesia & Warna
                 $petaStatus = [

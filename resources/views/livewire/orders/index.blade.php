@@ -1,4 +1,4 @@
-<div class="h-[calc(100vh-100px)] flex flex-col">
+<div class="h-[calc(100vh-100px)] flex flex-col" wire:poll.5s>
     <!-- Header & Toolbar -->
     <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 px-4 pt-4">
         <div>

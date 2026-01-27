@@ -19,22 +19,33 @@ class Index extends Component
 
     // Filter & UI
     public $cari = '';
+
     public $tampilkanForm = false;
+
     public $tampilkanInfoDepresiasi = false;
 
     // Properti Formulir
     public $idAset;
+
     public $nama;
+
     public $nomorSeri;
+
     public $tanggalBeli;
+
     public $biayaBeli;
+
     public $umurEkonomisTahun;
+
     public $kondisi = 'Baik';
+
     public $lokasi;
+
     public $gambar;
 
     // Data Kalkulasi (Untuk Modal/Info)
     public $asetTerpilih;
+
     public $jadwalDepresiasi = [];
 
     /**
@@ -131,7 +142,7 @@ class Index extends Component
         $this->umurEkonomisTahun = $aset->useful_life_years;
         $this->kondisi = $aset->condition;
         $this->lokasi = $aset->location;
-        
+
         $this->tampilkanForm = true;
         $this->tampilkanInfoDepresiasi = false;
     }
@@ -165,10 +176,10 @@ class Index extends Component
 
         for ($i = 0; $i <= $tahun; $i++) {
             $tahunJalan = $tahunBeli + $i;
-            
+
             // Tahun 0 adalah saat pembelian (belum ada penyusutan akumulasi)
             $bebanTahunIni = $i == 0 ? 0 : $depresiasiPerTahun;
-            
+
             // Pastikan nilai buku tidak negatif di akhir
             $nilaiBukuAkhir = max(0, $nilaiBuku - $bebanTahunIni);
 
@@ -196,9 +207,9 @@ class Index extends Component
     public function render()
     {
         $daftarAset = CompanyAsset::query()
-            ->when($this->cari, function($q) {
+            ->when($this->cari, function ($q) {
                 $q->where('name', 'like', '%'.$this->cari.'%')
-                  ->orWhere('serial_number', 'like', '%'.$this->cari.'%');
+                    ->orWhere('serial_number', 'like', '%'.$this->cari.'%');
             })
             ->latest()
             ->paginate(10);

@@ -62,6 +62,7 @@ class DetailPelanggan extends Component
 
         if ($saldoBaru < 0) {
             $this->addError('penyesuaianPoin', 'Saldo poin tidak boleh menjadi negatif.');
+
             return;
         }
 

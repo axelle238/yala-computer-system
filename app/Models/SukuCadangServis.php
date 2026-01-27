@@ -41,6 +41,11 @@ class SukuCadangServis extends Model
      */
     public function produk(): BelongsTo
     {
-        return $this->belongsTo(Product::class, 'id_produk');
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->produk();
     }
 }

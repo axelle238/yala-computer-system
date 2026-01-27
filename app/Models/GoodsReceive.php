@@ -34,6 +34,11 @@ class GoodsReceive extends Model
         return $this->hasMany(GoodsReceiveItem::class);
     }
 
+    public function item()
+    {
+        return $this->items();
+    }
+
     public function receiver()
     {
         return $this->belongsTo(User::class, 'received_by');

@@ -273,10 +273,10 @@
             
             snap.pay(data.token, {
                 onSuccess: function(result){
-                    window.location.href = "{{ route('order.success', ':id') }}".replace(':id', data.orderId);
+                    window.location.href = "{{ route('toko.pesanan.berhasil', ':id') }}".replace(':id', data.orderId);
                 },
                 onPending: function(result){
-                    window.location.href = "{{ route('order.success', ':id') }}".replace(':id', data.orderId);
+                    window.location.href = "{{ route('toko.pesanan.berhasil', ':id') }}".replace(':id', data.orderId);
                 },
                 onError: function(result){
                     alert("Pembayaran gagal! Silakan coba lagi.");

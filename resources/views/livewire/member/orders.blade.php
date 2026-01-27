@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12">
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12" wire:poll.5s>
     <div class="container mx-auto px-4 lg:px-8">
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <h1 class="text-3xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tighter">

@@ -36,11 +36,13 @@ class OrderDetail extends Component
 
     public function cetakFaktur()
     {
-        $this->dispatch('notify', message: 'Fitur cetak faktur akan segera hadir!', type: 'info');
+        return redirect()->route('anggota.pesanan.faktur', $this->pesanan->id);
     }
 
     public function render()
     {
+        $this->pesanan->refresh();
+
         // Linimasa Pelacakan (Mock berdasarkan status)
         $linimasa = [
             ['status' => 'pending', 'label' => 'Menunggu Pembayaran', 'waktu' => $this->pesanan->created_at, 'selesai' => true],

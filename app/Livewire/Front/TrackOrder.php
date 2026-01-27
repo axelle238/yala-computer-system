@@ -11,36 +11,34 @@ use Livewire\Component;
 #[Title('Lacak Pesanan - Yala Computer')]
 class TrackOrder extends Component
 {
-    public $order_number = '';
-
-    public $contact = ''; // Email or Phone
+    public $orderNumber = '';
+    public $searchPerformed = false;
 
     public $order = null;
 
     public function track()
     {
         $this->validate([
-            'order_number' => 'required|string',
-            'contact' => 'required|string',
+            'orderNumber' => 'required|string',
         ]);
 
+        $this->searchPerformed = true;
+
         $this->order = Order::with(['items.product'])
-            ->where('order_number', $this->order_number)
-            ->where(function ($q) {
-                $q->where('guest_whatsapp', 'like', '%'.$this->contact.'%')
-                    ->orWhereHas('user', function ($u) {
-                        $u->where('email', $this->contact);
-                    });
-            })
+            ->where('order_number', $this->orderNumber)
             ->first();
 
         if (! $this->order) {
-            $this->addError('order_number', 'Pesanan tidak ditemukan. Periksa nomor order dan kontak Anda.');
+            $this->addError('orderNumber', 'Pesanan tidak ditemukan. Periksa nomor order Anda.');
         }
     }
 
     public function render()
     {
+        if ($this->order) {
+            $this->order->refresh();
+        }
+
         $timeline = [];
         if ($this->order) {
             $timeline = [

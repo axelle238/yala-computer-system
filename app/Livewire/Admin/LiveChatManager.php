@@ -18,7 +18,9 @@ class LiveChatManager extends Component
 
     // Properti State
     public $sesiTerpilihId = null;
+
     public $isiPesan = '';
+
     public $cariPelanggan = '';
 
     // Event Listener
@@ -76,7 +78,7 @@ class LiveChatManager extends Component
             'id_pengguna' => Auth::id(),
             'is_balasan_admin' => true,
             'isi' => $this->isiPesan,
-            'is_dibaca' => true, 
+            'is_dibaca' => true,
         ]);
 
         // Perbarui timestamp update sesi untuk menaikkan posisi di list
@@ -100,8 +102,8 @@ class LiveChatManager extends Component
                     $q->where('name', 'like', '%'.$this->cariPelanggan.'%');
                 })->orWhere('topik', 'like', '%'.$this->cariPelanggan.'%');
             })
-            ->latest('updated_at') 
-            ->get(); 
+            ->latest('updated_at')
+            ->get();
 
         $daftarPesan = [];
         $sesiAktif = null;

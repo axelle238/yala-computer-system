@@ -27,11 +27,13 @@ class LoyaltyPoints extends Component
 
         if (! $voucher || ! $voucher->is_public || $voucher->points_cost <= 0) {
             $this->dispatch('notify', message: 'Voucher tidak valid untuk ditukar.', type: 'error');
+
             return;
         }
 
         if ($user->points < $voucher->points_cost) {
             $this->dispatch('notify', message: 'Poin Anda tidak mencukupi.', type: 'error');
+
             return;
         }
 

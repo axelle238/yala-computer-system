@@ -86,6 +86,14 @@ class Product extends Model
     }
 
     /**
+     * Alias supplier
+     */
+    public function supplier(): BelongsTo
+    {
+        return $this->pemasok();
+    }
+
+    /**
      * Dapatkan transaksi inventaris untuk produk.
      * Digunakan untuk jejak audit dan riwayat.
      */

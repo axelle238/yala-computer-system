@@ -31,7 +31,7 @@ class SendWhatsappBlastJob implements ShouldQueue
     public function handle(): void
     {
         Log::info("Memulai proses Whatsapp Blast: {$this->blast->campaign_name}");
-        
+
         $this->blast->update(['status' => 'processing']);
 
         // 1. Tentukan Target
@@ -52,7 +52,7 @@ class SendWhatsappBlastJob implements ShouldQueue
                 try {
                     // --- SIMULASI INTEGRASI API (Misal: Wablas / Fonnte) ---
                     // $response = Http::post('https://api.whatsapp.service/send', [ ... ]);
-                    
+
                     // Kita simulasikan delay jaringan kecil
                     usleep(100000); // 0.1 detik
 
@@ -67,14 +67,14 @@ class SendWhatsappBlastJob implements ShouldQueue
 
                 } catch (\Exception $e) {
                     $failed++;
-                    Log::error("Error sending WA to {$user->id}: " . $e->getMessage());
+                    Log::error("Error sending WA to {$user->id}: ".$e->getMessage());
                 }
             }
-            
+
             // Update progress berkala di database agar admin bisa lihat
             $this->blast->update([
                 'success_count' => $success,
-                'failed_count' => $failed
+                'failed_count' => $failed,
             ]);
         });
 
@@ -82,7 +82,7 @@ class SendWhatsappBlastJob implements ShouldQueue
         $this->blast->update([
             'status' => 'completed',
             'success_count' => $success,
-            'failed_count' => $failed
+            'failed_count' => $failed,
         ]);
 
         Log::info("Whatsapp Blast Selesai. Sukses: $success, Gagal: $failed");
