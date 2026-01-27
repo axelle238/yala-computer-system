@@ -2,7 +2,7 @@
     <!-- Header & Filter -->
     <div class="flex justify-between items-center">
         <div>
-            <h1 class="text-3xl font-black text-slate-800 dark:text-white font-tech uppercase tracking-tight">Business Intelligence</h1>
+            <h1 class="text-3xl font-black text-slate-800 dark:text-white font-tech uppercase tracking-tight">Analisis Bisnis</h1>
             <p class="text-slate-500 dark:text-slate-400">Analisa performa bisnis berbasis data.</p>
         </div>
         <select wire:model.live="range" class="bg-white dark:bg-slate-800 border-none rounded-xl px-4 py-2 font-bold shadow-sm">
@@ -18,7 +18,7 @@
         <!-- Top Products -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
             <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <span class="text-emerald-500">🏆</span> Produk Terlaris (Revenue)
+                <span class="text-emerald-500">🏆</span> Produk Terlaris (Pendapatan)
             </h3>
             <div class="space-y-4">
                 @foreach($topProducts as $item)
@@ -68,7 +68,7 @@
     <!-- Dead Stock Alert -->
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-rose-200 dark:border-rose-900/50 p-6">
         <h3 class="font-bold text-lg text-rose-600 dark:text-rose-400 mb-2 flex items-center gap-2">
-            <span class="text-rose-500">⚠️</span> Dead Stock Alert (90 Hari Tanpa Penjualan)
+            <span class="text-rose-500">⚠️</span> Peringatan Stok Mati (Tidak terjual > 90 hari)
         </h3>
         <p class="text-sm text-slate-500 mb-4">Barang-barang ini memiliki stok tapi tidak terjual dalam 3 bulan terakhir. Pertimbangkan diskon/flash sale.</p>
         

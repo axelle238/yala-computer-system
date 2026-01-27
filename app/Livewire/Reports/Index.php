@@ -9,8 +9,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Advanced Analytics - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Pusat Analisis & Laporan - Yala Computer')]
 class Index extends Component
 {
     public $range = '30_days'; // 7_days, 30_days, this_month, last_month, this_year
