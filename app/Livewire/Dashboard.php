@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\ActivityLog;
 use App\Models\Order;
 use App\Models\PcAssembly;
 use App\Models\PesanPelanggan;
@@ -37,6 +38,7 @@ class Dashboard extends Component
                 'rakitan_aktif' => PcAssembly::whereNotIn('status', ['completed', 'cancelled'])->count(),
                 'penawaran_tertunda' => Quotation::where('status', 'pending')->count(),
                 'pesan_baru' => PesanPelanggan::where('status', PesanPelanggan::STATUS_BARU)->count(), // Fitur baru
+                'log_aktivitas' => ActivityLog::with('user')->latest()->take(10)->get(),
             ];
 
             // Penyesuaian berdasarkan Peran

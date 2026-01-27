@@ -265,4 +265,51 @@
             </div>
         </div>
     </div>
+
+    <!-- Bagian Log Aktivitas Terbaru -->
+    <div class="mt-8 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg text-indigo-600 dark:text-indigo-400">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800 dark:text-white text-sm">Log Aktivitas Terbaru</h3>
+                    <p class="text-xs text-slate-500">Jejak audit tindakan pengguna di sistem</p>
+                </div>
+            </div>
+            <a href="{{ route('admin.log-aktivitas.indeks') }}" class="text-xs font-bold text-slate-400 hover:text-indigo-500 transition-colors">Lihat Semua</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @forelse($statistik['log_aktivitas'] as $log)
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap w-48">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-500">
+                                        {{ substr($log->user->name ?? 'S', 0, 1) }}
+                                    </div>
+                                    <div class="text-xs">
+                                        <div class="font-bold text-slate-800 dark:text-white">{{ $log->user->name ?? 'Sistem' }}</div>
+                                        <div class="text-slate-400">{{ $log->created_at->diffForHumans() }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-xs text-slate-600 dark:text-slate-400 italic">
+                                {{ $log->generateNarrative() }}
+                            </td>
+                            <td class="px-6 py-4 text-right whitespace-nowrap">
+                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 text-[10px] font-mono border border-slate-200 dark:border-slate-600">
+                                    {{ $log->ip_address }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td class="px-6 py-10 text-center text-slate-400 italic text-sm">Belum ada aktivitas yang tercatat.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
