@@ -2,147 +2,191 @@
 
 namespace App\Livewire\PurchaseOrders;
 
+use App\Models\ActivityLog;
 use App\Models\Expense;
 use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Detail Purchase Order - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Detail Pesanan Pembelian - Yala Computer')]
 class Show extends Component
 {
+    /**
+     * Objek Pesanan Pembelian (Purchase Order).
+     */
     public PurchaseOrder $po;
 
-    public $receiveData = []; // ['item_id' => received_qty_input]
+    /**
+     * Data input kuantitas barang yang diterima.
+     */
+    public $dataPenerimaan = []; // ['item_id' => qty_masuk]
 
-    public $activeAction = null; // null, 'receive'
+    /**
+     * Status panel aksi (null, 'terima').
+     */
+    public $aksiAktif = null;
 
+    /**
+     * Inisialisasi komponen.
+     */
     public function mount(PurchaseOrder $po)
     {
         $this->po = $po->load(['item.produk', 'pemasok', 'pembuat']);
 
-        // Init form input
+        // Inisialisasi data input penerimaan
         foreach ($this->po->item as $item) {
-            $this->receiveData[$item->id] = 0; // Default 0 saat modal dibuka
+            $this->dataPenerimaan[$item->id] = 0;
         }
     }
 
-    public function openReceivePanel()
+    /**
+     * Membuka panel untuk proses penerimaan barang fisik.
+     */
+    public function bukaPanelTerima()
     {
-        // Pre-fill dengan sisa yang belum diterima
+        // Isi otomatis dengan sisa barang yang belum diterima
         foreach ($this->po->item as $item) {
-            $remaining = $item->quantity_ordered - $item->quantity_received;
-            $this->receiveData[$item->id] = max(0, $remaining);
+            $sisa = $item->quantity_ordered - $item->quantity_received;
+            $this->dataPenerimaan[$item->id] = max(0, $sisa);
         }
-        $this->activeAction = 'receive';
+        $this->aksiAktif = 'terima';
     }
 
-    public function closeReceivePanel()
+    /**
+     * Menutup panel penerimaan.
+     */
+    public function tutupPanelTerima()
     {
-        $this->activeAction = null;
-        $this->reset('receiveData');
-        // Re-init default values to avoid errors if reopened
+        $this->aksiAktif = null;
+        $this->reset('dataPenerimaan');
         foreach ($this->po->item as $item) {
-            $this->receiveData[$item->id] = 0;
+            $this->dataPenerimaan[$item->id] = 0;
         }
     }
 
-    public function processReceiving()
+    /**
+     * Memproses penerimaan barang fisik ke gudang.
+     */
+    public function prosesPenerimaan()
     {
         $this->validate([
-            'receiveData.*' => 'required|integer|min:0',
+            'dataPenerimaan.*' => 'required|integer|min:0',
+        ], [
+            'dataPenerimaan.*.min' => 'Jumlah tidak boleh negatif.',
         ]);
 
-        // Cek apakah ada input > 0
-        $totalInput = array_sum($this->receiveData);
-        if ($totalInput <= 0) {
-            $this->dispatch('notify', message: 'Jumlah terima harus minimal satu barang.', type: 'error');
-
+        $totalBarangMasuk = array_sum($this->dataPenerimaan);
+        if ($totalBarangMasuk <= 0) {
+            $this->dispatch('notify', message: 'Silakan isi jumlah barang yang benar-benar diterima.', type: 'error');
             return;
         }
 
-        DB::transaction(function () {
-            $totalCostReceived = 0;
-            $allItemsFullyReceived = true;
-            $atLeastOneReceived = false;
+        try {
+            DB::transaction(function () {
+                $totalNilaiDiterima = 0;
+                $semuaBarangSudahDiterima = true;
+                $rincianLog = [];
 
-            foreach ($this->po->item as $item) {
-                $qtyToReceive = (int) $this->receiveData[$item->id];
-                $remaining = $item->quantity_ordered - $item->quantity_received;
+                foreach ($this->po->item as $item) {
+                    $qtyDiterima = (int) $this->dataPenerimaan[$item->id];
+                    $sisaHarusDiterima = $item->quantity_ordered - $item->quantity_received;
 
-                if ($qtyToReceive > $remaining) {
-                    throw new \Exception("Jumlah terima untuk {$item->produk->name} melebihi sisa pesanan.");
+                    if ($qtyDiterima > $sisaHarusDiterima) {
+                        throw new \Exception("Jumlah terima untuk {$item->produk->name} melebihi sisa pesanan.");
+                    }
+
+                    if ($qtyDiterima > 0) {
+                        // 1. Perbarui data item PO
+                        $item->increment('quantity_received', $qtyDiterima);
+
+                        // 2. Perbarui stok produk dan harga beli modal terbaru
+                        $produk = Product::lockForUpdate()->find($item->product_id);
+                        $produk->increment('stock_quantity', $qtyDiterima);
+                        $produk->update(['buy_price' => $item->buy_price]);
+
+                        // 3. Catat riwayat mutasi inventaris
+                        InventoryTransaction::create([
+                            'product_id' => $produk->id,
+                            'user_id' => Auth::id(),
+                            'type' => 'in',
+                            'quantity' => $qtyDiterima,
+                            'remaining_stock' => $produk->stock_quantity,
+                            'reference_number' => $this->po->po_number,
+                            'unit_price' => $item->buy_price,
+                            'notes' => "Penerimaan Barang PO #{$this->po->po_number}",
+                        ]);
+
+                        $totalNilaiDiterima += ($qtyDiterima * $item->buy_price);
+                        $rincianLog[] = "{$produk->name} ({$qtyDiterima} unit)";
+                    }
+
+                    // Periksa apakah masih ada sisa untuk barang ini
+                    if ($item->refresh()->quantity_received < $item->quantity_ordered) {
+                        $semuaBarangSudahDiterima = false;
+                    }
                 }
 
-                if ($qtyToReceive > 0) {
-                    $atLeastOneReceived = true;
+                // 4. Perbarui status pesanan pembelian
+                if ($semuaBarangSudahDiterima) {
+                    $this->po->update(['status' => 'received']);
+                }
 
-                    // 1. Update PO Item
-                    $item->increment('quantity_received', $qtyToReceive);
-
-                    // 2. Update Product Stock & Average Cost Logic (Optional, here just updating last buy price)
-                    $product = Product::lockForUpdate()->find($item->product_id);
-                    $product->increment('stock_quantity', $qtyToReceive);
-                    $product->update(['buy_price' => $item->buy_price]); // Update harga beli terbaru
-
-                    // 3. Inventory Transaction
-                    InventoryTransaction::create([
-                        'product_id' => $product->id,
-                        'user_id' => auth()->id(),
-                        'type' => 'in',
-                        'quantity' => $qtyToReceive,
-                        'remaining_stock' => $product->stock_quantity,
-                        'reference_number' => $this->po->po_number,
-                        'unit_price' => $item->buy_price,
-                        'notes' => "Penerimaan Barang PO #{$this->po->po_number} (Partial)",
+                // 5. Catat pengeluaran keuangan otomatis
+                if ($totalNilaiDiterima > 0) {
+                    Expense::create([
+                        'user_id' => Auth::id(),
+                        'category' => 'Pembelian Stok',
+                        'title' => "Pembayaran PO #{$this->po->po_number} (Penerimaan Stok)",
+                        'amount' => $totalNilaiDiterima,
+                        'expense_date' => now(),
                     ]);
-
-                    $totalCostReceived += ($qtyToReceive * $item->buy_price);
                 }
 
-                // Check global status
-                if ($item->refresh()->quantity_received < $item->quantity_ordered) {
-                    $allItemsFullyReceived = false;
-                }
-            }
-
-            // 4. Update PO Status
-            if ($allItemsFullyReceived) {
-                $this->po->update(['status' => 'received']);
-            } else {
-                // Tetap 'ordered' tapi status parsial bisa ditangani di UI
-            }
-
-            // 5. Create Expense Record (Otomatis mencatat pengeluaran/hutang)
-            // Asumsi: Pembelian Stok dianggap pengeluaran langsung atau hutang dagang.
-            // Untuk MVP, kita catat sebagai Pengeluaran "Pembelian Stok"
-            if ($totalCostReceived > 0) {
-                Expense::create([
-                    'category' => 'Pembelian Stok',
-                    'title' => "Pembayaran PO #{$this->po->po_number} (Auto)", // Changed description to title
-                    'amount' => $totalCostReceived,
-                    'expense_date' => now(), // Changed transaction_date to expense_date
-                    // 'reference_number' => $this->po->po_number, // Removed non-existent column
-                    // 'status' => 'paid', // Removed non-existent column
-                    'user_id' => auth()->id(),
+                // 6. Catat log aktivitas manajerial
+                ActivityLog::create([
+                    'user_id' => Auth::id(),
+                    'action' => 'update',
+                    'model_type' => PurchaseOrder::class,
+                    'model_id' => $this->po->id,
+                    'description' => "Menerima barang dari PO #{$this->po->po_number}: " . implode(', ', $rincianLog),
+                    'ip_address' => request()->ip(),
                 ]);
-            }
-        });
+            });
 
-        $this->closeReceivePanel();
-        $this->dispatch('notify', message: 'Barang berhasil diterima dan stok bertambah!', type: 'success');
-        $this->mount($this->po); // Refresh data
+            $this->tutupPanelTerima();
+            $this->dispatch('notify', message: 'Penerimaan barang berhasil diproses dan stok telah diperbarui.', type: 'success');
+            
+            // Refresh data PO
+            $this->po = $this->po->fresh(['item.produk', 'pemasok', 'pembuat']);
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: 'Gagal memproses: ' . $e->getMessage(), type: 'error');
+        }
     }
 
-    public function markAsOrdered()
+    /**
+     * Menandai draf pesanan sebagai pesanan resmi (Ordered).
+     */
+    public function tandaiDipesan()
     {
         if ($this->po->status === 'draft') {
             $this->po->update(['status' => 'ordered']);
-            $this->dispatch('notify', message: 'PO berhasil dikirim ke supplier (Status: Ordered)', type: 'success');
+            
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'update',
+                'model_type' => PurchaseOrder::class,
+                'model_id' => $this->po->id,
+                'description' => "Menyetujui dan mengirim PO #{$this->po->po_number} ke pemasok.",
+                'ip_address' => request()->ip(),
+            ]);
+
+            $this->dispatch('notify', message: 'Status pesanan diperbarui menjadi Dipesan.', type: 'success');
         }
     }
 
