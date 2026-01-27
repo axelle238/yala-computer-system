@@ -14,14 +14,14 @@ class Index extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public $cari = '';
 
     public function render()
     {
-        $quotes = Quotation::with('user')
-            ->where('quotation_number', 'like', '%'.$this->search.'%')
-            ->orWhereHas('user', function ($q) {
-                $q->where('name', 'like', '%'.$this->search.'%');
+        $quotes = Quotation::with('pengguna')
+            ->where('quotation_number', 'like', '%'.$this->cari.'%')
+            ->orWhereHas('pengguna', function ($q) {
+                $q->where('name', 'like', '%'.$this->cari.'%');
             })
             ->latest()
             ->paginate(10);

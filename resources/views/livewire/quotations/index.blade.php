@@ -42,7 +42,7 @@
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-4 border-b border-gray-100">
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari No. Penawaran / Pelanggan..." class="w-full md:w-1/3 rounded-lg border-gray-300 text-sm">
+            <input type="text" wire:model.live.debounce.300ms="cari" placeholder="Cari No. Penawaran / Pelanggan..." class="w-full md:w-1/3 rounded-lg border-gray-300 text-sm">
         </div>
         <table class="w-full text-left text-sm text-gray-600">
             <thead class="bg-gray-50 uppercase text-xs font-semibold text-gray-700">
