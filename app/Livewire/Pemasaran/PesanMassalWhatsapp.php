@@ -89,17 +89,10 @@ class PesanMassalWhatsapp extends Component
             return;
         }
 
-        $kampanye->update(['status' => 'processing']);
+        // Dispatch Job ke Queue
+        \App\Jobs\SendWhatsappBlastJob::dispatch($kampanye);
 
-        // Simulasi pengiriman (Dalam produksi ini akan memicu Job Queue)
-        // Kita simulasikan 100% sukses untuk demo
-        $kampanye->update([
-            'status' => 'completed',
-            'success_count' => $kampanye->total_recipients,
-            'failed_count' => 0,
-        ]);
-
-        $this->dispatch('notify', message: 'Kampanye "'.$kampanye->campaign_name.'" berhasil diproses!', type: 'success');
+        $this->dispatch('notify', message: 'Kampanye "'.$kampanye->campaign_name.'" sedang diproses di latar belakang.', type: 'success');
     }
 
     public function hapus($id)
