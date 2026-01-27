@@ -74,6 +74,11 @@ class ChatWidget extends Component
     {
         $this->validate(['pesanBaru' => 'required|string|min:1']);
 
+        // Pastikan token tamu ada
+        if (! $this->tokenTamu && ! Auth::check()) {
+            $this->tokenTamu = Session::get('token_tamu_chat');
+        }
+
         // Buat sesi jika belum ada
         if (! $this->sesi) {
             $this->sesi = SesiObrolan::create([
@@ -128,7 +133,7 @@ class ChatWidget extends Component
                 $jawaban = "Pesanan **#{$order->order_number}** ditemukan!\n\nStatus: **{$statusLabel}**\nTotal: Rp ".number_format($order->total_amount, 0, ',', '.')."\nTanggal: {$order->created_at->format('d M Y')}";
                 
                 if ($order->status == 'shipped' && $order->shipping_tracking_number) {
-                    $jawaban .= "\nResi: `{$order->shipping_tracking_number}` ({$order->shipping_courier})";
+                    $jawaban .= "\n\nResi: `{$order->shipping_tracking_number}` ({$order->shipping_courier})";
                 }
             }
         }
@@ -137,14 +142,14 @@ class ChatWidget extends Component
         elseif (str_contains($pesanLower, 'halo') || str_contains($pesanLower, 'hai') || str_contains($pesanLower, 'pagi') || str_contains($pesanLower, 'siang') || str_contains($pesanLower, 'sore') || str_contains($pesanLower, 'malam')) {
             $user = Auth::user();
             $sapaan = $user ? "Halo, **{$user->name}**! 👋" : "Halo! 👋";
-            $jawaban = "{$sapaan}\n\nSaya **YALA**, asisten virtual Yala Computer.\nKetik nomor pesanan untuk cek status, atau nama produk untuk cek stok.";
+            $jawaban = "{$sapaan}\n\nSaya **YALA**, asisten virtual Yala Computer.\n\nKetik nomor pesanan untuk cek status, atau nama produk untuk cek stok.";
         }
 
         // 2. Info Toko (Jam & Lokasi)
         elseif (str_contains($pesanLower, 'jam') || str_contains($pesanLower, 'buka') || str_contains($pesanLower, 'tutup') || str_contains($pesanLower, 'operasional')) {
-            $jawaban = "**Jam Operasional Yala Computer:**\nSenin - Sabtu: 09:00 - 20:00 WIB\nMinggu: 10:00 - 18:00 WIB\n\nKami melayani pembelian online 24 jam!";
+            $jawaban = "**Jam Operasional Yala Computer:**\n\nSenin - Sabtu: 09:00 - 20:00 WIB\nMinggu: 10:00 - 18:00 WIB\n\nKami melayani pembelian online 24 jam!";
         } elseif (str_contains($pesanLower, 'lokasi') || str_contains($pesanLower, 'alamat') || str_contains($pesanLower, 'toko')) {
-            $jawaban = "Toko kami berlokasi di **Jl. Teknologi No. 88, Jakarta Selatan**. \n\nSilakan mampir untuk melihat koleksi PC rakitan kami!";
+            $jawaban = "Toko kami berlokasi di **Jl. Teknologi No. 88, Jakarta Selatan**.\n\nSilakan mampir untuk melihat koleksi PC rakitan kami!";
         }
 
         // 3. Knowledge Base Lookup
@@ -184,11 +189,11 @@ class ChatWidget extends Component
                 $jawaban = "Saya menemukan produk yang cocok:\n";
                 foreach ($produk as $p) {
                     $stok = $p->stock_quantity > 0 ? "Stok: {$p->stock_quantity}" : 'Stok Habis';
-                    $jawaban .= "- **[{$p->name}](".route('toko.produk.detail', $p->id).")**\n  Rp ".number_format($p->sell_price, 0, ',', '.')." | {$stok}\n";
+                    $jawaban .= "\n- **[{$p->name}](".route('toko.produk.detail', $p->id).")**\n  Rp ".number_format($p->sell_price, 0, ',', '.')." | {$stok}";
                 }
-                $jawaban .= "\nKlik nama produk untuk detailnya.";
+                $jawaban .= "\n\nKlik nama produk untuk detailnya.";
             } else {
-                $jawaban = "Maaf, YALA tidak menemukan produk atau info terkait '{$pesan}'. \n\nCoba kata kunci lain, ketik nomor pesanan, atau ketik **'Admin'** untuk bantuan langsung.";
+                $jawaban = "Maaf, YALA tidak menemukan produk atau info terkait '{$pesan}'.\n\nCoba kata kunci lain, ketik nomor pesanan, atau ketik **'Admin'** untuk bantuan langsung.";
             }
         }
 
@@ -217,7 +222,7 @@ class ChatWidget extends Component
     public function render()
     {
         return view('livewire.store.chat-widget', [
-            'daftarPesan' => $this->sesi ? $this->sesi->pesan()->latest()->take(50)->get()->reverse() : collect([]),
+            'daftarPesan' => $this->sesi ? $this->sesi->pesan()->orderBy('created_at', 'desc')->orderBy('id', 'desc')->take(50)->get()->reverse() : collect([]),
         ]);
     }
 }

@@ -12,4 +12,12 @@ class KnowledgeArticle extends Model
     {
         return $this->belongsTo(User::class, 'author_id');
     }
+
+    /**
+     * Alias untuk relasi author (Indonesian).
+     */
+    public function penulis()
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
 }

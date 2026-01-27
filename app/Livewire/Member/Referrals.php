@@ -8,8 +8,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.store')]
-#[Title('Program Referral & Cuan')]
+#[Layout('layouts.member')]
+#[Title('Referral - Yala Computer')]
 class Referrals extends Component
 {
     public $referralCode;

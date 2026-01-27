@@ -8,8 +8,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.store')]
-#[Title('Buku Alamat Saya')]
+#[Layout('layouts.member')]
+#[Title('Buku Alamat - Yala Computer')]
 class Addresses extends Component
 {
     /**

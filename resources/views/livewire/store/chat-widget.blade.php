@@ -1,5 +1,15 @@
 <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4" wire:poll.3s="muatSesi">
     
+    <style>
+        .chat-content p { margin-bottom: 0.5rem; }
+        .chat-content p:last-child { margin-bottom: 0; }
+        .chat-content ul { list-style-type: disc; margin-left: 1.2rem; margin-bottom: 0.5rem; }
+        .chat-content ol { list-style-type: decimal; margin-left: 1.2rem; margin-bottom: 0.5rem; }
+        .chat-content li { margin-bottom: 0.25rem; }
+        .chat-content strong { font-weight: 800; }
+        .chat-content a { text-decoration: underline; }
+    </style>
+
     <!-- Jendela Chat -->
     <div x-data="{ open: @entangle('terbuka') }" 
          x-show="open" 
@@ -46,7 +56,9 @@
                 <div class="flex {{ $pesan->is_balasan_admin ? 'justify-start' : 'justify-end' }} animate-fade-in-up">
                     <div class="max-w-[85%] p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm relative group {{ $pesan->is_balasan_admin ? 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-tl-none border border-slate-100 dark:border-slate-700' : 'bg-black dark:bg-white text-white dark:text-black rounded-tr-none' }}">
                         @if($pesan->is_balasan_admin)
-                            {!! Str::markdown($pesan->isi) !!}
+                            <div class="chat-content">
+                                {!! Str::markdown($pesan->isi) !!}
+                            </div>
                         @else
                             {{ $pesan->isi }}
                         @endif
@@ -75,13 +87,14 @@
         <!-- Input Area -->
         <div class="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
             <form wire:submit.prevent="kirimPesan" class="relative">
-                <input wire:model="pesanBaru" type="text" placeholder="Tulis pesan..." 
+                <input wire:model.live="pesanBaru" type="text" placeholder="Tulis pesan..." 
                     class="w-full pl-4 pr-12 py-3.5 bg-slate-50 dark:bg-slate-800 border-0 rounded-xl focus:ring-2 focus:ring-black dark:focus:ring-white text-slate-900 dark:text-white placeholder-slate-400 font-medium transition-all">
                 
-                <button type="submit" class="absolute right-2 top-2 p-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:scale-105 transition-transform disabled:opacity-50" wire:loading.attr="disabled">
+                <button type="submit" class="absolute right-2 top-2 p-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:scale-105 transition-transform disabled:opacity-50" wire:loading.attr="disabled" wire:target="kirimPesan">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                 </button>
             </form>
+            @error('pesanBaru') <span class="text-xs text-red-500 block mt-1 ml-1">{{ $message }}</span> @enderror
             <p class="text-[10px] text-center text-slate-400 mt-2 font-medium">Powered by Yala AI • Respon Instan</p>
         </div>
     </div>

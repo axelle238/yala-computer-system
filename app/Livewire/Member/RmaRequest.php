@@ -12,8 +12,8 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-#[Layout('layouts.store')]
-#[Title('Klaim Garansi (RMA)')]
+#[Layout('layouts.member')]
+#[Title('Ajukan Klaim Garansi - Yala Computer')]
 class RmaRequest extends Component
 {
     use WithFileUploads;

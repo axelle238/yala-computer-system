@@ -8,7 +8,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.store')]
+#[Layout('layouts.member')]
 #[Title('Detail Pesanan - Yala Computer')]
 class OrderDetail extends Component
 {

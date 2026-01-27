@@ -9,7 +9,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-#[Layout('layouts.store')]
+#[Layout('layouts.member')]
 #[Title('Pengaturan Profil - Yala Computer')]
 class ProfileSettings extends Component
 {

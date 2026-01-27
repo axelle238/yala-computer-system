@@ -11,8 +11,8 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
-#[Layout('layouts.store')]
-#[Title('Pusat Penawaran - Yala Computer')]
+#[Layout('layouts.member')]
+#[Title('Penawaran Saya - Yala Computer')]
 class Quotations extends Component
 {
     use WithFileUploads, WithPagination;

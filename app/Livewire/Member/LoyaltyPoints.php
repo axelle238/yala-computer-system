@@ -12,8 +12,8 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('layouts.store')] // Layout khusus Storefront/Member Area
-#[Title('Poin Loyalitas Saya - Yala Computer')]
+#[Layout('layouts.member')]
+#[Title('Poin Loyalitas - Yala Computer')]
 class LoyaltyPoints extends Component
 {
     use WithPagination;
