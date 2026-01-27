@@ -21,414 +21,460 @@ use Livewire\Component;
 #[Title('Point of Sales - Yala Computer')]
 class Create extends Component
 {
-    // Transaction Info
-    public $type = 'out'; // Default to 'out' (Sales)
+    // Informasi Transaksi
+    public $tipe = 'out'; // 'out' (Penjualan), 'in' (Pembelian/Masuk), 'adjustment', 'return'
 
-    public $customer_phone = '';
+    public $telepon_pelanggan = '';
 
-    public $reference_number = '';
+    public $nomor_referensi = '';
 
-    public $notes = '';
+    public $catatan = '';
 
-    // Cart System
-    public $cart = []; // Array of ['product_id', 'name', 'price', 'quantity', 'subtotal', 'sku', 'image']
+    // Sistem Keranjang
+    public $keranjang = []; // Array dari ['product_id', 'name', 'price', 'quantity', 'subtotal', 'sku', 'image']
 
-    // Search & Filter
-    public $search = '';
+    // Pencarian & Filter
+    public $cari = '';
 
-    public $category = '';
+    public $kategori = '';
 
-    public $searchBuild = '';
+    public $cariRakitan = '';
 
-    // Loyalty System
-    public $customerPoints = 0;
+    // Sistem Loyalitas
+    public $poinPelanggan = 0;
 
-    public $usePoints = false;
+    public $gunakanPoin = false;
 
-    // UI State
-    public $registerStatus = 'closed'; // open, closed
+    // Status UI
+    public $statusKasir = 'closed'; // open, closed
 
+    /**
+     * Inisialisasi komponen.
+     */
     public function mount()
     {
-        $this->reference_number = 'TRX-'.strtoupper(uniqid());
-        $this->checkRegister();
+        $this->nomor_referensi = 'TRX-'.strtoupper(uniqid());
+        $this->periksaKasir();
     }
 
-    public function checkRegister()
+    /**
+     * Memastikan sesi kasir aktif sebelum memulai transaksi penjualan.
+     */
+    public function periksaKasir()
     {
-        $active = CashRegister::where('user_id', Auth::id())
+        $aktif = CashRegister::where('user_id', Auth::id())
             ->where('status', 'open')
             ->exists();
 
-        $this->registerStatus = $active ? 'open' : 'closed';
-
-        if (! $active && $this->type === 'out') {
-            // Optional: Redirect immediately or show blocker
-            // return redirect()->route('admin.keuangan.kasir');
-        }
+        $this->statusKasir = $aktif ? 'open' : 'closed';
     }
 
-    // --- Saved Build Integration ---
-    public function loadBuild()
+    /**
+     * Memuat komponen dari rakitan PC yang sudah disimpan.
+     */
+    public function muatRakitan()
     {
-        $build = SavedBuild::where('id', $this->searchBuild)
-            ->orWhere('share_token', $this->searchBuild)
+        $rakitan = SavedBuild::where('id', $this->cariRakitan)
+            ->orWhere('share_token', $this->cariRakitan)
             ->first();
 
-        if (! $build) {
+        if (! $rakitan) {
             $this->dispatch('notify', message: 'Rakitan tidak ditemukan.', type: 'error');
 
             return;
         }
 
-        $components = $build->components;
-        $loadedCount = 0;
+        $komponen = $rakitan->components;
+        $jumlahDimuat = 0;
 
-        foreach ($components as $key => $productId) {
-            if ($productId) {
-                $product = Product::find($productId);
-                if ($product && $product->stock_quantity > 0) {
-                    $this->addToCart($product->id);
-                    $loadedCount++;
+        foreach ($komponen as $key => $idProduk) {
+            if ($idProduk) {
+                $produk = Product::find($idProduk);
+                if ($produk && $produk->stock_quantity > 0) {
+                    $this->tambahKeKeranjang($produk->id);
+                    $jumlahDimuat++;
                 }
             }
         }
 
-        if ($loadedCount > 0) {
-            $this->dispatch('notify', message: "Berhasil memuat {$loadedCount} komponen dari rakitan '{$build->name}'.", type: 'success');
-            $this->searchBuild = '';
+        if ($jumlahDimuat > 0) {
+            $this->dispatch('notify', message: "Berhasil memuat {$jumlahDimuat} komponen dari rakitan '{$rakitan->name}'.", type: 'success');
+            $this->cariRakitan = '';
         } else {
             $this->dispatch('notify', message: 'Semua komponen dalam rakitan ini stoknya habis.', type: 'error');
         }
     }
 
-    // --- Customer & Loyalty Logic ---
-    public function updatedCustomerPhone()
+    /**
+     * Mencari data member berdasarkan nomor telepon.
+     */
+    public function updatedTeleponPelanggan()
     {
-        if (strlen($this->customer_phone) >= 10) {
-            $customer = Customer::where('phone', $this->customer_phone)->first();
-            if ($customer) {
-                $this->customerPoints = $customer->points;
-                $this->dispatch('notify', message: 'Member ditemukan! Poin: '.number_format($customer->points), type: 'info');
+        if (strlen($this->telepon_pelanggan) >= 10) {
+            $pelanggan = Customer::where('phone', $this->telepon_pelanggan)->first();
+            if ($pelanggan) {
+                $this->poinPelanggan = $pelanggan->points;
+                $this->dispatch('notify', message: 'Member ditemukan! Poin: '.number_format($pelanggan->points), type: 'info');
             } else {
-                $this->customerPoints = 0;
+                $this->poinPelanggan = 0;
             }
         } else {
-            $this->customerPoints = 0;
-            $this->usePoints = false;
+            $this->poinPelanggan = 0;
+            $this->gunakanPoin = false;
         }
     }
 
-    public function togglePoints()
+    /**
+     * Mengaktifkan/menonaktifkan penggunaan poin loyalitas sebagai diskon.
+     */
+    public function tukarPoin()
     {
-        if ($this->customerPoints <= 0) {
+        if ($this->poinPelanggan <= 0) {
             return;
         }
-        $this->usePoints = ! $this->usePoints;
+        $this->gunakanPoin = ! $this->gunakanPoin;
     }
 
-    // --- Search & Barcode Logic ---
-    public function updatedSearch()
+    /**
+     * Mendukung pemindaian barcode langsung pada kolom pencarian.
+     */
+    public function updatedCari()
     {
-        $exactProduct = Product::where('sku', $this->search)
-            ->orWhere('barcode', $this->search)
+        $produkEksak = Product::where('sku', $this->cari)
+            ->orWhere('barcode', $this->cari)
             ->first();
 
-        if ($exactProduct) {
-            $this->addToCart($exactProduct->id);
-            $this->search = '';
+        if ($produkEksak) {
+            $this->tambahKeKeranjang($produkEksak->id);
+            $this->cari = '';
             $this->dispatch('play-beep');
         }
     }
 
-    // --- Cart Management ---
-    public function addToCart($productId)
+    /**
+     * Menambahkan produk ke dalam antrean keranjang.
+     */
+    public function tambahKeKeranjang($idProduk)
     {
-        $product = Product::find($productId);
+        $produk = Product::find($idProduk);
 
-        if (! $product) {
+        if (! $produk) {
             return;
         }
 
-        $existingItemKey = null;
-        foreach ($this->cart as $key => $item) {
-            if ($item['product_id'] == $productId) {
-                $existingItemKey = $key;
+        $kunciItemAda = null;
+        foreach ($this->keranjang as $key => $item) {
+            if ($item['product_id'] == $idProduk) {
+                $kunciItemAda = $key;
                 break;
             }
         }
 
-        if ($existingItemKey !== null) {
-            $this->updateQty($existingItemKey, $this->cart[$existingItemKey]['quantity'] + 1);
+        if ($kunciItemAda !== null) {
+            $this->perbaruiJumlah($kunciItemAda, $this->keranjang[$kunciItemAda]['quantity'] + 1);
         } else {
-            $this->cart[] = [
-                'product_id' => $product->id,
-                'name' => $product->name,
-                'sku' => $product->sku,
-                'price' => $product->sell_price,
-                'buy_price' => $product->buy_price,
+            $this->keranjang[] = [
+                'product_id' => $produk->id,
+                'name' => $produk->name,
+                'sku' => $produk->sku,
+                'price' => $produk->sell_price,
+                'buy_price' => $produk->buy_price,
                 'quantity' => 1,
-                'image' => $product->image_path,
-                'max_stock' => $product->stock_quantity,
-                'subtotal' => $product->sell_price,
-                'warranty_period' => $product->warranty_period ?? 0,
+                'image' => $produk->image_path,
+                'max_stock' => $produk->stock_quantity,
+                'subtotal' => $produk->sell_price,
+                'warranty_period' => $produk->warranty_period ?? 0,
                 'serial_numbers' => [''],
             ];
         }
     }
 
-    public function removeFromCart($index)
+    /**
+     * Menghapus produk dari keranjang.
+     */
+    public function hapusDariKeranjang($index)
     {
-        unset($this->cart[$index]);
-        $this->cart = array_values($this->cart);
+        unset($this->keranjang[$index]);
+        $this->keranjang = array_values($this->keranjang);
     }
 
-    public function updateQty($index, $qty)
+    /**
+     * Memperbarui kuantitas produk dalam keranjang dengan validasi stok.
+     */
+    public function perbaruiJumlah($index, $jumlah)
     {
-        if (! isset($this->cart[$index])) {
+        if (! isset($this->keranjang[$index])) {
             return;
         }
 
-        $newQty = max(1, intval($qty));
+        $jumlahBaru = max(1, intval($jumlah));
 
-        if ($this->type === 'out' && $newQty > $this->cart[$index]['max_stock']) {
+        if ($this->tipe === 'out' && $jumlahBaru > $this->keranjang[$index]['max_stock']) {
             $this->dispatch('notify', message: 'Stok tidak mencukupi!', type: 'error');
-            $newQty = $this->cart[$index]['max_stock'];
+            $jumlahBaru = $this->keranjang[$index]['max_stock'];
         }
 
-        $this->cart[$index]['quantity'] = $newQty;
-        $this->cart[$index]['subtotal'] = $newQty * $this->cart[$index]['price'];
+        $this->keranjang[$index]['quantity'] = $jumlahBaru;
+        $this->keranjang[$index]['subtotal'] = $jumlahBaru * $this->keranjang[$index]['price'];
 
-        $currentSNs = $this->cart[$index]['serial_numbers'] ?? [];
-        if ($newQty > count($currentSNs)) {
-            for ($i = count($currentSNs); $i < $newQty; $i++) {
-                $currentSNs[] = '';
+        $snSaatIni = $this->keranjang[$index]['serial_numbers'] ?? [];
+        if ($jumlahBaru > count($snSaatIni)) {
+            for ($i = count($snSaatIni); $i < $jumlahBaru; $i++) {
+                $snSaatIni[] = '';
             }
-        } elseif ($newQty < count($currentSNs)) {
-            $currentSNs = array_slice($currentSNs, 0, $newQty);
+        } elseif ($jumlahBaru < count($snSaatIni)) {
+            $snSaatIni = array_slice($snSaatIni, 0, $jumlahBaru);
         }
-        $this->cart[$index]['serial_numbers'] = $currentSNs;
+        $this->keranjang[$index]['serial_numbers'] = $snSaatIni;
     }
 
-    public function updateSerial($index, $snIndex, $value)
+    /**
+     * Mencatat nomor seri (Serial Number) untuk setiap unit produk.
+     */
+    public function perbaruiSerial($index, $snIndex, $nilai)
     {
-        $this->cart[$index]['serial_numbers'][$snIndex] = $value;
+        $this->keranjang[$index]['serial_numbers'][$snIndex] = $nilai;
     }
 
-    // --- Calculations ---
+    /**
+     * Menghitung total harga sebelum pajak dan diskon.
+     */
     public function getSubtotalProperty()
     {
-        return array_sum(array_column($this->cart, 'subtotal'));
+        return array_sum(array_column($this->keranjang, 'subtotal'));
     }
 
+    /**
+     * Menghitung nilai diskon dari penukaran poin member.
+     */
     public function getDiscountProperty()
     {
-        if ($this->usePoints && $this->customerPoints > 0) {
-            return min($this->customerPoints, $this->subtotal);
+        if ($this->gunakanPoin && $this->poinPelanggan > 0) {
+            return min($this->poinPelanggan, $this->subtotal);
         }
 
         return 0;
     }
 
+    /**
+     * Menghitung Pajak Pertambahan Nilai (PPN) berdasarkan pengaturan sistem.
+     */
     public function getTaxProperty()
     {
+        $tarifPajak = Setting::get('tax_rate', 0);
+        if ($tarifPajak > 0) {
+            return ($this->subtotal - $this->discount) * ($tarifPajak / 100);
+        }
+        
         return 0;
     }
 
+    /**
+     * Menghitung total akhir yang harus dibayarkan pelanggan.
+     */
     public function getTotalProperty()
     {
         return max(0, $this->subtotal + $this->tax - $this->discount);
     }
 
-    // --- Finalize Transaction ---
-    public function save()
+    /**
+     * Menyimpan transaksi ke database dan menyesuaikan inventaris.
+     */
+    public function simpan()
     {
-        if (empty($this->cart)) {
+        if (empty($this->keranjang)) {
             $this->dispatch('notify', message: 'Keranjang kosong!', type: 'error');
 
             return;
         }
 
         $this->validate([
-            'type' => 'required|in:in,out,adjustment,return',
-            'notes' => 'nullable|string|max:255',
+            'tipe' => 'required|in:in,out,adjustment,return',
+            'catatan' => 'nullable|string|max:255',
         ]);
 
-        $activeRegister = CashRegister::where('user_id', Auth::id())
+        $kasirAktif = CashRegister::where('user_id', Auth::id())
             ->where('status', 'open')
             ->first();
 
-        if (! $activeRegister && $this->type === 'out') {
+        if (! $kasirAktif && $this->tipe === 'out') {
             $this->dispatch('notify', message: 'Shift Kasir belum dibuka!', type: 'error');
 
             return redirect()->route('admin.shift.buka');
         }
 
-        if ($this->usePoints && $this->customerPoints > 0) {
-            $customer = Customer::where('phone', $this->customer_phone)->first();
-            if (! $customer || $customer->points < $this->discount) {
-                $this->addError('customer_phone', 'Saldo poin tidak valid atau berubah.');
+        if ($this->gunakanPoin && $this->poinPelanggan > 0) {
+            $pelanggan = Customer::where('phone', $this->telepon_pelanggan)->first();
+            if (! $pelanggan || $pelanggan->points < $this->discount) {
+                $this->addError('telepon_pelanggan', 'Saldo poin tidak valid atau berubah.');
 
                 return;
             }
         }
 
-        DB::transaction(function () use ($activeRegister) {
-            $order = null;
-            if ($this->type === 'out') {
-                $notes = $this->notes;
+        DB::transaction(function () use ($kasirAktif) {
+            $pesanan = null;
+            if ($this->tipe === 'out') {
+                $catatanTransaksi = $this->catatan;
                 if ($this->discount > 0) {
-                    $notes .= " [Redeem {$this->discount} Points]";
+                    $catatanTransaksi .= " [Tukar {$this->discount} Poin]";
                 }
 
-                $order = Order::create([
+                $pesanan = Order::create([
                     'user_id' => Auth::id(),
-                    'cash_register_id' => $activeRegister->id,
-                    'guest_name' => $this->customer_phone ? 'Member '.$this->customer_phone : 'Guest',
-                    'guest_whatsapp' => $this->customer_phone,
-                    'order_number' => $this->reference_number,
+                    'cash_register_id' => $kasirAktif->id,
+                    'guest_name' => $this->telepon_pelanggan ? 'Member '.$this->telepon_pelanggan : 'Tamu',
+                    'guest_whatsapp' => $this->telepon_pelanggan,
+                    'order_number' => $this->nomor_referensi,
                     'total_amount' => $this->total,
                     'status' => 'completed',
                     'payment_status' => 'paid',
                     'payment_method' => 'cash',
-                    'notes' => $notes,
+                    'notes' => $catatanTransaksi,
                 ]);
 
-                if ($this->discount > 0 && $this->customer_phone) {
-                    $customer = Customer::where('phone', $this->customer_phone)->first();
-                    $customer->decrement('points', $this->discount);
+                if ($this->discount > 0 && $this->telepon_pelanggan) {
+                    $pelanggan = Customer::where('phone', $this->telepon_pelanggan)->first();
+                    $pelanggan->decrement('points', $this->discount);
                 }
             }
 
-            foreach ($this->cart as $item) {
-                $product = Product::lockForUpdate()->find($item['product_id']);
-                if (! $product) {
+            foreach ($this->keranjang as $item) {
+                $produk = Product::lockForUpdate()->find($item['product_id']);
+                if (! $produk) {
                     continue;
                 }
 
-                $quantitySold = $item['quantity'];
+                $jumlahTerjual = $item['quantity'];
 
-                // --- COMPLEX BUNDLE LOGIC ---
-                if ($product->is_bundle) {
-                    $components = ProductBundle::where('parent_product_id', $product->id)->get();
+                // Logika Paket (Bundle)
+                if ($produk->is_bundle) {
+                    $komponen = ProductBundle::where('parent_product_id', $produk->id)->get();
 
-                    if ($components->isEmpty()) {
-                        $this->processStockDeduction($product, $quantitySold, $activeRegister, $order);
+                    if ($komponen->isEmpty()) {
+                        $this->prosesPenguranganStok($produk, $jumlahTerjual, $kasirAktif, $pesanan);
                     } else {
-                        foreach ($components as $component) {
-                            $childProduct = Product::lockForUpdate()->find($component->child_product_id);
-                            if ($childProduct) {
-                                $neededQty = $component->quantity * $quantitySold;
-                                $this->processStockDeduction($childProduct, $neededQty, $activeRegister, $order, "Bundle: {$product->name}");
+                        foreach ($komponen as $k) {
+                            $produkAnak = Product::lockForUpdate()->find($k->child_product_id);
+                            if ($produkAnak) {
+                                $jumlahDibutuhkan = $k->quantity * $jumlahTerjual;
+                                $this->prosesPenguranganStok($produkAnak, $jumlahDibutuhkan, $kasirAktif, $pesanan, "Paket: {$produk->name}");
                             }
                         }
                     }
                 } else {
-                    $this->processStockDeduction($product, $quantitySold, $activeRegister, $order);
+                    $this->prosesPenguranganStok($produk, $jumlahTerjual, $kasirAktif, $pesanan);
                 }
 
-                // Prepare Serial Numbers (Clean empty ones)
-                $snList = array_filter($item['serial_numbers'] ?? []);
-                $snString = ! empty($snList) ? implode(',', $snList) : null;
+                // Siapkan Nomor Seri
+                $daftarSn = array_filter($item['serial_numbers'] ?? []);
+                $stringSn = ! empty($daftarSn) ? implode(',', $daftarSn) : null;
 
-                // Create Order Item
-                if ($order) {
-                    $warrantyEnds = null;
+                // Buat Item Pesanan
+                if ($pesanan) {
+                    $akhirGaransi = null;
                     if (! empty($item['warranty_period']) && $item['warranty_period'] > 0) {
-                        $warrantyEnds = Carbon::now()->addMonths($item['warranty_period']);
+                        $akhirGaransi = Carbon::now()->addMonths($item['warranty_period']);
                     }
 
                     OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $product->id,
+                        'order_id' => $pesanan->id,
+                        'product_id' => $produk->id,
                         'quantity' => $item['quantity'],
                         'price' => $item['price'],
-                        'serial_numbers' => $snString,
-                        'warranty_ends_at' => $warrantyEnds,
+                        'serial_numbers' => $stringSn,
+                        'warranty_ends_at' => $akhirGaransi,
                     ]);
                 }
 
-                if ($this->type === 'out' && $this->customer_phone) {
-                    $customer = Customer::firstOrCreate(
-                        ['phone' => $this->customer_phone],
-                        ['name' => 'Member '.$this->customer_phone, 'email' => $this->customer_phone.'@member.com']
+                if ($this->tipe === 'out' && $this->telepon_pelanggan) {
+                    $pelanggan = Customer::firstOrCreate(
+                        ['phone' => $this->telepon_pelanggan],
+                        ['name' => 'Member '.$this->telepon_pelanggan, 'email' => $this->telepon_pelanggan.'@member.com']
                     );
 
-                    $pointsEarned = floor($item['subtotal'] / 100000);
-                    if ($pointsEarned > 0) {
-                        $customer->increment('points', $pointsEarned);
+                    $poinDidapat = floor($item['subtotal'] / 100000);
+                    if ($poinDidapat > 0) {
+                        $pelanggan->increment('points', $poinDidapat);
                     }
                 }
             }
 
-            if ($order && Auth::check()) {
-                $percent = Setting::get('commission_sales_percent', 1);
-                $commissionAmount = $order->total_amount * ($percent / 100);
+            // Hitung Komisi Sales
+            if ($pesanan && Auth::check()) {
+                $persen = Setting::get('commission_sales_percent', 1);
+                $jumlahKomisi = $pesanan->total_amount * ($persen / 100);
 
-                if ($commissionAmount > 0) {
+                if ($jumlahKomisi > 0) {
                     Commission::create([
                         'user_id' => Auth::id(),
-                        'amount' => $commissionAmount,
-                        'description' => "Komisi Penjualan #{$order->order_number} ({$percent}%)",
+                        'amount' => $jumlahKomisi,
+                        'description' => "Komisi Penjualan #{$pesanan->order_number} ({$persen}%)",
                         'source_type' => Order::class,
-                        'source_id' => $order->id,
+                        'source_id' => $pesanan->id,
                         'is_paid' => false,
                     ]);
                 }
             }
         });
 
-        $this->cart = [];
-        $this->reference_number = 'TRX-'.strtoupper(uniqid());
-        $this->customer_phone = '';
-        $this->notes = '';
+        $this->keranjang = [];
+        $this->nomor_referensi = 'TRX-'.strtoupper(uniqid());
+        $this->telepon_pelanggan = '';
+        $this->catatan = '';
 
-        $this->dispatch('notify', message: 'Transaksi berhasil disimpan!');
+        $this->dispatch('notify', message: 'Transaksi berhasil disimpan!', type: 'success');
     }
 
-    protected function processStockDeduction($product, $qty, $register, $order, $notePrefix = '')
+    /**
+     * Melakukan penyesuaian stok dan mencatat histori mutasi inventaris.
+     */
+    protected function prosesPenguranganStok($produk, $qty, $kasir, $pesanan, $awalanCatatan = '')
     {
-        if ($this->type === 'out' && $product->stock_quantity < $qty) {
-            throw new \Exception("Stok {$product->name} tidak mencukupi! Butuh: $qty, Sisa: {$product->stock_quantity}");
+        if ($this->tipe === 'out' && $produk->stock_quantity < $qty) {
+            throw new \Exception("Stok {$produk->name} tidak mencukupi! Butuh: $qty, Sisa: {$produk->stock_quantity}");
         }
 
-        $newStock = $product->stock_quantity;
-        if ($this->type === 'in' || $this->type === 'return') {
-            $newStock += $qty;
+        $stokBaru = $produk->stock_quantity;
+        if ($this->tipe === 'in' || $this->tipe === 'return') {
+            $stokBaru += $qty;
         } else {
-            $newStock -= $qty;
+            $stokBaru -= $qty;
         }
 
-        $product->update(['stock_quantity' => $newStock]);
+        $produk->update(['stock_quantity' => $stokBaru]);
 
         InventoryTransaction::create([
-            'product_id' => $product->id,
+            'product_id' => $produk->id,
             'user_id' => Auth::id() ?? 1,
-            'type' => $this->type,
+            'type' => $this->tipe,
             'quantity' => $qty,
-            'unit_price' => $product->sell_price,
-            'cogs' => $product->buy_price,
-            'remaining_stock' => $newStock,
-            'reference_number' => $this->reference_number,
-            'notes' => trim($notePrefix.' '.$this->notes),
+            'unit_price' => $produk->sell_price,
+            'cogs' => $produk->buy_price,
+            'remaining_stock' => $stokBaru,
+            'reference_number' => $this->nomor_referensi,
+            'notes' => trim($awalanCatatan.' '.$this->catatan),
         ]);
     }
 
+    /**
+     * Render antarmuka POS dengan filter pencarian dan kategori.
+     */
     public function render()
     {
-        $productsQuery = Product::query()
+        $kueriProduk = Product::query()
             ->where('is_active', true)
-            ->when($this->search, function ($q) {
-                $q->where('name', 'like', '%'.$this->search.'%')
-                    ->orWhere('sku', 'like', '%'.$this->search.'%');
+            ->when($this->cari, function ($q) {
+                $q->where('name', 'like', '%'.$this->cari.'%')
+                    ->orWhere('sku', 'like', '%'.$this->cari.'%');
             })
-            ->when($this->category, function ($q) {
-                $q->where('category_id', $this->category);
+            ->when($this->kategori, function ($q) {
+                $q->where('category_id', $this->kategori);
             });
 
         return view('livewire.transactions.create', [
-            'products' => $productsQuery->paginate(12),
-            'categories' => \App\Models\Category::all(),
+            'daftarProduk' => $kueriProduk->paginate(12),
+            'daftarKategori' => \App\Models\Category::all(),
         ]);
     }
 }
