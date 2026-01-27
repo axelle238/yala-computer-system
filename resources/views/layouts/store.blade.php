@@ -241,10 +241,10 @@
                         window.location.href = "/order-success/" + orderId;
                     },
                     onError: function(result) {
-                        alert("Pembayaran Gagal!");
+                        alert("Maaf, pembayaran gagal diproses. Silakan coba lagi.");
                     },
                     onClose: function() {
-                        alert('Anda menutup popup pembayaran.');
+                        alert('Pembayaran belum diselesaikan. Anda dapat melanjutkannya nanti melalui Riwayat Pesanan.');
                     }
                 });
             });

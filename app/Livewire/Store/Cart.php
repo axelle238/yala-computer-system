@@ -110,7 +110,7 @@ class Cart extends Component
                 'approval_status' => 'pending',
                 'total_amount' => $this->subtotal,
                 'valid_until' => now()->addDays(7), // Default 7 days validity
-                'notes' => 'Generated from Web Cart',
+                'notes' => 'Dibuat otomatis dari Keranjang Belanja Web',
             ]);
 
             foreach ($this->cartProducts as $product) {
