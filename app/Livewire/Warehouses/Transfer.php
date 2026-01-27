@@ -22,7 +22,7 @@ class Transfer extends Component
 
     public $tampilkanForm = false;
 
-    // Input Form
+    // Data Formulir
     public $idGudangAsal;
 
     public $idGudangTujuan;
