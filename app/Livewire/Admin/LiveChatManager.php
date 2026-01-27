@@ -11,46 +11,60 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
-#[Title('Live Chat Pelanggan - Yala Computer')]
+#[Title('Pusat Bantuan & Live Chat - Yala Computer')]
 class LiveChatManager extends Component
 {
     use WithPagination;
 
+    // Properti State
     public $sesiTerpilihId = null;
-
     public $isiPesan = '';
+    public $cariPelanggan = '';
 
-    public $search = '';
-
+    // Event Listener
     protected $listeners = ['refreshChat' => '$refresh'];
 
+    /**
+     * Inisialisasi komponen.
+     */
     public function mount()
     {
-        // Auto select first session if exists
-        $firstSession = SesiObrolan::latest()->first();
-        if ($firstSession) {
-            $this->pilihSesi($firstSession->id);
+        // Otomatis pilih sesi terbaru jika ada
+        $sesiTerakhir = SesiObrolan::latest()->first();
+        if ($sesiTerakhir) {
+            $this->pilihSesi($sesiTerakhir->id);
         }
     }
 
+    /**
+     * Memilih sesi obrolan aktif.
+     */
     public function pilihSesi($id)
     {
         $this->sesiTerpilihId = $id;
-        $this->tandaiDibaca($id);
+        $this->tandaiTelahDibaca($id);
     }
 
-    public function tandaiDibaca($sessionId)
+    /**
+     * Menandai pesan pelanggan sebagai telah dibaca.
+     */
+    public function tandaiTelahDibaca($idSesi)
     {
-        PesanObrolan::where('id_sesi', $sessionId)
+        PesanObrolan::where('id_sesi', $idSesi)
             ->where('is_balasan_admin', false)
             ->where('is_dibaca', false)
             ->update(['is_dibaca' => true]);
     }
 
-    public function kirimPesan()
+    /**
+     * Mengirim balasan admin ke pelanggan.
+     */
+    public function kirimBalasan()
     {
         $this->validate([
             'isiPesan' => 'required|string|min:1',
+        ], [
+            'isiPesan.required' => 'Pesan tidak boleh kosong.',
         ]);
 
         if (! $this->sesiTerpilihId) {
@@ -62,42 +76,49 @@ class LiveChatManager extends Component
             'id_pengguna' => Auth::id(),
             'is_balasan_admin' => true,
             'isi' => $this->isiPesan,
-            'is_dibaca' => true, // Pesan sendiri dianggap dibaca
+            'is_dibaca' => true, 
         ]);
+
+        // Perbarui timestamp update sesi untuk menaikkan posisi di list
+        SesiObrolan::find($this->sesiTerpilihId)->touch();
 
         $this->isiPesan = '';
 
-        // Refresh chat
-        $this->dispatch('scroll-to-bottom');
+        // Trigger scroll otomatis di frontend
+        $this->dispatch('gulir-ke-bawah');
     }
 
+    /**
+     * Render antarmuka Live Chat.
+     */
     public function render()
     {
-        $sesiList = SesiObrolan::with(['pelanggan', 'pesanTerakhir'])
-            ->when($this->search, function ($query) {
+        // Ambil daftar sesi dengan relasi pelanggan dan tier loyalitas (Integrasi CRM)
+        $daftarSesi = SesiObrolan::with(['pelanggan', 'pesanTerakhir'])
+            ->when($this->cariPelanggan, function ($query) {
                 $query->whereHas('pelanggan', function ($q) {
-                    $q->where('name', 'like', '%'.$this->search.'%');
-                })->orWhere('topik', 'like', '%'.$this->search.'%');
+                    $q->where('name', 'like', '%'.$this->cariPelanggan.'%');
+                })->orWhere('topik', 'like', '%'.$this->cariPelanggan.'%');
             })
-            ->latest('updated_at') // Urutkan berdasarkan update terakhir (pesan baru)
-            ->get(); // Tidak pakai pagination agar list tetap statis saat chat aktif
+            ->latest('updated_at') 
+            ->get(); 
 
-        $messages = [];
-        $activeSession = null;
+        $daftarPesan = [];
+        $sesiAktif = null;
 
         if ($this->sesiTerpilihId) {
-            $activeSession = SesiObrolan::with('pelanggan')->find($this->sesiTerpilihId);
-            if ($activeSession) {
-                $messages = PesanObrolan::where('id_sesi', $this->sesiTerpilihId)
+            $sesiAktif = SesiObrolan::with('pelanggan')->find($this->sesiTerpilihId);
+            if ($sesiAktif) {
+                $daftarPesan = PesanObrolan::where('id_sesi', $this->sesiTerpilihId)
                     ->orderBy('created_at', 'asc')
                     ->get();
             }
         }
 
         return view('livewire.admin.live-chat-manager', [
-            'sesiList' => $sesiList,
-            'messages' => $messages,
-            'activeSession' => $activeSession,
+            'daftarSesi' => $daftarSesi,
+            'daftarPesan' => $daftarPesan,
+            'sesiAktif' => $sesiAktif,
         ]);
     }
 }
