@@ -3,7 +3,7 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
             <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
-                Master <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-600">Categories</span>
+                Master <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-600">Kategori</span>
             </h2>
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Kelola kategori produk untuk inventaris.</p>
         </div>
@@ -18,7 +18,7 @@
         <!-- Search -->
         <div class="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
             <div class="relative max-w-md">
-                <input wire:model.live.debounce.300ms="search" type="text" class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-blue-500 text-sm" placeholder="Cari kategori...">
+                <input wire:model.live.debounce.300ms="cari" type="text" class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-blue-500 text-sm" placeholder="Cari kategori...">
                 <div class="absolute left-3 top-2.5 text-slate-400">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                 </div>

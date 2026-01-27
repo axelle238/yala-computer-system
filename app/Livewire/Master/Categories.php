@@ -14,11 +14,11 @@ class Categories extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public $cari = '';
 
     public function render()
     {
-        $categories = Category::where('name', 'like', '%'.$this->search.'%')
+        $categories = Category::where('name', 'like', '%'.$this->cari.'%')
             ->latest()
             ->paginate(10);
 
