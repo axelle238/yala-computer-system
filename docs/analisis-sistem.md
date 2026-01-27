@@ -1,53 +1,50 @@
-# Analisis Sistem - Yala Computer System
+# Analisis Sistem Menyeluruh - Yala Computer
 
 Dibuat pada: Selasa, 27 Januari 2026
 
-## 1. Area Admin / Operasional
-### Temuan Positif:
-- Struktur navigasi sudah terorganisir dengan baik.
-- Layout `admin.blade.php` sudah menggunakan Bahasa Indonesia untuk sebagian besar elemen UI.
-- Penggunaan Livewire v4 memberikan interaktivitas yang baik.
-- Dashboard sudah memiliki metrik utama yang relevan (Pendapatan, Laba, Servis, Pesan).
+## 1. AREA ADMIN / OPERASIONAL
 
-### Masalah & Inkonsistensi (Bahasa):
-- **Metode Model:** Masih banyak menggunakan Bahasa Inggris (contoh: `serials()`, `category()`, `supplier()`, `transactions()` di `Product.php`).
-- **Status Database:** Nilai status masih menggunakan Bahasa Inggris (`pending`, `completed`, `shipped`, dll). Meskipun nilai DB bisa tetap Inggris, label UI harus selalu Indonesia.
-- **Komentar Kode:** Sebagian besar sudah Indonesia, namun masih ada sisa-sisa Bahasa Inggris di beberapa file (terutama migrasi dan model lama).
-- **Komponen UI:** Nama komponen seperti `Spotlight` dan istilah seperti `Enterprise` di footer perlu diindonesiakan.
-- **Label Status:** Di beberapa halaman (seperti `quotations/index.blade.php` dan `orders/index.blade.php`), label status masih menampilkan teks Inggris seperti "Pending Review" atau "Pending Payment".
+### Hasil Audit Teknis:
+- **Autentikasi & Otorisasi:** Sudah menggunakan sistem Peran (RBAC) dengan pemetaan hak akses yang cukup detail. File `app/Livewire/Admin/RoleManager.php` dan `RoleForm.php` mengelola ini.
+- **Dashboard:** Menampilkan metrik pendapatan, laba, servis aktif, dan log aktivitas. Menggunakan cache untuk performa.
+- **Bahasa Indonesia:** 
+    - **UI:** Sebagian besar label sudah Indonesia (95%).
+    - **Backend:** Nama relasi model sudah diindonesiakan (item, produk, pengguna, dll).
+    - **Komentar:** Masih banyak komentar kode dalam Bahasa Inggris.
 
-### Fitur Setengah Jadi / Bug:
-- **Validasi CRUD:** Perlu dipastikan semua formulir memiliki validasi yang lengkap dengan pesan error Bahasa Indonesia.
-- **Notifikasi:** Beberapa aksi mungkin belum memicu notifikasi `success` atau `error` yang konsisten.
+### Daftar Bug & Inkonsistensi:
+- **Relasi Model:** Beberapa model baru mungkin masih memiliki metode relasi Bahasa Inggris yang terlewat (perlu pengecekan manual pada model-model kecil).
+- **Validasi:** Beberapa form di admin masih menggunakan pesan error default Laravel (Inggris) jika file bahasa tidak dimuat sempurna.
+- **Log Aktivitas:** Pesan log yang dihasilkan oleh `ActivityLog::generateNarrative()` perlu dipastikan 100% Indonesia untuk semua jenis tindakan.
 
 ---
 
-## 2. Area Storefront (Halaman Pengguna)
-### Temuan Positif:
-- Tampilan modern dengan tema gelap (Cyberpunk style).
-- Integrasi Midtrans sudah disiapkan.
-- Navigasi utama sudah menggunakan Bahasa Indonesia.
+## 2. AREA STOREFRONT (HALAMAN PENGGUNA)
 
-### Masalah & Inkonsistensi:
-- **Logika Frontend:** Beberapa variabel di JavaScript (terutama integrasi Midtrans) menggunakan istilah Inggris (ini standar API, tapi bisa diberi komentar Indonesia).
-- **Pesan Alert:** Masih ditemukan alert Bahasa Inggris (contoh di `checkout.blade.php`: `alert('Anda menutup popup...')` - ini sudah Indonesia, tapi perlu dicek di tempat lain).
-- **Status Pelacakan:** Di halaman `lacak-pesanan` dan `lacak-servis`, pemetaan status harus dipastikan 100% Indonesia.
+### Hasil Audit Teknis:
+- **Tampilan:** Menggunakan tema gelap (Cyberpunk) yang modern. Responsif untuk seluler.
+- **Fitur Utama:** Katalog, Rakit PC, Keranjang, dan Checkout (Midtrans).
+- **Interaksi:** Menggunakan Livewire untuk pengalaman tanpa muat ulang halaman.
 
----
-
-## 3. Daftar Inkonsistensi Frontend-Backend
-- Hubungan Eloquent (Relationships) di model menggunakan Bahasa Inggris, sementara di view terkadang dipanggil dengan ekspektasi Bahasa Indonesia atau sebaliknya.
-- Konstanta status di model (contoh: `STATUS_BARU` di `PesanPelanggan`) sudah bagus, perlu diterapkan ke semua model.
+### Daftar Bug & Fitur Tidak Berfungsi:
+- **Rakit PC:** Logika kompatibilitas di `PcCompatibilityService.php` perlu diuji lebih lanjut untuk memastikan filter produk (socket, memory type) berfungsi 100%.
+- **Bundle Produk:** Penambahan bundle ke keranjang masih tertulis "sedang dalam pengembangan" di `BundleDetail.php`. Ini adalah fitur setengah jadi yang krusial.
+- **Midtrans:** Penanganan callback dan pembaruan status pesanan otomatis perlu dipastikan sinkron antara sistem lokal dan remote.
 
 ---
 
-## 4. Rencana Tindakan (Iterasi)
-1. **Iterasi 1:** Standarisasi Bahasa Backend (Model & Variabel). Mengubah nama metode relationship menjadi Bahasa Indonesia.
-2. **Iterasi 2:** Standarisasi Label Status di UI. Pastikan semua status Inggris di DB dipetakan ke label Indonesia di View.
-3. **Iterasi 3:** Perbaikan Notifikasi & Validasi. Memastikan seluruh alur CRUD memiliki feedback yang jelas.
-4. **Iterasi 4:** Pembersihan Komentar & Istilah Sisa. Menghapus istilah Inggris yang tersisa di footer, placeholder, dan komentar.
-5. **Iterasi 5:** Validasi End-to-End untuk Admin dan Storefront.
+## 3. INKONSISTENSI FRONTEND-BACKEND
+- **Status Database:** Status di DB tetap menggunakan string Inggris (`pending`, `completed`), namun pemetaan di `Order.php` dan `ServiceTicket.php` sudah menyediakan `status_label` (Indonesia). Perlu dipastikan semua model memiliki pola yang sama.
+- **Penamaan Variabel:** Di beberapa file Livewire, variabel `$search` masih digunakan berdampingan dengan `$cari`. Perlu standarisasi ke `$cari`.
 
 ---
-**Status Audit:** Selesai.
-**Rekomendasi:** Lanjutkan ke pembersihan metode model sebagai prioritas pertama untuk sinkronisasi backend.
+
+## 4. RENCANA PERBAIKAN PRIORITAS
+1.  **Standarisasi Variabel Livewire:** Mengubah semua properti `$search` menjadi `$cari` di seluruh komponen.
+2.  **Penyelesaian Fitur Bundle:** Mengimplementasikan logika penambahan bundle ke keranjang belanja.
+3.  **Penerjemahan Komentar & Pesan Internal:** Mengubah sisa komentar Inggris menjadi Indonesia.
+4.  **Validasi End-to-End:** Memastikan alur dari pesanan masuk -> gudang -> pengiriman -> lunas berfungsi tanpa error.
+
+---
+**Status Analisis:** SELESAI
+**Kesimpulan:** Sistem dalam kondisi stabil namun membutuhkan pemolesan pada standarisasi bahasa di tingkat kode (variabel & komentar) serta penyelesaian fitur Bundle.
