@@ -50,7 +50,7 @@ class Index extends Component
     {
         // Query Builder untuk Produk
         $daftarProduk = Product::query()
-            ->with(['category', 'supplier']) // Eager Load untuk performa
+            ->with(['kategori', 'pemasok']) // Eager Load untuk performa
             ->when($this->cari, function ($query) {
                 $query->where(function ($subQuery) {
                     $subQuery->where('name', 'like', '%'.$this->cari.'%')

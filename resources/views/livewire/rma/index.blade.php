@@ -8,7 +8,7 @@
 
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex gap-4">
-            <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari No RMA / Nama..." class="flex-1 bg-slate-50 dark:bg-slate-900 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-cyan-500">
+            <input wire:model.live.debounce.300ms="cari" type="text" placeholder="Cari No RMA / Nama..." class="flex-1 bg-slate-50 dark:bg-slate-900 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-cyan-500">
             <select wire:model.live="status" class="bg-slate-50 dark:bg-slate-900 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-cyan-500">
                 <option value="">Semua Status</option>
                 <option value="pending">Menunggu Konfirmasi</option>

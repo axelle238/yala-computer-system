@@ -16,7 +16,7 @@ class Manager extends Component
 
     public $filterStatus = 'processing'; // pending, processing, shipped, delivered
 
-    public $search = '';
+    public $cari = '';
 
     // View State
     public $activeAction = null; // null, 'tracking'
@@ -67,8 +67,8 @@ class Manager extends Component
     {
         $orders = Order::where('status', $this->filterStatus)
             ->where(function ($q) {
-                $q->where('order_number', 'like', '%'.$this->search.'%')
-                    ->orWhere('guest_name', 'like', '%'.$this->search.'%');
+                $q->where('order_number', 'like', '%'.$this->cari.'%')
+                    ->orWhere('guest_name', 'like', '%'.$this->cari.'%');
             })
             ->latest()
             ->paginate(10);

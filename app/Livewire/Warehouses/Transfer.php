@@ -101,13 +101,13 @@ class Transfer extends Component
                 $gudangTujuan = Warehouse::find($this->idGudangTujuan);
 
                 // Kurangi Asal
-                $stokAsal = $gudangAsal->products()->where('product_id', $item['id_produk'])->first()->pivot->quantity ?? 0;
+                $stokAsal = $gudangAsal->produk()->where('product_id', $item['id_produk'])->first()->pivot->quantity ?? 0;
                 $gudangAsal->products()->syncWithoutDetaching([
                     $item['id_produk'] => ['quantity' => max(0, $stokAsal - $item['qty'])],
                 ]);
 
                 // Tambah Tujuan
-                $stokTujuan = $gudangTujuan->products()->where('product_id', $item['id_produk'])->first()->pivot->quantity ?? 0;
+                $stokTujuan = $gudangTujuan->produk()->where('product_id', $item['id_produk'])->first()->pivot->quantity ?? 0;
                 $gudangTujuan->products()->syncWithoutDetaching([
                     $item['id_produk'] => ['quantity' => $stokTujuan + $item['qty']],
                 ]);

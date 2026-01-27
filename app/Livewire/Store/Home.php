@@ -60,7 +60,7 @@ class Home extends Component
             ->orderBy('order')
             ->get();
 
-        $kategori = Category::withCount('products')
+        $kategori = Category::withCount('produk')
             ->where('is_active', true)
             ->get();
 

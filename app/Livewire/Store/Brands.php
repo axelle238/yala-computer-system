@@ -13,7 +13,7 @@ class Brands extends Component
 {
     public function render()
     {
-        $brands = Supplier::withCount('products')->get();
+        $brands = Supplier::withCount('produk')->get();
 
         return view('livewire.store.brands', [
             'brands' => $brands,

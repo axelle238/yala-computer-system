@@ -25,7 +25,7 @@
                         </div>
                         
                         <h3 class="font-bold text-slate-800 dark:text-white group-hover:text-cyan-500 transition-colors">{{ $brand->name }}</h3>
-                        <p class="text-xs text-slate-500 mt-1">{{ $brand->products_count }} Produk</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ $brand->produk_count }} Produk</p>
                     </a>
                 @endforeach
             </div>

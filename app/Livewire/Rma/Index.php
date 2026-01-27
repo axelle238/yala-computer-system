@@ -14,21 +14,21 @@ class Index extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public $cari = '';
 
     public $status = '';
 
-    public function updatingSearch()
+    public function updatingCari()
     {
         $this->resetPage();
     }
 
     public function render()
     {
-        $rmas = Rma::with('user', 'order')
-            ->when($this->search, function ($q) {
-                $q->where('rma_number', 'like', '%'.$this->search.'%')
-                    ->orWhere('guest_name', 'like', '%'.$this->search.'%');
+        $rmas = Rma::with('pengguna', 'pesanan')
+            ->when($this->cari, function ($q) {
+                $q->where('rma_number', 'like', '%'.$this->cari.'%')
+                    ->orWhere('guest_name', 'like', '%'.$this->cari.'%');
             })
             ->when($this->status, function ($q) {
                 $q->where('status', $this->status);

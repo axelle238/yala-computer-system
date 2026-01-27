@@ -16,8 +16,8 @@ class WarehouseSeeder extends Seeder
         // Distribusi stok awal (semua masuk Toko Utama dulu)
         $products = Product::all();
         foreach ($products as $product) {
-            $store->products()->attach($product->id, ['quantity' => $product->stock_quantity]);
-            $warehouse->products()->attach($product->id, ['quantity' => 0]);
+            $store->produk()->attach($product->id, ['quantity' => $product->stock_quantity]);
+            $warehouse->produk()->attach($product->id, ['quantity' => 0]);
         }
     }
 }
