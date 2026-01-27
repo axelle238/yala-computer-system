@@ -1,50 +1,41 @@
 # Analisis Sistem Menyeluruh - Yala Computer
 Tanggal Audit: 27 Januari 2026
-Status: Final (Pasca Refaktor Fase 1)
+Status: Audit Integrasi Kompleks
 
 ## 1. Temuan Struktural & Arsitektur
-Audit struktur folder `app/Livewire` menunjukkan fragmentasi bahasa dan logika:
+Sistem memiliki logika bisnis yang sangat kuat namun terhambat oleh inkonsistensi bahasa dan fragmentasi namespace.
 
-### Inkonsistensi Namespace & Bahasa
-- **Ganda/Ambigu**:
-    - `Customers` (CRUD Dasar) vs `Pelanggan` (Fitur Detail & Loyalitas). Perlu disatukan di iterasi mendatang.
-    - `Service` (Booking Member) vs `Services` (Manajemen Admin). Perlu disatukan ke `Layanan` atau `Servis`.
-    - `Front` (Tracking) vs `Store` (Logika Utama Toko).
-- **Campuran Bahasa**:
-    - Folder `Pemasaran` (ID) berdampingan dengan `Products` (EN), `Sales` (EN).
-    - Aturan mewajibkan 100% Bahasa Indonesia. Ini memerlukan refaktor namespace yang hati-hati.
+### Pelanggaran Aturan Global (Bahasa)
+- **Backend (Kontroler & Model)**: 
+    - Banyak variabel state menggunakan Bahasa Inggris (misal: `$cart`, `$type`, `$searchBuild`).
+    - Nama fungsi/metode masih didominasi Bahasa Inggris (misal: `addToCart`, `loadBuild`, `processStockDeduction`).
+    - Komentar kode di dalam logika krusial (POS, Gudang) masih 70% Bahasa Inggris.
+- **Frontend (UI)**:
+    - Masih ditemukan label teknis Inggris pada modal atau pesan notifikasi sistem.
 
-## 2. Status Fungsional Admin / Operasional
-### Pencapaian Refaktor
-- **Dashboard Utama**: UI sudah 100% Bahasa Indonesia, termasuk widget Activity Log yang kini menerjemahkan nama model ("User" -> "Pengguna") secara otomatis.
-- **Pusat Pengaturan**: Logika Audit Log diperbaiki untuk mencatat perubahan konfigurasi dengan skema yang benar. UI Setting sudah full Indonesia.
-- **Manajemen SDM (Payroll)**: Fitur perhitungan gaji kompleks (Komisi, Bonus, Pajak) sudah divalidasi dan menggunakan istilah Bahasa Indonesia yang baku ("Total Penerimaan Bersih").
+## 2. Status Integrasi Area Wajib
+### A. Kasir & Keuangan (Sangat Kompleks)
+- **Kelebihan**: Integrasi dengan Rakitan (`SavedBuild`), Loyalitas Pelanggan, dan Komisi Staf sudah berjalan di level backend.
+- **Kekurangan**: 
+    - Logika Pajak masih statis (0), belum menarik data dari `Settings`.
+    - Integrasi dengan `CashRegister` sangat ketat, namun pesan error saat kasir tutup perlu diperhalus.
 
-### Area Perbaikan Mendatang
-- **Validasi**: Perlu pengecekan menyeluruh apakah pesan validasi (request validation) di modul lain (Produk, Stok) sudah diterjemahkan.
-- **Integrasi**: Hubungan antara `Customers` (data dasar) dan `Pelanggan` (loyalty) perlu diperiksa lebih lanjut.
+### B. Gudang & Logistik (Sangat Kompleks)
+- **Kelebihan**: Mutasi stok antar gudang sudah mencatat histori transaksi inventaris (`InventoryTransaction`) secara ganda (masuk/keluar).
+- **Kekurangan**: Logika Bundle Produk pada mutasi gudang perlu divalidasi apakah sudah memotong komponen atau hanya produk induk.
 
-## 3. Status Fungsional Storefront
-- **Checkout & Keranjang**: Pesan error/sukses sudah diterjemahkan. Notifikasi JS (alert) sudah diperhalus bahasanya.
-- **Navigasi**: Menu seluler dan desktop sudah menggunakan label Bahasa Indonesia.
+### C. SDM & Karyawan
+- **Kelebihan**: Sistem Payroll sudah mencakup bonus performa teknisi dan potongan telat.
+- **Kekurangan**: Penamaan variabel di database (schema) masih menggunakan bahasa Inggris, yang menyulitkan pembacaan logika oleh AI/Pengembang lokal.
 
-## 4. Riwayat Perubahan (Changelog)
+## 3. Daftar Bug & Inkonsistensi Kritis
+- **Logika Bundle**: Pada `Transactions/Create.php`, logika bundle sudah ada namun belum mencakup validasi stok komponen secara rekursif.
+- **Notifikasi**: Penggunaan `dispatch('notify', ...)` seringkali masih menggunakan pesan Inggris.
 
-### Checkpoint 1: Baseline
-- Pembersihan cache view dan route.
-- Perbaikan route `products.labels` yang hilang di `nav.php` dan `index.blade.php`.
-
-### Checkpoint 2: Dashboard UI
-- Lokalisasi `dashboard.blade.php`.
-- Penambahan metode `translateModel` di `ActivityLog.php`.
-
-### Checkpoint 3: Storefront
-- Lokalisasi pesan `requestQuote` di `Cart.php`.
-- Perbaikan alert JS di `store.blade.php`.
-
-### Checkpoint 4: Admin Settings & HR
-- Perbaikan `ActivityLog::create` di `Settings/Index.php`.
-- Lokalisasi istilah di `payroll-manager.blade.php`.
+## 4. Rencana Perbaikan ( Road Map )
+1. **Checkpoint Refaktor Bahasa POS**: Mengubah `$cart` menjadi `$keranjang`, `addToCart` menjadi `tambahKeKeranjang`, dsb.
+2. **Integrasi Pajak Global**: Menyambungkan logika PPN di POS dengan nilai yang ada di Pusat Pengaturan.
+3. **Standarisasi Notifikasi**: Mengaudit seluruh file `Livewire` untuk memastikan pesan notifikasi 100% Bahasa Indonesia.
 
 ## Kesimpulan
-Sistem kini memiliki antarmuka (Frontend) yang sangat konsisten dalam Bahasa Indonesia di area-area krusial (Dashboard, Setting, Payroll, Storefront). Logika Backend berfungsi dengan baik untuk mendukung fitur-fitur kompleks tersebut.
+Sistem secara fungsional siap untuk skala enterprise, namun memerlukan "Pembersihan Bahasa" total untuk mematuhi standar Yala Computer.
