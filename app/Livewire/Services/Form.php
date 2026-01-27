@@ -60,7 +60,7 @@ class Form extends Component
         $this->technicians = User::where('role', '!=', 'customer')->orderBy('name')->get();
 
         if ($id) {
-            $this->ticket = ServiceTicket::with(['items.product', 'histories.user'])->findOrFail($id);
+            $this->ticket = ServiceTicket::with(['sukuCadang.produk', 'riwayat.pengguna'])->findOrFail($id);
             $this->fill([
                 'ticket_number' => $this->ticket->ticket_number,
                 'customer_name' => $this->ticket->customer_name,
@@ -71,11 +71,11 @@ class Form extends Component
                 'estimated_cost' => $this->ticket->estimated_cost,
                 'technician_notes' => $this->ticket->technician_notes,
                 'technician_id' => $this->ticket->technician_id,
-                'labor_cost' => max(0, $this->ticket->final_cost - $this->ticket->items->sum(fn ($i) => $i->price * $i->quantity)),
+                'labor_cost' => max(0, $this->ticket->final_cost - $this->ticket->sukuCadang->sum(fn ($i) => $i->price * $i->quantity)),
             ]);
 
             // Load existing items
-            foreach ($this->ticket->items as $item) {
+            foreach ($this->ticket->sukuCadang as $item) {
                 $this->parts[] = [
                     'id' => $item->id,
                     'product_id' => $item->product_id,
@@ -199,7 +199,7 @@ class Form extends Component
                 }
 
                 // 2. Handle Items Logic with Stock Deduction
-                $existingItems = $this->ticket->items()->get()->keyBy('id');
+                $existingItems = $this->ticket->sukuCadang()->get()->keyBy('id');
                 $currentPartIds = collect($this->parts)->pluck('id')->filter()->toArray();
 
                 // A. DELETE removed items
@@ -275,7 +275,7 @@ class Form extends Component
 
         if (! $existingCommission) {
             $percent = Setting::get('commission_service_percent', 10);
-            $partsCost = $this->ticket->items()->sum(DB::raw('price * quantity'));
+            $partsCost = $this->ticket->sukuCadang()->sum(DB::raw('price * quantity'));
             $laborCost = max(0, $this->ticket->final_cost - $partsCost);
 
             $commissionAmount = $laborCost * ($percent / 100);

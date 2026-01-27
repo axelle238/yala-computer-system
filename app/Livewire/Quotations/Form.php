@@ -42,7 +42,7 @@ class Form extends Component
     public function mount($id = null)
     {
         if ($id) {
-            $this->quotation = Quotation::with('items')->findOrFail($id);
+            $this->quotation = Quotation::with('item')->findOrFail($id);
             $this->quotation_number = $this->quotation->quotation_number;
             $this->user_id = $this->quotation->user_id;
             $this->valid_until = $this->quotation->valid_until?->format('Y-m-d');
@@ -50,7 +50,7 @@ class Form extends Component
             $this->terms_and_conditions = $this->quotation->terms_and_conditions;
             $this->approval_status = $this->quotation->approval_status;
 
-            foreach ($this->quotation->items as $item) {
+            foreach ($this->quotation->item as $item) {
                 $this->items[] = [
                     'product_id' => $item->product_id,
                     'item_name' => $item->item_name,
@@ -137,7 +137,7 @@ class Form extends Component
 
             if ($this->quotation) {
                 $this->quotation->update($data);
-                $this->quotation->items()->delete();
+                $this->quotation->item()->delete();
             } else {
                 $data['quotation_number'] = $this->quotation_number;
                 $data['status'] = 'draft';

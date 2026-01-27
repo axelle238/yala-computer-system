@@ -17,13 +17,13 @@
 
                 <div class="space-y-4 mb-8">
                     <h3 class="font-bold text-gray-800 dark:text-white">Isi Paket:</h3>
-                    @foreach($bundle->items as $item)
+                    @foreach($bundle->item as $item)
                         <div class="flex items-center gap-4 p-3 border border-slate-200 dark:border-slate-700 rounded-xl">
                             <div class="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
                                 <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                             </div>
                             <div>
-                                <p class="font-bold text-slate-800 dark:text-white">{{ $item->product->name }}</p>
+                                <p class="font-bold text-slate-800 dark:text-white">{{ $item->produk->name }}</p>
                                 <p class="text-xs text-slate-500">Qty: {{ $item->quantity }}</p>
                             </div>
                         </div>
@@ -32,7 +32,7 @@
 
                 <div class="flex items-center justify-between border-t border-slate-200 dark:border-slate-700 pt-8">
                     <div>
-                        <p class="text-sm text-slate-500 line-through">Rp {{ number_format($bundle->items->sum(fn($i) => $i->product->sell_price * $i->quantity), 0, ',', '.') }}</p>
+                        <p class="text-sm text-slate-500 line-through">Rp {{ number_format($bundle->item->sum(fn($i) => $i->produk->sell_price * $i->quantity), 0, ',', '.') }}</p>
                         <p class="text-3xl font-black text-purple-600">Rp {{ number_format($bundle->price, 0, ',', '.') }}</p>
                     </div>
                     <button wire:click="addToCart" class="px-8 py-4 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/30 transition-all">

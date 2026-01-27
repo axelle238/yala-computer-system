@@ -37,7 +37,7 @@ class Manager extends Component
 
     public function openDetailPanel($id)
     {
-        $this->selectedAssembly = PcAssembly::with(['order.user', 'order.items.product'])->find($id);
+        $this->selectedAssembly = PcAssembly::with(['pesanan.pengguna', 'pesanan.item.produk'])->find($id);
 
         if ($this->selectedAssembly) {
             $this->technicianNotes = $this->selectedAssembly->technician_notes;
@@ -48,9 +48,9 @@ class Manager extends Component
                 $this->specs = json_decode($this->selectedAssembly->specs_snapshot, true);
             } else {
                 // Fallback: Try to guess from order items (Not ideal but helpful)
-                $this->specs = $this->selectedAssembly->order->items->map(function ($item) {
+                $this->specs = $this->selectedAssembly->pesanan->item->map(function ($item) {
                     return [
-                        'name' => $item->product->name,
+                        'name' => $item->produk->name,
                         'qty' => $item->quantity,
                     ];
                 })->toArray();
@@ -105,9 +105,9 @@ class Manager extends Component
     public function render()
     {
         $assemblies = PcAssembly::query()
-            ->with(['order', 'technician'])
+            ->with(['pesanan', 'teknisi'])
             ->when($this->search, function ($q) {
-                $q->whereHas('order', function ($sq) {
+                $q->whereHas('pesanan', function ($sq) {
                     $sq->where('order_number', 'like', '%'.$this->search.'%')
                         ->orWhere('guest_name', 'like', '%'.$this->search.'%');
                 })->orWhere('build_name', 'like', '%'.$this->search.'%');

@@ -8,7 +8,7 @@ class ProductBundleItem extends Model
 {
     protected $guarded = [];
 
-    public function product()
+    public function produk()
     {
         return $this->belongsTo(Product::class);
     }

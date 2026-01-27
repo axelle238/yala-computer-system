@@ -19,7 +19,7 @@ class Show extends Component
 
     public function mount($id)
     {
-        $this->quotation = Quotation::with(['items', 'user'])->findOrFail($id);
+        $this->quotation = Quotation::with(['item', 'pengguna'])->findOrFail($id);
 
         // Security: Ensure user owns this quote OR is admin
         if (! auth()->user()->hasRole('admin') && $this->quotation->user_id !== auth()->id()) {
@@ -54,7 +54,7 @@ class Show extends Component
                 'shipping_cost' => 0,
             ]);
 
-            foreach ($this->quotation->items as $item) {
+            foreach ($this->quotation->item as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product_id, // Nullable if custom item?

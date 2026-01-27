@@ -35,14 +35,14 @@ class Form extends Component
     public function mount($id = null)
     {
         if ($id) {
-            $this->po = PurchaseOrder::with('items')->findOrFail($id);
+            $this->po = PurchaseOrder::with('item')->findOrFail($id);
             $this->po_number = $this->po->po_number;
             $this->supplier_id = $this->po->supplier_id;
             $this->order_date = $this->po->order_date->format('Y-m-d');
             $this->notes = $this->po->notes;
             $this->status = $this->po->status;
 
-            foreach ($this->po->items as $item) {
+            foreach ($this->po->item as $item) {
                 $this->items[] = [
                     'product_id' => $item->product_id,
                     'qty' => $item->quantity_ordered,
@@ -125,7 +125,7 @@ class Form extends Component
 
             if ($this->po) {
                 $this->po->update($data);
-                $this->po->items()->delete();
+                $this->po->item()->delete();
             } else {
                 $this->po = PurchaseOrder::create($data);
             }

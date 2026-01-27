@@ -14,13 +14,13 @@ class ServiceHistory extends Model
         'notes',
     ];
 
-    public function ticket(): BelongsTo
+    public function tiket(): BelongsTo
     {
         return $this->belongsTo(ServiceTicket::class, 'service_ticket_id');
     }
 
-    public function user(): BelongsTo
+    public function pengguna(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

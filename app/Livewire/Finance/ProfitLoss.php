@@ -32,7 +32,7 @@ class ProfitLoss extends Component
 
         // 1. REVENUE (Pendapatan)
         // Penjualan yang sudah Selesai (Completed)
-        $orders = Order::with('items.product')
+        $orders = Order::with('item.produk')
             ->where('status', 'completed')
             ->whereBetween('updated_at', [$startDate, $endDate]) // Pakai updated_at karena completed date
             ->get();
@@ -47,10 +47,10 @@ class ProfitLoss extends Component
 
         $cogs = 0;
         foreach ($orders as $order) {
-            foreach ($order->items as $item) {
+            foreach ($order->item as $item) {
                 // Best effort: Get transaction linked or use current buy price
                 // Since we don't link specific transaction to order item yet, use current product buy price
-                $buyPrice = $item->product->buy_price ?? 0;
+                $buyPrice = $item->produk->buy_price ?? 0;
                 $cogs += ($buyPrice * $item->quantity);
             }
         }

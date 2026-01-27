@@ -13,12 +13,12 @@ class PcAssembly extends Model
         'completed_at' => 'datetime',
     ];
 
-    public function order()
+    public function pesanan()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
-    public function technician()
+    public function teknisi()
     {
         return $this->belongsTo(User::class, 'technician_id');
     }

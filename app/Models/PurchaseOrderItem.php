@@ -10,7 +10,7 @@ class PurchaseOrderItem extends Model
         'purchase_order_id', 'product_id', 'quantity_ordered', 'quantity_received', 'buy_price', 'subtotal',
     ];
 
-    public function product()
+    public function produk()
     {
         return $this->belongsTo(Product::class);
     }

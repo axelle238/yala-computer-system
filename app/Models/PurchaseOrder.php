@@ -37,14 +37,19 @@ class PurchaseOrder extends Model
         return $this->hasMany(PurchaseOrderItem::class);
     }
 
-    public function payments(): MorphMany
+    public function pembayaran(): MorphMany
     {
         return $this->morphMany(Payment::class, 'payable');
     }
 
+    public function pembuat()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function getPaidAmountAttribute()
     {
-        return $this->payments()->sum('amount');
+        return $this->pembayaran()->sum('amount');
     }
 
     public function getRemainingBalanceAttribute()

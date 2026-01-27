@@ -19,13 +19,13 @@ class ServiceItem extends Model
         'warranty_duration',
     ];
 
-    public function ticket()
+    public function tiket()
     {
         return $this->belongsTo(ServiceTicket::class, 'service_ticket_id');
     }
 
-    public function product()
+    public function produk()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class, 'product_id');
     }
 }

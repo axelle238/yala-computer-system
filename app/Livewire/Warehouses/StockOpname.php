@@ -90,13 +90,13 @@ class StockOpname extends Component
         }
 
         DB::transaction(function () {
-            $itemUntukDisesuaikan = $this->opnameAktif->items()
+            $itemUntukDisesuaikan = $this->opnameAktif->item()
                 ->whereNotNull('physical_stock')
                 ->whereRaw('physical_stock != system_stock')
                 ->get();
 
             foreach ($itemUntukDisesuaikan as $item) {
-                $produk = $item->product;
+                $produk = $item->produk;
                 $selisih = $item->variance;
 
                 // Perbarui Stok Produk
@@ -128,8 +128,8 @@ class StockOpname extends Component
         $daftarItem = null;
         if ($this->opnameAktif) {
             $daftarItem = ItemStokOpname::where('stock_opname_id', $this->opnameAktif->id)
-                ->with('product')
-                ->whereHas('product', function ($q) {
+                ->with('produk')
+                ->whereHas('produk', function ($q) {
                     $q->where('name', 'like', '%'.$this->cari.'%')
                         ->orWhere('sku', 'like', '%'.$this->cari.'%');
                 })

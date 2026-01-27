@@ -38,13 +38,13 @@ class Form extends Component
     public function mount($id = null)
     {
         if ($id) {
-            $this->rma = Rma::with('items')->findOrFail($id);
+            $this->rma = Rma::with('item')->findOrFail($id);
             $this->rma_number = $this->rma->rma_number;
             $this->guest_name = $this->rma->guest_name;
             $this->status = $this->rma->status;
             $this->admin_notes = $this->rma->admin_notes;
 
-            foreach ($this->rma->items as $item) {
+            foreach ($this->rma->item as $item) {
                 $this->items[] = [
                     'product_id' => $item->product_id,
                     'serial' => $item->serial_number,
@@ -59,7 +59,7 @@ class Form extends Component
 
     public function loadOrder()
     {
-        $order = Order::with('items.product')->where('order_number', $this->searchOrder)->first();
+        $order = Order::with('item.produk')->where('order_number', $this->searchOrder)->first();
         if ($order) {
             $this->selectedOrder = $order;
             $this->guest_name = $order->guest_name;
@@ -96,7 +96,7 @@ class Form extends Component
 
         if ($this->rma) {
             $this->rma->update($data);
-            $this->rma->items()->delete();
+            $this->rma->item()->delete();
         } else {
             $this->rma = Rma::create($data);
         }

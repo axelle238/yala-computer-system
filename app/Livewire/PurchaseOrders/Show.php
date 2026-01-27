@@ -23,10 +23,10 @@ class Show extends Component
 
     public function mount(PurchaseOrder $po)
     {
-        $this->po = $po->load(['items.product', 'supplier', 'creator']);
+        $this->po = $po->load(['item.produk', 'pemasok', 'pembuat']);
 
         // Init form input
-        foreach ($this->po->items as $item) {
+        foreach ($this->po->item as $item) {
             $this->receiveData[$item->id] = 0; // Default 0 saat modal dibuka
         }
     }
@@ -34,7 +34,7 @@ class Show extends Component
     public function openReceivePanel()
     {
         // Pre-fill dengan sisa yang belum diterima
-        foreach ($this->po->items as $item) {
+        foreach ($this->po->item as $item) {
             $remaining = $item->quantity_ordered - $item->quantity_received;
             $this->receiveData[$item->id] = max(0, $remaining);
         }
@@ -46,7 +46,7 @@ class Show extends Component
         $this->activeAction = null;
         $this->reset('receiveData');
         // Re-init default values to avoid errors if reopened
-        foreach ($this->po->items as $item) {
+        foreach ($this->po->item as $item) {
             $this->receiveData[$item->id] = 0;
         }
     }
@@ -70,12 +70,12 @@ class Show extends Component
             $allItemsFullyReceived = true;
             $atLeastOneReceived = false;
 
-            foreach ($this->po->items as $item) {
+            foreach ($this->po->item as $item) {
                 $qtyToReceive = (int) $this->receiveData[$item->id];
                 $remaining = $item->quantity_ordered - $item->quantity_received;
 
                 if ($qtyToReceive > $remaining) {
-                    throw new \Exception("Jumlah terima untuk {$item->product->name} melebihi sisa pesanan.");
+                    throw new \Exception("Jumlah terima untuk {$item->produk->name} melebihi sisa pesanan.");
                 }
 
                 if ($qtyToReceive > 0) {

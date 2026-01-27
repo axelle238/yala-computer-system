@@ -64,6 +64,11 @@ class ServiceTicket extends Model
         return $this->hasMany(ProgresServis::class, 'id_tiket_servis')->latest();
     }
 
+    public function riwayat(): HasMany
+    {
+        return $this->hasMany(ServiceHistory::class);
+    }
+
     // Helper untuk label status warna-warni
     public function getStatusLabelAttribute()
     {

@@ -15,7 +15,7 @@ class StockOpnameItem extends Model
         'notes',
     ];
 
-    public function product()
+    public function produk()
     {
         return $this->belongsTo(Product::class);
     }
