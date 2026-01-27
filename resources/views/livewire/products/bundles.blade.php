@@ -1,28 +1,31 @@
 <div class="p-6">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Product Bundles</h1>
+        <h1 class="text-2xl font-bold text-gray-800">Bundle Produk</h1>
         @if($viewMode === 'list')
             <button wire:click="create" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                + Create Bundle
+                + Buat Bundle
             </button>
         @else
             <button wire:click="$set('viewMode', 'list')" class="text-gray-600 hover:text-gray-900">
-                &larr; Back to List
+                &larr; Kembali ke Daftar
             </button>
         @endif
     </div>
 
     @if($viewMode === 'list')
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <input wire:model.live.debounce.300ms="cari" type="text" placeholder="Cari bundle..." class="w-full md:w-64 rounded-lg border-gray-300 text-sm">
+            </div>
             <table class="w-full text-left text-sm text-gray-600">
                 <thead class="bg-gray-50 uppercase text-xs font-semibold text-gray-700">
                     <tr>
-                        <th class="px-6 py-4">Name</th>
-                        <th class="px-6 py-4">Price</th>
-                        <th class="px-6 py-4 text-center">Items</th>
-                        <th class="px-6 py-4 text-center">Stock (Virtual)</th>
+                        <th class="px-6 py-4">Nama</th>
+                        <th class="px-6 py-4">Harga</th>
+                        <th class="px-6 py-4 text-center">Item</th>
+                        <th class="px-6 py-4 text-center">Stok (Virtual)</th>
                         <th class="px-6 py-4 text-center">Status</th>
-                        <th class="px-6 py-4 text-center">Action</th>
+                        <th class="px-6 py-4 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -30,15 +33,15 @@
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 font-bold">{{ $bundle->name }}</td>
                             <td class="px-6 py-4">Rp {{ number_format($bundle->price, 0, ',', '.') }}</td>
-                            <td class="px-6 py-4 text-center">{{ $bundle->items_count }}</td>
+                            <td class="px-6 py-4 text-center">{{ $bundle->item_count }}</td>
                             <td class="px-6 py-4 text-center">{{ $bundle->stock }}</td>
                             <td class="px-6 py-4 text-center">
                                 <span class="px-2 py-1 rounded-full text-xs font-bold {{ $bundle->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600' }}">
-                                    {{ $bundle->is_active ? 'Active' : 'Inactive' }}
+                                    {{ $bundle->is_active ? 'Aktif' : 'Nonaktif' }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <button wire:click="edit({{ $bundle->id }})" class="text-blue-600 hover:underline">Edit</button>
+                                <button wire:click="edit({{ $bundle->id }})" class="text-blue-600 hover:underline">Ubah</button>
                             </td>
                         </tr>
                     @endforeach
@@ -50,33 +53,33 @@
     @else
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
-                <h3 class="font-bold text-gray-800">Bundle Details</h3>
+                <h3 class="font-bold text-gray-800">Detail Bundle</h3>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Bundle Name</label>
+                    <label class="block text-sm font-medium mb-1">Nama Bundle</label>
                     <input type="text" wire:model="name" class="w-full rounded-lg border-gray-300">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Description</label>
+                    <label class="block text-sm font-medium mb-1">Deskripsi</label>
                     <textarea wire:model="description" class="w-full rounded-lg border-gray-300"></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Selling Price</label>
+                    <label class="block text-sm font-medium mb-1">Harga Jual</label>
                     <input type="number" wire:model="price" class="w-full rounded-lg border-gray-300">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Image</label>
+                    <label class="block text-sm font-medium mb-1">Gambar</label>
                     <input type="file" wire:model="image" class="w-full text-sm">
                 </div>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" wire:model="isActive" class="rounded border-gray-300">
-                    <label class="text-sm">Active</label>
+                    <label class="text-sm">Aktif</label>
                 </div>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
-                <h3 class="font-bold text-gray-800">Bundle Items</h3>
+                <h3 class="font-bold text-gray-800">Isi Bundle (Komponen)</h3>
                 <div class="relative">
-                    <input type="text" wire:model.live.debounce.300ms="searchProduct" placeholder="Search product to add..." class="w-full rounded-lg border-gray-300">
+                    <input type="text" wire:model.live.debounce.300ms="cariProduk" placeholder="Cari produk untuk ditambah..." class="w-full rounded-lg border-gray-300">
                     @if(!empty($searchResults))
                         <div class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
                             @foreach($searchResults as $product)
@@ -105,11 +108,11 @@
 
                 <div class="pt-4 border-t">
                     @php $totalValue = array_reduce($bundleItems, fn($c, $i) => $c + ($i['price'] * $i['qty']), 0); @endphp
-                    <p class="text-sm text-gray-500">Total Component Value: Rp {{ number_format($totalValue) }}</p>
+                    <p class="text-sm text-gray-500">Total Harga Komponen: Rp {{ number_format($totalValue, 0, ',', '.') }}</p>
                 </div>
 
                 <button wire:click="save" class="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">
-                    Save Bundle
+                    Simpan Bundle
                 </button>
             </div>
         </div>

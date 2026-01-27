@@ -20,7 +20,7 @@ class Bundles extends Component
 
     public $viewMode = 'list'; // list, create, edit
 
-    public $search = '';
+    public $cari = '';
 
     // Form
     public $bundleId;
@@ -38,14 +38,14 @@ class Bundles extends Component
     public $bundleItems = []; // [['product_id', 'qty']]
 
     // Search Product for Bundle
-    public $searchProduct = '';
+    public $cariProduk = '';
 
     public $searchResults = [];
 
-    public function updatedSearchProduct()
+    public function updatedCariProduk()
     {
-        if (strlen($this->searchProduct) > 2) {
-            $this->searchResults = Product::where('name', 'like', '%'.$this->searchProduct.'%')->take(5)->get();
+        if (strlen($this->cariProduk) > 2) {
+            $this->searchResults = Product::where('name', 'like', '%'.$this->cariProduk.'%')->take(5)->get();
         }
     }
 
@@ -60,7 +60,7 @@ class Bundles extends Component
                 'price' => $product->sell_price,
             ];
         }
-        $this->searchProduct = '';
+        $this->cariProduk = '';
         $this->searchResults = [];
     }
 
@@ -93,7 +93,7 @@ class Bundles extends Component
         if ($this->bundleId) {
             $bundle = ProductBundle::find($this->bundleId);
             $bundle->update($data);
-            $bundle->items()->delete();
+            $bundle->item()->delete();
         } else {
             $bundle = ProductBundle::create($data);
         }
@@ -112,7 +112,7 @@ class Bundles extends Component
 
     public function edit($id)
     {
-        $bundle = ProductBundle::with('items.product')->find($id);
+        $bundle = ProductBundle::with('item.produk')->find($id);
         $this->bundleId = $bundle->id;
         $this->name = $bundle->name;
         $this->description = $bundle->description;
@@ -120,12 +120,12 @@ class Bundles extends Component
         $this->isActive = $bundle->is_active;
 
         $this->bundleItems = [];
-        foreach ($bundle->items as $item) {
+        foreach ($bundle->item as $item) {
             $this->bundleItems[] = [
                 'product_id' => $item->product_id,
-                'name' => $item->product->name,
+                'name' => $item->produk->name,
                 'qty' => $item->quantity,
-                'price' => $item->product->sell_price,
+                'price' => $item->produk->sell_price,
             ];
         }
 
@@ -140,8 +140,8 @@ class Bundles extends Component
 
     public function render()
     {
-        $bundles = ProductBundle::withCount('items')
-            ->where('name', 'like', '%'.$this->search.'%')
+        $bundles = ProductBundle::withCount('item')
+            ->where('name', 'like', '%'.$this->cari.'%')
             ->latest()
             ->paginate(10);
 
