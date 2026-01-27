@@ -51,6 +51,17 @@ class Dashboard extends Component
                     ->count();
             }
 
+            // Data Grafik Penjualan 7 Hari Terakhir
+            $data['grafik_penjualan'] = Order::selectRaw('DATE(created_at) as tanggal, SUM(total_amount) as total')
+                ->where('created_at', '>=', now()->subDays(7))
+                ->groupBy('tanggal')
+                ->orderBy('tanggal')
+                ->get()
+                ->map(fn($item) => [
+                    'tanggal' => \Carbon\Carbon::parse($item->tanggal)->format('d M'),
+                    'total' => (int) $item->total
+                ]);
+
             return $data;
         });
 
