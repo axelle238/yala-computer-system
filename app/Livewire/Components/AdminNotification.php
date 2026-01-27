@@ -3,8 +3,10 @@
 namespace App\Livewire\Components;
 
 use App\Models\Order;
+use App\Models\PesanObrolan;
 use App\Models\Product;
 use App\Models\ServiceTicket;
+use Illuminate\Support\Str;
 use Livewire\Component;
 
 class AdminNotification extends Component
@@ -65,6 +67,26 @@ class AdminNotification extends Component
                 'pesan' => "Tiket #{$s->ticket_number} ({$s->device_name})",
                 'waktu' => $s->created_at,
                 'rute' => route('admin.servis.meja-kerja', $s->id),
+            ];
+        }
+
+        // 4. Pesan Chat Baru (Belum Dibaca)
+        $pesanBaru = PesanObrolan::where('is_balasan_admin', false)
+            ->where('is_dibaca', false)
+            ->latest()
+            ->take(5)
+            ->with('pengirim')
+            ->get();
+
+        foreach ($pesanBaru as $msg) {
+            $pengirim = $msg->pengirim ? $msg->pengirim->name : 'Tamu';
+            $daftarNotif[] = [
+                'id' => 'chat-'.$msg->id,
+                'tipe' => 'chat',
+                'judul' => 'Pesan dari ' . $pengirim,
+                'pesan' => Str::limit($msg->isi, 40),
+                'waktu' => $msg->created_at,
+                'rute' => route('admin.pelanggan.obrolan'),
             ];
         }
 

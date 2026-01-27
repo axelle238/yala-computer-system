@@ -111,20 +111,23 @@
         </div>
     </div>
 
-    <!-- Tombol Floating Modern -->
+    <!-- Tombol Floating Modern (Colorful) -->
     <button wire:click="togleChat" 
-        class="w-16 h-16 bg-black dark:bg-white text-white dark:text-black rounded-full shadow-2xl hover:scale-110 hover:-rotate-12 transition-all duration-300 flex items-center justify-center group relative overflow-hidden">
+        class="w-16 h-16 bg-gradient-to-tr from-violet-600 via-fuchsia-500 to-orange-400 text-white rounded-full shadow-2xl hover:scale-110 hover:-rotate-6 transition-all duration-300 flex items-center justify-center group relative overflow-hidden border-2 border-white dark:border-slate-800">
         
         <!-- Notifikasi Badge -->
         @if($sesi && $sesi->pesan()->where('is_balasan_admin', true)->where('is_dibaca', false)->count() > 0)
-            <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-bounce"></span>
+            <span class="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-bounce"></span>
         @endif
 
-        <!-- Icon Chat Modern (Bubble Dots) -->
-        <svg x-show="!open" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
-        <svg x-show="open" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        <!-- Icon Chat Modern -->
+        <div x-show="!open" class="relative">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+        </div>
+        
+        <svg x-show="open" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
     </button>
 
     <script>
