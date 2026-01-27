@@ -11,68 +11,83 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('layouts.admin')]
-#[Title('Laporan Penjualan Detail')]
+#[Title('Laporan Penjualan Detail - Yala Computer')]
 class SalesReport extends Component
 {
-    public $startDate;
+    // Filter
+    public $tanggalMulai;
+    public $tanggalAkhir;
+    public $periode = 'bulan_ini'; // hari_ini, minggu_ini, bulan_ini, manual
 
-    public $endDate;
-
-    public $period = 'this_month';
-
+    /**
+     * Inisialisasi komponen dengan periode default.
+     */
     public function mount()
     {
-        $this->setPeriod('this_month');
+        $this->aturPeriode('bulan_ini');
     }
 
-    public function setPeriod($period)
+    /**
+     * Mengatur rentang tanggal berdasarkan preset periode.
+     */
+    public function aturPeriode($p)
     {
-        $this->period = $period;
-        if ($period == 'today') {
-            $this->startDate = now()->startOfDay()->format('Y-m-d');
-            $this->endDate = now()->endOfDay()->format('Y-m-d');
-        } elseif ($period == 'this_week') {
-            $this->startDate = now()->startOfWeek()->format('Y-m-d');
-            $this->endDate = now()->endOfWeek()->format('Y-m-d');
-        } elseif ($period == 'this_month') {
-            $this->startDate = now()->startOfMonth()->format('Y-m-d');
-            $this->endDate = now()->endOfMonth()->format('Y-m-d');
+        $this->periode = $p;
+        
+        if ($p == 'hari_ini') {
+            $this->tanggalMulai = now()->startOfDay()->format('Y-m-d');
+            $this->tanggalAkhir = now()->endOfDay()->format('Y-m-d');
+        } elseif ($p == 'minggu_ini') {
+            $this->tanggalMulai = now()->startOfWeek()->format('Y-m-d');
+            $this->tanggalAkhir = now()->endOfWeek()->format('Y-m-d');
+        } elseif ($p == 'bulan_ini') {
+            $this->tanggalMulai = now()->startOfMonth()->format('Y-m-d');
+            $this->tanggalAkhir = now()->endOfMonth()->format('Y-m-d');
         }
     }
 
+    /**
+     * Render laporan dengan data statistik lengkap.
+     */
     public function render()
     {
-        $start = Carbon::parse($this->startDate)->startOfDay();
-        $end = Carbon::parse($this->endDate)->endOfDay();
+        $mulai = Carbon::parse($this->tanggalMulai)->startOfDay();
+        $akhir = Carbon::parse($this->tanggalAkhir)->endOfDay();
 
-        // 1. Total Stats
-        $orders = Order::whereBetween('created_at', [$start, $end])
+        // 1. Ringkasan Utama
+        $pesanan = Order::whereBetween('created_at', [$mulai, $akhir])
             ->where('status', '!=', 'cancelled')
             ->get();
 
-        $totalRevenue = $orders->sum('total_amount');
-        $totalOrders = $orders->count();
-        $avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
+        $totalPendapatan = $pesanan->sum('total_amount');
+        $totalPesanan = $pesanan->count();
+        $rataRataNilai = $totalPesanan > 0 ? $totalPendapatan / $totalPesanan : 0;
 
-        // 2. Daily Chart Data
-        $dailySales = Order::select(
-            DB::raw('DATE(created_at) as date'),
+        // 2. Grafik Penjualan Harian
+        $penjualanHarian = Order::select(
+            DB::raw('DATE(created_at) as tanggal'),
             DB::raw('SUM(total_amount) as total')
         )
-            ->whereBetween('created_at', [$start, $end])
+            ->whereBetween('created_at', [$mulai, $akhir])
             ->where('status', '!=', 'cancelled')
-            ->groupBy('date')
-            ->orderBy('date')
+            ->groupBy('tanggal')
+            ->orderBy('tanggal')
             ->get();
 
-        // 3. Top Products
-        $topProducts = OrderItem::select(
+        // Siapkan struktur data grafik (Label & Series)
+        $grafikHarian = [
+            'label' => $penjualanHarian->map(fn($item) => Carbon::parse($item->tanggal)->format('d M'))->toArray(),
+            'data' => $penjualanHarian->map(fn($item) => $item->total)->toArray(),
+        ];
+
+        // 3. Produk Terlaris (Top 5)
+        $produkTerlaris = OrderItem::select(
             'product_id',
             DB::raw('SUM(quantity) as total_qty'),
             DB::raw('SUM(price * quantity) as total_sales')
         )
-            ->whereHas('order', function ($q) use ($start, $end) {
-                $q->whereBetween('created_at', [$start, $end])
+            ->whereHas('order', function ($q) use ($mulai, $akhir) {
+                $q->whereBetween('created_at', [$mulai, $akhir])
                     ->where('status', '!=', 'cancelled');
             })
             ->with('product')
@@ -81,20 +96,26 @@ class SalesReport extends Component
             ->take(5)
             ->get();
 
-        // 4. Payment Methods
-        $paymentStats = Order::select('payment_method', DB::raw('count(*) as total'))
-            ->whereBetween('created_at', [$start, $end])
+        // 4. Statistik Metode Pembayaran
+        $metodeBayar = Order::select('payment_method', DB::raw('count(*) as total'))
+            ->whereBetween('created_at', [$mulai, $akhir])
             ->where('status', '!=', 'cancelled')
             ->groupBy('payment_method')
             ->get();
 
+        // Data Grafik Pembayaran
+        $grafikBayar = [
+            'label' => $metodeBayar->pluck('payment_method')->map(fn($m) => strtoupper($m))->toArray(),
+            'data' => $metodeBayar->pluck('total')->toArray(),
+        ];
+
         return view('livewire.reports.sales-report', [
-            'totalRevenue' => $totalRevenue,
-            'totalOrders' => $totalOrders,
-            'avgOrderValue' => $avgOrderValue,
-            'dailySales' => $dailySales,
-            'topProducts' => $topProducts,
-            'paymentStats' => $paymentStats,
+            'totalPendapatan' => $totalPendapatan,
+            'totalPesanan' => $totalPesanan,
+            'rataRataNilai' => $rataRataNilai,
+            'grafikHarian' => $grafikHarian,
+            'produkTerlaris' => $produkTerlaris,
+            'grafikBayar' => $grafikBayar,
         ]);
     }
 }

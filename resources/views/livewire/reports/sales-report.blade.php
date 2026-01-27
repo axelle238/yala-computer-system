@@ -1,113 +1,150 @@
 <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8 animate-fade-in-up">
     
-    <!-- Header & Filter -->
-    <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+    <!-- Filter Toolbar -->
+    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
-            <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tight">
-                Sales <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Intelligence</span>
+            <h2 class="text-2xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tight">
+                Laporan <span class="text-indigo-600 dark:text-indigo-400">Penjualan</span>
             </h2>
-            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Analisis performa penjualan, tren, dan produk unggulan.</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Analisis tren transaksi dan performa produk.</p>
         </div>
         
-        <div class="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
-            <button wire:click="setPeriod('today')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all {{ $period == 'today' ? 'bg-white dark:bg-slate-700 shadow text-blue-600 dark:text-blue-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">Hari Ini</button>
-            <button wire:click="setPeriod('this_week')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all {{ $period == 'this_week' ? 'bg-white dark:bg-slate-700 shadow text-blue-600 dark:text-blue-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">Minggu Ini</button>
-            <button wire:click="setPeriod('this_month')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all {{ $period == 'this_month' ? 'bg-white dark:bg-slate-700 shadow text-blue-600 dark:text-blue-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">Bulan Ini</button>
+        <div class="flex flex-wrap gap-2">
+            @foreach([
+                'hari_ini' => 'Hari Ini',
+                'minggu_ini' => 'Minggu Ini',
+                'bulan_ini' => 'Bulan Ini'
+            ] as $key => $label)
+                <button wire:click="aturPeriode('{{ $key }}')" 
+                        class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all {{ $periode === $key ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
+                    {{ $label }}
+                </button>
+            @endforeach
+            
+            <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-1">
+                <input type="date" wire:model.live="tanggalMulai" class="bg-transparent border-none text-xs font-bold text-slate-700 dark:text-white focus:ring-0 p-0">
+                <span class="text-slate-400">-</span>
+                <input type="date" wire:model.live="tanggalAkhir" class="bg-transparent border-none text-xs font-bold text-slate-700 dark:text-white focus:ring-0 p-0">
+            </div>
         </div>
     </div>
 
-    <!-- Key Metrics -->
+    <!-- KPI Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group">
-            <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:scale-110 transition-transform"></div>
-            <p class="text-xs font-bold uppercase tracking-wider text-blue-100">Total Omset</p>
-            <h3 class="text-3xl font-black font-tech mt-2">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h3>
-            <p class="text-xs text-blue-200 mt-1">Periode terpilih</p>
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 group hover:border-indigo-500 transition-all relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl -mr-6 -mt-6"></div>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Omzet</p>
+            <h3 class="text-3xl font-black text-slate-900 dark:text-white mt-1">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</h3>
         </div>
-        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Jumlah Transaksi</p>
-            <h3 class="text-3xl font-black font-tech text-slate-900 dark:text-white mt-2">{{ number_format($totalOrders) }}</h3>
-            <p class="text-xs text-slate-400 mt-1">Order selesai & diproses</p>
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 group hover:border-emerald-500 transition-all relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl -mr-6 -mt-6"></div>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Volume Transaksi</p>
+            <h3 class="text-3xl font-black text-slate-900 dark:text-white mt-1">{{ number_format($totalPesanan) }} <span class="text-base font-medium text-slate-400">Pesanan</span></h3>
         </div>
-        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Rata-rata Keranjang</p>
-            <h3 class="text-3xl font-black font-tech text-slate-900 dark:text-white mt-2">Rp {{ number_format($avgOrderValue, 0, ',', '.') }}</h3>
-            <p class="text-xs text-slate-400 mt-1">Per transaksi</p>
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 group hover:border-amber-500 transition-all relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl -mr-6 -mt-6"></div>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Rata-rata Keranjang</p>
+            <h3 class="text-3xl font-black text-slate-900 dark:text-white mt-1">Rp {{ number_format($rataRataNilai, 0, ',', '.') }}</h3>
         </div>
     </div>
 
-    <!-- Charts & Tables -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        <!-- Daily Trend (CSS Chart) -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h3 class="font-bold text-slate-800 dark:text-white mb-6">Tren Penjualan</h3>
-            
-            <div class="h-64 flex items-end gap-2">
-                @php $maxVal = $dailySales->max('total') ?: 1; @endphp
-                @foreach($dailySales as $day)
-                    <div class="flex-1 flex flex-col items-center group relative">
-                        <div class="w-full bg-blue-500 rounded-t-sm transition-all duration-500 group-hover:bg-indigo-500 relative" 
-                             style="height: {{ ($day->total / $maxVal) * 100 }}%">
-                             
-                             <!-- Tooltip -->
-                             <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap z-10">
-                                Rp {{ number_format($day->total, 0, ',', '.') }}
-                             </div>
-                        </div>
-                        <span class="text-[10px] text-slate-400 mt-2 rotate-45 md:rotate-0 truncate w-full text-center">
-                            {{ \Carbon\Carbon::parse($day->date)->format('d/m') }}
-                        </span>
-                    </div>
-                @endforeach
-                @if($dailySales->isEmpty())
-                    <div class="w-full h-full flex items-center justify-center text-slate-400 text-sm">Belum ada data penjualan.</div>
-                @endif
-            </div>
-        </div>
-
-        <!-- Top Products -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h3 class="font-bold text-slate-800 dark:text-white mb-6">Produk Terlaris</h3>
-            
-            <div class="space-y-4">
-                @foreach($topProducts as $index => $item)
-                    <div class="flex items-center gap-4 group">
-                        <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-500 text-xs">
-                            #{{ $index + 1 }}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between mb-1">
-                                <span class="font-bold text-slate-700 dark:text-slate-200 truncate">{{ $item->product->name }}</span>
-                                <span class="text-xs font-bold text-slate-500">{{ $item->total_qty }} Unit</span>
-                            </div>
-                            <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                                @php $pct = ($item->total_sales / ($totalRevenue ?: 1)) * 100; @endphp
-                                <div class="bg-emerald-500 h-full rounded-full" style="width: {{ $pct }}%"></div>
-                            </div>
-                            <div class="text-[10px] text-slate-400 mt-1 text-right">Rp {{ number_format($item->total_sales, 0, ',', '.') }}</div>
-                        </div>
-                    </div>
-                @endforeach
-                
-                @if($topProducts->isEmpty())
-                    <div class="text-center py-10 text-slate-400 text-sm">Belum ada produk terjual.</div>
-                @endif
-            </div>
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Trend Chart -->
+        <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+            <h3 class="font-bold text-slate-800 dark:text-white mb-6">Tren Penjualan (Harian)</h3>
+            <div id="salesTrendChart" class="w-full h-80"></div>
         </div>
 
         <!-- Payment Methods -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 lg:col-span-2">
+        <div class="lg:col-span-1 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
             <h3 class="font-bold text-slate-800 dark:text-white mb-6">Metode Pembayaran</h3>
-            <div class="flex flex-wrap gap-4">
-                @foreach($paymentStats as $stat)
-                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-700 flex-1 min-w-[150px]">
-                        <p class="text-xs font-bold uppercase text-slate-500 mb-1">{{ ucfirst($stat->payment_method ?: 'Manual') }}</p>
-                        <p class="text-xl font-black text-slate-800 dark:text-white">{{ $stat->total }} <span class="text-sm font-medium text-slate-400">Transaksi</span></p>
-                    </div>
-                @endforeach
-            </div>
+            <div id="paymentChart" class="w-full h-64 flex justify-center"></div>
         </div>
+    </div>
 
+    <!-- Top Products Table -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
+            <h3 class="font-bold text-slate-800 dark:text-white">Produk Terlaris (Top 5)</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50 dark:bg-slate-900 text-slate-500 uppercase font-bold text-xs">
+                    <tr>
+                        <th class="px-6 py-3">Nama Produk</th>
+                        <th class="px-6 py-3 text-center">Terjual</th>
+                        <th class="px-6 py-3 text-right">Total Nilai</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @forelse($produkTerlaris as $item)
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                            <td class="px-6 py-4 font-bold text-slate-800 dark:text-white">{{ $item->product->name }}</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="px-2 py-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded text-xs font-black">{{ $item->total_qty }} Unit</span>
+                            </td>
+                            <td class="px-6 py-4 text-right font-mono font-bold text-slate-600 dark:text-slate-300">Rp {{ number_format($item->total_sales, 0, ',', '.') }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="3" class="px-6 py-8 text-center text-slate-400">Belum ada data penjualan.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
+@assets
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+@endassets
+
+@script
+<script>
+    Livewire.hook('component.init', ({ component, cleanup }) => {
+        const initCharts = () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#cbd5e1' : '#475569';
+            const gridColor = isDark ? '#334155' : '#e2e8f0';
+
+            // 1. Sales Trend Chart
+            const trendData = @json($grafikHarian);
+            if (trendData.data.length > 0) {
+                new ApexCharts(document.querySelector("#salesTrendChart"), {
+                    series: [{ name: 'Pendapatan', data: trendData.data }],
+                    chart: { type: 'area', height: 320, toolbar: { show: false }, background: 'transparent' },
+                    xaxis: { categories: trendData.label, labels: { style: { colors: textColor } }, axisBorder: { show: false }, axisTicks: { show: false } },
+                    yaxis: { labels: { style: { colors: textColor }, formatter: (val) => 'Rp ' + new Intl.NumberFormat('id-ID', { notation: "compact" }).format(val) } },
+                    grid: { borderColor: gridColor, strokeDashArray: 4 },
+                    colors: ['#4f46e5'],
+                    fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.1, stops: [0, 90, 100] } },
+                    dataLabels: { enabled: false },
+                    stroke: { curve: 'smooth', width: 3 },
+                    theme: { mode: isDark ? 'dark' : 'light' }
+                }).render();
+            } else {
+                document.querySelector("#salesTrendChart").innerHTML = '<div class="flex items-center justify-center h-full text-slate-400 text-sm">Tidak ada data untuk ditampilkan</div>';
+            }
+
+            // 2. Payment Method Chart
+            const payData = @json($grafikBayar);
+            if (payData.data.length > 0) {
+                new ApexCharts(document.querySelector("#paymentChart"), {
+                    series: payData.data,
+                    chart: { type: 'donut', height: 260, background: 'transparent' },
+                    labels: payData.label,
+                    colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
+                    legend: { position: 'bottom', labels: { colors: textColor } },
+                    stroke: { show: false },
+                    dataLabels: { enabled: false },
+                    theme: { mode: isDark ? 'dark' : 'light' }
+                }).render();
+            } else {
+                document.querySelector("#paymentChart").innerHTML = '<div class="flex items-center justify-center h-full text-slate-400 text-sm">Belum ada transaksi</div>';
+            }
+        };
+
+        initCharts();
+    });
+</script>
+@endscript

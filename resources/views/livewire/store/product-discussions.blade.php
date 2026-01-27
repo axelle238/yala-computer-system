@@ -1,84 +1,99 @@
-<div class="mt-16 pt-16 border-t border-white/5" id="discussions">
-    <h3 class="font-bold text-xl text-white mb-6 flex items-center gap-3">
-        <span class="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-500 flex items-center justify-center">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-        </span>
-        Diskusi Produk
-    </h3>
-
-    <!-- Input Form -->
-    <div class="mb-8">
-        @auth
-            <form wire:submit.prevent="sendMessage" class="flex gap-4">
-                <div class="flex-1">
-                    <input type="text" wire:model="message" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-cyan-500 focus:border-cyan-500" placeholder="Ada pertanyaan tentang produk ini?">
-                    @error('message') <span class="text-rose-500 text-sm mt-1 block">{{ $message }}</span> @enderror
-                </div>
-                <button type="submit" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-colors border border-slate-700">
-                    Kirim
-                </button>
-            </form>
-        @else
-            <div class="bg-slate-900/50 p-4 rounded-xl text-center border border-white/5">
-                <p class="text-slate-400 text-sm">Silakan <a href="{{ route('pelanggan.masuk') }}" class="text-cyan-400 hover:underline font-bold">Login</a> untuk bertanya.</p>
-            </div>
-        @endauth
+<div class="space-y-8">
+    <div class="flex items-center justify-between">
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Diskusi & Tanya Jawab</h3>
+        <span class="text-xs font-bold bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full text-slate-500">{{ $diskusi->total() }} Komentar</span>
     </div>
 
-    <!-- List -->
-    <div class="space-y-6">
-        @forelse($discussions as $chat)
-            <div class="flex gap-4 group">
-                <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-400 flex-shrink-0 border border-slate-700">
-                    {{ substr($chat->user->name, 0, 1) }}
+    @auth
+        <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+            <div class="flex gap-4">
+                <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                    {{ substr(auth()->user()->name, 0, 1) }}
                 </div>
                 <div class="flex-1">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="font-bold text-white text-sm">{{ $chat->user->name }}</span>
-                        <span class="text-xs text-slate-500">{{ $chat->created_at->diffForHumans() }}</span>
-                        @if($chat->user->role == 'admin') 
-                            <span class="bg-cyan-500/20 text-cyan-400 text-[10px] px-1.5 rounded font-bold uppercase">Admin</span> 
-                        @endif
-                    </div>
-                    <p class="text-slate-300 text-sm mb-2">{{ $chat->message }}</p>
-                    
-                    <!-- Replies -->
-                    @foreach($chat->replies as $reply)
-                        <div class="flex gap-3 mt-3 pl-4 border-l-2 border-slate-800">
-                            <div class="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-400 flex-shrink-0">
-                                {{ substr($reply->user->name, 0, 1) }}
+                    <form wire:submit.prevent="kirimPesan">
+                        @if($idBalasan)
+                            <div class="flex items-center justify-between mb-2 text-xs text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-lg">
+                                <span>Membalas komentar...</span>
+                                <button type="button" wire:click="batalBalas" class="hover:underline font-bold">Batal</button>
                             </div>
-                            <div>
-                                <div class="flex items-center gap-2 mb-0.5">
-                                    <span class="font-bold text-slate-200 text-xs">{{ $reply->user->name }}</span>
-                                    <span class="text-[10px] text-slate-500">{{ $reply->created_at->diffForHumans() }}</span>
-                                    @if($reply->user->role == 'admin') 
-                                        <span class="bg-cyan-500/20 text-cyan-400 text-[10px] px-1.5 rounded font-bold uppercase">Admin</span> 
-                                    @endif
-                                </div>
-                                <p class="text-slate-400 text-xs">{{ $reply->message }}</p>
+                        @endif
+                        <textarea wire:model="pesanBaru" rows="2" class="w-full bg-white dark:bg-slate-900 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 placeholder-slate-400 p-3" placeholder="Tanyakan sesuatu tentang produk ini..."></textarea>
+                        <div class="flex justify-end mt-2">
+                            <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/30">
+                                Kirim
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="text-center py-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+            <p class="text-sm text-slate-500 mb-3">Ingin bertanya atau berdiskusi?</p>
+            <a href="{{ route('pelanggan.masuk') }}" class="inline-block px-6 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl hover:bg-slate-50 transition-colors">
+                Masuk untuk Menulis
+            </a>
+        </div>
+    @endauth
+
+    <div class="space-y-6">
+        @forelse($diskusi as $d)
+            <div class="animate-fade-in-up">
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 font-bold text-sm shrink-0">
+                        {{ substr($d->user->name, 0, 1) }}
+                    </div>
+                    <div class="flex-1">
+                        <div class="bg-white dark:bg-slate-800/50 p-4 rounded-2xl rounded-tl-none border border-slate-100 dark:border-slate-700/50">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="font-bold text-slate-900 dark:text-white text-sm">{{ $d->user->name }}</span>
+                                <span class="text-[10px] text-slate-400">{{ $d->created_at->diffForHumans() }}</span>
+                            </div>
+                            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{{ $d->message }}</p>
+                            
+                            <div class="mt-3 flex gap-4">
+                                <button wire:click="setBalas({{ $d->id }})" class="text-xs font-bold text-indigo-500 hover:underline">Balas</button>
                             </div>
                         </div>
-                    @endforeach
 
-                    @auth
-                        <button wire:click="setReply({{ $chat->id }})" class="text-xs text-slate-500 hover:text-cyan-400 font-bold mt-2">Balas</button>
-                        @if($replyToId === $chat->id)
-                            <form wire:submit.prevent="sendMessage" class="mt-2 flex gap-2">
-                                <input type="text" wire:model="message" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white" placeholder="Tulis balasan...">
-                                <button type="button" wire:click="cancelReply" class="px-3 py-2 text-xs text-slate-400">Batal</button>
-                                <button type="submit" class="px-3 py-2 bg-cyan-600 text-white rounded-lg text-xs font-bold">Kirim</button>
-                            </form>
+                        <!-- Replies -->
+                        @if($d->replies->count() > 0)
+                            <div class="mt-4 space-y-4 pl-4 border-l-2 border-slate-100 dark:border-slate-800 ml-4">
+                                @foreach($d->replies as $reply)
+                                    <div class="flex gap-3">
+                                        <div class="w-8 h-8 rounded-full {{ $reply->is_admin_reply ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500' }} flex items-center justify-center font-bold text-xs shrink-0">
+                                            {{ substr($reply->is_admin_reply ? 'Admin' : $reply->user->name, 0, 1) }}
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl rounded-tl-none {{ $reply->is_admin_reply ? 'border border-indigo-100 dark:border-indigo-900/30' : '' }}">
+                                                <div class="flex justify-between items-start mb-1">
+                                                    <span class="font-bold text-sm {{ $reply->is_admin_reply ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-900 dark:text-white' }}">
+                                                        {{ $reply->is_admin_reply ? 'Admin Yala' : $reply->user->name }}
+                                                        @if($reply->is_admin_reply) 
+                                                            <svg class="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                                        @endif
+                                                    </span>
+                                                    <span class="text-[10px] text-slate-400">{{ $reply->created_at->diffForHumans() }}</span>
+                                                </div>
+                                                <p class="text-sm text-slate-600 dark:text-slate-300">{{ $reply->message }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         @endif
-                    @endauth
+                    </div>
                 </div>
             </div>
         @empty
-            <p class="text-slate-500 text-sm text-center">Belum ada diskusi.</p>
+            <div class="text-center py-10 opacity-50">
+                <p class="text-sm text-slate-400">Belum ada diskusi untuk produk ini.</p>
+            </div>
         @endforelse
-        
-        <div class="mt-4">
-            {{ $discussions->links() }}
-        </div>
+    </div>
+
+    <div class="mt-4">
+        {{ $diskusi->links() }}
     </div>
 </div>
