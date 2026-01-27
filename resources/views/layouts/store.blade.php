@@ -84,6 +84,7 @@
             <nav class="hidden lg:flex items-center gap-8 ml-8">
                 @foreach([
                     ['label' => 'Katalog', 'route' => 'toko.katalog'],
+                    ['label' => 'Komunitas', 'route' => 'toko.komunitas'],
                     ['label' => 'Berita', 'route' => 'toko.berita.indeks'],
                 ] as $item)
                     <a href="{{ route($item['route']) }}" 
@@ -178,6 +179,7 @@
             <div class="px-4 pt-4 pb-6 space-y-2">
                 @foreach([
                     ['label' => 'Katalog Produk', 'route' => 'toko.katalog'],
+                    ['label' => 'Galeri Komunitas', 'route' => 'toko.komunitas'],
                     ['label' => 'Mitra Merek', 'route' => 'toko.merek'],
                     ['label' => 'Simulasi Rakit PC', 'route' => 'toko.rakit-pc'],
                     ['label' => 'Berita & Artikel', 'route' => 'toko.berita.indeks'],

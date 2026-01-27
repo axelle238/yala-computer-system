@@ -2,92 +2,68 @@
 
 namespace App\Livewire\Community;
 
-use App\Models\BuildLike; // Asumsi model
-// Asumsi model
 use App\Models\SavedBuild;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.store')]
-#[Title('Galeri Komunitas - Yala Computer')]
+#[Title('Galeri Komunitas Rakit PC - Yala Computer')]
 class Gallery extends Component
 {
     use WithPagination;
 
     public $search = '';
 
-    // View State
-    public $activeAction = null; // null, 'upload'
+    public $sort = 'latest'; // latest, popular
 
-    public $selectedBuildId;
-
-    public $galleryTitle;
-
-    public $galleryDesc;
-
-    public function mount()
+    public function toggleLike($buildId)
     {
-        // Mock data logic or real DB logic if migration exists
-    }
-
-    public function openUploadPanel()
-    {
-        if (! Auth::check()) {
-            return redirect()->route('pelanggan.masuk');
-        }
-        $this->reset(['selectedBuildId', 'galleryTitle', 'galleryDesc']);
-        $this->activeAction = 'upload';
-    }
-
-    public function closePanel()
-    {
-        $this->activeAction = null;
-        $this->reset(['selectedBuildId', 'galleryTitle', 'galleryDesc']);
-    }
-
-    public function publishBuild()
-    {
-        $this->validate([
-            'selectedBuildId' => 'required',
-            'galleryTitle' => 'required|min:5',
-            'galleryDesc' => 'required|min:10',
-        ]);
-
-        // Logic: Update SavedBuild to be 'public'/published
-        // SavedBuild::where('id', $this->selectedBuildId)->update([...]);
-
-        // Mock success
-        $this->closePanel();
-        $this->dispatch('notify', message: 'Rakitan berhasil dipublikasikan ke galeri!', type: 'success');
-    }
-
-    public function like($buildId)
-    {
-        if (! Auth::check()) {
+        if (! auth()->check()) {
             return redirect()->route('pelanggan.masuk');
         }
 
-        // BuildLike::create(...) logic
-        $this->dispatch('notify', message: 'Anda menyukai rakitan ini.', type: 'success');
+        $build = SavedBuild::findOrFail($buildId);
+        $like = \App\Models\BuildLike::where('user_id', auth()->id())
+            ->where('saved_build_id', $buildId)
+            ->first();
+
+        if ($like) {
+            $like->delete();
+            $build->decrement('likes_count');
+        } else {
+            \App\Models\BuildLike::create([
+                'user_id' => auth()->id(),
+                'saved_build_id' => $buildId,
+            ]);
+            $build->increment('likes_count');
+        }
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
     }
 
     public function render()
     {
-        // Get Published Builds (Mocking using SavedBuilds for demo)
-        $builds = SavedBuild::with('user')
-            ->where('name', 'like', '%'.$this->search.'%')
-            ->latest()
-            ->paginate(9);
+        $query = SavedBuild::query()
+            ->where('is_public', true)
+            ->with(['user'])
+            ->when($this->search, function ($q) {
+                $q->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhere('description', 'like', '%'.$this->search.'%');
+            });
 
-        // User's private builds for selection
-        $myBuilds = Auth::check() ? SavedBuild::where('user_id', Auth::id())->get() : [];
+        if ($this->sort === 'popular') {
+            $query->orderByDesc('likes_count');
+        } else {
+            $query->latest();
+        }
 
         return view('livewire.community.gallery', [
-            'builds' => $builds,
-            'myBuilds' => $myBuilds,
+            'builds' => $query->paginate(12),
         ]);
     }
 }

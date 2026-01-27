@@ -1,117 +1,77 @@
-<div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12">
-    <div class="container mx-auto px-4 lg:px-8">
-        
-        <!-- Header -->
-        <div class="text-center mb-12 animate-fade-in-up">
-            <h1 class="text-4xl md:text-5xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tighter mb-4">
-                Community <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">Showcase</span>
+<div class="min-h-screen pb-20">
+    <!-- Header Hero -->
+    <div class="relative bg-slate-950 py-20 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-cyan-500/10 to-transparent"></div>
+        <div class="max-w-7xl mx-auto px-4 relative z-10 text-center">
+            <h1 class="text-5xl font-black font-tech text-white mb-4 tracking-tighter uppercase">
+                GALERI <span class="text-cyan-400">KOMUNITAS</span>
             </h1>
-            <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
-                Inspirasi rakitan PC terbaik dari komunitas Yala Computer. Pamerkan karyamu dan dapatkan apresiasi!
-            </p>
-            
-            <div class="mt-8">
-                <button wire:click="openUploadPanel" class="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-full hover:scale-105 transition-transform shadow-lg shadow-purple-500/20">
-                    + Pamerkan Rakitan Saya
-                </button>
+            <p class="text-slate-400 max-w-2xl mx-auto text-lg font-medium">Inspirasi rakitan PC dari para master dan enthusiast. Lihat spesifikasi, berikan apresiasi, dan bangun impianmu.</p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 -mt-10 relative z-20">
+        <!-- Bilah Kontrol -->
+        <div class="bg-slate-900/80 backdrop-blur-xl border border-white/10 p-4 rounded-3xl shadow-2xl flex flex-col md:flex-row gap-4 items-center justify-between mb-12">
+            <div class="relative flex-1 w-full">
+                <input wire:model.live.debounce.300ms="search" type="text" class="w-full bg-slate-950 border-none rounded-2xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-cyan-500 placeholder-slate-600" placeholder="Cari rakitan impianmu...">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto">
+                <button wire:click="$set('sort', 'latest')" class="flex-1 md:flex-none px-6 py-4 rounded-2xl font-bold uppercase tracking-widest text-xs transition-all {{ $sort === 'latest' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/30' : 'bg-slate-800 text-slate-400 hover:bg-slate-700' }}">Terbaru</button>
+                <button wire:click="$set('sort', 'popular')" class="flex-1 md:flex-none px-6 py-4 rounded-2xl font-bold uppercase tracking-widest text-xs transition-all {{ $sort === 'popular' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/30' : 'bg-slate-800 text-slate-400 hover:bg-slate-700' }}">Terpopuler</button>
             </div>
         </div>
 
-        <!-- Upload Action Panel (Inline) -->
-        @if($activeAction === 'upload')
-            <div class="max-w-2xl mx-auto bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-purple-200 dark:border-purple-900/30 overflow-hidden animate-fade-in-up mb-12">
-                <div class="p-8 border-b border-slate-100 dark:border-slate-700 bg-purple-50/50 dark:bg-purple-900/10 flex justify-between items-center">
-                    <h3 class="font-black text-2xl text-slate-900 dark:text-white flex items-center gap-3">
-                        <span class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/30">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        </span>
-                        Publikasikan Rakitan
-                    </h3>
-                    <button wire:click="closePanel" class="text-slate-400 hover:text-purple-600 transition-colors">
-                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </div>
-                
-                <div class="p-8 space-y-6">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wide">Pilih Rakitan Tersimpan</label>
-                        <select wire:model="selectedBuildId" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-slate-800 dark:text-white focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all font-medium">
-                            <option value="">-- Pilih Rakitan --</option>
-                            @foreach($myBuilds as $b)
-                                <option value="{{ $b->id }}">{{ $b->name }} (Rp {{ number_format($b->total_price_estimated) }})</option>
-                            @endforeach
-                        </select>
-                        @if($myBuilds->isEmpty())
-                            <div class="mt-3 flex items-center gap-2 text-rose-500 text-sm font-medium bg-rose-50 dark:bg-rose-900/20 p-3 rounded-xl">
-                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                                Anda belum memiliki rakitan tersimpan. Buat dulu di menu Rakit PC.
-                            </div>
-                        @endif
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wide">Judul Postingan</label>
-                        <input wire:model="galleryTitle" type="text" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-slate-800 dark:text-white focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all font-bold placeholder-slate-400" placeholder="Contoh: The White Beast - RTX 4090 Build">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wide">Cerita di Balik Rakitan</label>
-                        <textarea wire:model="galleryDesc" rows="5" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-slate-800 dark:text-white focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all placeholder-slate-400" placeholder="Ceritakan konsep, tantangan, dan performa PC ini..."></textarea>
-                    </div>
-                </div>
-
-                <div class="p-8 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-4 border-t border-slate-100 dark:border-slate-700">
-                    <button wire:click="closePanel" class="px-8 py-3 text-slate-500 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors">Batal</button>
-                    <button wire:click="publishBuild" class="px-10 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-black rounded-xl shadow-xl shadow-purple-600/30 transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        Posting Sekarang
-                    </button>
-                </div>
-            </div>
-        @endif
-
-        <!-- Gallery Grid -->
-        <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6 animate-fade-in-up delay-100">
+        <!-- Grid Rakitan -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @forelse($builds as $build)
-                <div class="break-inside-avoid bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all group relative">
-                    <!-- Image -->
-                    <div class="relative overflow-hidden aspect-[4/3] bg-slate-200 dark:bg-slate-700">
-                        <!-- Mock Image based on ID to make it vary -->
-                        <img src="https://picsum.photos/seed/{{ $build->id }}/600/400" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-6">
-                            <button wire:click="like({{ $build->id }})" class="self-end p-2 bg-white/20 backdrop-blur rounded-full text-white hover:bg-pink-500 transition-colors">
-                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-                            </button>
+                <div class="group bg-slate-900 border border-white/5 rounded-[2.5rem] overflow-hidden hover:border-cyan-500/50 transition-all duration-500 shadow-xl hover:shadow-cyan-500/10">
+                    <!-- Kartu Header -->
+                    <div class="p-8 pb-4">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-black text-sm border-2 border-slate-900 shadow-lg">
+                                {{ substr($build->user->name ?? 'A', 0, 1) }}
+                            </div>
+                            <div class="overflow-hidden">
+                                <p class="text-slate-200 font-bold text-sm truncate">{{ $build->user->name ?? 'Anonim' }}</p>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest font-black">{{ $build->created_at->diffForHumans() }}</p>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-black text-white leading-tight mb-2 group-hover:text-cyan-400 transition-colors uppercase tracking-tight">{{ $build->name }}</h3>
+                        <p class="text-sm text-slate-500 line-clamp-2 italic mb-4">"{{ $build->description }}"</p>
+                    </div>
+
+                    <!-- Statistik Cepat -->
+                    <div class="px-8 flex items-center gap-6 mb-6">
+                        <button wire:click="toggleLike({{ $build->id }})" class="flex items-center gap-2 group/like transition-all">
+                            <svg class="w-6 h-6 {{ auth()->check() && $build->isLikedBy(auth()->user()) ? 'text-pink-500' : 'text-slate-600 group-hover/like:text-pink-400' }}" fill="{{ auth()->check() && $build->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                            <span class="text-sm font-black font-mono {{ auth()->check() && $build->isLikedBy(auth()->user()) ? 'text-pink-500' : 'text-slate-400 group-hover/like:text-pink-400' }}">{{ number_format($build->likes_count) }}</span>
+                        </button>
+                        <div class="flex items-center gap-2 text-slate-400">
+                            <svg class="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                            <span class="text-sm font-black font-mono">{{ number_format($build->views_count) }}</span>
                         </div>
                     </div>
-                    
-                    <div class="p-6">
-                        <div class="flex items-center gap-3 mb-3">
-                            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
-                                {{ substr($build->user->name, 0, 1) }}
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-slate-900 dark:text-white leading-tight">{{ $build->name }}</h3>
-                                <p class="text-xs text-slate-500">by {{ $build->user->name }}</p>
-                            </div>
-                        </div>
-                        
-                        <p class="text-sm text-slate-600 dark:text-slate-300 mb-4 line-clamp-2">
-                            {{ $build->description ?? 'Rakitan gaming performa tinggi dengan budget pelajar. Rata kanan 1080p!' }}
-                        </p>
 
-                        <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
-                            <div class="flex items-center gap-1 text-xs font-bold text-pink-500">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                                {{ rand(10, 500) }}
-                            </div>
-                            <span class="text-xs font-mono font-bold text-slate-400">Rp {{ number_format($build->total_price_estimated, 0, ',', '.') }}</span>
+                    <!-- Footer Kartu -->
+                    <div class="p-6 bg-slate-950/50 border-t border-white/5 flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Estimasi Biaya</span>
+                            <span class="text-lg font-black text-cyan-400 font-mono">Rp {{ number_format($build->total_price_estimated, 0, ',', '.') }}</span>
                         </div>
+                        <a href="{{ route('toko.produk.detail', ['id' => $build->id]) }}" class="px-5 py-3 bg-white text-slate-950 font-black uppercase tracking-tighter text-xs rounded-xl hover:bg-cyan-500 hover:text-white transition-all transform active:scale-90">Rincian Komponen</a>
                     </div>
                 </div>
             @empty
-                <div class="col-span-full text-center py-20 text-slate-400">
-                    <p>Belum ada rakitan yang dipamerkan.</p>
+                <div class="col-span-full py-20 text-center bg-slate-900/50 border-2 border-dashed border-white/5 rounded-[3rem]">
+                    <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-600">
+                        <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-400 uppercase tracking-widest">Belum Ada Rakitan</h3>
+                    <p class="text-slate-600 mt-2">Jadilah yang pertama membagikan mahakarya PC rakitanmu!</p>
                 </div>
             @endforelse
         </div>
@@ -120,3 +80,4 @@
             {{ $builds->links() }}
         </div>
     </div>
+</div>
