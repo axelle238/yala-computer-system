@@ -35,7 +35,7 @@
                 ];
             @endphp
 
-            @foreach($statusTersedia as $kunciStatus => $labelStatusAsli)
+            @foreach($statuses as $kunciStatus => $labelStatusAsli)
                 @php $infoStatus = $petaStatus[$kunciStatus] ?? ['label' => $labelStatusAsli, 'warna' => 'bg-slate-400', 'batas' => 'border-slate-400']; @endphp
                 
                 <div class="w-80 flex flex-col bg-slate-100 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 h-full shadow-inner"

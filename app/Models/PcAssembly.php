@@ -22,4 +22,12 @@ class PcAssembly extends Model
     {
         return $this->belongsTo(User::class, 'technician_id');
     }
+
+    /**
+     * Alias untuk teknisi (Backward Compatibility).
+     */
+    public function technician()
+    {
+        return $this->teknisi();
+    }
 }

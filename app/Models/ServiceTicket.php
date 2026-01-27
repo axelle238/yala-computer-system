@@ -43,9 +43,25 @@ class ServiceTicket extends Model
         return $this->belongsTo(User::class, 'technician_id');
     }
 
+    /**
+     * Alias untuk teknisi (Backward Compatibility).
+     */
+    public function technician(): BelongsTo
+    {
+        return $this->teknisi();
+    }
+
     public function anggotaPelanggan(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Alias untuk anggotaPelanggan (Backward Compatibility).
+     */
+    public function customerMember(): BelongsTo
+    {
+        return $this->anggotaPelanggan();
     }
 
     /**

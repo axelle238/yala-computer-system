@@ -31,7 +31,7 @@
                     <!-- Column Header -->
                     <div class="p-4 flex justify-between items-center border-b {{ $meta['border'] }}">
                         <h3 class="font-bold text-slate-700 dark:text-slate-200 uppercase text-xs tracking-wider">{{ $meta['label'] }}</h3>
-                        <span class="bg-white/50 dark:bg-black/20 px-2 py-1 rounded text-xs font-bold">{{ $columns[$key]->count() }}</span>
+                        <span class="bg-white/50 dark:bg-black/20 px-2 py-1 rounded text-xs font-bold">{{ $columns[$key]?->count() ?? 0 }}</span>
                     </div>
 
                     <!-- Cards Container -->
@@ -39,7 +39,7 @@
                          ondragover="event.preventDefault()"
                          ondrop="drop(event, '{{ $key }}')">
                         
-                        @foreach($columns[$key] as $order)
+                        @forelse($columns[$key] ?? [] as $order)
                             <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 cursor-move hover:shadow-md transition-all group relative"
                                  draggable="true"
                                  ondragstart="drag(event, {{ $order->id }})">
@@ -59,7 +59,9 @@
                                     </a>
                                 </div>
                             </div>
-                        @endforeach
+                        @empty
+                            <div class="text-center py-4 text-slate-400 text-xs italic">Tidak ada pesanan</div>
+                        @endforelse
 
                     </div>
                 </div>

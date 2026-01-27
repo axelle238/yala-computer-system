@@ -13,7 +13,7 @@ use Livewire\Component;
 #[Title('Papan Kanban Servis - Yala Computer')]
 class Kanban extends Component
 {
-    public $statusTersedia = [
+    public $statuses = [
         'pending' => 'Menunggu',
         'diagnosing' => 'Sedang Diagnosa',
         'waiting_part' => 'Tunggu Sparepart',
@@ -26,7 +26,7 @@ class Kanban extends Component
         $tiket = ServiceTicket::findOrFail($idTiket);
 
         // Validasi dasar
-        if (! array_key_exists($statusBaru, $this->statusTersedia) && $statusBaru !== 'picked_up' && $statusBaru !== 'cancelled') {
+        if (! array_key_exists($statusBaru, $this->statuses) && $statusBaru !== 'picked_up' && $statusBaru !== 'cancelled') {
             return;
         }
 
@@ -46,13 +46,13 @@ class Kanban extends Component
             'is_publik' => true,
         ]);
 
-        $this->dispatch('notify', message: "Tiket #{$tiket->ticket_number} dipindahkan ke ".($this->statusTersedia[$statusBaru] ?? $statusBaru));
+        $this->dispatch('notify', message: "Tiket #{$tiket->ticket_number} dipindahkan ke ".($this->statuses[$statusBaru] ?? $statusBaru));
     }
 
     public function render()
     {
         // Ambil semua tiket aktif dikelompokkan berdasarkan status
-        $tiket = ServiceTicket::whereIn('status', array_keys($this->statusTersedia))
+        $tiket = ServiceTicket::whereIn('status', array_keys($this->statuses))
             ->with(['technician', 'customerMember'])
             ->orderBy('created_at', 'asc') // Urutkan berdasarkan tanggal dibuat (FIFO)
             ->get()

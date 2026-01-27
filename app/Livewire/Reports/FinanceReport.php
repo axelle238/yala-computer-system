@@ -37,7 +37,7 @@ class FinanceReport extends Component
     public function generateReport()
     {
         $bi = new BusinessIntelligence;
-        $this->reportData = $bi->getProfitLoss($this->month, $this->year);
+        $this->reportData = $bi->ambilLabaRugi($this->month, $this->year);
     }
 
     public function render()

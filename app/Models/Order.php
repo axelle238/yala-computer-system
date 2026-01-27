@@ -62,6 +62,14 @@ class Order extends Model
     }
 
     /**
+     * Alias untuk relasi user (Backward Compatibility).
+     */
+    public function user(): BelongsTo
+    {
+        return $this->pengguna();
+    }
+
+    /**
      * Relasi ke Pembayaran.
      */
     public function pembayaran(): MorphMany
@@ -85,7 +93,7 @@ class Order extends Model
 
     public function getPaidAmountAttribute()
     {
-        return $this->payments()->sum('amount');
+        return $this->pembayaran()->sum('amount');
     }
 
     public function getRemainingBalanceAttribute()

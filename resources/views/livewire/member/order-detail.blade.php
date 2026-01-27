@@ -62,8 +62,8 @@
                         @foreach($pesanan->item as $item)
                             <div class="p-6 flex gap-4 items-center">
                                 <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden flex-shrink-0">
-                                    @if($item->product->image_path)
-                                        <img src="{{ asset('storage/' . $item->product->image_path) }}" class="w-full h-full object-cover">
+                                    @if($item->produk->image_path)
+                                        <img src="{{ asset('storage/' . $item->produk->image_path) }}" class="w-full h-full object-cover">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-slate-300">
                                             <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -71,7 +71,7 @@
                                     @endif
                                 </div>
                                 <div class="flex-1">
-                                    <h4 class="font-bold text-slate-800 dark:text-white text-sm line-clamp-1">{{ $item->product->name }}</h4>
+                                    <h4 class="font-bold text-slate-800 dark:text-white text-sm line-clamp-1">{{ $item->produk->name }}</h4>
                                     <p class="text-xs text-slate-500">{{ $item->quantity }} x Rp {{ number_format($item->price, 0, ',', '.') }}</p>
                                 </div>
                                 <div class="text-right">

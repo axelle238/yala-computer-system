@@ -16,7 +16,7 @@ class OrderDetail extends Component
 
     public function mount($id)
     {
-        $this->pesanan = Order::with(['items.product', 'penggunaanVoucher'])->where('user_id', Auth::id())->findOrFail($id);
+        $this->pesanan = Order::with(['item.produk', 'penggunaanVoucher'])->where('user_id', Auth::id())->findOrFail($id);
     }
 
     public function batalkanPesanan()

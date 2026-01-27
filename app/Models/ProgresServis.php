@@ -31,6 +31,14 @@ class ProgresServis extends Model
         return $this->belongsTo(User::class, 'id_teknisi');
     }
 
+    /**
+     * Alias untuk teknisi (Backward Compatibility).
+     */
+    public function technician(): BelongsTo
+    {
+        return $this->teknisi();
+    }
+
     public function tiket(): BelongsTo
     {
         return $this->belongsTo(ServiceTicket::class, 'id_tiket_servis');
