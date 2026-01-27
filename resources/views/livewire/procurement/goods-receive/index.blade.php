@@ -30,7 +30,7 @@
                     @forelse($orders as $po)
                         <tr class="hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 transition-colors">
                             <td class="px-6 py-4 font-mono font-bold text-slate-700 dark:text-slate-300">{{ $po->po_number }}</td>
-                            <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">{{ $po->supplier->name }}</td>
+                            <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">{{ $po->pemasok->name }}</td>
                             <td class="px-6 py-4 text-slate-500">{{ $po->order_date->format('d M Y') }}</td>
                             <td class="px-6 py-4 text-center">
                                 <span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-blue-100 text-blue-700">

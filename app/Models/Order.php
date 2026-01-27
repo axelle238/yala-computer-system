@@ -48,7 +48,7 @@ class Order extends Model
     /**
      * Relasi ke Item Pesanan.
      */
-    public function items(): HasMany
+    public function item(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
@@ -56,15 +56,15 @@ class Order extends Model
     /**
      * Relasi ke Pengguna (Pelanggan).
      */
-    public function user(): BelongsTo
+    public function pengguna(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
      * Relasi ke Pembayaran.
      */
-    public function payments(): MorphMany
+    public function pembayaran(): MorphMany
     {
         return $this->morphMany(Payment::class, 'payable');
     }
@@ -91,5 +91,29 @@ class Order extends Model
     public function getRemainingBalanceAttribute()
     {
         return $this->total_amount - $this->paid_amount;
+    }
+
+    public function getStatusLabelAttribute()
+    {
+        return match ($this->status) {
+            'pending' => 'Menunggu Pembayaran',
+            'processing' => 'Diproses',
+            'shipped' => 'Dikirim',
+            'completed' => 'Selesai',
+            'cancelled' => 'Dibatalkan',
+            default => 'Unknown',
+        };
+    }
+
+    public function getPaymentStatusLabelAttribute()
+    {
+        return match ($this->payment_status) {
+            'unpaid' => 'Belum Lunas',
+            'partial' => 'Dibayar Sebagian',
+            'paid' => 'Lunas',
+            'refunded' => 'Dikembalikan',
+            'pending_approval' => 'Menunggu Konfirmasi',
+            default => 'Unknown',
+        };
     }
 }

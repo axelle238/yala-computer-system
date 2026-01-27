@@ -57,7 +57,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                            @foreach($quotation->items as $item)
+                            @foreach($quotation->item as $item)
                                 <tr>
                                     <td class="p-4 font-medium text-slate-800 dark:text-white">{{ $item->item_name }}</td>
                                     <td class="p-4 text-center text-slate-600">{{ $item->quantity }}</td>
@@ -92,11 +92,11 @@
                     <div class="space-y-3 text-sm">
                         <div>
                             <span class="block text-slate-500 text-xs uppercase">Nama</span>
-                            <span class="font-bold text-slate-800 dark:text-white">{{ $quotation->user->name }}</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ $quotation->pengguna->name }}</span>
                         </div>
                         <div>
                             <span class="block text-slate-500 text-xs uppercase">Email</span>
-                            <span class="font-bold text-slate-800 dark:text-white">{{ $quotation->user->email }}</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ $quotation->pengguna->email }}</span>
                         </div>
                         <div>
                             <span class="block text-slate-500 text-xs uppercase">Berlaku Hingga</span>

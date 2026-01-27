@@ -13,13 +13,13 @@ class OrderItem extends Model
         'price',
     ];
 
-    public function order()
+    public function pesanan()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
-    public function product()
+    public function produk()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class, 'product_id');
     }
 }

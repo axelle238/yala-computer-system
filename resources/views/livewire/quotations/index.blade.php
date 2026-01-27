@@ -13,7 +13,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-xs font-bold uppercase">Pending Review</p>
+                <p class="text-gray-500 text-xs font-bold uppercase">Menunggu Persetujuan</p>
                 <h3 class="text-2xl font-black text-yellow-600">{{ $pendingCount }}</h3>
             </div>
             <div class="bg-yellow-100 p-2 rounded-lg text-yellow-600">
@@ -62,14 +62,14 @@
                             <div class="text-xs text-gray-400 mt-1">{{ $quote->created_at->format('d/m/Y') }}</div>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="font-bold text-gray-900">{{ $quote->user->name }}</div>
-                            <div class="text-xs">{{ $quote->user->email }}</div>
+                            <div class="font-bold text-gray-900">{{ $quote->pengguna->name }}</div>
+                            <div class="text-xs">{{ $quote->pengguna->email }}</div>
                         </td>
                         <td class="px-6 py-4">
                             @if($quote->converted_order_id)
                                 <span class="px-2 py-1 rounded bg-emerald-100 text-emerald-700 text-xs font-bold uppercase">Converted</span>
                             @elseif($quote->approval_status === 'pending')
-                                <span class="px-2 py-1 rounded bg-yellow-100 text-yellow-700 text-xs font-bold uppercase">Pending Review</span>
+                                <span class="px-2 py-1 rounded bg-yellow-100 text-yellow-700 text-xs font-bold uppercase">Menunggu Persetujuan</span>
                             @elseif($quote->approval_status === 'approved')
                                 <span class="px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs font-bold uppercase">Approved</span>
                             @else

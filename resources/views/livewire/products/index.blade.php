@@ -101,9 +101,9 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-5">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800">
-                                    {{ $produk->category->name ?? 'Tanpa Kategori' }}
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                    {{ $produk->kategori->name ?? 'Tanpa Kategori' }}
                                 </span>
                             </td>
                             <td class="px-6 py-5">

@@ -20,17 +20,17 @@ class StockOpname extends Model
         'opname_date' => 'date',
     ];
 
-    public function items()
+    public function item()
     {
         return $this->hasMany(StockOpnameItem::class);
     }
 
-    public function creator()
+    public function pembuat()
     {
         return $this->belongsTo(User::class, 'creator_id');
     }
 
-    public function approver()
+    public function penyetuju()
     {
         return $this->belongsTo(User::class, 'approver_id');
     }

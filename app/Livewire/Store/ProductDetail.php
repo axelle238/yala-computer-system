@@ -17,7 +17,7 @@ class ProductDetail extends Component
 
     public function mount($id)
     {
-        $this->product = Product::with(['category', 'reviews', 'flashSales'])->findOrFail($id);
+        $this->product = Product::with(['kategori', 'ulasan', 'obralKilat'])->findOrFail($id);
 
         // Track Recently Viewed
         $recent = Session::get('recently_viewed', []);

@@ -18,27 +18,27 @@ class InventoryTransfer extends Model
         'notes',
     ];
 
-    public function sourceWarehouse(): BelongsTo
+    public function gudangAsal(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class, 'source_warehouse_id');
     }
 
-    public function destinationWarehouse(): BelongsTo
+    public function gudangTujuan(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class, 'destination_warehouse_id');
     }
 
-    public function requester(): BelongsTo
+    public function pengaju(): BelongsTo
     {
         return $this->belongsTo(User::class, 'requested_by');
     }
 
-    public function approver(): BelongsTo
+    public function penyetuju(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    public function items(): HasMany
+    public function item(): HasMany
     {
         return $this->hasMany(InventoryTransferItem::class);
     }

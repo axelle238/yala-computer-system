@@ -84,7 +84,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                        @foreach($order->items as $item)
+                        @foreach($order->item as $item)
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
                             <td class="px-6 py-4 font-bold text-slate-800 dark:text-white">
                                 {{ $item->product->name }}
@@ -99,7 +99,7 @@
                     <tfoot class="bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700">
                         <tr>
                             <td colspan="3" class="px-6 py-4 text-right font-bold text-slate-500 uppercase text-xs">Subtotal</td>
-                            <td class="px-6 py-4 text-right font-mono font-bold text-slate-800 dark:text-white">Rp {{ number_format($order->items->sum(fn($i) => $i->price * $i->quantity), 0, ',', '.') }}</td>
+                            <td class="px-6 py-4 text-right font-mono font-bold text-slate-800 dark:text-white">Rp {{ number_format($order->item->sum(fn($i) => $i->price * $i->quantity), 0, ',', '.') }}</td>
                         </tr>
                         <tr>
                             <td colspan="3" class="px-6 py-2 text-right font-bold text-slate-500 uppercase text-xs">Ongkos Kirim</td>
@@ -136,7 +136,7 @@
                     <div>
                         <p class="text-xs text-slate-500 uppercase font-bold">Kontak</p>
                         <p class="font-mono text-slate-600 dark:text-slate-300">{{ $order->guest_whatsapp }}</p>
-                        <p class="text-slate-600 dark:text-slate-300">{{ $order->user->email ?? '-' }}</p>
+                        <p class="text-slate-600 dark:text-slate-300">{{ $order->pengguna->email ?? '-' }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-500 uppercase font-bold">Alamat Kirim</p>

@@ -73,7 +73,7 @@
                                 <span class="font-mono font-bold text-slate-700 dark:text-slate-300">{{ $po->po_number }}</span>
                             </td>
                             <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">
-                                {{ $po->supplier->name }}
+                                {{ $po->pemasok->name }}
                             </td>
                             <td class="px-6 py-4 text-center">
                                 @php

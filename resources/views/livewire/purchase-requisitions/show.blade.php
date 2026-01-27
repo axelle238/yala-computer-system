@@ -74,7 +74,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                @foreach($pr->items as $item)
+                @foreach($pr->item as $item)
                     <tr>
                         <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">
                             {{ $item->product->name }}

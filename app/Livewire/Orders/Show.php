@@ -82,7 +82,7 @@ class Show extends Component
 
             // Deduct Stock for Online Orders (if not already deducted)
             // POS orders deduct immediately. Online orders usually deduct upon confirmation to prevent fake orders blocking stock.
-            foreach ($this->order->items as $item) {
+            foreach ($this->order->item as $item) {
                 $product = Product::lockForUpdate()->find($item->product_id);
                 if ($product) {
                     $product->decrement('stock_quantity', $item->quantity);

@@ -27,12 +27,12 @@ class PurchaseOrder extends Model
         'total_amount' => 'decimal:2',
     ];
 
-    public function supplier()
+    public function pemasok()
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
-    public function items()
+    public function item()
     {
         return $this->hasMany(PurchaseOrderItem::class);
     }

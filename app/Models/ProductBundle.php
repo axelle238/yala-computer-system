@@ -8,24 +8,24 @@ class ProductBundle extends Model
 {
     protected $guarded = [];
 
-    public function items()
+    public function item()
     {
         return $this->hasMany(ProductBundleItem::class);
     }
 
-    public function products()
+    public function produk()
     {
         return $this->belongsToMany(Product::class, 'product_bundle_items')
             ->withPivot('quantity')
             ->withTimestamps();
     }
 
-    // Dynamic stock calculation based on components
+    // Kalkulasi stok dinamis berdasarkan komponen
     public function getStockAttribute()
     {
         $minStock = 999999;
 
-        foreach ($this->items as $item) {
+        foreach ($this->item as $item) {
             $componentStock = floor($item->product->stock_quantity / $item->quantity);
             if ($componentStock < $minStock) {
                 $minStock = $componentStock;

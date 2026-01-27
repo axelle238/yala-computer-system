@@ -59,7 +59,7 @@
                         <h3 class="font-bold text-slate-800 dark:text-white uppercase text-xs tracking-wider">Rincian Barang</h3>
                     </div>
                     <div class="divide-y divide-slate-100 dark:divide-slate-700">
-                        @foreach($pesanan->items as $item)
+                        @foreach($pesanan->item as $item)
                             <div class="p-6 flex gap-4 items-center">
                                 <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden flex-shrink-0">
                                     @if($item->product->image_path)
@@ -117,7 +117,7 @@
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
                             <span class="text-slate-500">Subtotal Barang</span>
-                            <span class="font-mono text-slate-700 dark:text-slate-300">Rp {{ number_format($pesanan->items->sum(fn($i) => $i->price * $i->quantity), 0, ',', '.') }}</span>
+                            <span class="font-mono text-slate-700 dark:text-slate-300">Rp {{ number_format($pesanan->item->sum(fn($i) => $i->price * $i->quantity), 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-slate-500">Ongkos Kirim</span>

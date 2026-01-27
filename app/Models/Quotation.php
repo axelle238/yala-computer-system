@@ -15,22 +15,22 @@ class Quotation extends Model
         'total_amount' => 'decimal:2',
     ];
 
-    public function customer(): BelongsTo
+    public function pelanggan(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Customer::class, 'customer_id');
     }
 
-    public function user(): BelongsTo
+    public function pengguna(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function items(): HasMany
+    public function item(): HasMany
     {
         return $this->hasMany(QuotationItem::class);
     }
 
-    public function convertedOrder(): BelongsTo
+    public function pesananTerkonversi(): BelongsTo
     {
         return $this->belongsTo(Order::class, 'converted_order_id');
     }

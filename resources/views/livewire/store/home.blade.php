@@ -123,7 +123,7 @@
                     </a>
 
                     <div class="p-4 flex-1 flex flex-col">
-                        <div class="text-[10px] text-cyan-600 dark:text-cyan-400 font-bold uppercase tracking-wider mb-1 opacity-80">{{ $itemProduk->category->name }}</div>
+                        <div class="text-[10px] text-cyan-600 dark:text-cyan-400 font-bold uppercase tracking-wider mb-1 opacity-80">{{ $itemProduk->kategori->name }}</div>
                         <h3 class="font-bold text-slate-800 dark:text-slate-100 leading-tight mb-3 line-clamp-2 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors text-sm">
                             <a href="{{ route('toko.produk.detail', $itemProduk->id) }}">{{ $itemProduk->name }}</a>
                         </h3>

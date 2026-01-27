@@ -25,7 +25,7 @@ class Warehouse extends Model
      * Relasi ke Produk.
      * Gudang memiliki banyak produk dengan kuantitas tertentu.
      */
-    public function products(): BelongsToMany
+    public function produk(): BelongsToMany
     {
         return $this->belongsToMany(Product::class)
             ->withPivot('quantity')

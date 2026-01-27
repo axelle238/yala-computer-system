@@ -21,7 +21,7 @@
         <nav class="flex items-center gap-2 text-sm text-slate-500 mb-8 font-mono">
             <a href="{{ route('beranda') }}" class="hover:text-cyan-400 transition-colors">Home</a>
             <span>/</span>
-            <span class="text-cyan-500">{{ $product->category->name }}</span>
+            <span class="text-cyan-500">{{ $product->kategori->name }}</span>
             <span>/</span>
             <span class="text-slate-300 truncate max-w-[200px]">{{ $product->name }}</span>
         </nav>
@@ -49,15 +49,15 @@
             <!-- Product Info -->
             <div class="flex flex-col">
                 <div class="mb-auto">
-                    <span class="inline-block px-3 py-1 rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold tracking-widest uppercase mb-4">{{ $product->category->name }}</span>
+                    <span class="inline-block px-3 py-1 rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold tracking-widest uppercase mb-4">{{ $product->kategori->name }}</span>
                     <h1 class="text-4xl md:text-5xl font-black font-tech text-white leading-tight mb-4 tracking-wide">{{ $product->name }}</h1>
                     
                     <div class="flex items-center gap-4 mb-8">
                         <div class="flex items-center gap-1 text-amber-400">
                             @for($i=0; $i<5; $i++)
-                                <svg class="w-5 h-5 {{ $i < round($product->reviews->avg('rating')) ? 'fill-current' : 'text-slate-700' }}" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                                <svg class="w-5 h-5 {{ $i < round($ulasan->avg('rating')) ? 'fill-current' : 'text-slate-700' }}" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
                             @endfor
-                            <span class="text-slate-400 text-sm ml-2 font-mono">({{ $product->reviews->count() }} Reviews)</span>
+                            <span class="text-slate-400 text-sm ml-2 font-mono">({{ $ulasan->count() }} Reviews)</span>
                         </div>
                         <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
                         <div class="text-sm font-mono text-slate-400">ID: #{{ str_pad($product->id, 5, '0', STR_PAD_LEFT) }}</div>
@@ -129,7 +129,7 @@
                     <div class="space-y-4">
                         <div class="flex justify-between border-b border-white/5 pb-2">
                             <span class="text-slate-500">Kategori</span>
-                            <span class="text-slate-200 font-mono">{{ $product->category->name }}</span>
+                            <span class="text-slate-200 font-mono">{{ $product->kategori->name }}</span>
                         </div>
                         <div class="flex justify-between border-b border-white/5 pb-2">
                             <span class="text-slate-500">Berat</span>

@@ -19,12 +19,11 @@
             
             @php
                 $statuses = [
-                    'pending' => ['label' => 'Pending Payment', 'color' => 'bg-slate-100 dark:bg-slate-800', 'border' => 'border-slate-300 dark:border-slate-600'],
-                    'processing' => ['label' => 'Processing', 'color' => 'bg-blue-50 dark:bg-blue-900/20', 'border' => 'border-blue-200 dark:border-blue-800'],
-                    'shipped' => ['label' => 'Shipped', 'color' => 'bg-purple-50 dark:bg-purple-900/20', 'border' => 'border-purple-200 dark:border-purple-800'],
-                    'completed' => ['label' => 'Completed', 'color' => 'bg-emerald-50 dark:bg-emerald-900/20', 'border' => 'border-emerald-200 dark:border-emerald-800'],
-                    'cancelled' => ['label' => 'Cancelled', 'color' => 'bg-rose-50 dark:bg-rose-900/20', 'border' => 'border-rose-200 dark:border-rose-800'],
-                ];
+                                'pending' => ['label' => 'Menunggu Pembayaran', 'color' => 'bg-slate-100 dark:bg-slate-800', 'border' => 'border-slate-300 dark:border-slate-600'],
+                                'processing' => ['label' => 'Diproses', 'color' => 'bg-blue-100 dark:bg-blue-900/30', 'border' => 'border-blue-300 dark:border-blue-700'],
+                                'shipped' => ['label' => 'Dalam Pengiriman', 'color' => 'bg-indigo-100 dark:bg-indigo-900/30', 'border' => 'border-indigo-300 dark:border-indigo-700'],
+                                'completed' => ['label' => 'Selesai', 'color' => 'bg-emerald-100 dark:bg-emerald-900/30', 'border' => 'border-emerald-300 dark:border-emerald-700'],
+                                'cancelled' => ['label' => 'Dibatalkan', 'color' => 'bg-rose-100 dark:bg-rose-900/30', 'border' => 'border-rose-300 dark:border-rose-700'],                ];
             @endphp
 
             @foreach($statuses as $key => $meta)
@@ -50,8 +49,8 @@
                                     <span class="text-[10px] text-slate-400">{{ $order->created_at->format('d/m H:i') }}</span>
                                 </div>
                                 
-                                <h4 class="font-bold text-slate-800 dark:text-white text-sm mb-1 truncate">{{ $order->guest_name ?? $order->user->name }}</h4>
-                                <div class="text-xs text-slate-500 mb-3">{{ $order->items->count() }} Items</div>
+                                <h4 class="font-bold text-slate-800 dark:text-white text-sm mb-1 truncate">{{ $order->guest_name ?? $order->pengguna->name }}</h4>
+                                <div class="text-xs text-slate-500 mb-3">{{ $order->item->count() }} Items</div>
                                 
                                 <div class="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-700">
                                     <span class="font-mono font-bold text-slate-700 dark:text-slate-300 text-sm">Rp {{ number_format($order->total_amount / 1000, 0) }}k</span>

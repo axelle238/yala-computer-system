@@ -11,7 +11,7 @@
                     {{ $po->status }}
                 </span>
             </div>
-            <p class="text-slate-500 mt-1">Supplier: <span class="font-bold text-slate-700 dark:text-slate-300">{{ $po->supplier->name }}</span> | Tanggal: {{ $po->order_date->format('d M Y') }}</p>
+            <p class="text-slate-500 mt-1">Supplier: <span class="font-bold text-slate-700 dark:text-slate-300">{{ $po->pemasok->name }}</span> | Tanggal: {{ $po->order_date->format('d M Y') }}</p>
         </div>
         <div class="flex gap-2">
             <a href="{{ route('purchase-orders.index') }}" class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-600 font-bold text-sm hover:bg-slate-50">
@@ -57,7 +57,7 @@
             
             <div class="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    @foreach($po->items as $item)
+                    @foreach($po->item as $item)
                         @php $remaining = $item->quantity_ordered - $item->quantity_received; @endphp
                         @if($remaining > 0)
                         <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500/30 transition-all">
@@ -108,7 +108,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                    @foreach($po->items as $item)
+                    @foreach($po->item as $item)
                         @php
                             $remaining = $item->quantity_ordered - $item->quantity_received;
                             $rowStatus = $item->quantity_received >= $item->quantity_ordered ? 'Selesai' : ($item->quantity_received > 0 ? 'Parsial' : 'Pending');

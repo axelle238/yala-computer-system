@@ -56,7 +56,7 @@ class Product extends Model
         'has_serial_number' => 'boolean',
     ];
 
-    public function serials()
+    public function serial(): HasMany
     {
         return $this->hasMany(ProductSerial::class);
     }
@@ -64,34 +64,34 @@ class Product extends Model
     /**
      * Dapatkan kategori pemilik produk.
      */
-    public function category(): BelongsTo
+    public function kategori(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     /**
      * Dapatkan pemasok yang menyediakan produk.
      */
-    public function supplier(): BelongsTo
+    public function pemasok(): BelongsTo
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
     /**
      * Dapatkan transaksi inventaris untuk produk.
      * Digunakan untuk jejak audit dan riwayat.
      */
-    public function transactions(): HasMany
+    public function transaksi(): HasMany
     {
         return $this->hasMany(InventoryTransaction::class);
     }
 
-    public function flashSales()
+    public function obralKilat(): HasMany
     {
         return $this->hasMany(FlashSale::class);
     }
 
-    public function reviews()
+    public function ulasan(): HasMany
     {
         return $this->hasMany(Review::class);
     }

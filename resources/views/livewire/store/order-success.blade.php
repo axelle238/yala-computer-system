@@ -32,7 +32,7 @@
             <!-- Items -->
             <div class="space-y-4 mb-8">
                 <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">Rincian Produk</h3>
-                @foreach($order->items as $item)
+                @foreach($order->item as $item)
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden flex-shrink-0">
@@ -58,7 +58,7 @@
             <div class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 space-y-2 mb-8">
                 <div class="flex justify-between text-sm">
                     <span class="text-slate-500">Subtotal</span>
-                    <span class="font-mono text-slate-700 dark:text-slate-300">Rp {{ number_format($order->items->sum(fn($i) => $i->price * $i->quantity), 0, ',', '.') }}</span>
+                    <span class="font-mono text-slate-700 dark:text-slate-300">Rp {{ number_format($order->item->sum(fn($i) => $i->price * $i->quantity), 0, ',', '.') }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
                     <span class="text-slate-500">Ongkos Kirim ({{ strtoupper($order->shipping_courier) }})</span>

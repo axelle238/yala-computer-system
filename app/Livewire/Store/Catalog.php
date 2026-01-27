@@ -83,7 +83,7 @@ class Catalog extends Component
                     ->orWhere('sku', 'like', '%'.$this->cari.'%');
             })
             ->when($this->kategori, function ($q) {
-                $q->whereHas('category', fn ($c) => $c->where('slug', $this->kategori));
+                $q->whereHas('kategori', fn ($c) => $c->where('slug', $this->kategori));
             })
             ->whereBetween('sell_price', [$this->hargaMin, $this->hargaMaks])
             ->when($this->urutkan === 'terbaru', fn ($q) => $q->latest())
@@ -91,7 +91,7 @@ class Catalog extends Component
             ->when($this->urutkan === 'harga_tinggi', fn ($q) => $q->orderBy('sell_price', 'desc'))
             ->paginate(12);
 
-        $daftarKategori = Category::where('is_active', true)->get();
+        $daftarKategori = Category::where('is_active', true)->withCount('produk')->get();
 
         return view('livewire.store.catalog', [
             'produk' => $produk,

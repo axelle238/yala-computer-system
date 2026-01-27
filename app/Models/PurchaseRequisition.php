@@ -21,17 +21,17 @@ class PurchaseRequisition extends Model
         'required_date' => 'date',
     ];
 
-    public function requester(): BelongsTo
+    public function pengaju(): BelongsTo
     {
         return $this->belongsTo(User::class, 'requested_by');
     }
 
-    public function approver(): BelongsTo
+    public function penyetuju(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    public function items(): HasMany
+    public function item(): HasMany
     {
         return $this->hasMany(PurchaseRequisitionItem::class);
     }

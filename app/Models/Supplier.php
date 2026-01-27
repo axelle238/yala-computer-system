@@ -9,7 +9,10 @@ class Supplier extends Model
 {
     protected $guarded = [];
 
-    public function products(): HasMany
+    /**
+     * Dapatkan produk yang dipasok oleh pemasok ini.
+     */
+    public function produk(): HasMany
     {
         return $this->hasMany(Product::class);
     }

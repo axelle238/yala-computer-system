@@ -36,14 +36,14 @@
                         <select wire:model.live="poId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                             <option value="">-- Pilih PO --</option>
                             @foreach($openPOs as $po)
-                                <option value="{{ $po->id }}">#{{ $po->po_number }} - {{ $po->supplier->name ?? 'Unknown' }}</option>
+                                <option value="{{ $po->id }}">#{{ $po->po_number }} - {{ $po->pemasok->name ?? 'Unknown' }}</option>
                             @endforeach
                         </select>
                     </div>
 
                     @if($purchaseOrder)
                         <div class="p-3 bg-slate-50 rounded text-sm text-slate-600 border border-slate-200">
-                            <p class="font-bold text-slate-800">{{ $purchaseOrder->supplier->name }}</p>
+                            <p class="font-bold text-slate-800">{{ $purchaseOrder->pemasok->name }}</p>
                             <p>Tgl Order: {{ $purchaseOrder->order_date->format('d M Y') }}</p>
                         </div>
                     @endif

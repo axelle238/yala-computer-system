@@ -70,6 +70,23 @@ class Index extends Component
 
     public function simpan()
     {
+        $this->validate([
+            'formulir.store_name' => 'required|string|max:255',
+            'formulir.store_email' => 'required|email',
+            'formulir.store_phone' => 'required|string',
+            'logoBaru' => 'nullable|image|max:1024',
+            'faviconBaru' => 'nullable|image|max:512',
+        ], [
+            'formulir.store_name.required' => 'Nama toko wajib diisi.',
+            'formulir.store_email.required' => 'Email toko wajib diisi.',
+            'formulir.store_email.email' => 'Format email tidak valid.',
+            'formulir.store_phone.required' => 'Nomor telepon wajib diisi.',
+            'logoBaru.image' => 'File logo harus berupa gambar.',
+            'logoBaru.max' => 'Ukuran logo maksimal 1MB.',
+            'faviconBaru.image' => 'File favicon harus berupa gambar.',
+            'faviconBaru.max' => 'Ukuran favicon maksimal 512KB.',
+        ]);
+
         // Upload Logo
         if ($this->logoBaru) {
             $path = $this->logoBaru->store('settings', 'public');

@@ -33,7 +33,7 @@
                         @foreach($daftarKategori as $cat)
                             <button wire:click="$set('kategori', '{{ $cat->slug }}')" class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex justify-between items-center group {{ $kategori === $cat->slug ? 'bg-blue-50 text-blue-700 font-bold dark:bg-blue-900/30 dark:text-blue-400' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800' }}">
                                 <span>{{ $cat->name }}</span>
-                                <span class="text-xs text-slate-400 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded-md group-hover:bg-white dark:group-hover:bg-slate-600">{{ $cat->products_count }}</span>
+                                <span class="text-xs text-slate-400 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded-md group-hover:bg-white dark:group-hover:bg-slate-600">{{ $cat->produk_count }}</span>
                             </button>
                         @endforeach
                     </div>
@@ -103,11 +103,9 @@
                                 </div>
 
                                 <!-- Content -->
-                                <div class="flex-1 flex flex-col">
-                                    <div class="text-xs text-slate-400 mb-1">{{ $item->category->name }}</div>
-                                    <h3 class="font-bold text-slate-900 dark:text-white leading-tight mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                                        <a href="{{ route('toko.produk.detail', $item->id) }}">{{ $item->name }}</a>
-                                    </h3>
+                                <div class="p-4 md:p-6">
+                                    <div class="text-xs text-slate-400 mb-1">{{ $item->kategori->name }}</div>
+                                    <h3 class="font-tech font-bold text-slate-100 group-hover:text-cyan-400 transition-colors line-clamp-2 leading-tight mb-2">{{ $item->name }}</h3>
                                     
                                     <div class="mt-auto pt-2 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
                                         <span class="font-black text-lg text-blue-600 dark:text-blue-400 font-mono">

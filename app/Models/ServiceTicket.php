@@ -38,12 +38,12 @@ class ServiceTicket extends Model
         'completeness' => 'array',
     ];
 
-    public function technician(): BelongsTo
+    public function teknisi(): BelongsTo
     {
         return $this->belongsTo(User::class, 'technician_id');
     }
 
-    public function customerMember(): BelongsTo
+    public function anggotaPelanggan(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
@@ -51,7 +51,7 @@ class ServiceTicket extends Model
     /**
      * Relasi ke Suku Cadang Servis (Refactored).
      */
-    public function parts(): HasMany
+    public function sukuCadang(): HasMany
     {
         return $this->hasMany(SukuCadangServis::class, 'id_tiket_servis');
     }
@@ -59,7 +59,7 @@ class ServiceTicket extends Model
     /**
      * Relasi ke Progres Servis (Refactored).
      */
-    public function progressLogs(): HasMany
+    public function logProgres(): HasMany
     {
         return $this->hasMany(ProgresServis::class, 'id_tiket_servis')->latest();
     }

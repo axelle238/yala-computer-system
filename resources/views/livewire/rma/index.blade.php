@@ -35,7 +35,7 @@
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
                         <td class="px-6 py-4 font-bold font-mono text-slate-800 dark:text-white">{{ $rma->rma_number }}</td>
                         <td class="px-6 py-4">
-                            {{ $rma->user->name ?? $rma->guest_name }}
+                            {{ $rma->pengguna->name ?? $rma->guest_name }}
                             @if($rma->order)
                                 <div class="text-xs text-slate-400">Ref: {{ $rma->order->order_number }}</div>
                             @endif

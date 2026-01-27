@@ -66,7 +66,7 @@
 
     <div class="flex h-full w-full">
         <!-- Global Command Palette -->
-        <livewire:components.spotlight />
+        <livewire:components.pencarian-pintar />
 
         <!-- Sidebar Component -->
         <x-layouts.sidebar />
@@ -141,7 +141,7 @@
                 
                 <footer class="max-w-7xl mx-auto w-full mt-12 py-6 border-t border-slate-200 dark:border-slate-800 text-center md:text-left flex flex-col md:flex-row justify-between items-center text-xs text-slate-400">
                     <p>&copy; {{ date('Y') }} Yala Computer. Hak Cipta Dilindungi.</p>
-                    <p>Sistem v2.5.0 (Enterprise)</p>
+                    <p>Sistem v2.5.0 (Versi Perusahaan)</p>
                 </footer>
             </div>
         </main>

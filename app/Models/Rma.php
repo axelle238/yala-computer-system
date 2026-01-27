@@ -32,24 +32,24 @@ class Rma extends Model
 
     const RESOLUTION_REFUND = 'refund';
 
-    public function items()
+    public function item()
     {
         return $this->hasMany(RmaItem::class);
     }
 
-    public function tracks()
+    public function pelacakan()
     {
-        return $this->hasMany(RmaTrack::class); // Asumsi tabel track belum ada, nanti kita cek
+        return $this->hasMany(RmaTrack::class);
     }
 
-    public function user()
+    public function pengguna()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function order()
+    public function pesanan()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
     public function getCustomerNameAttribute()
