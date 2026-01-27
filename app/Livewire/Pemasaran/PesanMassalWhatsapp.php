@@ -20,9 +20,13 @@ class PesanMassalWhatsapp extends Component
 
     // Properti Formulir
     public $aksiAktif = null; // null, 'buat'
+
     public $namaKampanye;
+
     public $targetAudiens = 'all'; // all, loyal, inactive
+
     public $pesanTemplate;
+
     public $jadwalKirim;
 
     public function updatingPencarian()
@@ -80,13 +84,13 @@ class PesanMassalWhatsapp extends Component
     public function prosesKampanye($id)
     {
         $kampanye = WhatsappBlastModel::findOrFail($id);
-        
+
         if ($kampanye->status !== 'pending') {
             return;
         }
 
         $kampanye->update(['status' => 'processing']);
-        
+
         // Simulasi pengiriman (Dalam produksi ini akan memicu Job Queue)
         // Kita simulasikan 100% sukses untuk demo
         $kampanye->update([
@@ -95,15 +99,16 @@ class PesanMassalWhatsapp extends Component
             'failed_count' => 0,
         ]);
 
-        $this->dispatch('notify', message: 'Kampanye "' . $kampanye->campaign_name . '" berhasil diproses!', type: 'success');
+        $this->dispatch('notify', message: 'Kampanye "'.$kampanye->campaign_name.'" berhasil diproses!', type: 'success');
     }
 
     public function hapus($id)
     {
         $kampanye = WhatsappBlastModel::findOrFail($id);
-        
+
         if ($kampanye->status === 'processing') {
             $this->dispatch('notify', message: 'Tidak dapat menghapus kampanye yang sedang berjalan.', type: 'error');
+
             return;
         }
 
@@ -126,8 +131,10 @@ class PesanMassalWhatsapp extends Component
 
     public function getPreviewPesanProperty()
     {
-        if (!$this->pesanTemplate) return 'Pratinjau pesan akan muncul di sini...';
-        
+        if (! $this->pesanTemplate) {
+            return 'Pratinjau pesan akan muncul di sini...';
+        }
+
         return str_replace(
             ['{{ nama }}', '{{ telepon }}'],
             ['[Nama Pelanggan]', '[Nomor WA]'],

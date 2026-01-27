@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->is('admin*')) {
                 return route('masuk');
             }
+
             return route('pelanggan.masuk');
         });
 

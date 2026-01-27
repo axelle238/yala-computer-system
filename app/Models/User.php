@@ -13,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
  */
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, LogsActivity;
+    use HasFactory, LogsActivity, Notifiable;
 
     /**
      * Atribut yang dapat diisi massal.

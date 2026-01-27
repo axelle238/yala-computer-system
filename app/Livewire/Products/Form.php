@@ -134,7 +134,7 @@ class Form extends Component
 
             return redirect()->route('products.index');
         } catch (\Exception $e) {
-            $this->dispatch('notify', message: 'Gagal menyimpan produk: ' . $e->getMessage(), type: 'error');
+            $this->dispatch('notify', message: 'Gagal menyimpan produk: '.$e->getMessage(), type: 'error');
         }
     }
 

@@ -167,7 +167,7 @@ class Form extends Component
 
             return redirect()->route('employees.index');
         } catch (\Exception $e) {
-            $this->dispatch('notify', message: 'Terjadi kesalahan: ' . $e->getMessage(), type: 'error');
+            $this->dispatch('notify', message: 'Terjadi kesalahan: '.$e->getMessage(), type: 'error');
         }
     }
 

@@ -85,7 +85,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     // Transaksi
     Route::get('/transaksi', \App\Livewire\Transactions\Index::class)->name('admin.transaksi.indeks');
     Route::get('/transaksi/buat', TransactionCreate::class)->name('admin.transaksi.buat');
-    
+
     // Pengaturan
     Route::get('/pengaturan', \App\Livewire\Settings\Index::class)->name('admin.pengaturan');
 
