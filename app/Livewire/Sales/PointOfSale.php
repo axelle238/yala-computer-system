@@ -65,7 +65,7 @@ class PointOfSale extends Component
             ->first();
 
         if (! $this->kasirAktif) {
-            return redirect()->route('admin.keuangan.kasir')->with('error', 'Silakan buka shift kasir terlebih dahulu.');
+            return redirect()->route('admin.keuangan.kasir')->with('error', 'Sesi kasir belum dibuka. Silakan buka shift terlebih dahulu.');
         }
     }
 
@@ -79,14 +79,14 @@ class PointOfSale extends Component
             return;
         }
         if ($produk->stock_quantity <= 0) {
-            $this->dispatch('notify', message: 'Stok habis!', type: 'error');
+            $this->dispatch('notify', message: 'Maaf, stok produk ini telah habis.', type: 'error');
 
             return;
         }
 
         if (isset($this->keranjang[$idProduk])) {
             if ($this->keranjang[$idProduk]['qty'] + 1 > $produk->stock_quantity) {
-                $this->dispatch('notify', message: 'Stok tidak mencukupi!', type: 'error');
+                $this->dispatch('notify', message: 'Jumlah melebihi stok yang tersedia saat ini.', type: 'error');
 
                 return;
             }
@@ -118,7 +118,7 @@ class PointOfSale extends Component
             unset($this->keranjang[$idProduk]);
         } else {
             if ($jumlah > $this->keranjang[$idProduk]['stok_maks']) {
-                $this->dispatch('notify', message: 'Melebihi stok tersedia!', type: 'error');
+                $this->dispatch('notify', message: 'Jumlah yang diminta melebihi stok gudang.', type: 'error');
                 $jumlah = $this->keranjang[$idProduk]['stok_maks'];
             }
             $this->keranjang[$idProduk]['qty'] = $jumlah;
@@ -188,13 +188,13 @@ class PointOfSale extends Component
     public function prosesCheckout()
     {
         if (empty($this->keranjang)) {
-            $this->dispatch('notify', message: 'Keranjang belanja kosong!', type: 'error');
+            $this->dispatch('notify', message: 'Daftar belanja masih kosong.', type: 'error');
 
             return;
         }
 
         if ($this->metodePembayaran == 'tunai' && $this->uangDibayar < $this->totalAkhir) {
-            $this->dispatch('notify', message: 'Uang pembayaran kurang!', type: 'error');
+            $this->dispatch('notify', message: 'Nominal pembayaran tidak mencukupi.', type: 'error');
 
             return;
         }
@@ -202,7 +202,7 @@ class PointOfSale extends Component
         foreach ($this->keranjang as $id => $item) {
             $produk = Product::find($id);
             if ($produk->stock_quantity < $item['qty']) {
-                $this->dispatch('notify', message: "Stok {$produk->name} berubah/tidak cukup!", type: 'error');
+                $this->dispatch('notify', message: "Stok produk {$produk->name} tidak mencukupi untuk transaksi ini.", type: 'error');
 
                 return;
             }
@@ -245,7 +245,7 @@ class PointOfSale extends Component
                         'unit_price' => $item['harga'],
                         'cogs' => $produk->buy_price,
                         'reference_number' => $pesanan->order_number,
-                        'notes' => 'Transaksi POS',
+                        'notes' => 'Transaksi Kasir (POS)',
                     ]);
                 }
 
@@ -255,7 +255,7 @@ class PointOfSale extends Component
                     'type' => 'in',
                     'category' => 'sales',
                     'amount' => $this->totalAkhir,
-                    'description' => "Penjualan POS #{$pesanan->order_number} ({$this->metodePembayaran})",
+                    'description' => "Penjualan Kasir #{$pesanan->order_number} ({$this->metodePembayaran})",
                     'reference_id' => $pesanan->id,
                     'reference_type' => Order::class,
                     'created_by' => Auth::id(),
@@ -266,9 +266,9 @@ class PointOfSale extends Component
 
             $this->reset(['keranjang', 'subtotal', 'diskon', 'totalAkhir', 'uangDibayar', 'kembalian', 'idMemberTerpilih']);
             $this->namaTamu = 'Tamu';
-            $this->dispatch('notify', message: 'Transaksi Berhasil!', type: 'success');
+            $this->dispatch('notify', message: 'Transaksi berhasil diproses dan stok telah diperbarui.', type: 'success');
         } catch (\Exception $e) {
-            $this->dispatch('notify', message: 'Terjadi kesalahan: '.$e->getMessage(), type: 'error');
+            $this->dispatch('notify', message: 'Gagal memproses transaksi: '.$e->getMessage(), type: 'error');
         }
     }
 
