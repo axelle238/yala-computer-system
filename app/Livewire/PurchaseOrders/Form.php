@@ -12,121 +12,121 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Form PO - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Formulir Pesanan Pembelian - Yala Computer')]
 class Form extends Component
 {
     public ?PurchaseOrder $po = null;
 
-    // Form Fields
-    public $po_number;
+    // Data Formulir
+    public $nomor_po;
 
-    public $supplier_id;
+    public $id_pemasok;
 
-    public $order_date;
+    public $tanggal_pesanan;
 
-    public $notes;
+    public $catatan;
 
     public $status = 'draft';
 
-    // Items Logic
-    public $items = []; // [['product_id' => '', 'qty' => 1, 'price' => 0]]
+    // Logika Item
+    public $item_pesanan = []; // [['id_produk' => '', 'qty' => 1, 'harga' => 0]]
 
     public function mount($id = null)
     {
         if ($id) {
             $this->po = PurchaseOrder::with('item')->findOrFail($id);
-            $this->po_number = $this->po->po_number;
-            $this->supplier_id = $this->po->supplier_id;
-            $this->order_date = $this->po->order_date->format('Y-m-d');
-            $this->notes = $this->po->notes;
+            $this->nomor_po = $this->po->po_number;
+            $this->id_pemasok = $this->po->supplier_id;
+            $this->tanggal_pesanan = $this->po->order_date->format('Y-m-d');
+            $this->catatan = $this->po->notes;
             $this->status = $this->po->status;
 
             foreach ($this->po->item as $item) {
-                $this->items[] = [
-                    'product_id' => $item->product_id,
+                $this->item_pesanan[] = [
+                    'id_produk' => $item->product_id,
                     'qty' => $item->quantity_ordered,
-                    'price' => $item->buy_price,
+                    'harga' => $item->buy_price,
                 ];
             }
         } else {
-            $this->po_number = 'PO-'.date('Ymd').'-'.strtoupper(Str::random(4));
-            $this->order_date = date('Y-m-d');
-            $this->items[] = ['product_id' => '', 'qty' => 1, 'price' => 0]; // Empty row
+            $this->nomor_po = 'PO-'.date('Ymd').'-'.strtoupper(Str::random(4));
+            $this->tanggal_pesanan = date('Y-m-d');
+            $this->item_pesanan[] = ['id_produk' => '', 'qty' => 1, 'harga' => 0]; // Baris kosong awal
         }
     }
 
-    public function addItem()
+    public function tambahItem()
     {
-        $this->items[] = ['product_id' => '', 'qty' => 1, 'price' => 0];
+        $this->item_pesanan[] = ['id_produk' => '', 'qty' => 1, 'harga' => 0];
     }
 
-    public function removeItem($index)
+    public function hapusItem($index)
     {
-        unset($this->items[$index]);
-        $this->items = array_values($this->items);
+        unset($this->item_pesanan[$index]);
+        $this->item_pesanan = array_values($this->item_pesanan);
     }
 
-    public function updatePrice($index)
+    public function perbaruiHarga($index)
     {
-        $productId = $this->items[$index]['product_id'];
-        if ($productId) {
-            $product = Product::find($productId);
-            $this->items[$index]['price'] = $product->buy_price;
+        $idProduk = $this->item_pesanan[$index]['id_produk'];
+        if ($idProduk) {
+            $produk = Product::find($idProduk);
+            $this->item_pesanan[$index]['harga'] = $produk->buy_price;
         }
     }
 
     public function getTotalProperty()
     {
         $total = 0;
-        foreach ($this->items as $item) {
-            $total += ($item['qty'] * $item['price']);
+        foreach ($this->item_pesanan as $item) {
+            $total += ((int)$item['qty'] * (int)$item['harga']);
         }
 
         return $total;
     }
 
-    public function save()
+    public function simpan()
     {
-        // Jika sudah Ordered/Received, tidak boleh edit Items, hanya header (notes/date)
+        // Jika sudah Dipesan/Diterima, tidak boleh edit Item, hanya header (catatan/tanggal)
         if ($this->po && in_array($this->po->status, ['ordered', 'received', 'partial'])) {
             $this->validate([
-                'notes' => 'nullable|string',
-                'order_date' => 'required|date',
+                'catatan' => 'nullable|string',
+                'tanggal_pesanan' => 'required|date',
             ], [
-                'order_date.required' => 'Tanggal order wajib diisi.',
+                'tanggal_pesanan.required' => 'Tanggal pesanan wajib diisi.',
             ]);
 
             $this->po->update([
-                'notes' => $this->notes,
-                'order_date' => $this->order_date,
+                'notes' => $this->catatan,
+                'order_date' => $this->tanggal_pesanan,
             ]);
 
-            session()->flash('success', 'Info PO diperbarui. Item tidak dapat diubah karena status sudah berjalan.');
+            $this->dispatch('notify', message: 'Info PO diperbarui. Item tidak dapat diubah karena status pesanan sudah berjalan.', type: 'info');
 
             return redirect()->route('admin.pesanan-pembelian.indeks');
         }
 
         $this->validate([
-            'supplier_id' => 'required',
-            'order_date' => 'required|date',
-            'items.*.product_id' => 'required',
-            'items.*.qty' => 'required|integer|min:1',
+            'id_pemasok' => 'required',
+            'tanggal_pesanan' => 'required|date',
+            'item_pesanan.*.id_produk' => 'required',
+            'item_pesanan.*.qty' => 'required|integer|min:1',
         ], [
-            'supplier_id.required' => 'Pemasok wajib dipilih.',
-            'order_date.required' => 'Tanggal order wajib diisi.',
-            'items.*.product_id.required' => 'Produk wajib dipilih.',
-            'items.*.qty.required' => 'Jumlah wajib diisi.',
-            'items.*.qty.min' => 'Jumlah minimal 1.',
+            'id_pemasok.required' => 'Pemasok wajib dipilih.',
+            'tanggal_pesanan.required' => 'Tanggal pesanan wajib diisi.',
+            'item_pesanan.*.id_produk.required' => 'Produk wajib dipilih.',
+            'item_pesanan.*.qty.required' => 'Jumlah wajib diisi.',
+            'item_pesanan.*.qty.min' => 'Jumlah minimal 1.',
         ]);
 
         DB::transaction(function () {
             $data = [
-                'po_number' => $this->po_number,
-                'supplier_id' => $this->supplier_id,
-                'order_date' => $this->order_date,
-                'notes' => $this->notes,
-                'status' => $this->status, // User can select draft or ordered initially
+                'po_number' => $this->nomor_po,
+                'supplier_id' => $this->id_pemasok,
+                'order_date' => $this->tanggal_pesanan,
+                'notes' => $this->catatan,
+                'status' => $this->status, // Pengguna bisa memilih draft atau ordered
                 'total_amount' => $this->getTotalProperty(),
                 'created_by' => auth()->id(),
             ];
@@ -138,41 +138,42 @@ class Form extends Component
                 $this->po = PurchaseOrder::create($data);
             }
 
-            foreach ($this->items as $item) {
+            foreach ($this->item_pesanan as $item) {
                 PurchaseOrderItem::create([
                     'purchase_order_id' => $this->po->id,
-                    'product_id' => $item['product_id'],
+                    'product_id' => $item['id_produk'],
                     'quantity_ordered' => $item['qty'],
-                    'buy_price' => $item['price'],
-                    'subtotal' => $item['qty'] * $item['price'],
+                    'buy_price' => $item['harga'],
+                    'subtotal' => $item['qty'] * $item['harga'],
                 ]);
             }
         });
 
-        session()->flash('success', 'Purchase Order berhasil disimpan.');
+        $this->dispatch('notify', message: 'Pesanan Pembelian berhasil disimpan.', type: 'success');
 
         return redirect()->route('admin.pesanan-pembelian.indeks');
     }
 
-    public function markAsOrdered()
+    public function tandaiDipesan()
     {
         if ($this->po && $this->po->status === 'draft') {
             $this->po->update(['status' => 'ordered']);
             $this->status = 'ordered';
-            session()->flash('success', 'PO disetujui & dikirim ke Supplier (Status: Ordered).');
+            $this->dispatch('notify', message: 'PO disetujui & status diubah menjadi Dipesan (Ordered).', type: 'success');
         }
     }
 
     public function render()
     {
-        $products = Product::where('supplier_id', $this->supplier_id)->get(); // Filter produk by supplier
-        if ($products->isEmpty()) {
-            $products = Product::all(); // Fallback all products
+        // Filter produk berdasarkan pemasok jika dipilih
+        $produk = Product::where('supplier_id', $this->id_pemasok)->get();
+        if ($produk->isEmpty()) {
+            $produk = Product::all(); // Fallback semua produk jika supplier belum punya produk atau belum dipilih
         }
 
         return view('livewire.purchase-orders.form', [
-            'suppliers' => Supplier::all(),
-            'products' => $products,
+            'daftarPemasok' => Supplier::all(),
+            'daftarProduk' => $produk,
         ]);
     }
 }
