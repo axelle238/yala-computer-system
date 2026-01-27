@@ -94,28 +94,58 @@
             <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                 @forelse($daftarPesan as $pesan)
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
-                        <td class="px-6 py-4 font-bold text-slate-700 dark:text-white">{{ $pesan->campaign_name }}</td>
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-slate-700 dark:text-white">{{ $pesan->campaign_name }}</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5 max-w-xs truncate italic">{{ $pesan->message_template }}</div>
+                        </td>
                         <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
-                            <span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-700 text-xs font-bold uppercase">
-                                {{ $pesan->target_audience }}
+                            @php
+                                $targetLabels = [
+                                    'all' => 'Semua Pelanggan',
+                                    'loyal' => 'Pelanggan Loyal',
+                                    'inactive' => 'Pelanggan Pasif',
+                                ];
+                            @endphp
+                            <span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-700 text-[10px] font-bold uppercase">
+                                {{ $targetLabels[$pesan->target_audience] ?? $pesan->target_audience }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-center font-mono font-bold">{{ $pesan->total_recipients }}</td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="font-mono font-black text-slate-700 dark:text-white">{{ $pesan->total_recipients }}</div>
+                            @if($pesan->status === 'completed')
+                                <div class="text-[9px] text-emerald-500 font-bold">Sukses: {{ $pesan->success_count }}</div>
+                            @endif
+                        </td>
                         <td class="px-6 py-4 text-center">
                             @php
                                 $statusColors = [
-                                    'pending' => 'bg-amber-100 text-amber-700',
-                                    'processing' => 'bg-blue-100 text-blue-700',
-                                    'completed' => 'bg-emerald-100 text-emerald-700',
-                                    'failed' => 'bg-rose-100 text-rose-700',
+                                    'pending' => 'bg-amber-100 text-amber-700 border-amber-200',
+                                    'processing' => 'bg-blue-100 text-blue-700 border-blue-200 animate-pulse',
+                                    'completed' => 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                                    'failed' => 'bg-rose-100 text-rose-700 border-rose-200',
+                                ];
+                                $statusLabels = [
+                                    'pending' => 'Menunggu',
+                                    'processing' => 'Diproses',
+                                    'completed' => 'Selesai',
+                                    'failed' => 'Gagal',
                                 ];
                             @endphp
-                            <span class="px-2 py-1 rounded-full text-xs font-bold uppercase {{ $statusColors[$pesan->status] }}">
-                                {{ $pesan->status }}
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border {{ $statusColors[$pesan->status] }}">
+                                {{ $statusLabels[$pesan->status] ?? $pesan->status }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-right text-sm text-slate-500">
-                            {{ $pesan->scheduled_at ? $pesan->scheduled_at->format('d/m/Y H:i') : 'Langsung' }}
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex justify-end gap-2">
+                                @if($pesan->status === 'pending')
+                                    <button wire:click="prosesKampanye({{ $pesan->id }})" class="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-lg transition-all" title="Kirim Sekarang">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                                    </button>
+                                @endif
+                                <button wire:click="hapus({{ $pesan->id }})" wire:confirm="Yakin ingin menghapus kampanye ini?" class="p-2 bg-slate-50 text-slate-400 hover:bg-rose-500 hover:text-white rounded-lg transition-all" title="Hapus">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 @empty

@@ -57,18 +57,58 @@ class PesanMassalWhatsapp extends Component
         // Hitung estimasi penerima
         $totalPenerima = $this->hitungPenerima($this->targetAudiens);
 
+        if ($totalPenerima === 0) {
+            $this->dispatch('notify', message: 'Tidak ada audiens yang memenuhi kriteria.', type: 'error');
+
+            return;
+        }
+
         WhatsappBlastModel::create([
             'campaign_name' => $this->namaKampanye,
             'message_template' => $this->pesanTemplate,
             'target_audience' => $this->targetAudiens,
             'scheduled_at' => $this->jadwalKirim,
-            'status' => $this->jadwalKirim ? 'pending' : 'processing',
+            'status' => $this->jadwalKirim ? 'pending' : 'pending', // Awalnya selalu pending sebelum di-proses manual
             'total_recipients' => $totalPenerima,
             'created_by' => Auth::id(),
         ]);
 
         $this->dispatch('notify', message: 'Kampanye WhatsApp berhasil dibuat.', type: 'success');
         $this->tutupPanel();
+    }
+
+    public function prosesKampanye($id)
+    {
+        $kampanye = WhatsappBlastModel::findOrFail($id);
+        
+        if ($kampanye->status !== 'pending') {
+            return;
+        }
+
+        $kampanye->update(['status' => 'processing']);
+        
+        // Simulasi pengiriman (Dalam produksi ini akan memicu Job Queue)
+        // Kita simulasikan 100% sukses untuk demo
+        $kampanye->update([
+            'status' => 'completed',
+            'success_count' => $kampanye->total_recipients,
+            'failed_count' => 0,
+        ]);
+
+        $this->dispatch('notify', message: 'Kampanye "' . $kampanye->campaign_name . '" berhasil diproses!', type: 'success');
+    }
+
+    public function hapus($id)
+    {
+        $kampanye = WhatsappBlastModel::findOrFail($id);
+        
+        if ($kampanye->status === 'processing') {
+            $this->dispatch('notify', message: 'Tidak dapat menghapus kampanye yang sedang berjalan.', type: 'error');
+            return;
+        }
+
+        $kampanye->delete();
+        $this->dispatch('notify', message: 'Kampanye telah dihapus.', type: 'success');
     }
 
     public function hitungPenerima($target)
