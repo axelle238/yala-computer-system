@@ -9,19 +9,19 @@
         </div>
 
         <div>
-            <label class="block text-sm font-bold text-slate-400 mb-1">Email Address</label>
+            <label class="block text-sm font-bold text-slate-400 mb-1">Alamat Email</label>
             <input wire:model="email" type="email" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all placeholder-slate-600" placeholder="name@example.com">
             @error('email') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
         </div>
 
         <div>
-            <label class="block text-sm font-bold text-slate-400 mb-1">Password</label>
+            <label class="block text-sm font-bold text-slate-400 mb-1">Kata Sandi</label>
             <input wire:model="password" type="password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all placeholder-slate-600" placeholder="••••••••">
             @error('password') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
         </div>
 
         <div>
-            <label class="block text-sm font-bold text-slate-400 mb-1">Konfirmasi Password</label>
+            <label class="block text-sm font-bold text-slate-400 mb-1">Konfirmasi Kata Sandi</label>
             <input wire:model="password_confirmation" type="password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all placeholder-slate-600" placeholder="••••••••">
         </div>
 
