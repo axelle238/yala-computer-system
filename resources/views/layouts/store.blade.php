@@ -83,8 +83,8 @@
             <!-- Navigasi Desktop -->
             <nav class="hidden lg:flex items-center gap-8 ml-8">
                 @foreach([
-                    ['label' => 'Katalog', 'route' => 'store.catalog'],
-                    ['label' => 'Berita', 'route' => 'store.news.index'],
+                    ['label' => 'Katalog', 'route' => 'toko.katalog'],
+                    ['label' => 'Berita', 'route' => 'toko.berita.indeks'],
                 ] as $item)
                     <a href="{{ route($item['route']) }}" 
                        class="text-xs font-bold uppercase tracking-widest transition-all duration-300 relative group py-2
@@ -143,7 +143,7 @@
                                 <a href="{{ route('anggota.referal') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Referral & Cuan</a>
                                 
                                 <div class="border-t border-white/10 mt-1"></div>
-                                <form method="POST" action="{{ route('logout') }}">
+                                <form method="POST" action="{{ route('keluar') }}">
                                     @csrf
                                     <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-rose-500 hover:bg-rose-500/10 transition-colors">Keluar</button>
                                 </form>
@@ -177,11 +177,11 @@
              style="display: none;">
             <div class="px-4 pt-4 pb-6 space-y-2">
                 @foreach([
-                    ['label' => 'Katalog Produk', 'route' => 'store.catalog'],
-                    ['label' => 'Mitra Merek', 'route' => 'store.brands'],
-                    ['label' => 'Simulasi Rakit PC', 'route' => 'store.pc-builder'],
-                    ['label' => 'Berita & Artikel', 'route' => 'store.news.index'],
-                    ['label' => 'Cek Status Garansi', 'route' => 'store.warranty-check']
+                    ['label' => 'Katalog Produk', 'route' => 'toko.katalog'],
+                    ['label' => 'Mitra Merek', 'route' => 'toko.merek'],
+                    ['label' => 'Simulasi Rakit PC', 'route' => 'toko.rakit-pc'],
+                    ['label' => 'Berita & Artikel', 'route' => 'toko.berita.indeks'],
+                    ['label' => 'Cek Status Garansi', 'route' => 'toko.cek-garansi']
                 ] as $item)
                     <a href="{{ route($item['route']) }}" class="block px-4 py-3 rounded-xl text-sm font-bold {{ request()->routeIs($item['route'].'*') ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
                         {{ $item['label'] }}
@@ -212,8 +212,8 @@
                     <a href="{{ route('beranda') }}" class="hover:text-cyan-400 transition-colors">Katalog</a>
                     <a href="{{ route('toko.tentang') }}" class="hover:text-cyan-400 transition-colors">Tentang Kami</a>
                     <a href="{{ route('toko.kontak') }}" class="hover:text-cyan-400 transition-colors">Hubungi Kami</a>
-                    <a href="{{ route('toko.privacy-policy') }}" class="hover:text-cyan-400 transition-colors">Privasi</a>
-                    <a href="{{ route('toko.terms') }}" class="hover:text-cyan-400 transition-colors">Ketentuan</a>
+                    <a href="{{ route('toko.privasi') }}" class="hover:text-cyan-400 transition-colors">Privasi</a>
+                    <a href="{{ route('toko.syarat') }}" class="hover:text-cyan-400 transition-colors">Ketentuan</a>
                 </div>
             </div>
             <div class="text-center border-t border-white/5 pt-8">

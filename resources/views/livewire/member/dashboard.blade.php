@@ -54,8 +54,7 @@
                 <a href="{{ route('anggota.alamat') }}" class="w-full px-6 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors text-sm text-center">
                     Kelola Alamat
                 </a>
-                 <form method="POST" action="{{ route('logout') }}">
-                    @csrf
+                                         <form method="POST" action="{{ route('keluar') }}">                    @csrf
                     <button type="submit" class="w-full px-6 py-3 border border-slate-200 dark:border-slate-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 font-bold rounded-xl transition-colors text-sm">
                         Keluar
                     </button>

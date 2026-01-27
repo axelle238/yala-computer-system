@@ -46,7 +46,7 @@
     
     <div class="flex h-full w-full">
         
-        <livewire:components.spotlight />
+        <livewire:components.pencarian-pintar />
 
         <!-- Sidebar Component -->
         <x-layouts.sidebar />
