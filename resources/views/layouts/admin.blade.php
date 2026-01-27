@@ -64,6 +64,17 @@
     
     <div class="admin-grid"></div>
 
+    <!-- Mobile Backdrop -->
+    <div x-show="sidebarTerbuka" 
+         x-transition:enter="transition-opacity ease-linear duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity ease-linear duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-30 md:hidden"
+         @click="sidebarTerbuka = false"></div>
+
     <div class="flex h-full w-full">
         <!-- Global Command Palette -->
         <livewire:components.pencarian-pintar />
