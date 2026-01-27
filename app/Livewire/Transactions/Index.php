@@ -16,7 +16,7 @@ class Index extends Component
     use WithPagination;
 
     #[Url(history: true)]
-    public $search = '';
+    public $cari = '';
 
     #[Url(history: true)]
     public $type = ''; // in, out, adjustment
@@ -27,7 +27,7 @@ class Index extends Component
     #[Url(history: true)]
     public $dateEnd = '';
 
-    public function updatedSearch()
+    public function updatedCari()
     {
         $this->resetPage();
     }
@@ -71,8 +71,8 @@ class Index extends Component
                 fputcsv($file, [
                     $row->created_at->format('Y-m-d H:i'),
                     $row->reference_number ?? '-',
-                    $row->product->name,
-                    $row->product->sku,
+                    $row->produk->name,
+                    $row->produk->sku,
                     ucfirst($row->type),
                     ($row->type == 'out' ? '-' : '+').$row->quantity,
                     $row->remaining_stock,
@@ -89,12 +89,12 @@ class Index extends Component
 
     public function buildQuery()
     {
-        return InventoryTransaction::with(['product', 'user'])
-            ->when($this->search, function ($q) {
-                $q->whereHas('product', function ($sub) {
-                    $sub->where('name', 'like', '%'.$this->search.'%')
-                        ->orWhere('sku', 'like', '%'.$this->search.'%');
-                })->orWhere('reference_number', 'like', '%'.$this->search.'%');
+        return InventoryTransaction::with(['produk', 'user'])
+            ->when($this->cari, function ($q) {
+                $q->whereHas('produk', function ($sub) {
+                    $sub->where('name', 'like', '%'.$this->cari.'%')
+                        ->orWhere('sku', 'like', '%'.$this->cari.'%');
+                })->orWhere('reference_number', 'like', '%'.$this->cari.'%');
             })
             ->when($this->type, function ($q) {
                 $q->where('type', $this->type);

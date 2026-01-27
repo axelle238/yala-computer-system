@@ -32,7 +32,7 @@
             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Pencarian</label>
             <div class="relative">
                  <input 
-                    wire:model.live.debounce.300ms="search"
+                    wire:model.live.debounce.300ms="cari"
                     type="text" 
                     class="block w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                     placeholder="SKU, Produk, atau No. Ref"
