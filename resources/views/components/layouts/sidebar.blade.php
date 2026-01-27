@@ -19,7 +19,7 @@
     </div>
 
     <!-- 2. Navigation Menu -->
-    <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-8 custom-scrollbar scroll-smooth">
+    <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-8 custom-scrollbar scroll-smooth pb-32">
         @php
             // Palet warna untuk setiap bagian menu agar colorful dan mudah dibedakan
             $sectionColors = [

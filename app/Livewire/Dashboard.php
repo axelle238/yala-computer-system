@@ -8,9 +8,11 @@ use App\Models\PcAssembly;
 use App\Models\PesanPelanggan;
 use App\Models\Quotation;
 use App\Models\ServiceTicket;
+use App\Models\Product;
 use App\Services\BusinessIntelligence;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -24,65 +26,66 @@ class Dashboard extends Component
      */
     public function render()
     {
-        $intelBisnis = new BusinessIntelligence;
-        $bulan = now()->month;
-        $tahun = now()->year;
         $pengguna = Auth::user();
+        
+        // --- 1. RINGKASAN EKSEKUTIF (Semua Departemen) ---
+        
+        // Keuangan Hari Ini
+        $penjualanHariIni = Order::whereDate('created_at', today())
+            ->where('status', 'completed')
+            ->sum('total_amount');
+            
+        $servisHariIni = ServiceTicket::whereDate('updated_at', today())
+            ->where('status', 'picked_up')
+            ->count(); // Idealnya sum biaya servis, tapi simplified untuk count dulu
 
-        // 1. Statistik Inti (Cache 60 detik)
-        $statistik = Cache::remember('dashboard_statistik_inti_'.$pengguna->id, 60, function () use ($bulan, $tahun, $intelBisnis, $pengguna) {
-            $labaRugi = $intelBisnis->ambilLabaRugi($bulan, $tahun);
+        // Aktivitas Operasional
+        $pesananPending = Order::where('status', 'pending')->count();
+        $servisAktif = ServiceTicket::whereNotIn('status', ['picked_up', 'cancelled'])->count();
+        $rakitanProses = PcAssembly::where('status', 'building')->count();
+        
+        // Isu & Peringatan
+        $stokMenipis = Product::whereColumn('stock_quantity', '<=', 'min_stock_alert')->count();
+        $chatBelumDibaca = PesanPelanggan::where('status', 'unread')->count();
 
-            $data = [
-                'pendapatan' => $labaRugi['pendapatan']['total'],
-                'laba_bersih' => $labaRugi['laba_bersih'],
-                'tiket_aktif' => ServiceTicket::whereNotIn('status', ['picked_up', 'cancelled'])->count(),
-                'pesanan_hari_ini' => Order::whereDate('created_at', today())->count(),
-                'rakitan_aktif' => PcAssembly::whereNotIn('status', ['completed', 'cancelled'])->count(),
-                'penawaran_tertunda' => Quotation::where('status', 'pending')->count(),
-                'pesan_baru' => PesanPelanggan::where('status', PesanPelanggan::STATUS_BARU)->count(),
-                'log_aktivitas' => ActivityLog::with('user')->latest()->take(10)->get(),
-            ];
+        // --- 2. GRAFIK TREN 7 HARI ---
+        $grafikPenjualan = Order::selectRaw('DATE(created_at) as tanggal, SUM(total_amount) as total')
+            ->where('created_at', '>=', now()->subDays(7))
+            ->where('status', 'completed')
+            ->groupBy('tanggal')
+            ->orderBy('tanggal')
+            ->get()
+            ->map(fn ($item) => [
+                'tanggal' => \Carbon\Carbon::parse($item->tanggal)->format('d M'),
+                'total' => (int) $item->total,
+            ]);
 
-            // Penyesuaian berdasarkan Peran Teknisi
-            if ($pengguna->peran && $pengguna->peran->nama === 'Teknisi') {
-                $data['tiket_milik_saya'] = ServiceTicket::where('technician_id', $pengguna->id)
-                    ->whereNotIn('status', ['picked_up', 'cancelled'])
-                    ->count();
-                $data['servis_siap_ambil'] = ServiceTicket::where('technician_id', $pengguna->id)
-                    ->where('status', 'ready')
-                    ->count();
-            }
+        // --- 3. AKTIVITAS TERBARU (Feed) ---
+        $aktivitasTerbaru = ActivityLog::with('user')
+            ->latest()
+            ->take(6)
+            ->get();
 
-            // Data Grafik Penjualan 7 Hari Terakhir
-            $data['grafik_penjualan'] = Order::selectRaw('DATE(created_at) as tanggal, SUM(total_amount) as total')
-                ->where('created_at', '>=', now()->subDays(7))
-                ->groupBy('tanggal')
-                ->orderBy('tanggal')
-                ->get()
-                ->map(fn ($item) => [
-                    'tanggal' => \Carbon\Carbon::parse($item->tanggal)->format('d M'),
-                    'total' => (int) $item->total,
-                ]);
-
-            return $data;
-        });
-
-        // 2. Analisis Inventaris (Cache 5 menit)
-        $analisis = Cache::remember('dashboard_analisis', 300, function () use ($intelBisnis) {
-            $hasil = $intelBisnis->ambilAnalisisStok();
-
-            // Map kembali kunci untuk view agar tetap sinkron
-            return [
-                'fast_moving' => $hasil['laku_pesat'],
-                'low_stock' => $hasil['stok_menipis'],
-                'dead_stock' => $hasil['stok_mati'],
-            ];
-        });
+        // --- 4. TOP PERFORMERS ---
+        $produkTerlaris = Product::withCount(['orderItems as terjual' => function($query) {
+                $query->whereHas('order', fn($q) => $q->where('status', 'completed'));
+            }])
+            ->orderByDesc('terjual')
+            ->take(5)
+            ->get();
 
         return view('livewire.dashboard', [
-            'statistik' => $statistik,
-            'analisis' => $analisis,
+            'ringkasan' => [
+                'omset_hari_ini' => $penjualanHariIni,
+                'pesanan_pending' => $pesananPending,
+                'servis_aktif' => $servisAktif,
+                'stok_kritis' => $stokMenipis,
+                'rakitan_proses' => $rakitanProses,
+                'chat_unread' => $chatBelumDibaca
+            ],
+            'grafik' => $grafikPenjualan,
+            'aktivitas' => $aktivitasTerbaru,
+            'top_produk' => $produkTerlaris,
             'pengguna' => $pengguna,
         ]);
     }

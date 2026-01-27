@@ -1,399 +1,152 @@
-<div>
-    <!-- Bagian Header -->
-    <div class="flex justify-between items-end mb-8 animate-fade-in-up">
+<div class="space-y-8">
+    <!-- Header Selamat Datang -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h1 class="text-3xl font-tech font-bold text-slate-800 dark:text-white tracking-tight">Dasbor Eksekutif</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-2">Ringkasan performa bisnis Yala Computer hari ini.</p>
+            <h1 class="text-3xl font-black font-tech text-slate-800 dark:text-white tracking-tight">
+                Dashboard <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-500">Utama</span>
+            </h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-1">
+                Halo, <span class="font-bold text-slate-700 dark:text-slate-300">{{ $pengguna->name }}</span>! Berikut adalah ringkasan aktivitas sistem hari ini.
+            </p>
         </div>
-        <div class="flex flex-wrap gap-3">
-            <a href="{{ route('admin.kasir') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                Buka Kasir (POS)
-            </a>
-            <a href="{{ route('admin.servis.buat') }}" class="px-5 py-2.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-sm font-bold rounded-xl transition-all flex items-center gap-2 shadow-sm hover:shadow-md">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                Tiket Servis Baru
-            </a>
+        <div class="flex gap-2">
+            <span class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold shadow-sm">
+                📅 {{ now()->format('d M Y') }}
+            </span>
         </div>
     </div>
 
-    <!-- Grid Metrik Utama -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-
-        @if(isset($statistik['tiket_milik_saya']))
-            <!-- Widget Khusus Teknisi -->
-            <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-500/30">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-2 bg-white/20 rounded-xl"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div>
-                        <span class="text-[10px] font-bold uppercase tracking-widest bg-white/20 px-2 py-1 rounded-lg">Tugas Anda</span>
-                    </div>
-                    <div class="text-3xl font-black">{{ $statistik['tiket_milik_saya'] }}</div>
-                    <div class="text-sm font-medium opacity-80 mt-1">Servis Sedang Ditangani</div>
-                    <a href="{{ route('admin.servis.papan') }}" class="mt-4 block w-full py-2 bg-white text-indigo-600 text-center text-xs font-bold rounded-xl hover:bg-indigo-50 transition-colors">Buka Workbench</a>
-                </div>
-                <div class="bg-emerald-500 rounded-2xl p-6 text-white shadow-lg shadow-emerald-500/30">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-2 bg-white/20 rounded-xl"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>
-                        <span class="text-[10px] font-bold uppercase tracking-widest bg-white/20 px-2 py-1 rounded-lg">Siap Ambil</span>
-                    </div>
-                    <div class="text-3xl font-black">{{ $statistik['servis_siap_ambil'] ?? 0 }}</div>
-                    <div class="text-sm font-medium opacity-80 mt-1">Menunggu Pelanggan</div>
-                    <div class="mt-4 text-[10px] italic opacity-70">*Beritahu kasir jika sudah lunas</div>
-                </div>
+    <!-- 1. Statistik Kunci (Grid Cards) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Omset Hari Ini -->
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] relative overflow-hidden group hover:scale-[1.02] transition-transform">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <svg class="w-24 h-24 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
-        @else
-            <!-- Kartu Pendapatan (Hanya Admin/Owner) -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden group hover:shadow-xl hover:border-indigo-500/30 transition-all duration-300">
-                <div class="absolute -right-6 -top-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                    <svg class="w-32 h-32 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <div class="relative z-10">
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="p-1.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">Omset Hari Ini</p>
+            <h3 class="text-3xl font-black text-slate-800 dark:text-white">Rp {{ number_format($ringkasan['omset_hari_ini'], 0, ',', '.') }}</h3>
+            <div class="mt-4 flex items-center text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded w-fit">
+                <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                Update Realtime
+            </div>
+        </div>
+
+        <!-- Pesanan Pending -->
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] relative overflow-hidden group hover:scale-[1.02] transition-transform">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <svg class="w-24 h-24 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">Pesanan Pending</p>
+            <h3 class="text-3xl font-black text-slate-800 dark:text-white">{{ $ringkasan['pesanan_pending'] }}</h3>
+            <a href="{{ route('admin.pesanan.indeks') }}" class="mt-4 inline-block text-xs font-bold text-orange-500 hover:text-orange-600">Lihat Antrian &rarr;</a>
+        </div>
+
+        <!-- Servis Aktif -->
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] relative overflow-hidden group hover:scale-[1.02] transition-transform">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <svg class="w-24 h-24 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">Servis Sedang Dikerjakan</p>
+            <h3 class="text-3xl font-black text-slate-800 dark:text-white">{{ $ringkasan['servis_aktif'] }}</h3>
+            <div class="mt-4 flex gap-2">
+                <span class="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded font-bold">{{ $ringkasan['rakitan_proses'] }} Rakit PC</span>
+            </div>
+        </div>
+
+        <!-- Stok Kritis -->
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] relative overflow-hidden group hover:scale-[1.02] transition-transform">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <svg class="w-24 h-24 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">Peringatan Stok</p>
+            <h3 class="text-3xl font-black text-rose-600">{{ $ringkasan['stok_kritis'] }}</h3>
+            <p class="text-xs text-slate-400 mt-4">Produk di bawah batas minimum.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- 2. Grafik Penjualan (Main Chart) -->
+        <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Tren Pendapatan (7 Hari Terakhir)</h3>
+                <a href="{{ route('admin.analitik.penjualan') }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-lg transition-colors">Lihat Detail</a>
+            </div>
+            
+            <!-- Simple Bar Chart Representation using CSS Grid -->
+            <div class="h-64 flex items-end justify-between gap-2 md:gap-4">
+                @foreach($grafik as $data)
+                    @php 
+                        $max = $grafik->max('total') ?: 1; 
+                        $height = ($data['total'] / $max) * 100;
+                    @endphp
+                    <div class="flex-1 flex flex-col items-center group relative">
+                        <div class="w-full bg-indigo-100 dark:bg-indigo-900/30 rounded-t-lg relative overflow-hidden transition-all duration-500 group-hover:bg-indigo-200 dark:group-hover:bg-indigo-800/50" style="height: {{ $height }}%">
+                            <div class="absolute bottom-0 left-0 w-full bg-indigo-500 transition-all duration-500 h-full opacity-80 group-hover:opacity-100"></div>
                         </div>
-                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pendapatan Bulan Ini</span>
-                    </div>
-                    <div class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Rp {{ number_format($statistik['pendapatan'], 0, ',', '.') }}</div>
-                    <div class="mt-2 text-xs font-medium text-emerald-500 flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/20 w-fit px-2 py-0.5 rounded-full">
-                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
-                        <span>Pembaruan Langsung</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Kartu Laba Bersih (Hanya Admin/Owner) -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden group hover:shadow-xl hover:border-emerald-500/30 transition-all duration-300">
-                <div class="absolute -right-6 -top-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                    <svg class="w-32 h-32 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                </div>
-                <div class="relative z-10">
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="p-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span class="text-[10px] font-bold text-slate-500 mt-2">{{ $data['tanggal'] }}</span>
+                        
+                        <!-- Tooltip -->
+                        <div class="absolute -top-10 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                            Rp {{ number_format($data['total']) }}
                         </div>
-                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estimasi Laba Bersih</span>
                     </div>
-                    <div class="text-2xl font-black {{ $statistik['laba_bersih'] >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }} tracking-tight">
-                        Rp {{ number_format($statistik['laba_bersih'], 0, ',', '.') }}
-                    </div>
-                    <div class="mt-2 text-xs text-slate-400">Profitabilitas Operasional</div>
-                </div>
-            </div>
-        @endif
-
-        <!-- Kartu Servis Aktif -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden group hover:shadow-xl hover:border-amber-500/30 transition-all duration-300 border-l-4 border-l-amber-400 dark:border-l-amber-500">
-            <div class="absolute -right-6 -top-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                <svg class="w-32 h-32 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /></svg>
-            </div>
-            <div class="relative z-10 flex flex-col justify-between h-full">
-                <div>
-                    <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Servis Aktif</div>
-                    <div class="text-3xl font-black text-slate-800 dark:text-white">{{ $statistik['tiket_aktif'] }} <span class="text-base font-normal text-slate-400">Unit</span></div>
-                </div>
-                <a href="{{ route('admin.servis.indeks') }}" class="mt-4 inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
-                    Lihat Antrian <svg class="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                </a>
+                @endforeach
             </div>
         </div>
 
-        <!-- Kartu Pesan Pelanggan Baru (Fitur Baru) -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden group hover:shadow-xl hover:border-pink-500/30 transition-all duration-300 border-l-4 border-l-pink-400 dark:border-l-pink-500">
-            <div class="absolute -right-6 -top-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                <svg class="w-32 h-32 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
-            </div>
-            <div class="relative z-10 flex flex-col justify-between h-full">
-                <div>
-                    <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Pesan Baru</div>
-                    <div class="text-3xl font-black text-slate-800 dark:text-white">{{ $statistik['pesan_baru'] }} <span class="text-base font-normal text-slate-400">Pesan</span></div>
-                </div>
-                <a href="{{ route('admin.pelanggan.kotak-masuk') }}" class="mt-4 inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
-                    Balas Pesan <svg class="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                </a>
+        <!-- 3. Aktivitas Terbaru (Feed) -->
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-6">Aktivitas Terbaru</h3>
+            <div class="space-y-6 relative before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100 dark:before:bg-slate-700">
+                @foreach($aktivitas as $log)
+                    <div class="relative pl-8">
+                        <div class="absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white dark:border-slate-800 bg-indigo-500 shadow-sm"></div>
+                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 line-clamp-1">{{ $log->description }}</p>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-xs text-slate-500">{{ $log->created_at->diffForHumans() }}</span>
+                            <span class="text-xs font-bold text-slate-400">•</span>
+                            <span class="text-xs font-bold text-indigo-500">{{ $log->user->name ?? 'Sistem' }}</span>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>
 
-    <!-- Grafik Penjualan (Disisipkan) -->
-    <div wire:ignore class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 mb-8 relative overflow-hidden">
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <h3 class="font-bold text-slate-800 dark:text-white text-lg">Tren Penjualan Mingguan</h3>
-                <p class="text-sm text-slate-500">Omzet kotor 7 hari terakhir</p>
-            </div>
-            <span class="text-xs font-bold bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full border border-indigo-100">Data Terkini</span>
-        </div>
-        <div id="chart-penjualan" class="w-full h-80"></div>
-    </div>
-
-    <!-- Bagian Status Operasional -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        
-        <!-- Status Rakitan PC -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex items-center justify-between group hover:shadow-md transition-all relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-purple-50 to-transparent dark:from-purple-900/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="relative flex items-center gap-5">
-                <div class="p-4 bg-purple-100 dark:bg-purple-900/30 rounded-2xl text-purple-600 dark:text-purple-400 shadow-sm">
-                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                </div>
-                <div>
-                    <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Perakitan PC Sedang Berjalan</p>
-                    <p class="text-3xl font-black text-slate-800 dark:text-white mt-1">{{ $statistik['rakitan_aktif'] }} <span class="text-sm font-normal text-slate-400">Unit</span></p>
-                </div>
-            </div>
-            <a href="{{ route('admin.perakitan.indeks') }}" class="relative px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all shadow-sm">
-                Kelola
-            </a>
-        </div>
-
-        <!-- Status Penawaran Pending -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex items-center justify-between group hover:shadow-md transition-all relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-cyan-50 to-transparent dark:from-cyan-900/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="relative flex items-center gap-5">
-                <div class="p-4 bg-cyan-100 dark:bg-cyan-900/30 rounded-2xl text-cyan-600 dark:text-cyan-400 shadow-sm">
-                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                </div>
-                <div>
-                    <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Penawaran (B2B) Tertunda</p>
-                    <p class="text-3xl font-black text-slate-800 dark:text-white mt-1">{{ $statistik['penawaran_tertunda'] }} <span class="text-sm font-normal text-slate-400">Dokumen</span></p>
-                </div>
-            </div>
-            <a href="{{ route('admin.penawaran.indeks') }}" class="relative px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:border-cyan-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all shadow-sm">
-                Tinjau
-            </a>
-        </div>
-    </div>
-
-    <!-- Inventaris & Analisis -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        <!-- Panel Peringatan Stok Menipis -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-full">
-            <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-rose-100 dark:bg-rose-900/50 rounded-lg text-rose-600 dark:text-rose-400">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 dark:text-white text-sm">Peringatan Stok Menipis</h3>
-                        <p class="text-xs text-slate-500">Perlu tindakan restocking segera</p>
-                    </div>
-                </div>
-                <span class="text-xs font-bold bg-rose-100 dark:bg-rose-900 text-rose-600 dark:text-rose-300 px-3 py-1 rounded-full shadow-sm border border-rose-200 dark:border-rose-700">{{ $analisis['low_stock']->count() }} Item</span>
-            </div>
-            <div class="flex-1 overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-50 dark:bg-slate-800/50 text-[10px] uppercase text-slate-500 dark:text-slate-400">
-                        <tr>
-                            <th class="px-6 py-3 font-semibold tracking-wider">Nama Produk</th>
-                            <th class="px-6 py-3 font-semibold tracking-wider text-right">Sisa Stok</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                        @forelse($analisis['low_stock']->take(5) as $item)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                <td class="px-6 py-3.5 text-sm text-slate-700 dark:text-slate-300 font-medium">
-                                    {{ $item->name }}
-                                    <div class="text-[10px] text-slate-400">{{ $item->sku ?? '-' }}</div>
-                                </td>
-                                <td class="px-6 py-3.5 text-sm text-right">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200">
-                                        {{ $item->stock_quantity }} Unit
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="2" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500 italic">
-                                <div class="flex flex-col items-center gap-2">
-                                    <svg class="w-10 h-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    <span>Stok aman. Tidak ada peringatan.</span>
-                                </div>
-                            </td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 text-center">
-                <a href="{{ route('admin.permintaan-stok.buat') }}" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors flex items-center justify-center gap-2 group">
-                    <span>Buat Permintaan Pembelian</span>
-                    <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                </a>
-            </div>
-        </div>
-
-        <!-- Panel Produk Terlaris -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-full">
-            <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg text-emerald-600 dark:text-emerald-400">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 dark:text-white text-sm">Produk Terlaris</h3>
-                        <p class="text-xs text-slate-500">Performa penjualan 30 hari terakhir</p>
-                    </div>
-                </div>
-            </div>
-            <div class="flex-1 overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-50 dark:bg-slate-800/50 text-[10px] uppercase text-slate-500 dark:text-slate-400">
-                        <tr>
-                            <th class="px-6 py-3 font-semibold tracking-wider">Peringkat</th>
-                            <th class="px-6 py-3 font-semibold tracking-wider">Produk</th>
-                            <th class="px-6 py-3 font-semibold tracking-wider text-right">Terjual</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                        @forelse($analisis['fast_moving']->take(5) as $indeks => $item)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                <td class="px-6 py-3.5 w-12 text-center text-sm font-bold text-slate-400">
-                                    #{{ $indeks + 1 }}
-                                </td>
-                                <td class="px-6 py-3.5 text-sm text-slate-700 dark:text-slate-300 font-medium">
-                                    {{ $item->product->name }}
-                                </td>
-                                <td class="px-6 py-3.5 text-sm text-right font-bold text-emerald-600 dark:text-emerald-400">
-                                    {{ $item->total_sold }}
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="3" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500 italic">
-                                <div class="flex flex-col items-center gap-2">
-                                    <svg class="w-10 h-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                                    <span>Belum ada data penjualan yang cukup.</span>
-                                </div>
-                            </td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 text-center">
-                 <a href="{{ route('admin.analitik.penjualan') }}" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors flex items-center justify-center gap-2 group">
-                    <span>Lihat Laporan Lengkap</span>
-                    <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bagian Log Aktivitas Terbaru -->
-    <div class="mt-8 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg text-indigo-600 dark:text-indigo-400">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <div>
-                    <h3 class="font-bold text-slate-800 dark:text-white text-sm">Log Aktivitas Terbaru</h3>
-                    <p class="text-xs text-slate-500">Jejak audit tindakan pengguna di sistem</p>
-                </div>
-            </div>
-            <a href="{{ route('admin.log-aktivitas.indeks') }}" class="text-xs font-bold text-slate-400 hover:text-indigo-500 transition-colors">Lihat Semua</a>
+    <!-- 4. Top Produk (Table) -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 dark:border-slate-700">
+            <h3 class="font-bold text-lg text-slate-800 dark:text-white">Produk Terlaris Minggu Ini</h3>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left">
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                    @forelse($statistik['log_aktivitas'] as $log)
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="px-6 py-4 whitespace-nowrap w-48">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-500">
-                                        {{ substr($log->user->name ?? 'S', 0, 1) }}
-                                    </div>
-                                    <div class="text-xs">
-                                        <div class="font-bold text-slate-800 dark:text-white">{{ $log->user->name ?? 'Sistem' }}</div>
-                                        <div class="text-slate-400">{{ $log->created_at->diffForHumans() }}</div>
-                                    </div>
-                                </div>
+            <table class="w-full text-sm text-left">
+                <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 uppercase font-bold text-xs">
+                    <tr>
+                        <th class="px-6 py-4">Produk</th>
+                        <th class="px-6 py-4">Harga</th>
+                        <th class="px-6 py-4 text-center">Terjual</th>
+                        <th class="px-6 py-4 text-right">Status Stok</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                    @foreach($top_produk as $p)
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                            <td class="px-6 py-4 font-bold text-slate-800 dark:text-white">{{ $p->name }}</td>
+                            <td class="px-6 py-4 text-slate-600 dark:text-slate-300">Rp {{ number_format($p->sell_price) }}</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md font-bold text-xs">{{ $p->terjual }}</span>
                             </td>
-                            <td class="px-6 py-4 text-xs text-slate-600 dark:text-slate-400 italic">
-                                {{ $log->generateNarrative() }}
-                            </td>
-                            <td class="px-6 py-4 text-right whitespace-nowrap">
-                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 text-[10px] font-mono border border-slate-200 dark:border-slate-600">
-                                    {{ $log->ip_address }}
-                                </span>
+                            <td class="px-6 py-4 text-right">
+                                @if($p->stock_quantity > 10)
+                                    <span class="text-emerald-600 font-bold text-xs">Aman ({{ $p->stock_quantity }})</span>
+                                @else
+                                    <span class="text-rose-600 font-bold text-xs">Menipis ({{ $p->stock_quantity }})</span>
+                                @endif
                             </td>
                         </tr>
-                    @empty
-                        <tr><td class="px-6 py-10 text-center text-slate-400 italic text-sm">Belum ada aktivitas yang tercatat.</td></tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-
-@assets
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-@endassets
-
-@script
-<script>
-    Livewire.hook('component.init', ({ component, cleanup }) => {
-        const data = @json($statistik['grafik_penjualan']);
-        const categories = data.map(item => item.tanggal);
-        const series = data.map(item => item.total);
-        const isDark = document.documentElement.classList.contains('dark');
-
-        const options = {
-            chart: {
-                type: 'area',
-                height: 320,
-                fontFamily: 'Inter, sans-serif',
-                toolbar: { show: false },
-                animations: { enabled: true },
-                background: 'transparent'
-            },
-            series: [{
-                name: 'Pendapatan',
-                data: series
-            }],
-            xaxis: {
-                categories: categories,
-                axisBorder: { show: false },
-                axisTicks: { show: false },
-                labels: { style: { colors: isDark ? '#94a3b8' : '#64748b' } }
-            },
-            yaxis: {
-                labels: {
-                    formatter: (value) => {
-                        return 'Rp ' + new Intl.NumberFormat('id-ID', { notation: "compact" }).format(value);
-                    },
-                    style: { colors: isDark ? '#94a3b8' : '#64748b' }
-                }
-            },
-            colors: ['#4f46e5'],
-            fill: {
-                type: 'gradient',
-                gradient: {
-                    shadeIntensity: 1,
-                    opacityFrom: 0.7,
-                    opacityTo: 0.1,
-                    stops: [0, 90, 100]
-                }
-            },
-            dataLabels: { enabled: false },
-            stroke: { curve: 'smooth', width: 2 },
-            grid: {
-                borderColor: isDark ? '#334155' : '#e2e8f0',
-                strokeDashArray: 4,
-            },
-            theme: { mode: isDark ? 'dark' : 'light' },
-            tooltip: {
-                theme: isDark ? 'dark' : 'light',
-                y: {
-                    formatter: function (val) {
-                        return 'Rp ' + new Intl.NumberFormat('id-ID').format(val);
-                    }
-                }
-            }
-        };
-
-        const chart = new ApexCharts(document.querySelector("#chart-penjualan"), options);
-        chart.render();
-    });
-</script>
-@endscript
