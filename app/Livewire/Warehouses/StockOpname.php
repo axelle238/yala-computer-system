@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Warehouses;
 
+use App\Models\CashRegister;
+use App\Models\CashTransaction;
 use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\StockOpname as ModelStokOpname;
@@ -15,123 +17,170 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
-#[Title('Stok Opname - Yala Computer')]
+#[Title('Manajemen Stok Opname - Yala Computer')]
 class StockOpname extends Component
 {
     use WithPagination;
 
-    public $cari = '';
+    // Filter
+    public $kataKunciCari = '';
 
-    public ?ModelStokOpname $opnameAktif = null;
+    // Status Sesi
+    public ?ModelStokOpname $opnameBerjalan = null;
 
+    /**
+     * Inisialisasi komponen.
+     */
     public function mount()
     {
-        // Cari sesi opname yang sedang berlangsung untuk pengguna ini
-        $this->opnameAktif = ModelStokOpname::where('creator_id', Auth::id())
+        $this->opnameBerjalan = ModelStokOpname::where('creator_id', Auth::id())
             ->where('status', 'menghitung')
             ->latest()
             ->first();
     }
 
-    public function mulaiSesi()
+    /**
+     * Memulai sesi perhitungan stok baru.
+     */
+    public function bukaSesiOpname()
     {
-        $gudangUtama = Warehouse::first();
+        $gudang = Warehouse::first();
 
-        if (! $gudangUtama) {
-            $this->dispatch('notify', message: 'Tidak ada data gudang ditemukan.', type: 'error');
-
+        if (! $gudang) {
+            $this->dispatch('notify', message: 'Error: Data gudang utama tidak ditemukan.', type: 'error');
             return;
         }
 
-        // Buat sesi opname baru
-        $this->opnameAktif = ModelStokOpname::create([
-            'opname_number' => 'OPN-'.date('Ymd-His'),
-            'warehouse_id' => $gudangUtama->id,
+        $this->opnameBerjalan = ModelStokOpname::create([
+            'opname_number' => 'OPN-'.date('Ymd-His').'-'.Auth::id(),
+            'warehouse_id' => $gudang->id,
             'creator_id' => Auth::id(),
             'status' => 'menghitung',
             'opname_date' => now(),
         ]);
 
-        // Masukkan semua produk aktif ke dalam item opname
-        $produk = Product::where('is_active', true)->get();
-        $item = [];
-        foreach ($produk as $p) {
-            $item[] = [
-                'stock_opname_id' => $this->opnameAktif->id,
+        // Snapshoot stok sistem saat ini
+        $produkAktif = Product::where('is_active', true)->get();
+        $daftarInput = [];
+        foreach ($produkAktif as $p) {
+            $daftarInput[] = [
+                'stock_opname_id' => $this->opnameBerjalan->id,
                 'product_id' => $p->id,
                 'system_stock' => $p->stock_quantity,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
         }
-        ItemStokOpname::insert($item);
+        ItemStokOpname::insert($daftarInput);
+        
+        $this->dispatch('notify', message: 'Sesi opname dimulai. Silakan isi stok fisik.', type: 'info');
     }
 
-    public function batalkanSesi()
+    /**
+     * Membatalkan sesi yang sedang berjalan.
+     */
+    public function hapusSesiIni()
     {
-        if ($this->opnameAktif) {
-            $this->opnameAktif->update(['status' => 'dibatalkan']);
-            $this->opnameAktif = null;
+        if ($this->opnameBerjalan) {
+            $this->opnameBerjalan->update(['status' => 'dibatalkan']);
+            $this->opnameBerjalan = null;
+            $this->dispatch('notify', message: 'Sesi opname telah dibatalkan.', type: 'warning');
         }
     }
 
-    public function perbaruiStokFisik($idItem, $stokFisik)
+    /**
+     * Menyimpan input stok fisik secara real-time.
+     */
+    public function updateFisik($idItem, $jumlah)
     {
         $item = ItemStokOpname::find($idItem);
-        if ($item && $this->opnameAktif && $item->stock_opname_id == $this->opnameAktif->id) {
-            $item->update(['physical_stock' => $stokFisik === '' ? null : $stokFisik]);
+        if ($item && $this->opnameBerjalan && $item->stock_opname_id == $this->opnameBerjalan->id) {
+            $item->update(['physical_stock' => $jumlah === '' ? null : $jumlah]);
         }
     }
 
-    public function finalisasiOpname()
+    /**
+     * Finalisasi Opname: Sesuaikan Stok & Catat Kerugian Finansial (Kompleks).
+     */
+    public function selesaikanDanFinalisasi()
     {
-        if (! $this->opnameAktif) {
-            return;
-        }
+        if (! $this->opnameBerjalan) return;
 
-        DB::transaction(function () {
-            $itemUntukDisesuaikan = $this->opnameAktif->item()
-                ->whereNotNull('physical_stock')
-                ->whereRaw('physical_stock != system_stock')
-                ->get();
+        $kasirAktif = CashRegister::where('user_id', Auth::id())->where('status', 'open')->first();
 
-            foreach ($itemUntukDisesuaikan as $item) {
-                $produk = $item->produk;
-                $selisih = $item->variance;
+        try {
+            DB::transaction(function () use ($kasirAktif) {
+                $itemBermasalah = $this->opnameBerjalan->item()
+                    ->whereNotNull('physical_stock')
+                    ->whereRaw('physical_stock != system_stock')
+                    ->get();
 
-                // Perbarui Stok Produk
-                $produk->update(['stock_quantity' => $item->physical_stock]);
+                $totalKerugianFinansial = 0;
 
-                // Catat Transaksi
-                InventoryTransaction::create([
-                    'product_id' => $produk->id,
-                    'user_id' => Auth::id(),
-                    'warehouse_id' => $this->opnameAktif->warehouse_id,
-                    'type' => 'adjustment',
-                    'quantity' => abs($selisih),
-                    'remaining_stock' => $item->physical_stock,
-                    'notes' => "Stok Opname #{$this->opnameAktif->opname_number}: Selisih {$selisih}",
-                    'reference_number' => $this->opnameAktif->opname_number,
+                foreach ($itemBermasalah as $item) {
+                    $produk = $item->produk;
+                    $selisih = $item->physical_stock - $item->system_stock;
+
+                    // 1. Perbarui Stok Utama
+                    $produk->update(['stock_quantity' => $item->physical_stock]);
+
+                    // 2. Catat Log Audit Inventaris
+                    InventoryTransaction::create([
+                        'product_id' => $produk->id,
+                        'user_id' => Auth::id(),
+                        'warehouse_id' => $this->opnameBerjalan->warehouse_id,
+                        'type' => 'adjustment',
+                        'quantity' => abs($selisih),
+                        'remaining_stock' => $item->physical_stock,
+                        'notes' => "Penyesuaian Opname #{$this->opnameBerjalan->opname_number}. Selisih: {$selisih}",
+                        'reference_number' => $this->opnameBerjalan->opname_number,
+                    ]);
+
+                    // 3. Hitung Kerugian (Hanya jika stok fisik < stok sistem)
+                    if ($selisih < 0) {
+                        $kerugianItem = abs($selisih) * ($produk->buy_price ?? 0);
+                        $totalKerugianFinansial += $kerugianItem;
+                    }
+                }
+
+                // 4. Integrasi Keuangan: Catat sebagai Beban jika ada kerugian & kasir buka
+                if ($totalKerugianFinansial > 0 && $kasirAktif) {
+                    CashTransaction::create([
+                        'cash_register_id' => $kasirAktif->id,
+                        'transaction_number' => 'BEBAN-OPNAME-'.$this->opnameBerjalan->id,
+                        'type' => 'out',
+                        'category' => 'expense',
+                        'amount' => $totalKerugianFinansial,
+                        'description' => "Kerugian Selisih Stok Opname #{$this->opnameBerjalan->opname_number}",
+                        'reference_id' => $this->opnameBerjalan->id,
+                        'reference_type' => ModelStokOpname::class,
+                        'created_by' => Auth::id(),
+                    ]);
+                }
+
+                $this->opnameBerjalan->update([
+                    'status' => 'selesai',
+                    'notes' => "Finalisasi sistem otomatis. Total kerugian tercatat: Rp " . number_format($totalKerugianFinansial)
                 ]);
-            }
+                
+                $this->opnameBerjalan = null;
+            });
 
-            // Tandai sesi opname selesai
-            $this->opnameAktif->update(['status' => 'selesai']);
-            $this->opnameAktif = null;
-        });
-
-        session()->flash('success', 'Stok Opname Selesai! Stok telah disesuaikan.');
+            $this->dispatch('notify', message: 'Stok opname berhasil difinalisasi. Stok sistem telah diperbarui.', type: 'success');
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: 'Gagal melakukan finalisasi: ' . $e->getMessage(), type: 'error');
+        }
     }
 
     public function render()
     {
         $daftarItem = null;
-        if ($this->opnameAktif) {
-            $daftarItem = ItemStokOpname::where('stock_opname_id', $this->opnameAktif->id)
+        if ($this->opnameBerjalan) {
+            $daftarItem = ItemStokOpname::where('stock_opname_id', $this->opnameBerjalan->id)
                 ->with('produk')
                 ->whereHas('produk', function ($q) {
-                    $q->where('name', 'like', '%'.$this->cari.'%')
-                        ->orWhere('sku', 'like', '%'.$this->cari.'%');
+                    $q->where('name', 'like', '%'.$this->kataKunciCari.'%')
+                        ->orWhere('sku', 'like', '%'.$this->kataKunciCari.'%');
                 })
                 ->paginate(50);
         }
