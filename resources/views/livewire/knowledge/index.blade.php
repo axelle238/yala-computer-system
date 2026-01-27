@@ -8,7 +8,7 @@
                 Knowledge <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600">Base</span>
             </h2>
             <div class="flex gap-2 mb-2">
-                <input wire:model.live.debounce.300ms="search" type="text" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm" placeholder="Cari SOP / Panduan...">
+                <input wire:model.live.debounce.300ms="cari" type="text" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm" placeholder="Cari SOP / Panduan...">
                 <button wire:click="create" class="px-3 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl shadow hover:scale-105 transition-transform">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                 </button>
@@ -65,9 +65,9 @@
                     <h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-6 leading-tight">{{ $activeArticle->title }}</h1>
                     
                     <div class="flex items-center gap-3 mb-8 border-b border-slate-100 pb-6">
-                        <div class="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-500">{{ substr($activeArticle->author->name, 0, 1) }}</div>
+                        <div class="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-500">{{ substr($activeArticle->penulis->name, 0, 1) }}</div>
                         <div>
-                            <p class="text-sm font-bold text-slate-800 dark:text-white">{{ $activeArticle->author->name }}</p>
+                            <p class="text-sm font-bold text-slate-800 dark:text-white">{{ $activeArticle->penulis->name }}</p>
                             <p class="text-xs text-slate-500">Diterbitkan {{ $activeArticle->created_at->format('d F Y') }}</p>
                         </div>
                     </div>

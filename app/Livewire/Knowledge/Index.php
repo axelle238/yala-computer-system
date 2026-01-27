@@ -16,7 +16,7 @@ class Index extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public $cari = '';
 
     public $categoryFilter = '';
 
@@ -55,7 +55,7 @@ class Index extends Component
 
     public function read($id)
     {
-        $this->activeArticle = KnowledgeArticle::with('author')->findOrFail($id);
+        $this->activeArticle = KnowledgeArticle::with('penulis')->findOrFail($id);
         $this->isReading = true;
         $this->isEditing = false;
     }
@@ -98,8 +98,8 @@ class Index extends Component
     {
         $categories = KnowledgeArticle::select('category')->distinct()->pluck('category');
 
-        $articles = KnowledgeArticle::with('author')
-            ->when($this->search, fn ($q) => $q->where('title', 'like', '%'.$this->search.'%'))
+        $articles = KnowledgeArticle::with('penulis')
+            ->when($this->cari, fn ($q) => $q->where('title', 'like', '%'.$this->cari.'%'))
             ->when($this->categoryFilter, fn ($q) => $q->where('category', $this->categoryFilter))
             ->latest()
             ->paginate(12);
