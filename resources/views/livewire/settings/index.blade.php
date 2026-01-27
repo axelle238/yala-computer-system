@@ -29,6 +29,7 @@
                 'sistem' => ['label' => 'Integrasi Sistem', 'icon' => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'],
                 'seo' => ['label' => 'SEO & Media Sosial', 'icon' => 'M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9'],
                 'notifikasi' => ['label' => 'Template Notifikasi', 'icon' => 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'],
+                'operasional' => ['label' => 'Jadwal Operasional', 'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
             ] as $key => $meta)
                 <button wire:click="gantiTab('{{ $key }}')" 
                         class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all {{ $tabAktif === $key ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
@@ -253,6 +254,44 @@
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pengingat Pembayaran</label>
                             <textarea wire:model="formulir.wa_template_payment_reminder" rows="4" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-indigo-500 font-mono text-sm"></textarea>
                         </div>
+                    </div>
+                </div>
+
+                <!-- TAB OPERASIONAL -->
+                <div x-show="$wire.tabAktif === 'operasional'" class="space-y-8 animate-fade-in" style="display: none;">
+                    <h3 class="text-lg font-black text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-700 pb-4 mb-6">Jadwal Operasional Toko</h3>
+                    
+                    <p class="text-sm text-slate-500 italic mb-6">*Atur jam buka dan tutup toko. Tulis 'Tutup' jika pada hari tersebut toko tidak beroperasi.</p>
+
+                    <div class="overflow-hidden border border-slate-100 dark:border-slate-700 rounded-2xl">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 dark:bg-slate-900/50">
+                                <tr>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Hari</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Jam Buka</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Jam Tutup</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                                @php
+                                    $hari = [
+                                        'mon' => 'Senin', 'tue' => 'Selasa', 'wed' => 'Rabu', 
+                                        'thu' => 'Kamis', 'fri' => 'Jumat', 'sat' => 'Sabtu', 'sun' => 'Minggu'
+                                    ];
+                                @endphp
+                                @foreach($hari as $key => $label)
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+                                        <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">{{ $label }}</td>
+                                        <td class="px-6 py-4">
+                                            <input wire:model="formulir.store_open_{{ $key }}" type="text" class="w-32 rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 py-1.5 text-sm focus:ring-indigo-500">
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <input wire:model="formulir.store_close_{{ $key }}" type="text" class="w-32 rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 py-1.5 text-sm focus:ring-indigo-500">
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 

@@ -53,6 +53,14 @@ class Index extends Component
             'social_facebook', 'social_instagram', 'social_tiktok',
             // Template Notifikasi (WhatsApp)
             'wa_template_order_success', 'wa_template_payment_reminder',
+            // Jam Operasional
+            'store_open_mon', 'store_close_mon',
+            'store_open_tue', 'store_close_tue',
+            'store_open_wed', 'store_close_wed',
+            'store_open_thu', 'store_close_thu',
+            'store_open_fri', 'store_close_fri',
+            'store_open_sat', 'store_close_sat',
+            'store_open_sun', 'store_close_sun',
         ];
 
         // Pastikan setting ada di database, jika tidak buat default kosong
@@ -140,6 +148,13 @@ class Index extends Component
             'social_tiktok' => '',
             'wa_template_order_success' => 'Halo {name}, pesanan #{order_id} Anda telah berhasil dibuat. Silakan lakukan pembayaran.',
             'wa_template_payment_reminder' => 'Halo {name}, jangan lupa selesaikan pembayaran untuk pesanan #{order_id} Anda.',
+            'store_open_mon' => '09:00', 'store_close_mon' => '17:00',
+            'store_open_tue' => '09:00', 'store_close_tue' => '17:00',
+            'store_open_wed' => '09:00', 'store_close_wed' => '17:00',
+            'store_open_thu' => '09:00', 'store_close_thu' => '17:00',
+            'store_open_fri' => '09:00', 'store_close_fri' => '17:00',
+            'store_open_sat' => '09:00', 'store_close_sat' => '15:00',
+            'store_open_sun' => 'Tutup', 'store_close_sun' => 'Tutup',
         ];
 
         $this->dispatch('notify', message: 'Formulir telah direset ke nilai default (Belum Disimpan).', type: 'info');
