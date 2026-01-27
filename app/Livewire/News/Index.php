@@ -14,7 +14,7 @@ class Index extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public $cari = '';
 
     public function delete($id)
     {
@@ -24,7 +24,7 @@ class Index extends Component
 
     public function render()
     {
-        $articles = Article::where('title', 'like', '%'.$this->search.'%')
+        $articles = Article::where('title', 'like', '%'.$this->cari.'%')
             ->latest()
             ->paginate(10);
 
