@@ -104,7 +104,7 @@
             <div class="hidden md:flex items-center gap-4">
                 
                 @auth
-                    <a href="{{ route('wishlist') }}" class="relative group p-2 text-slate-400 hover:text-pink-500 transition-colors">
+                    <a href="{{ route('toko.keinginan') }}" class="relative group p-2 text-slate-400 hover:text-pink-500 transition-colors">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                         @if(\App\Models\Wishlist::where('user_id', auth()->id())->count() > 0)
                             <span class="absolute top-1 right-1 w-2 h-2 bg-pink-500 rounded-full animate-ping"></span>
@@ -131,16 +131,16 @@
                                 <div class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-950/50">Menu Utama</div>
                                 <a href="{{ route('toko.merek') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Mitra Merek</a>
                                 <a href="{{ route('toko.rakit-pc') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Rakit PC</a>
-                                <a href="{{ route('track-service') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Lacak Servis</a>
-                                <a href="{{ route('track-order') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Lacak Pesanan</a>
+                                <a href="{{ route('toko.lacak-servis') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Lacak Servis</a>
+                                <a href="{{ route('toko.lacak-pesanan') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Lacak Pesanan</a>
                                 
                                 <div class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-950/50 mt-1">Area Member</div>
-                                <a href="{{ route('member.dashboard') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Dashboard</a>
-                                <a href="{{ route('member.profile') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Pengaturan Profil</a>
-                                <a href="{{ route('member.orders') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Riwayat Pesanan</a>
-                                <a href="{{ route('member.quotations') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Penawaran Saya (B2B)</a>
-                                <a href="{{ route('member.rma.request') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Klaim Garansi (RMA)</a>
-                                <a href="{{ route('member.referrals') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Referral & Cuan</a>
+                                <a href="{{ route('anggota.beranda') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Dashboard</a>
+                                <a href="{{ route('anggota.profil') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Pengaturan Profil</a>
+                                <a href="{{ route('anggota.pesanan') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Riwayat Pesanan</a>
+                                <a href="{{ route('anggota.penawaran') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Penawaran Saya (B2B)</a>
+                                <a href="{{ route('anggota.garansi.ajukan') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Klaim Garansi (RMA)</a>
+                                <a href="{{ route('anggota.referal') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Referral & Cuan</a>
                                 
                                 <div class="border-t border-white/10 mt-1"></div>
                                 <form method="POST" action="{{ route('logout') }}">
