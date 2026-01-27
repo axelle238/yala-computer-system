@@ -1,3 +1,4 @@
+<div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4" wire:poll.3s="muatSesi">
     <style>
         .chat-content p { margin-bottom: 0.5rem; }
         .chat-content p:last-child { margin-bottom: 0; }
