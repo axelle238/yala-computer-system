@@ -106,7 +106,7 @@
                                 <td class="px-6 py-4">{{ $order->created_at->format('d M Y') }}</td>
                                 <td class="px-6 py-4 font-bold">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
                                 <td class="px-6 py-4">
-                                    <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-bold uppercase">{{ $order->status }}</span>
+                                    <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-bold uppercase">{{ $order->status_label }}</span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <a href="{{ route('admin.pesanan.tampil', $order->id) }}" class="text-indigo-600 hover:underline">Detail</a>
@@ -135,7 +135,7 @@
                                 <td class="px-6 py-4">{{ $ticket->device_name }}</td>
                                 <td class="px-6 py-4 truncate max-w-xs">{{ $ticket->problem_description }}</td>
                                 <td class="px-6 py-4">
-                                    <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-bold uppercase">{{ $ticket->status }}</span>
+                                    <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-bold uppercase">{{ $ticket->status_label }}</span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <a href="{{ route('admin.servis.meja-kerja', $ticket->id) }}" class="text-indigo-600 hover:underline">Kelola</a>
