@@ -11,7 +11,7 @@ use Livewire\Component;
 #[Title('Manajemen Pesanan (Kanban) - Admin')]
 class Index extends Component
 {
-    public $search = '';
+    public $cari = '';
 
     public function updateStatus($orderId, $newStatus)
     {
@@ -30,10 +30,10 @@ class Index extends Component
 
     public function render()
     {
-        $query = Order::with(['user', 'items'])
-            ->when($this->search, function ($query) {
-                $query->where('order_number', 'like', '%'.$this->search.'%')
-                    ->orWhere('guest_name', 'like', '%'.$this->search.'%');
+        $query = Order::with(['user', 'item'])
+            ->when($this->cari, function ($query) {
+                $query->where('order_number', 'like', '%'.$this->cari.'%')
+                    ->orWhere('guest_name', 'like', '%'.$this->cari.'%');
             })
             ->latest();
 
