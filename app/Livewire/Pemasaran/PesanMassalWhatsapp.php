@@ -11,77 +11,91 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
-#[Title('Pesan Massal WhatsApp - Yala Computer')]
+#[Title('Pusat Kampanye WhatsApp - Yala Computer')]
 class PesanMassalWhatsapp extends Component
 {
     use WithPagination;
 
-    public $pencarian = '';
+    // Filter Tampilan
+    public $kataKunciCari = '';
 
-    // Properti Formulir
+    // Status Panel
     public $aksiAktif = null; // null, 'buat'
 
+    // Data Formulir
     public $namaKampanye;
-
-    public $targetAudiens = 'all'; // all, loyal, inactive
-
-    public $pesanTemplate;
-
+    public $kriteriaAudiens = 'semua'; // semua, loyal, tidak_aktif, gold_platinum
+    public $templatePesan;
     public $jadwalKirim;
 
-    public function updatingPencarian()
+    /**
+     * Reset halaman saat mencari.
+     */
+    public function updatingKataKunciCari()
     {
         $this->resetPage();
     }
 
-    public function bukaPanelBuat()
+    /**
+     * Membuka formulir pembuatan kampanye baru.
+     */
+    public function bukaFormBuat()
     {
-        $this->reset(['namaKampanye', 'targetAudiens', 'pesanTemplate', 'jadwalKirim']);
+        $this->reset(['namaKampanye', 'kriteriaAudiens', 'templatePesan', 'jadwalKirim']);
         $this->aksiAktif = 'buat';
     }
 
-    public function tutupPanel()
+    /**
+     * Menutup formulir kampanye.
+     */
+    public function tutupForm()
     {
         $this->aksiAktif = null;
     }
 
-    public function simpan()
+    /**
+     * Validasi dan simpan kampanye ke antrian.
+     */
+    public function simpanKampanye()
     {
         $this->validate([
             'namaKampanye' => 'required|string|max:255',
-            'pesanTemplate' => 'required|string|min:10',
-            'targetAudiens' => 'required|in:all,loyal,inactive',
+            'templatePesan' => 'required|string|min:10',
+            'kriteriaAudiens' => 'required|in:semua,loyal,tidak_aktif,gold_platinum',
             'jadwalKirim' => 'nullable|date|after:now',
         ], [
-            'namaKampanye.required' => 'Nama kampanye wajib diisi.',
-            'pesanTemplate.required' => 'Pesan tidak boleh kosong.',
-            'jadwalKirim.after' => 'Jadwal kirim harus di masa depan.',
+            'namaKampanye.required' => 'Judul kampanye wajib diisi.',
+            'templatePesan.required' => 'Isi pesan template tidak boleh kosong.',
+            'templatePesan.min' => 'Pesan minimal terdiri dari 10 karakter.',
+            'jadwalKirim.after' => 'Waktu penjadwalan harus di masa mendatang.',
         ]);
 
-        // Hitung estimasi penerima
-        $totalPenerima = $this->hitungPenerima($this->targetAudiens);
+        // Kalkulasi jumlah target penerima berdasarkan integrasi CRM
+        $jumlahPenerima = $this->hitungEstimasiPenerima($this->kriteriaAudiens);
 
-        if ($totalPenerima === 0) {
-            $this->dispatch('notify', message: 'Tidak ada audiens yang memenuhi kriteria.', type: 'error');
-
+        if ($jumlahPenerima === 0) {
+            $this->dispatch('notify', message: 'Gagal! Tidak ada data audiens yang masuk dalam kriteria tersebut.', type: 'error');
             return;
         }
 
         WhatsappBlastModel::create([
             'campaign_name' => $this->namaKampanye,
-            'message_template' => $this->pesanTemplate,
-            'target_audience' => $this->targetAudiens,
+            'message_template' => $this->templatePesan,
+            'target_audience' => $this->kriteriaAudiens,
             'scheduled_at' => $this->jadwalKirim,
-            'status' => $this->jadwalKirim ? 'pending' : 'pending', // Awalnya selalu pending sebelum di-proses manual
-            'total_recipients' => $totalPenerima,
+            'status' => 'pending',
+            'total_recipients' => $jumlahPenerima,
             'created_by' => Auth::id(),
         ]);
 
-        $this->dispatch('notify', message: 'Kampanye WhatsApp berhasil dibuat.', type: 'success');
-        $this->tutupPanel();
+        $this->dispatch('notify', message: 'Kampanye WhatsApp berhasil didaftarkan.', type: 'success');
+        $this->tutupForm();
     }
 
-    public function prosesKampanye($id)
+    /**
+     * Memulai proses pengiriman pesan massal.
+     */
+    public function luncurkanSekarang($id)
     {
         $kampanye = WhatsappBlastModel::findOrFail($id);
 
@@ -89,63 +103,83 @@ class PesanMassalWhatsapp extends Component
             return;
         }
 
-        // Dispatch Job ke Queue
+        // Jalankan Job Latar Belakang
         \App\Jobs\SendWhatsappBlastJob::dispatch($kampanye);
 
-        $this->dispatch('notify', message: 'Kampanye "'.$kampanye->campaign_name.'" sedang diproses di latar belakang.', type: 'success');
+        $this->dispatch('notify', message: "Kampanye '{$kampanye->campaign_name}' telah masuk antrian pengiriman.", type: 'success');
     }
 
-    public function hapus($id)
+    /**
+     * Menghapus data kampanye.
+     */
+    public function hapusData($id)
     {
         $kampanye = WhatsappBlastModel::findOrFail($id);
 
         if ($kampanye->status === 'processing') {
-            $this->dispatch('notify', message: 'Tidak dapat menghapus kampanye yang sedang berjalan.', type: 'error');
-
+            $this->dispatch('notify', message: 'Maaf, kampanye sedang berjalan dan tidak dapat dihapus.', type: 'error');
             return;
         }
 
         $kampanye->delete();
-        $this->dispatch('notify', message: 'Kampanye telah dihapus.', type: 'success');
+        $this->dispatch('notify', message: 'Data kampanye telah dibersihkan dari sistem.', type: 'success');
     }
 
-    public function hitungPenerima($target)
+    /**
+     * Logika CRM: Menghitung jumlah audiens berdasarkan filter kompleks.
+     */
+    public function hitungEstimasiPenerima($kriteria)
     {
         $query = User::whereNotNull('phone')->where('phone', '!=', '');
 
-        if ($target === 'loyal') {
-            $query->where('total_spent', '>=', 10000000);
-        } elseif ($target === 'inactive') {
-            $query->where('last_purchase_at', '<', now()->subMonths(3));
+        switch ($kriteria) {
+            case 'loyal':
+                // Minimal belanja 10jt
+                $query->where('total_spent', '>=', 10000000);
+                break;
+            case 'tidak_aktif':
+                // Tidak belanja > 3 bulan
+                $query->where('last_purchase_at', '<', now()->subMonths(3));
+                break;
+            case 'gold_platinum':
+                // Hanya tier tinggi
+                $query->whereIn('loyalty_tier', ['Gold', 'Platinum']);
+                break;
+            default:
+                // Semua pengguna dengan nomor HP
+                break;
         }
 
         return $query->count();
     }
 
-    public function getPreviewPesanProperty()
+    /**
+     * Pratinjau pesan dinamis.
+     */
+    public function getPratinjauPesanProperty()
     {
-        if (! $this->pesanTemplate) {
-            return 'Pratinjau pesan akan muncul di sini...';
+        if (! $this->templatePesan) {
+            return 'Isi template pesan untuk melihat simulasi tampilan di sini...';
         }
 
         return str_replace(
-            ['{{ nama }}', '{{ telepon }}'],
-            ['[Nama Pelanggan]', '[Nomor WA]'],
-            $this->pesanTemplate
+            ['{{nama}}', '{{produk_terakhir}}', '{{poin}}'],
+            ['[Budi Santoso]', '[Laptop Asus ROG]', '[1.250 Poin]'],
+            $this->templatePesan
         );
     }
 
     public function render()
     {
-        $daftarPesan = WhatsappBlastModel::query()
-            ->when($this->pencarian, function ($q) {
-                $q->where('campaign_name', 'like', '%'.$this->pencarian.'%');
+        $daftarKampanye = WhatsappBlastModel::query()
+            ->when($this->kataKunciCari, function ($q) {
+                $q->where('campaign_name', 'like', '%'.$this->kataKunciCari.'%');
             })
             ->latest()
             ->paginate(10);
 
         return view('livewire.pemasaran.pesan-massal-whatsapp', [
-            'daftarPesan' => $daftarPesan,
+            'daftarKampanye' => $daftarKampanye,
         ]);
     }
 }
