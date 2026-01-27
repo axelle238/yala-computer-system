@@ -11,170 +11,181 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Form Karyawan - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Formulir Data Karyawan - Yala Computer')]
 class Form extends Component
 {
-    public ?User $user = null;
+    public ?User $karyawan = null;
 
-    public $name = '';
+    // Data Akun
+    public $nama = '';
+    public $surel = '';
+    public $kataSandi = '';
+    public $tipePeran = 'khusus'; // 'admin' (bawaan) atau 'khusus' (dari tabel peran)
+    public $idPeranTerpilih = null; 
 
-    public $email = '';
+    // Data Kompensasi
+    public $gajiPokok = 0;
+    public $uangHarian = 0;
+    public $persentaseKomisi = 0;
 
-    public $password = '';
+    // Data Kontrak & Kepegawaian (Baru)
+    public $tanggalBergabung = '';
+    public $awalKontrak = '';
+    public $akhirKontrak = '';
+    public $statusKaryawan = 'Tetap'; // Tetap, Kontrak, Magang, Percobaan
 
-    public $role_type = 'custom'; // 'admin' (built-in) atau 'custom' (dari tabel peran)
-
-    public $selected_role_id = null; // ID dari tabel peran
-
-    public $base_salary = 0;
-
-    public $allowance_daily = 0;
-
-    public $commission_percentage = 0;
-
-    public $join_date = '';
-
-    // Data Personal
+    // Data Pribadi
     public $nik = '';
-
     public $npwp = '';
+    public $nomorTelepon = '';
+    public $tempatLahir = '';
+    public $tanggalLahir = '';
+    public $alamatLengkap = '';
 
-    public $phone_number = '';
-
-    public $place_of_birth = '';
-
-    public $date_of_birth = '';
-
-    public $address = '';
-
-    // Legacy support jika masih dibutuhkan
-    public $selectedPermissions = [];
-
+    /**
+     * Inisialisasi komponen
+     */
     public function mount($id = null)
     {
-        if (! Auth::user()->isAdmin()) {
+        if (! Auth::user()->punyaAkses('kelola_karyawan') && ! Auth::user()->isAdmin()) {
             return abort(403);
         }
 
         if ($id) {
-            $this->user = User::with(['employeeDetail', 'peran'])->findOrFail($id);
-            $this->name = $this->user->name;
-            $this->email = $this->user->email;
-
-            // Logika Role
-            if ($this->user->role === 'admin') {
-                $this->role_type = 'admin';
-            } else {
-                $this->role_type = 'custom';
-                $this->selected_role_id = $this->user->id_peran;
-            }
-
-            // Load Employee Detail
-            if ($this->user->employeeDetail) {
-                $this->base_salary = $this->user->employeeDetail->base_salary;
-                $this->allowance_daily = $this->user->employeeDetail->allowance_daily;
-                $this->commission_percentage = $this->user->employeeDetail->commission_percentage;
-                $this->join_date = $this->user->employeeDetail->join_date ? $this->user->employeeDetail->join_date->format('Y-m-d') : '';
-
-                // Load Personal Data
-                $this->nik = $this->user->employeeDetail->nik;
-                $this->npwp = $this->user->employeeDetail->npwp;
-                $this->phone_number = $this->user->employeeDetail->phone_number;
-                $this->place_of_birth = $this->user->employeeDetail->place_of_birth;
-                $this->date_of_birth = $this->user->employeeDetail->date_of_birth ? $this->user->employeeDetail->date_of_birth->format('Y-m-d') : '';
-                $this->address = $this->user->employeeDetail->address;
-            }
-
-            // Legacy Permissions
-            $this->selectedPermissions = $this->user->access_rights ?? [];
+            $this->karyawan = User::with(['employeeDetail', 'peran'])->findOrFail($id);
+            $this->isiDataForm($this->karyawan);
         } else {
-            $this->join_date = date('Y-m-d');
+            $this->tanggalBergabung = date('Y-m-d');
         }
     }
 
-    public function save()
+    /**
+     * Mengisi form dengan data karyawan yang ada
+     */
+    public function isiDataForm($user)
+    {
+        $this->nama = $user->name;
+        $this->surel = $user->email;
+
+        // Logika Peran
+        if ($user->role === 'admin') {
+            $this->tipePeran = 'admin';
+        } else {
+            $this->tipePeran = 'khusus';
+            $this->idPeranTerpilih = $user->id_peran;
+        }
+
+        // Muat Detail Karyawan
+        if ($detail = $user->employeeDetail) {
+            $this->gajiPokok = $detail->base_salary;
+            $this->uangHarian = $detail->allowance_daily;
+            $this->persentaseKomisi = $detail->commission_percentage;
+            
+            $this->tanggalBergabung = $detail->join_date ? $detail->join_date->format('Y-m-d') : '';
+            
+            // Data Pribadi
+            $this->nik = $detail->nik;
+            $this->npwp = $detail->npwp;
+            $this->nomorTelepon = $detail->phone_number;
+            $this->tempatLahir = $detail->place_of_birth;
+            $this->tanggalLahir = $detail->date_of_birth ? $detail->date_of_birth->format('Y-m-d') : '';
+            $this->alamatLengkap = $detail->address;
+
+            // Data Kontrak (Jika kolom belum ada di DB, perlu migrasi nanti, tapi kita siapkan logicnya)
+            // Asumsi: Kita akan menggunakan kolom json 'contract_details' atau kolom baru di migrasi terpisah jika kompleks.
+            // Untuk saat ini, kita simpan di field tambahan jika ada, atau abaikan jika belum migrasi.
+            // (Akan ditambahkan di logic save)
+        }
+    }
+
+    /**
+     * Menyimpan data karyawan
+     */
+    public function simpan()
     {
         $this->validate([
-            'name' => 'required|string|max:255',
-            'email' => ['required', 'email', Rule::unique('users')->ignore($this->user->id ?? null)],
-            'role_type' => 'required',
-            'selected_role_id' => 'required_if:role_type,custom',
-            'password' => $this->user ? 'nullable|min:6' : 'required|min:6',
-            'base_salary' => 'numeric|min:0',
-            'join_date' => 'nullable|date',
+            'nama' => 'required|string|max:255',
+            'surel' => ['required', 'email', Rule::unique('users', 'email')->ignore($this->karyawan->id ?? null)],
+            'tipePeran' => 'required',
+            'idPeranTerpilih' => 'required_if:tipePeran,khusus',
+            'kataSandi' => $this->karyawan ? 'nullable|min:6' : 'required|min:6',
+            'gajiPokok' => 'numeric|min:0',
+            'tanggalBergabung' => 'nullable|date',
             'nik' => 'nullable|string|max:20',
-            'npwp' => 'nullable|string|max:25',
-            'phone_number' => 'nullable|string|max:20',
-            'date_of_birth' => 'nullable|date',
-            'place_of_birth' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
+            'nomorTelepon' => 'nullable|string|max:20',
+        ], [
+            'nama.required' => 'Nama lengkap wajib diisi.',
+            'surel.unique' => 'Alamat surel sudah terdaftar.',
+            'kataSandi.required' => 'Kata sandi wajib diisi untuk karyawan baru.',
+            'kataSandi.min' => 'Kata sandi minimal 6 karakter.',
+            'idPeranTerpilih.required_if' => 'Silakan pilih peran untuk karyawan.',
         ]);
 
         try {
             DB::transaction(function () {
-                // 1. Tentukan Role
-                $roleColumn = 'employee'; // Default legacy
+                // 1. Tentukan Peran
+                $kolomRole = 'employee'; 
                 $peranId = null;
 
-                if ($this->role_type === 'admin') {
-                    $roleColumn = 'admin';
-                } elseif ($this->role_type === 'custom') {
-                    $peranId = $this->selected_role_id;
+                if ($this->tipePeran === 'admin') {
+                    $kolomRole = 'admin';
+                } elseif ($this->tipePeran === 'khusus') {
+                    $peranId = $this->idPeranTerpilih;
                 }
 
-                // 2. Data User
-                $userData = [
-                    'name' => $this->name,
-                    'email' => $this->email,
-                    'role' => $roleColumn,
+                // 2. Data Akun Pengguna
+                $dataAkun = [
+                    'name' => $this->nama,
+                    'email' => $this->surel,
+                    'role' => $kolomRole,
                     'id_peran' => $peranId,
-                    // 'access_rights' legacy jika dibutuhkan
                 ];
 
-                if ($this->password) {
-                    $userData['password'] = bcrypt($this->password);
+                if ($this->kataSandi) {
+                    $dataAkun['password'] = bcrypt($this->kataSandi);
                 }
 
                 // 3. Simpan User
-                if ($this->user) {
-                    $this->user->update($userData);
-                    $user = $this->user;
+                if ($this->karyawan) {
+                    $this->karyawan->update($dataAkun);
+                    $user = $this->karyawan;
                 } else {
-                    $user = User::create($userData);
+                    $user = User::create($dataAkun);
                 }
 
-                // 4. Simpan Employee Detail
+                // 4. Simpan Detail Karyawan
                 $user->employeeDetail()->updateOrCreate(
                     ['user_id' => $user->id],
                     [
-                        'base_salary' => $this->base_salary,
-                        'allowance_daily' => $this->allowance_daily,
-                        'commission_percentage' => $this->commission_percentage,
-                        'join_date' => $this->join_date ?: null,
+                        'base_salary' => $this->gajiPokok,
+                        'allowance_daily' => $this->uangHarian,
+                        'commission_percentage' => $this->persentaseKomisi,
+                        'join_date' => $this->tanggalBergabung ?: null,
                         'nik' => $this->nik,
                         'npwp' => $this->npwp,
-                        'phone_number' => $this->phone_number,
-                        'place_of_birth' => $this->place_of_birth,
-                        'date_of_birth' => $this->date_of_birth ?: null,
-                        'address' => $this->address,
+                        'phone_number' => $this->nomorTelepon,
+                        'place_of_birth' => $this->tempatLahir,
+                        'date_of_birth' => $this->tanggalLahir ?: null,
+                        'address' => $this->alamatLengkap,
+                        // 'contract_status' => $this->statusKaryawan, // Perlu migrasi database jika kolom belum ada
                     ]
                 );
             });
 
-            $pesan = $this->user ? 'Data karyawan diperbarui.' : 'Karyawan baru berhasil ditambahkan.';
+            $pesan = $this->karyawan ? 'Data karyawan berhasil diperbarui.' : 'Karyawan baru berhasil ditambahkan.';
             $this->dispatch('notify', message: $pesan, type: 'success');
 
             return redirect()->route('admin.karyawan.indeks');
         } catch (\Exception $e) {
-            $this->dispatch('notify', message: 'Terjadi kesalahan: '.$e->getMessage(), type: 'error');
+            $this->dispatch('notify', message: 'Terjadi kesalahan sistem: '.$e->getMessage(), type: 'error');
         }
     }
 
     public function render()
     {
         return view('livewire.employees.form', [
-            'peranList' => Peran::all(),
+            'daftarPeran' => Peran::all(),
         ]);
     }
 }

@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Voucher; // Tambahkan Model Voucher
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
@@ -21,32 +22,27 @@ class PointOfSale extends Component
 {
     // Cari & Filter
     public $kataKunciCari = '';
-
     public $idKategori = null;
 
     // Keranjang
-    public $keranjang = []; // [id_produk => [id, nama, harga, qty, subtotal, stok]]
-
+    public $keranjang = []; 
     public $subtotal = 0;
-
     public $diskon = 0;
-
     public $totalAkhir = 0;
+
+    // Voucher
+    public $kodeVoucher = '';
+    public $voucherTerpakai = null;
 
     // Pelanggan
     public $idMemberTerpilih = null;
-
     public $namaTamu = 'Tamu';
-
     public $cariMember = '';
-
     public $hasilCariMember = [];
 
     // Pembayaran
-    public $metodePembayaran = 'tunai'; // tunai, transfer, qris
-
+    public $metodePembayaran = 'tunai'; 
     public $uangDibayar = 0;
-
     public $kembalian = 0;
 
     // Status Sistem
@@ -80,14 +76,12 @@ class PointOfSale extends Component
         }
         if ($produk->stock_quantity <= 0) {
             $this->dispatch('notify', message: 'Maaf, stok produk ini telah habis.', type: 'error');
-
             return;
         }
 
         if (isset($this->keranjang[$idProduk])) {
             if ($this->keranjang[$idProduk]['qty'] + 1 > $produk->stock_quantity) {
                 $this->dispatch('notify', message: 'Jumlah melebihi stok yang tersedia saat ini.', type: 'error');
-
                 return;
             }
             $this->keranjang[$idProduk]['qty']++;
@@ -133,11 +127,68 @@ class PointOfSale extends Component
         $this->hitungTotal();
     }
 
+    // --- Logika Voucher & Diskon ---
+
+    public function terapkanVoucher()
+    {
+        if (empty($this->kodeVoucher)) {
+            $this->voucherTerpakai = null;
+            $this->diskon = 0;
+            $this->hitungTotal();
+            return;
+        }
+
+        $voucher = Voucher::where('code', $this->kodeVoucher)
+            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->whereNull('valid_until')
+                      ->orWhere('valid_until', '>=', now());
+            })
+            ->first();
+
+        if ($voucher) {
+            if ($voucher->usage_limit > 0 && $voucher->usage_count >= $voucher->usage_limit) {
+                $this->dispatch('notify', message: 'Kuota voucher telah habis.', type: 'error');
+                return;
+            }
+
+            $this->voucherTerpakai = $voucher;
+            $this->dispatch('notify', message: 'Voucher berhasil diterapkan!', type: 'success');
+            $this->hitungTotal();
+        } else {
+            $this->dispatch('notify', message: 'Kode voucher tidak valid atau kedaluwarsa.', type: 'error');
+            $this->voucherTerpakai = null;
+            $this->diskon = 0;
+            $this->hitungTotal();
+        }
+    }
+
+    public function hapusVoucher()
+    {
+        $this->kodeVoucher = '';
+        $this->voucherTerpakai = null;
+        $this->diskon = 0;
+        $this->hitungTotal();
+    }
+
     public function hitungTotal()
     {
         $this->subtotal = 0;
         foreach ($this->keranjang as $item) {
             $this->subtotal += $item['harga'] * $item['qty'];
+        }
+
+        // Hitung Diskon Voucher
+        if ($this->voucherTerpakai) {
+            if ($this->voucherTerpakai->discount_type == 'percentage') {
+                $this->diskon = ($this->subtotal * $this->voucherTerpakai->discount_value) / 100;
+            } else {
+                $this->diskon = $this->voucherTerpakai->discount_value;
+            }
+            // Pastikan diskon tidak melebihi subtotal
+            $this->diskon = min($this->diskon, $this->subtotal);
+        } else {
+            $this->diskon = 0;
         }
 
         $this->totalAkhir = max(0, $this->subtotal - $this->diskon);
@@ -189,13 +240,11 @@ class PointOfSale extends Component
     {
         if (empty($this->keranjang)) {
             $this->dispatch('notify', message: 'Daftar belanja masih kosong.', type: 'error');
-
             return;
         }
 
         if ($this->metodePembayaran == 'tunai' && $this->uangDibayar < $this->totalAkhir) {
             $this->dispatch('notify', message: 'Nominal pembayaran tidak mencukupi.', type: 'error');
-
             return;
         }
 
@@ -203,7 +252,6 @@ class PointOfSale extends Component
             $produk = Product::find($id);
             if ($produk->stock_quantity < $item['qty']) {
                 $this->dispatch('notify', message: "Stok produk {$produk->name} tidak mencukupi untuk transaksi ini.", type: 'error');
-
                 return;
             }
         }
@@ -221,6 +269,7 @@ class PointOfSale extends Component
                     'payment_status' => 'paid',
                     'status' => 'completed',
                     'paid_at' => now(),
+                    'notes' => $this->voucherTerpakai ? 'Voucher: ' . $this->voucherTerpakai->code : null,
                 ]);
 
                 foreach ($this->keranjang as $id => $item) {
@@ -249,6 +298,11 @@ class PointOfSale extends Component
                     ]);
                 }
 
+                // Catat Penggunaan Voucher
+                if ($this->voucherTerpakai) {
+                    $this->voucherTerpakai->increment('usage_count');
+                }
+
                 CashTransaction::create([
                     'cash_register_id' => $this->kasirAktif->id,
                     'transaction_number' => 'TRX-POS-'.$pesanan->id,
@@ -264,7 +318,7 @@ class PointOfSale extends Component
                 $this->dispatch('print-receipt', orderId: $pesanan->id);
             });
 
-            $this->reset(['keranjang', 'subtotal', 'diskon', 'totalAkhir', 'uangDibayar', 'kembalian', 'idMemberTerpilih']);
+            $this->reset(['keranjang', 'subtotal', 'diskon', 'totalAkhir', 'uangDibayar', 'kembalian', 'idMemberTerpilih', 'kodeVoucher', 'voucherTerpakai']);
             $this->namaTamu = 'Tamu';
             $this->dispatch('notify', message: 'Transaksi berhasil diproses dan stok telah diperbarui.', type: 'success');
         } catch (\Exception $e) {

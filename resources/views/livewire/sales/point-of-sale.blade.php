@@ -135,48 +135,79 @@
         <!-- RIGHT PANEL: CART & CHECKOUT -->
         <div class="w-1/3 bg-white dark:bg-slate-900 flex flex-col shadow-2xl z-20 border-l border-slate-200 dark:border-slate-800 relative">
             
-            <!-- Customer Selector -->
-            <div class="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 shrink-0">
-                <div class="flex justify-between items-center mb-3">
-                    <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                        Pelanggan
-                    </label>
-                    @if($idMemberTerpilih)
-                        <button wire:click="$set('idMemberTerpilih', null)" class="text-[10px] font-bold text-rose-500 hover:text-rose-600 transition-colors uppercase tracking-wider">Ganti</button>
-                    @endif
-                </div>
-                <div class="relative">
-                    @if($idMemberTerpilih)
-                        <div class="flex items-center gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 rounded-xl">
-                            <div class="w-10 h-10 rounded-full bg-indigo-200 dark:bg-indigo-800 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold shadow-sm">
-                                {{ substr($namaTamu, 0, 1) }}
-                            </div>
-                            <div>
-                                <div class="font-bold text-indigo-900 dark:text-indigo-300 text-sm leading-tight">{{ $namaTamu }}</div>
-                                <div class="text-[10px] font-bold text-indigo-500 uppercase tracking-wider mt-0.5">Member Terdaftar</div>
-                            </div>
-                            <div class="ml-auto">
-                                <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            </div>
-                        </div>
-                    @else
-                        <div class="relative">
-                            <input type="text" wire:model.live.debounce="cariMember" class="w-full text-sm rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent py-2.5 pl-9 transition-shadow" placeholder="Cari Nama / No. HP...">
-                            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                        </div>
-                        @if(!empty($hasilCariMember))
-                            <div class="absolute z-50 w-full bg-white dark:bg-slate-800 mt-2 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar">
-                                @foreach($hasilCariMember as $member)
-                                    <button wire:click="pilihMember({{ $member->id }})" class="w-full text-left px-4 py-3 hover:bg-indigo-50 dark:hover:bg-slate-700 text-sm border-b border-slate-50 dark:border-slate-700 last:border-0 transition-colors group">
-                                        <div class="font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-400">{{ $member->name }}</div>
-                                        <div class="text-xs text-slate-500 dark:text-slate-400">{{ $member->phone ?? $member->email }}</div>
-                                    </button>
-                                @endforeach
-                            </div>
+            <!-- Customer & Voucher Selector -->
+            <div class="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 shrink-0 space-y-4">
+                
+                <!-- Pelanggan -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            Pelanggan
+                        </label>
+                        @if($idMemberTerpilih)
+                            <button wire:click="$set('idMemberTerpilih', null)" class="text-[10px] font-bold text-rose-500 hover:text-rose-600 transition-colors uppercase tracking-wider">Ganti</button>
                         @endif
+                    </div>
+                    <div class="relative">
+                        @if($idMemberTerpilih)
+                            <div class="flex items-center gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 rounded-xl">
+                                <div class="w-10 h-10 rounded-full bg-indigo-200 dark:bg-indigo-800 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold shadow-sm">
+                                    {{ substr($namaTamu, 0, 1) }}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-indigo-900 dark:text-indigo-300 text-sm leading-tight">{{ $namaTamu }}</div>
+                                    <div class="text-[10px] font-bold text-indigo-500 uppercase tracking-wider mt-0.5">Member Terdaftar</div>
+                                </div>
+                                <div class="ml-auto">
+                                    <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                            </div>
+                        @else
+                            <div class="relative">
+                                <input type="text" wire:model.live.debounce="cariMember" class="w-full text-sm rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent py-2.5 pl-9 transition-shadow" placeholder="Cari Nama / No. HP...">
+                                <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </div>
+                            @if(!empty($hasilCariMember))
+                                <div class="absolute z-50 w-full bg-white dark:bg-slate-800 mt-2 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar">
+                                    @foreach($hasilCariMember as $member)
+                                        <button wire:click="pilihMember({{ $member->id }})" class="w-full text-left px-4 py-3 hover:bg-indigo-50 dark:hover:bg-slate-700 text-sm border-b border-slate-50 dark:border-slate-700 last:border-0 transition-colors group">
+                                            <div class="font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-400">{{ $member->name }}</div>
+                                            <div class="text-xs text-slate-500 dark:text-slate-400">{{ $member->phone ?? $member->email }}</div>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Voucher -->
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1 mb-2">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+                        Voucher & Promo
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" wire:model="kodeVoucher" class="flex-1 text-sm rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent py-2.5 uppercase font-bold tracking-wider placeholder-slate-400" placeholder="KODE PROMO">
+                        @if($voucherTerpakai)
+                            <button wire:click="hapusVoucher" class="px-3 bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-xl transition-colors">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        @else
+                            <button wire:click="terapkanVoucher" class="px-4 bg-slate-200 hover:bg-indigo-600 hover:text-white text-slate-600 font-bold text-xs rounded-xl transition-colors">
+                                TERAPKAN
+                            </button>
+                        @endif
+                    </div>
+                    @if($voucherTerpakai)
+                        <div class="mt-2 text-xs text-emerald-600 font-bold flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Diskon diterapkan: {{ $voucherTerpakai->discount_type == 'percentage' ? $voucherTerpakai->discount_value . '%' : 'Rp ' . number_format($voucherTerpakai->discount_value, 0, ',', '.') }}
+                        </div>
                     @endif
                 </div>
+
             </div>
 
             <!-- Cart Items -->
@@ -228,7 +259,7 @@
                     </div>
                     @if($diskon > 0)
                     <div class="flex justify-between text-sm text-emerald-600 dark:text-emerald-400 font-medium">
-                        <span>Diskon Member</span>
+                        <span>Diskon (Voucher)</span>
                         <span class="font-mono">- Rp {{ number_format($diskon, 0, ',', '.') }}</span>
                     </div>
                     @endif

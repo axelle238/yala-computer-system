@@ -91,7 +91,7 @@
                         </h2>
                         <div class="space-y-4">
                             @foreach($activeServices as $ticket)
-                                <a href="{{ route('toko.track-service', ['ticket' => $ticket->ticket_number]) }}" class="block bg-cyan-50 dark:bg-cyan-900/10 rounded-xl p-4 border border-cyan-100 dark:border-cyan-800 hover:border-cyan-300 transition-colors group">
+                                <a href="{{ route('toko.lacak-servis', ['ticket' => $ticket->ticket_number]) }}" class="block bg-cyan-50 dark:bg-cyan-900/10 rounded-xl p-4 border border-cyan-100 dark:border-cyan-800 hover:border-cyan-300 transition-colors group">
                                     <div class="flex justify-between items-center mb-2">
                                         <p class="font-bold text-slate-800 dark:text-white group-hover:text-cyan-600 transition-colors">{{ $ticket->ticket_number }}</p>
                                         <span class="px-2.5 py-1 bg-white dark:bg-slate-800 text-cyan-600 rounded-lg text-[10px] font-bold uppercase border border-cyan-200 dark:border-slate-600">

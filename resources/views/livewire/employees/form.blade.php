@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-4xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
-                {{ $user ? 'Edit' : 'Tambah' }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Karyawan</span>
+                {{ $karyawan ? 'Edit' : 'Tambah' }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Karyawan</span>
             </h2>
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Manajemen data pegawai dan hak akses sistem.</p>
         </div>
@@ -13,7 +13,7 @@
         </a>
     </div>
 
-    <form wire:submit="save" class="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-slate-100 dark:border-slate-700 shadow-xl shadow-orange-900/5 relative overflow-hidden">
+    <form wire:submit="simpan" class="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-slate-100 dark:border-slate-700 shadow-xl shadow-orange-900/5 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-orange-500/10 to-amber-500/10 rounded-bl-full pointer-events-none"></div>
         
         <div class="relative z-10 space-y-8">
@@ -29,20 +29,20 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="col-span-2">
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Lengkap</label>
-                        <input wire:model="name" type="text" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all font-bold text-slate-800 dark:text-white placeholder-slate-400" placeholder="Nama Pegawai">
-                        @error('name') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                        <input wire:model="nama" type="text" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all font-bold text-slate-800 dark:text-white placeholder-slate-400" placeholder="Nama Pegawai">
+                        @error('nama') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email (Login)</label>
-                        <input wire:model="email" type="email" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="email@yalacomputer.com">
-                        @error('email') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Surel (Email Login)</label>
+                        <input wire:model="surel" type="email" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="email@yalacomputer.com">
+                        @error('surel') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password</label>
-                        <input wire:model="password" type="password" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="{{ $user ? 'Isi jika ingin mengubah' : 'Password Login' }}">
-                        @error('password') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kata Sandi</label>
+                        <input wire:model="kataSandi" type="password" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="{{ $karyawan ? 'Isi jika ingin mengubah' : 'Password Login' }}">
+                        @error('kataSandi') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>
             </div>
@@ -71,23 +71,23 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tempat Lahir</label>
-                        <input wire:model="place_of_birth" type="text" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="Kota Kelahiran">
+                        <input wire:model="tempatLahir" type="text" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="Kota Kelahiran">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tanggal Lahir</label>
-                        <input wire:model="date_of_birth" type="date" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300">
+                        <input wire:model="tanggalLahir" type="date" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nomor Telepon / WA</label>
-                        <input wire:model="phone_number" type="text" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="08xxxxxxxxxx">
-                        @error('phone_number') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                        <input wire:model="nomorTelepon" type="text" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="08xxxxxxxxxx">
+                        @error('nomorTelepon') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="col-span-2">
                          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Alamat Domisili</label>
-                         <textarea wire:model="address" rows="2" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="Alamat lengkap sesuai KTP/Domisili"></textarea>
+                         <textarea wire:model="alamatLengkap" rows="2" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-slate-700 dark:text-slate-300" placeholder="Alamat lengkap sesuai KTP/Domisili"></textarea>
                     </div>
                 </div>
             </div>
@@ -105,22 +105,22 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tipe Akun</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <button type="button" wire:click="$set('role_type', 'custom')" class="px-4 py-3 rounded-xl border font-bold text-sm transition-all {{ $role_type == 'custom' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400' }}">
-                                Pegawai / Custom
+                            <button type="button" wire:click="$set('tipePeran', 'khusus')" class="px-4 py-3 rounded-xl border font-bold text-sm transition-all {{ $tipePeran == 'khusus' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400' }}">
+                                Pegawai / Khusus
                             </button>
-                            <button type="button" wire:click="$set('role_type', 'admin')" class="px-4 py-3 rounded-xl border font-bold text-sm transition-all {{ $role_type == 'admin' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400' }}">
+                            <button type="button" wire:click="$set('tipePeran', 'admin')" class="px-4 py-3 rounded-xl border font-bold text-sm transition-all {{ $tipePeran == 'admin' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400' }}">
                                 Super Admin
                             </button>
                         </div>
                     </div>
 
-                    @if($role_type == 'custom')
+                    @if($tipePeran == 'khusus')
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pilih Peran / Jabatan</label>
                             <div class="relative">
-                                <select wire:model="selected_role_id" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none cursor-pointer font-medium text-slate-700 dark:text-slate-300">
+                                <select wire:model="idPeranTerpilih" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none cursor-pointer font-medium text-slate-700 dark:text-slate-300">
                                     <option value="">-- Pilih Jabatan --</option>
-                                    @foreach($peranList as $peran)
+                                    @foreach($daftarPeran as $peran)
                                         <option value="{{ $peran->id }}">{{ $peran->nama }}</option>
                                     @endforeach
                                 </select>
@@ -128,7 +128,7 @@
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                                 </div>
                             </div>
-                            @error('selected_role_id') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                            @error('idPeranTerpilih') <span class="text-xs text-rose-500 font-bold mt-1 block">{{ $message }}</span> @enderror
                             <div class="mt-2 text-right">
                                 <a href="{{ route('admin.karyawan.peran.buat') }}" class="text-xs font-bold text-indigo-500 hover:underline">+ Buat Jabatan Baru</a>
                             </div>
@@ -149,14 +149,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tanggal Bergabung</label>
-                        <input wire:model="join_date" type="date" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-medium text-slate-700 dark:text-slate-300">
+                        <input wire:model="tanggalBergabung" type="date" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-medium text-slate-700 dark:text-slate-300">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Gaji Pokok (Bulanan)</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 font-bold">Rp</span>
-                            <input wire:model="base_salary" type="number" class="block w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-mono font-bold text-slate-800 dark:text-white">
+                            <input wire:model="gajiPokok" type="number" class="block w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-mono font-bold text-slate-800 dark:text-white">
                         </div>
                     </div>
 
@@ -164,14 +164,14 @@
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Uang Makan (Harian)</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 font-bold">Rp</span>
-                            <input wire:model="allowance_daily" type="number" class="block w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-mono font-bold text-slate-800 dark:text-white">
+                            <input wire:model="uangHarian" type="number" class="block w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-mono font-bold text-slate-800 dark:text-white">
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Komisi (%)</label>
                         <div class="relative">
-                            <input wire:model="commission_percentage" type="number" step="0.1" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-mono font-bold text-slate-800 dark:text-white">
+                            <input wire:model="persentaseKomisi" type="number" step="0.1" class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-mono font-bold text-slate-800 dark:text-white">
                             <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 font-bold">%</span>
                         </div>
                     </div>
@@ -181,7 +181,7 @@
             <div class="pt-6 border-t border-slate-100 dark:border-slate-700 flex justify-end">
                 <button type="submit" class="px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-orange-500/30 transition-all hover:-translate-y-1 hover:shadow-orange-500/50 flex items-center gap-2">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                    {{ $user ? 'SIMPAN PERUBAHAN' : 'TAMBAH PEGAWAI' }}
+                    {{ $karyawan ? 'SIMPAN PERUBAHAN' : 'TAMBAH PEGAWAI' }}
                 </button>
             </div>
         </div>
