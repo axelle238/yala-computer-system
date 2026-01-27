@@ -14,7 +14,7 @@ class Index extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public $cari = '';
 
     public function render()
     {
@@ -23,10 +23,10 @@ class Index extends Component
         $approvedCount = PurchaseRequisition::where('status', 'approved')->count();
         $myRequestsCount = PurchaseRequisition::where('requested_by', auth()->id())->count();
 
-        $requisitions = PurchaseRequisition::with('requester')
-            ->where('pr_number', 'like', '%'.$this->search.'%')
-            ->orWhereHas('requester', function ($q) {
-                $q->where('name', 'like', '%'.$this->search.'%');
+        $requisitions = PurchaseRequisition::with('pengaju')
+            ->where('pr_number', 'like', '%'.$this->cari.'%')
+            ->orWhereHas('pengaju', function ($q) {
+                $q->where('name', 'like', '%'.$this->cari.'%');
             })
             ->latest()
             ->paginate(10);
