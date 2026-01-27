@@ -93,6 +93,8 @@ class Form extends Component
             $this->validate([
                 'notes' => 'nullable|string',
                 'order_date' => 'required|date',
+            ], [
+                'order_date.required' => 'Tanggal order wajib diisi.',
             ]);
 
             $this->po->update([
@@ -110,6 +112,12 @@ class Form extends Component
             'order_date' => 'required|date',
             'items.*.product_id' => 'required',
             'items.*.qty' => 'required|integer|min:1',
+        ], [
+            'supplier_id.required' => 'Pemasok wajib dipilih.',
+            'order_date.required' => 'Tanggal order wajib diisi.',
+            'items.*.product_id.required' => 'Produk wajib dipilih.',
+            'items.*.qty.required' => 'Jumlah wajib diisi.',
+            'items.*.qty.min' => 'Jumlah minimal 1.',
         ]);
 
         DB::transaction(function () {

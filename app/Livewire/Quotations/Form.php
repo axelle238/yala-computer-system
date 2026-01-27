@@ -123,6 +123,13 @@ class Form extends Component
             'user_id' => 'required|exists:users,id',
             'valid_until' => 'required|date',
             'items' => 'required|array|min:1',
+        ], [
+            'user_id.required' => 'Pelanggan wajib dipilih.',
+            'user_id.exists' => 'Pelanggan tidak valid.',
+            'valid_until.required' => 'Tanggal berlaku wajib diisi.',
+            'valid_until.date' => 'Format tanggal tidak valid.',
+            'items.required' => 'Item penawaran wajib diisi.',
+            'items.min' => 'Minimal harus ada satu item.',
         ]);
 
         DB::transaction(function () {

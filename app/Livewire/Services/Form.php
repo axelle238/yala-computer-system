@@ -154,6 +154,10 @@ class Form extends Component
             'customer_name' => 'required',
             'device_name' => 'required',
             'status' => 'required',
+        ], [
+            'customer_name.required' => 'Nama pelanggan wajib diisi.',
+            'device_name.required' => 'Nama perangkat wajib diisi.',
+            'status.required' => 'Status layanan wajib dipilih.',
         ]);
 
         try {
