@@ -44,9 +44,9 @@
                     <h3 class="font-bold text-slate-800 dark:text-white mb-3 uppercase text-xs tracking-wider">Harga</h3>
                     <div class="space-y-4">
                         <div class="flex gap-2 items-center">
-                            <input wire:model.live.debounce.500ms="hargaMin" type="number" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-mono" placeholder="Min">
+                            <input wire:model.live.debounce.500ms="hargaMin" type="number" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-mono" placeholder="Rp Min">
                             <span class="text-slate-400">-</span>
-                            <input wire:model.live.debounce.500ms="hargaMaks" type="number" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-mono" placeholder="Max">
+                            <input wire:model.live.debounce.500ms="hargaMaks" type="number" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-mono" placeholder="Rp Maks">
                         </div>
                         <input type="range" wire:model.live.debounce.300ms="hargaMaks" min="0" max="50000000" step="500000" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-blue-600">
                     </div>
