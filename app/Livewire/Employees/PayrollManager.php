@@ -19,252 +19,256 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
-#[Title('Manajemen Penggajian')]
+#[Title('Pengelola Penggajian Karyawan - Yala Computer')]
 class PayrollManager extends Component
 {
     use WithPagination;
 
-    // View State
-    public $activeAction = null; // null, 'generate', 'detail'
+    // Status Tampilan
+    public $aksiAktif = null; // null, 'buat', 'detail'
 
-    // Generate Input
-    public $selectedUserId;
+    // Input Pembuatan
+    public $idUserTerpilih;
+    public $bulanTerpilih; // Format: Y-m
 
-    public $selectedMonth; // Format: Y-m
+    // Data Pratinjau
+    public $dataPratinjau = null;
 
-    // Preview Data
-    public $previewData = null; // Menyimpan hasil hitungan sebelum disimpan
+    // Data Detail
+    public $penggajianTerpilih;
 
-    // Detail Data
-    public $selectedPayroll;
-
+    /**
+     * Inisialisasi komponen.
+     */
     public function mount()
     {
-        $this->selectedMonth = date('Y-m');
+        $this->bulanTerpilih = date('Y-m');
     }
 
-    public function openGeneratePanel()
+    /**
+     * Membuka panel pembuatan gaji.
+     */
+    public function bukaPanelBuat()
     {
-        $this->reset(['selectedUserId', 'previewData']);
-        $this->activeAction = 'generate';
+        $this->reset(['idUserTerpilih', 'dataPratinjau']);
+        $this->aksiAktif = 'buat';
     }
 
-    public function closePanel()
+    /**
+     * Menutup semua panel detail/buat.
+     */
+    public function tutupPanel()
     {
-        $this->activeAction = null;
-        $this->selectedPayroll = null;
-        $this->previewData = null;
+        $this->aksiAktif = null;
+        $this->penggajianTerpilih = null;
+        $this->dataPratinjau = null;
     }
 
-    public function calculatePreview()
+    /**
+     * Menghitung pratinjau gaji berdasarkan data absensi dan performa.
+     */
+    public function hitungPratinjau()
     {
         $this->validate([
-            'selectedUserId' => 'required|exists:users,id',
-            'selectedMonth' => 'required',
+            'idUserTerpilih' => 'required|exists:users,id',
+            'bulanTerpilih' => 'required',
+        ], [
+            'idUserTerpilih.required' => 'Silakan pilih karyawan.',
+            'bulanTerpilih.required' => 'Pilih periode bulan.',
         ]);
 
-        $employee = EmployeeDetail::where('user_id', $this->selectedUserId)->first();
-        if (! $employee) {
-            $this->addError('selectedUserId', 'Data detail pegawai belum diatur di HR.');
-
+        $pegawai = EmployeeDetail::where('user_id', $this->idUserTerpilih)->first();
+        if (! $pegawai) {
+            $this->addError('idUserTerpilih', 'Data detail HR untuk karyawan ini belum diatur.');
             return;
         }
 
-        $start = Carbon::parse($this->selectedMonth)->startOfMonth();
-        $end = Carbon::parse($this->selectedMonth)->endOfMonth();
+        $awal = Carbon::parse($this->bulanTerpilih)->startOfMonth();
+        $akhir = Carbon::parse($this->bulanTerpilih)->endOfMonth();
 
         // 1. Gaji Pokok
-        $baseSalary = $employee->base_salary;
+        $gajiPokok = $pegawai->base_salary;
 
-        // 2. Tunjangan Kehadiran
-        $attendanceCount = Attendance::where('user_id', $this->selectedUserId)
-            ->whereBetween('date', [$start, $end])
-            ->whereIn('status', ['present', 'late']) // Late tetap dianggap hadir (bisa kena potong beda lagi)
+        // 2. Tunjangan Kehadiran (Harian)
+        $jumlahHadir = Attendance::where('user_id', $this->idUserTerpilih)
+            ->whereBetween('date', [$awal, $akhir])
+            ->whereIn('status', ['present', 'late'])
             ->count();
-        $totalAllowance = $attendanceCount * $employee->allowance_daily;
+        $totalTunjangan = $jumlahHadir * $pegawai->allowance_daily;
 
-        // 3. Komisi Servis (Kompleks)
-        // Ambil tiket yang SELESAI bulan ini oleh teknisi ini
-        $tickets = ServiceTicket::where('technician_id', $this->selectedUserId)
-            ->where('status', 'picked_up') // Hanya yang sudah dibayar & diambil
-            ->whereBetween('updated_at', [$start, $end])
-            ->with('parts')
+        // 3. Komisi Servis (Berdasarkan Unit Selesai)
+        $tiketSelesai = ServiceTicket::where('technician_id', $this->idUserTerpilih)
+            ->where('status', 'picked_up')
+            ->whereBetween('updated_at', [$awal, $akhir])
             ->get();
 
-        $commissionAmount = 0;
-        $commissionDetails = [];
-
-        if ($employee->commission_percentage > 0) {
-            foreach ($tickets as $ticket) {
-                // Hitung Profit: Harga Jual - Modal (HPP tidak selalu ada di ticket part, kita asumsi margin kasar atau ambil dari product)
-                // Untuk simplifikasi dan performa: Kita hitung dari Total Tagihan Tiket * Persentase Komisi
-                // (Idealnya: Revenue - COGS, tapi butuh query berat ke InventoryTransaction/Product Buy Price)
-
-                $revenue = $ticket->final_cost;
-                $comm = $revenue * ($employee->commission_percentage / 100);
-
-                $commissionAmount += $comm;
-                $commissionDetails[] = "Tiket #{$ticket->ticket_number} (Rp ".number_format($revenue).')';
+        $jumlahKomisi = 0;
+        if ($pegawai->commission_percentage > 0) {
+            foreach ($tiketSelesai as $tiket) {
+                $jumlahKomisi += ($tiket->final_cost * ($pegawai->commission_percentage / 100));
             }
         }
 
-        // 4. Potongan Keterlambatan (Opsional)
-        $lateMinutes = Attendance::where('user_id', $this->selectedUserId)
-            ->whereBetween('date', [$start, $end])
+        // 4. Bonus Performa (Kompleksitas Baru)
+        $bonusPerforma = 0;
+        if ($tiketSelesai->count() >= 15) {
+            $bonusPerforma = 250000; // Bonus jika menangani > 15 unit
+        }
+
+        // 5. Potongan Keterlambatan
+        $menitTelat = Attendance::where('user_id', $this->idUserTerpilih)
+            ->whereBetween('date', [$awal, $akhir])
             ->sum('late_minutes');
+        $potonganTelat = floor($menitTelat / 15) * 10000; // Rp 10.000 per 15 menit telat
 
-        $lateDeduction = floor($lateMinutes / 10) * 5000; // Rp 5.000 per 10 menit telat
+        // 6. Pajak Penghasilan (PPh 21 Sederhana - 5% di atas 5jt)
+        $totalKotor = $gajiPokok + $totalTunjangan + $jumlahKomisi + $bonusPerforma - $potonganTelat;
+        $potonganPajak = $totalKotor > 5000000 ? ($totalKotor * 0.05) : 0;
 
-        $netSalary = $baseSalary + $totalAllowance + $commissionAmount - $lateDeduction;
+        $gajiBersih = $totalKotor - $potonganPajak;
 
-        $this->previewData = [
-            'user_id' => $this->selectedUserId,
-            'user_name' => $employee->user->name,
-            'job_title' => $employee->job_title,
-            'period' => $start->translatedFormat('F Y'),
-            'base_salary' => $baseSalary,
-            'attendance_count' => $attendanceCount,
-            'allowance_daily' => $employee->allowance_daily,
-            'total_allowance' => $totalAllowance,
-            'commission_count' => count($tickets),
-            'commission_percentage' => $employee->commission_percentage,
-            'total_commission' => $commissionAmount,
-            'late_minutes' => $lateMinutes,
-            'total_deduction' => $lateDeduction,
-            'net_salary' => $netSalary,
+        $this->dataPratinjau = [
+            'id_user' => $this->idUserTerpilih,
+            'nama_user' => $pegawai->user->name,
+            'jabatan' => $pegawai->job_title,
+            'periode' => $awal->translatedFormat('F Y'),
+            'gaji_pokok' => $gajiPokok,
+            'jumlah_hadir' => $jumlahHadir,
+            'tunjangan_harian' => $pegawai->allowance_daily,
+            'total_tunjangan' => $totalTunjangan,
+            'jumlah_tiket' => $tiketSelesai->count(),
+            'total_komisi' => $jumlahKomisi,
+            'bonus_performa' => $bonusPerforma,
+            'menit_telat' => $menitTelat,
+            'total_potongan' => $potonganTelat,
+            'potongan_pajak' => $potonganPajak,
+            'gaji_bersih' => $gajiBersih,
         ];
     }
 
-    public function storePayroll()
+    /**
+     * Menyimpan slip gaji ke database.
+     */
+    public function simpanGaji()
     {
-        if (! $this->previewData) {
+        if (! $this->dataPratinjau) {
             return;
         }
 
         DB::transaction(function () {
-            // 1. Create Header
-            $payroll = Payroll::create([
-                'user_id' => $this->previewData['user_id'],
-                'payroll_number' => 'PAY/'.date('ym').'/'.$this->previewData['user_id'].'/'.rand(100, 999),
-                'period_start' => Carbon::parse($this->selectedMonth)->startOfMonth(),
-                'period_end' => Carbon::parse($this->selectedMonth)->endOfMonth(),
-                'total_income' => $this->previewData['base_salary'] + $this->previewData['total_allowance'] + $this->previewData['total_commission'],
-                'total_deduction' => $this->previewData['total_deduction'],
-                'net_salary' => $this->previewData['net_salary'],
-                'status' => 'draft', // Harus diapprove dulu untuk bayar
-                'details' => $this->previewData, // Simpan snapshot data hitungan
+            $penggajian = Payroll::create([
+                'user_id' => $this->dataPratinjau['id_user'],
+                'payroll_number' => 'GAJI/'.date('ym').'/'.$this->dataPratinjau['id_user'].'/'.rand(100, 999),
+                'period_start' => Carbon::parse($this->bulanTerpilih)->startOfMonth(),
+                'period_end' => Carbon::parse($this->bulanTerpilih)->endOfMonth(),
+                'total_income' => $this->dataPratinjau['gaji_pokok'] + $this->dataPratinjau['total_tunjangan'] + $this->dataPratinjau['total_komisi'] + $this->dataPratinjau['bonus_performa'],
+                'total_deduction' => $this->dataPratinjau['total_potongan'] + $this->dataPratinjau['potongan_pajak'],
+                'net_salary' => $this->dataPratinjau['gaji_bersih'],
+                'status' => 'draft',
+                'details' => $this->dataPratinjau,
             ]);
 
-            // 2. Create Items (Opsional jika sudah simpan di JSON, tapi bagus untuk reporting)
-            // Gaji Pokok
-            PayrollItem::create([
-                'payroll_id' => $payroll->id,
-                'title' => 'Gaji Pokok',
-                'type' => 'income',
-                'amount' => $this->previewData['base_salary'],
-            ]);
-            // Tunjangan
-            PayrollItem::create([
-                'payroll_id' => $payroll->id,
-                'title' => "Tunjangan Kehadiran ({$this->previewData['attendance_count']} hari)",
-                'type' => 'income',
-                'amount' => $this->previewData['total_allowance'],
-            ]);
-            // Komisi
-            if ($this->previewData['total_commission'] > 0) {
-                PayrollItem::create([
-                    'payroll_id' => $payroll->id,
-                    'title' => "Komisi Servis ({$this->previewData['commission_count']} tiket)",
-                    'type' => 'income',
-                    'amount' => $this->previewData['total_commission'],
-                ]);
+            // Item-item rincian
+            $rincian = [
+                ['judul' => 'Gaji Pokok', 'tipe' => 'income', 'jumlah' => $this->dataPratinjau['gaji_pokok']],
+                ['judul' => "Tunjangan Hadir ({$this->dataPratinjau['jumlah_hadir']} hari)", 'tipe' => 'income', 'jumlah' => $this->dataPratinjau['total_tunjangan']],
+            ];
+
+            if ($this->dataPratinjau['total_komisi'] > 0) {
+                $rincian[] = ['judul' => 'Komisi Servis', 'tipe' => 'income', 'jumlah' => $this->dataPratinjau['total_komisi']];
             }
-            // Potongan
-            if ($this->previewData['total_deduction'] > 0) {
+            if ($this->dataPratinjau['bonus_performa'] > 0) {
+                $rincian[] = ['judul' => 'Bonus Performa', 'tipe' => 'income', 'jumlah' => $this->dataPratinjau['bonus_performa']];
+            }
+            if ($this->dataPratinjau['total_potongan'] > 0) {
+                $rincian[] = ['judul' => 'Potongan Keterlambatan', 'tipe' => 'deduction', 'jumlah' => $this->dataPratinjau['total_potongan']];
+            }
+            if ($this->dataPratinjau['potongan_pajak'] > 0) {
+                $rincian[] = ['judul' => 'Pajak PPh 21', 'tipe' => 'deduction', 'jumlah' => $this->dataPratinjau['potongan_pajak']];
+            }
+
+            foreach ($rincian as $item) {
                 PayrollItem::create([
-                    'payroll_id' => $payroll->id,
-                    'title' => "Potongan Keterlambatan ({$this->previewData['late_minutes']} menit)",
-                    'type' => 'deduction',
-                    'amount' => $this->previewData['total_deduction'],
+                    'payroll_id' => $penggajian->id,
+                    'title' => $item['judul'],
+                    'type' => $item['tipe'],
+                    'amount' => $item['jumlah'],
                 ]);
             }
         });
 
-        session()->flash('success', 'Slip Gaji berhasil dibuat (Status: Draft).');
-        $this->closePanel();
+        $this->dispatch('notify', message: 'Slip gaji berhasil diterbitkan dalam status Draft.', type: 'success');
+        $this->tutupPanel();
     }
 
-    public function viewDetail($id)
+    /**
+     * Melihat detail slip gaji.
+     */
+    public function lihatDetail($id)
     {
-        $this->selectedPayroll = Payroll::with(['user', 'user.employeeDetail'])->findOrFail($id);
-        $this->activeAction = 'detail';
+        $this->penggajianTerpilih = Payroll::with(['user', 'user.employeeDetail', 'items'])->findOrFail($id);
+        $this->aksiAktif = 'detail';
     }
 
-    public function approveAndPay()
+    /**
+     * Menyetujui dan membayarkan gaji via kasir.
+     */
+    public function setujuiDanBayar()
     {
-        if (! $this->selectedPayroll) {
-            return;
-        }
-        if ($this->selectedPayroll->status !== 'draft') {
+        if (! $this->penggajianTerpilih || $this->penggajianTerpilih->status !== 'draft') {
             return;
         }
 
-        // Cek Kasir Aktif
-        $activeRegister = CashRegister::where('user_id', Auth::id())
+        $kasirAktif = CashRegister::where('user_id', Auth::id())
             ->where('status', 'open')
             ->latest()
             ->first();
 
-        if (! $activeRegister) {
-            $this->dispatch('notify', message: 'Gagal! Anda harus Buka Kasir dulu untuk mengeluarkan dana gaji.', type: 'error');
-
+        if (! $kasirAktif) {
+            $this->dispatch('notify', message: 'Gagal! Anda harus membuka shift kasir terlebih dahulu untuk mencatat pengeluaran.', type: 'error');
             return;
         }
 
-        // Cek Saldo
-        if ($activeRegister->system_balance < $this->selectedPayroll->net_salary) {
-            $this->dispatch('notify', message: 'Saldo Kasir tidak cukup untuk membayar gaji ini.', type: 'error');
-
+        if ($kasirAktif->system_balance < $this->penggajianTerpilih->net_salary) {
+            $this->dispatch('notify', message: 'Saldo kasir tidak mencukupi untuk melakukan pembayaran gaji.', type: 'error');
             return;
         }
 
-        DB::transaction(function () use ($activeRegister) {
-            // 1. Update Payroll Status
-            $this->selectedPayroll->update([
+        DB::transaction(function () use ($kasirAktif) {
+            $this->penggajianTerpilih->update([
                 'status' => 'paid',
                 'payment_date' => now(),
                 'approved_by' => Auth::id(),
             ]);
 
-            // 2. Create Cash Transaction (Expense)
             CashTransaction::create([
-                'cash_register_id' => $activeRegister->id,
-                'transaction_number' => 'EXP-PAY-'.$this->selectedPayroll->id,
+                'cash_register_id' => $kasirAktif->id,
+                'transaction_number' => 'BEBAN-GAJI-'.$this->penggajianTerpilih->id,
                 'type' => 'out',
-                'category' => 'expense', // Beban Gaji
-                'amount' => $this->selectedPayroll->net_salary,
-                'description' => 'Pembayaran Gaji Periode '.Carbon::parse($this->selectedPayroll->period_start)->format('M Y').' - '.$this->selectedPayroll->user->name,
-                'reference_id' => $this->selectedPayroll->id,
+                'category' => 'expense',
+                'amount' => $this->penggajianTerpilih->net_salary,
+                'description' => "Bayar Gaji: {$this->penggajianTerpilih->user->name} ({$this->penggajianTerpilih->payroll_number})",
+                'reference_id' => $this->penggajianTerpilih->id,
                 'reference_type' => Payroll::class,
                 'created_by' => Auth::id(),
             ]);
         });
 
-        session()->flash('success', 'Gaji berhasil dibayarkan dan dicatat di Kasir.');
-        $this->closePanel();
+        $this->dispatch('notify', message: 'Pembayaran gaji berhasil diproses dan dicatat di laporan kasir.', type: 'success');
+        $this->tutupPanel();
     }
 
     public function render()
     {
-        $payrolls = Payroll::with('user')
+        $daftarGaji = Payroll::with('user')
             ->orderBy('period_start', 'desc')
             ->paginate(10);
 
-        $employees = User::whereHas('employeeDetail')->get();
+        $daftarKaryawan = User::whereHas('employeeDetail')->get();
 
         return view('livewire.employees.payroll-manager', [
-            'payrolls' => $payrolls,
-            'employees' => $employees,
+            'daftarGaji' => $daftarGaji,
+            'daftarKaryawan' => $daftarKaryawan,
         ]);
     }
 }
