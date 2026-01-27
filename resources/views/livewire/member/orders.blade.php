@@ -17,7 +17,7 @@
                     </div>
                     <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Belum ada pesanan</h3>
                     <p class="text-slate-500 mb-6">Mulai belanja produk impianmu sekarang.</p>
-                    <a href="{{ route('toko.katalog') }}" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
+                    <a href="{{ route('store.catalog') }}" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
                         Ke Katalog Produk
                     </a>
                 </div>

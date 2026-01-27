@@ -36,7 +36,7 @@ class Gallery extends Component
     public function openUploadPanel()
     {
         if (! Auth::check()) {
-            return redirect()->route('pelanggan.masuk');
+            return redirect()->route('customer.login');
         }
         $this->reset(['selectedBuildId', 'galleryTitle', 'galleryDesc']);
         $this->activeAction = 'upload';
@@ -67,7 +67,7 @@ class Gallery extends Component
     public function like($buildId)
     {
         if (! Auth::check()) {
-            return redirect()->route('pelanggan.masuk');
+            return redirect()->route('customer.login');
         }
 
         // BuildLike::create(...) logic

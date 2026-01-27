@@ -2,7 +2,7 @@
     
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{{ $articleId ? 'Edit Artikel' : 'Tulis Artikel Baru' }}</h2>
-        <a href="{{ route('admin.berita.indeks') }}" class="text-slate-500 hover:text-slate-700 font-bold text-sm">Kembali</a>
+        <a href="{{ route('admin.news.index') }}" class="text-slate-500 hover:text-slate-700 font-bold text-sm">Kembali</a>
     </div>
 
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -79,7 +79,7 @@
             </div>
 
             <div class="pt-6 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
-                <a href="{{ route('admin.berita.indeks') }}" class="px-6 py-3 rounded-xl text-slate-500 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition">Batal</a>
+                <a href="{{ route('admin.news.index') }}" class="px-6 py-3 rounded-xl text-slate-500 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition">Batal</a>
                 <button type="submit" class="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-0.5">Simpan Artikel</button>
             </div>
 

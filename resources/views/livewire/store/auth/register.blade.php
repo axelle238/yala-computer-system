@@ -31,6 +31,6 @@
     </form>
 
     <div class="mt-6 text-center text-sm text-slate-500">
-        Sudah punya akun? <a href="{{ route('pelanggan.masuk') }}" class="text-cyan-500 hover:text-cyan-400 font-bold">Login disini</a>
+        Sudah punya akun? <a href="{{ route('customer.login') }}" class="text-cyan-500 hover:text-cyan-400 font-bold">Login disini</a>
     </div>
 </div>

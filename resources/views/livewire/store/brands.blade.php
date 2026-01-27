@@ -17,7 +17,7 @@
         @else
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 animate-fade-in-up delay-100">
                 @foreach($brands as $brand)
-                    <a href="{{ route('toko.katalog', ['search' => $brand->name]) }}" class="group bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:border-cyan-500/50 transition-all flex flex-col items-center justify-center text-center h-48 relative overflow-hidden">
+                    <a href="{{ route('store.catalog', ['search' => $brand->name]) }}" class="group bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:border-cyan-500/50 transition-all flex flex-col items-center justify-center text-center h-48 relative overflow-hidden">
                         <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         
                         <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mb-4 text-2xl font-black text-slate-400 group-hover:text-cyan-500 transition-colors">

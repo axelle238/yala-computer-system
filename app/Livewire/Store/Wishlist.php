@@ -18,7 +18,7 @@ class Wishlist extends Component
     public function add($productId)
     {
         if (! Auth::check()) {
-            return redirect()->route('pelanggan.masuk');
+            return redirect()->route('customer.login');
         }
 
         WishlistModel::firstOrCreate([

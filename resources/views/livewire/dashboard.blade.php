@@ -290,7 +290,7 @@
                     <p class="text-xs text-slate-500">Jejak audit tindakan pengguna di sistem</p>
                 </div>
             </div>
-            <a href="{{ route('admin.log-aktivitas.indeks') }}" class="text-xs font-bold text-slate-400 hover:text-indigo-500 transition-colors">Lihat Semua</a>
+            <a href="{{ route('activity-logs.index') }}" class="text-xs font-bold text-slate-400 hover:text-indigo-500 transition-colors">Lihat Semua</a>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left">

@@ -57,11 +57,11 @@ class GlobalSearch extends Component
         }
 
         if ($type === 'product') {
-            return redirect()->route('toko.produk.detail', $slug); // ID passed as slug here
+            return redirect()->route('store.product.detail', $slug); // ID passed as slug here
         } elseif ($type === 'category') {
-            return redirect()->route('toko.katalog', ['category' => $slug]);
+            return redirect()->route('store.catalog', ['category' => $slug]);
         } else {
-            return redirect()->route('toko.katalog', ['search' => $name]);
+            return redirect()->route('store.catalog', ['search' => $name]);
         }
     }
 

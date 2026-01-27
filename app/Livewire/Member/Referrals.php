@@ -30,7 +30,7 @@ class Referrals extends Component
         }
 
         $this->referralCode = $user->referral_code;
-        $this->referralLink = route('pelanggan.daftar', ['ref' => $this->referralCode]);
+        $this->referralLink = route('customer.register', ['ref' => $this->referralCode]);
 
         // Count Referrals
         $this->totalReferrals = User::where('referrer_id', $user->id)->count();

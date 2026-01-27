@@ -51,7 +51,7 @@
             </div>
 
             <div class="flex flex-col gap-3 w-full md:w-auto">
-                <a href="{{ route('anggota.alamat') }}" class="w-full px-6 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors text-sm text-center">
+                <a href="{{ route('member.addresses') }}" class="w-full px-6 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors text-sm text-center">
                     Kelola Alamat
                 </a>
                  <form method="POST" action="{{ route('logout') }}">
@@ -69,7 +69,7 @@
             <div class="lg:col-span-2 space-y-8 animate-fade-in-up delay-100">
                 
                 <!-- Referral Program Link -->
-                <a href="{{ route('anggota.referal') }}" class="block bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group hover:scale-[1.01] transition-transform">
+                <a href="{{ route('member.referrals') }}" class="block bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group hover:scale-[1.01] transition-transform">
                     <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-white/20 transition-all"></div>
                     <div class="flex justify-between items-center relative z-10">
                         <div>
@@ -92,7 +92,7 @@
                         </h2>
                         <div class="space-y-4">
                             @foreach($activeServices as $ticket)
-                                <a href="{{ route('toko.lacak-servis', ['ticket' => $ticket->ticket_number]) }}" class="block bg-cyan-50 dark:bg-cyan-900/10 rounded-xl p-4 border border-cyan-100 dark:border-cyan-800 hover:border-cyan-300 transition-colors group">
+                                <a href="{{ route('store.track-service', ['ticket' => $ticket->ticket_number]) }}" class="block bg-cyan-50 dark:bg-cyan-900/10 rounded-xl p-4 border border-cyan-100 dark:border-cyan-800 hover:border-cyan-300 transition-colors group">
                                     <div class="flex justify-between items-center mb-2">
                                         <p class="font-bold text-slate-800 dark:text-white group-hover:text-cyan-600 transition-colors">{{ $ticket->ticket_number }}</p>
                                         <span class="px-2.5 py-1 bg-white dark:bg-slate-800 text-cyan-600 rounded-lg text-[10px] font-bold uppercase border border-cyan-200 dark:border-slate-600">
@@ -114,7 +114,7 @@
                             <svg class="w-5 h-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>
                             Rakitan Tersimpan
                         </h2>
-                        <a href="{{ route('toko.rakit-pc') }}" class="text-xs font-bold text-purple-600 hover:underline">+ Rakit Baru</a>
+                        <a href="{{ route('store.pc-builder') }}" class="text-xs font-bold text-purple-600 hover:underline">+ Rakit Baru</a>
                     </div>
 
                     @if($savedBuilds->isEmpty())
@@ -157,12 +157,12 @@
                             <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
                             Pesanan Terakhir
                         </h2>
-                        <a href="{{ route('anggota.pesanan') }}" class="text-xs font-bold text-emerald-600 hover:underline">Lihat Semua</a>
+                        <a href="{{ route('member.orders') }}" class="text-xs font-bold text-emerald-600 hover:underline">Lihat Semua</a>
                     </div>
                     
                     <div class="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                         @forelse($recentOrders as $order)
-                            <a href="{{ route('anggota.pesanan.detail', $order->id) }}" class="block p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+                            <a href="{{ route('member.orders.show', $order->id) }}" class="block p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
                                 <div class="flex justify-between items-center mb-2">
                                     <span class="text-xs font-mono font-bold text-slate-500 group-hover:text-emerald-600 transition-colors">{{ $order->order_number }}</span>
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $order->status == 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600' }}">

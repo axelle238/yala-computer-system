@@ -77,9 +77,9 @@ class Form extends Component
             'published_at' => $this->is_published ? now() : null,
         ]);
 
-        session()->flash('success', 'Artikel berhasil disimpan.');
+        $this->reset();
 
-        return redirect()->route('admin.berita.indeks');
+        return redirect()->route('admin.news.index');
     }
 
     public function render()

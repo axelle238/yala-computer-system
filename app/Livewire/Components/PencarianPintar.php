@@ -50,15 +50,15 @@ class PencarianPintar extends Component
     private function cariMenu()
     {
         $menu = [
-            ['label' => 'Dashboard', 'route' => 'admin.beranda', 'icon' => 'home'],
-            ['label' => 'Kasir (POS)', 'route' => 'admin.kasir', 'icon' => 'shopping-cart'],
-            ['label' => 'Daftar Produk', 'route' => 'admin.produk.indeks', 'icon' => 'tag'],
-            ['label' => 'Stok Opname', 'route' => 'admin.gudang.stok-opname', 'icon' => 'clipboard-check'],
-            ['label' => 'Pesanan Pembelian', 'route' => 'admin.pesanan-pembelian.indeks', 'icon' => 'truck'],
-            ['label' => 'Papan Servis', 'route' => 'admin.servis.indeks', 'icon' => 'wrench'],
-            ['label' => 'Laporan Keuangan', 'route' => 'admin.keuangan.laba-rugi', 'icon' => 'chart-pie'],
-            ['label' => 'Manajemen Karyawan', 'route' => 'admin.karyawan.indeks', 'icon' => 'users'],
-            ['label' => 'Pengaturan Sistem', 'route' => 'admin.pengaturan', 'icon' => 'cog'],
+            ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'home'],
+            ['label' => 'Kasir (POS)', 'route' => 'sales.pos', 'icon' => 'shopping-cart'],
+            ['label' => 'Daftar Produk', 'route' => 'products.index', 'icon' => 'tag'],
+            ['label' => 'Stok Opname', 'route' => 'warehouses.stock-opname', 'icon' => 'clipboard-check'],
+            ['label' => 'Pesanan Pembelian', 'route' => 'purchase-orders.index', 'icon' => 'truck'],
+            ['label' => 'Papan Servis', 'route' => 'services.index', 'icon' => 'wrench'],
+            ['label' => 'Laporan Keuangan', 'route' => 'finance.profit-loss', 'icon' => 'chart-pie'],
+            ['label' => 'Manajemen Karyawan', 'route' => 'employees.index', 'icon' => 'users'],
+            ['label' => 'Pengaturan Sistem', 'route' => 'settings.index', 'icon' => 'cog'],
         ];
 
         return collect($menu)->filter(function ($m) {
@@ -75,7 +75,7 @@ class PencarianPintar extends Component
             ->map(fn ($p) => [
                 'label' => $p->name,
                 'sub' => 'Stok: '.$p->stock_quantity,
-                'route' => route('admin.produk.ubah', $p->id),
+                'route' => route('products.edit', $p->id),
                 'icon' => 'box',
             ]);
     }
@@ -89,7 +89,7 @@ class PencarianPintar extends Component
             ->map(fn ($c) => [
                 'label' => $c->name,
                 'sub' => $c->phone,
-                'route' => route('admin.pelanggan.ubah', $c->id),
+                'route' => route('customers.edit', $c->id),
                 'icon' => 'user',
             ]);
     }
@@ -102,7 +102,7 @@ class PencarianPintar extends Component
             ->map(fn ($o) => [
                 'label' => 'Pesanan #'.$o->order_number,
                 'sub' => $o->status_label.' - '.($o->guest_name ?? $o->pengguna->name ?? 'Tamu'),
-                'route' => route('admin.pesanan.tampil', $o->id),
+                'route' => route('orders.show', $o->id),
                 'icon' => 'receipt-tax',
             ]);
     }

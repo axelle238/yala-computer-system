@@ -91,7 +91,7 @@
 
                                 <!-- Image -->
                                 <div class="relative group/image">
-                                    <a href="{{ route('toko.produk.detail', $item->id) }}" class="block relative aspect-square mb-4 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900">
+                                    <a href="{{ route('store.product.detail', $item->id) }}" class="block relative aspect-square mb-4 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900">
                                         @if($item->image_path)
                                             <img src="{{ asset('storage/' . $item->image_path) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="{{ $item->name }}">
                                         @else
@@ -134,7 +134,7 @@
                         <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-up">
                             <div class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-4 border border-slate-700">
                                 <span class="font-bold text-sm">{{ count(session('compare_products')) }} Produk Dipilih</span>
-                                <a href="{{ route('toko.bandingkan') }}" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-full text-xs font-bold transition-colors">
+                                <a href="{{ route('store.compare') }}" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-full text-xs font-bold transition-colors">
                                     Bandingkan Sekarang
                                 </a>
                             </div>

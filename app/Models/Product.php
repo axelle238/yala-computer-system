@@ -64,6 +64,14 @@ class Product extends Model
     /**
      * Dapatkan kategori pemilik produk.
      */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    /**
+     * Dapatkan kategori pemilik produk.
+     */
     public function kategori(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');

@@ -4,7 +4,7 @@
             <h3 class="text-xl font-bold text-slate-400 mb-6 uppercase tracking-widest text-xs">Terakhir Dilihat</h3>
             <div class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
                 @foreach($products as $product)
-                    <a href="{{ route('toko.produk.detail', $product->id) }}" class="min-w-[160px] group">
+                    <a href="{{ route('store.product.detail', $product->id) }}" class="min-w-[160px] group">
                         <div class="aspect-square bg-slate-900 rounded-xl mb-3 flex items-center justify-center p-4 border border-white/5 group-hover:border-cyan-500/30 transition-all relative overflow-hidden">
                             @if($product->image_path)
                                 <img src="{{ asset('storage/' . $product->image_path) }}" class="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500">
