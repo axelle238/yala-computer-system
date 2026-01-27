@@ -23,7 +23,7 @@ class Form extends Component
 
     public $guest_phone;
 
-    public $status = 'pending';
+    public $status = 'requested';
 
     public $admin_notes;
 
