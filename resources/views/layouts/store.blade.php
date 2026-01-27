@@ -212,8 +212,8 @@
                     <a href="{{ route('beranda') }}" class="hover:text-cyan-400 transition-colors">Katalog</a>
                     <a href="{{ route('toko.tentang') }}" class="hover:text-cyan-400 transition-colors">Tentang Kami</a>
                     <a href="{{ route('toko.kontak') }}" class="hover:text-cyan-400 transition-colors">Hubungi Kami</a>
-                    <a href="{{ route('store.privacy-policy') }}" class="hover:text-cyan-400 transition-colors">Privasi</a>
-                    <a href="{{ route('store.terms') }}" class="hover:text-cyan-400 transition-colors">Ketentuan</a>
+                    <a href="{{ route('toko.privacy-policy') }}" class="hover:text-cyan-400 transition-colors">Privasi</a>
+                    <a href="{{ route('toko.terms') }}" class="hover:text-cyan-400 transition-colors">Ketentuan</a>
                 </div>
             </div>
             <div class="text-center border-t border-white/5 pt-8">

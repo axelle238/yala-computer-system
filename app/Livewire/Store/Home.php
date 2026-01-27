@@ -21,7 +21,7 @@ class Home extends Component
     {
         $this->validate(['nomorLacak' => 'required|string|min:5']);
 
-        return redirect()->route('store.track-service', ['ticket' => $this->nomorLacak]);
+        return redirect()->route('toko.track-service', ['ticket' => $this->nomorLacak]);
     }
 
     public function tambahKeKeranjang($idProduk)
