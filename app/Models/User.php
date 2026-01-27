@@ -125,6 +125,69 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin' || ($this->peran && $this->peran->nama === 'Admin');
+        return $this->hasRole('admin');
+    }
+
+    /**
+     * Mengecek apakah user memiliki salah satu role yang diberikan.
+     *
+     * @param array|string $roles
+     * @return bool
+     */
+    public function hasAnyRole($roles): bool
+    {
+        if (is_string($roles)) {
+            $roles = [$roles];
+        }
+
+        foreach ($roles as $role) {
+            if ($this->hasRole($role)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Mengecek apakah user memiliki role tertentu.
+     *
+     * @param string $role
+     * @return bool
+     */
+    public function hasRole(string $role): bool
+    {
+        $role = strtolower($role);
+        
+        // 1. Cek kolom 'role' legacy
+        if (strtolower($this->role ?? '') === $role) {
+            return true;
+        }
+
+        // 2. Cek relasi 'peran'
+        $namaPeran = $this->peran ? strtolower($this->peran->nama) : '';
+        if ($namaPeran === $role) {
+            return true;
+        }
+
+        // 3. Mapping Bahasa (Inggris <-> Indonesia)
+        $petaIstilah = [
+            'admin' => ['administrator'],
+            'owner' => ['pemilik'],
+            'technician' => ['teknisi'],
+            'cashier' => ['kasir'],
+            'warehouse' => ['gudang', 'logistik', 'inventory'],
+            'hr' => ['hrd', 'personalia'],
+            'customer' => ['pelanggan'],
+        ];
+
+        if (isset($petaIstilah[$role]) && in_array($namaPeran, $petaIstilah[$role])) {
+            return true;
+        }
+
+        // Cek kebalikan (jika input indonesia, cek inggris di role legacy)
+        // (Sederhana saja untuk sekarang: utamakan input bahasa Inggris dari nav.php)
+
+        return false;
     }
 }
