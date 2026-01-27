@@ -4,6 +4,7 @@ namespace App\Livewire\Pelanggan;
 
 use App\Models\PointHistory;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -14,6 +15,7 @@ class DetailPelanggan extends Component
 {
     public $pelanggan;
 
+    // Navigasi Tab
     public $tabAktif = 'ringkasan'; // ringkasan, pesanan, servis, garansi, poin
 
     // Ubah Profil
@@ -30,14 +32,24 @@ class DetailPelanggan extends Component
         $this->catatan = $this->pelanggan->notes;
     }
 
+    public function gantiTab($tab)
+    {
+        $this->tabAktif = $tab;
+    }
+
     public function perbaruiCatatan()
     {
         $this->pelanggan->update(['notes' => $this->catatan]);
-        $this->dispatch('notify', message: 'Catatan CRM diperbarui.', type: 'success');
+        $this->dispatch('notify', message: 'Catatan internal pelanggan berhasil diperbarui.', type: 'success');
     }
 
     public function sesuaikanPoin()
     {
+        // Hanya Admin/Owner yang boleh ubah poin manual
+        if (! Auth::user()->isAdmin() && ! Auth::user()->isOwner()) {
+            return;
+        }
+
         $this->validate([
             'penyesuaianPoin' => 'required|integer|not_in:0',
             'alasanPoin' => 'required|string|min:3',
@@ -46,23 +58,22 @@ class DetailPelanggan extends Component
             'alasanPoin.required' => 'Alasan wajib diisi.',
         ]);
 
-        $saldoBaru = $this->pelanggan->loyalty_points + $this->penyesuaianPoin;
+        $saldoBaru = $this->pelanggan->points + $this->penyesuaianPoin; // Gunakan 'points' bukan 'loyalty_points' sesuai migrasi
 
         if ($saldoBaru < 0) {
-            $this->addError('penyesuaianPoin', 'Poin tidak boleh bernilai negatif.');
-
+            $this->addError('penyesuaianPoin', 'Saldo poin tidak boleh menjadi negatif.');
             return;
         }
 
         // 1. Perbarui User
-        $this->pelanggan->loyalty_points = $saldoBaru;
+        $this->pelanggan->points = $saldoBaru;
         $this->pelanggan->save();
 
         // 2. Catat Riwayat
         PointHistory::create([
             'user_id' => $this->pelanggan->id,
             'amount' => $this->penyesuaianPoin,
-            'type' => 'adjustment',
+            'type' => 'adjusted',
             'description' => 'Penyesuaian Manual: '.$this->alasanPoin,
         ]);
 
@@ -75,15 +86,16 @@ class DetailPelanggan extends Component
 
     public function periksaKenaikanTier()
     {
-        $pengeluaran = $this->pelanggan->total_spent;
+        // Asumsi kolom total_spent ada di User (dari order aggregation)
+        $pengeluaran = $this->pelanggan->orders()->where('status', 'completed')->sum('total_amount');
 
-        $tierBaru = 'perunggu';
+        $tierBaru = 'Bronze';
         if ($pengeluaran >= 50000000) {
-            $tierBaru = 'platinum';
+            $tierBaru = 'Platinum';
         } elseif ($pengeluaran >= 20000000) {
-            $tierBaru = 'emas';
+            $tierBaru = 'Gold';
         } elseif ($pengeluaran >= 5000000) {
-            $tierBaru = 'perak';
+            $tierBaru = 'Silver';
         }
 
         if ($tierBaru !== $this->pelanggan->loyalty_tier) {

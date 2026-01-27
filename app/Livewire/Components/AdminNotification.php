@@ -9,75 +9,89 @@ use Livewire\Component;
 
 class AdminNotification extends Component
 {
-    public $isOpen = false;
+    public $terbuka = false;
 
-    public $notifications = [];
+    public $notifikasi = [];
 
-    public $hasUnread = false;
+    public $adaBelumDibaca = false;
 
     public function mount()
     {
-        $this->fetchNotifications();
+        $this->ambilNotifikasi();
     }
 
-    public function fetchNotifications()
+    public function ambilNotifikasi()
     {
-        // 1. Low Stock Alerts
-        $lowStocks = Product::where('stock_quantity', '<=', 5)->where('is_active', true)->take(3)->get();
-        foreach ($lowStocks as $p) {
-            $this->notifications[] = [
-                'id' => 'stock-'.$p->id,
-                'type' => 'warning',
-                'title' => 'Stok Menipis',
-                'message' => "Produk {$p->name} tersisa {$p->stock_quantity}.",
-                'time' => now()->subMinutes(rand(1, 60)),
-                'route' => route('admin.produk.ubah', $p->id),
+        $daftarNotif = [];
+
+        // 1. Peringatan Stok Menipis (Ambil 5 teratas)
+        $stokTipis = Product::whereColumn('stock_quantity', '<=', 'min_stock_alert')
+            ->where('is_active', true)
+            ->where('stock_quantity', '>', 0)
+            ->take(5)
+            ->get();
+
+        foreach ($stokTipis as $p) {
+            $daftarNotif[] = [
+                'id' => 'stok-'.$p->id,
+                'tipe' => 'warning',
+                'judul' => 'Stok Menipis',
+                'pesan' => "Produk {$p->name} tersisa {$p->stock_quantity} unit.",
+                'waktu' => now(), // Seharusnya last updated, tapi ok untuk alert real-time
+                'rute' => route('admin.produk.ubah', $p->id),
             ];
         }
 
-        // 2. New Orders (Pending)
-        $newOrders = Order::where('status', 'pending')->take(3)->get();
-        foreach ($newOrders as $o) {
-            $this->notifications[] = [
-                'id' => 'order-'.$o->id,
-                'type' => 'success',
-                'title' => 'Order Baru Masuk',
-                'message' => "#{$o->order_number} oleh {$o->guest_name} senilai ".number_format($o->total_amount),
-                'time' => $o->created_at,
-                'route' => route('admin.pesanan.tampil', $o->id),
+        // 2. Pesanan Baru (Pending)
+        $pesananBaru = Order::where('status', 'pending')->latest()->take(5)->get();
+        foreach ($pesananBaru as $o) {
+            $daftarNotif[] = [
+                'id' => 'pesanan-'.$o->id,
+                'tipe' => 'success',
+                'judul' => 'Pesanan Baru Masuk',
+                'pesan' => "#{$o->order_number} dari {$o->guest_name} senilai Rp ".number_format($o->total_amount, 0, ',', '.'),
+                'waktu' => $o->created_at,
+                'rute' => route('admin.pesanan.tampil', $o->id),
             ];
         }
 
-        // 3. Service Ticket Updates (Simple Logic: Processing)
-        $services = ServiceTicket::where('status', 'processing')->take(2)->get();
-        foreach ($services as $s) {
-            $this->notifications[] = [
-                'id' => 'service-'.$s->id,
-                'type' => 'info',
-                'title' => 'Servis Sedang Dikerjakan',
-                'message' => "Tiket #{$s->ticket_number} ({$s->device_name})",
-                'time' => $s->updated_at,
-                'route' => route('admin.servis.meja-kerja', $s->id),
+        // 3. Tiket Servis Baru (Pending)
+        $servisBaru = ServiceTicket::where('status', 'pending')->latest()->take(3)->get();
+        foreach ($servisBaru as $s) {
+            $daftarNotif[] = [
+                'id' => 'servis-'.$s->id,
+                'tipe' => 'info',
+                'judul' => 'Tiket Servis Baru',
+                'pesan' => "Tiket #{$s->ticket_number} ({$s->device_name})",
+                'waktu' => $s->created_at,
+                'rute' => route('admin.servis.meja-kerja', $s->id),
             ];
         }
 
-        // Sort by time
-        usort($this->notifications, fn ($a, $b) => $b['time'] <=> $a['time']);
+        // Urutkan berdasarkan waktu terbaru
+        usort($daftarNotif, fn ($a, $b) => $b['waktu'] <=> $a['waktu']);
 
-        $this->hasUnread = count($this->notifications) > 0;
+        $this->notifikasi = $daftarNotif;
+        $this->adaBelumDibaca = count($this->notifikasi) > 0;
     }
 
     public function toggle()
     {
-        $this->isOpen = ! $this->isOpen;
+        $this->terbuka = ! $this->terbuka;
+        if ($this->terbuka) {
+            // Segarkan data saat dibuka
+            $this->ambilNotifikasi();
+        }
     }
 
-    public function markAsRead()
+    public function tandaiDibaca()
     {
-        $this->notifications = [];
-        $this->hasUnread = false;
-        $this->isOpen = false;
-        $this->dispatch('notify', message: 'Semua notifikasi ditandai sudah dibaca.', type: 'success');
+        // Dalam implementasi database real, ini akan update status 'read_at'
+        // Untuk sekarang, kita kosongkan list sementara di sesi ini
+        $this->notifikasi = [];
+        $this->adaBelumDibaca = false;
+        $this->terbuka = false;
+        $this->dispatch('notify', message: 'Notifikasi disembunyikan sementara.', type: 'info');
     }
 
     public function render()
