@@ -35,7 +35,7 @@ class BusinessIntelligence
 
         // 2. HPP (Harga Pokok Penjualan) - Biaya Modal Barang yang Terjual
         // Dihitung dari Inventory Transaction tipe 'keluar' (out) pada periode ini
-        $hpp = InventoryTransaction::where('type', 'out')
+        $hpp = InventoryTransaction::where('type', '=', 'out') // '=' memastikan hanya 'out', bukan 'transfer_out'
             ->whereBetween('created_at', [$awal, $akhir])
             ->select(DB::raw('SUM(quantity * cogs) as total_hpp'))
             ->value('total_hpp') ?? 0;

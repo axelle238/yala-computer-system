@@ -254,7 +254,7 @@ return [
                 ],
                 [
                     'label' => 'Laporan Stok & Mutasi',
-                    'route' => 'reports.stock',
+                    'route' => 'admin.analitik.stok',
                     'icon' => 'clipboard-check',
                     'roles' => ['admin', 'owner', 'warehouse'],
                     'permission' => 'stock.view',

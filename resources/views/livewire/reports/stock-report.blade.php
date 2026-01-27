@@ -1,119 +1,94 @@
-<div class="space-y-8 animate-fade-in-up">
+<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8 animate-fade-in-up">
+    
     <!-- Header -->
-    <div>
-        <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
-            Stock <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Card</span>
-        </h2>
-        <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Audit jejak pergerakan barang (Mutasi Stok).</p>
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div>
+            <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tight">
+                Analisis <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Stok</span>
+            </h2>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Intelijen bisnis untuk pergerakan inventaris dan kesehatan persediaan.</p>
+        </div>
+        <button wire:click="generateReport" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M4 20h5v-5M20 4h-5v5"/></svg>
+            Perbarui Data
+        </button>
     </div>
 
-    <!-- Filter & Search -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row gap-6 items-end">
-        <div class="flex-1 w-full relative">
-            <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Cari Produk</label>
-            <input type="text" wire:model.live.debounce.300ms="searchProduct" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 font-bold" placeholder="Ketik Nama / SKU...">
-            
-            @if(!empty($searchResultProducts) && count($searchResultProducts) > 0)
-                <div class="absolute z-10 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden">
-                    @foreach($searchResultProducts as $p)
-                        <button wire:click="selectProduct({{ $p->id }})" class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 border-b border-slate-100 last:border-0 flex justify-between items-center">
-                            <div>
-                                <span class="font-bold text-sm text-slate-800 dark:text-white">{{ $p->name }}</span>
-                                <span class="text-xs text-slate-500 block">{{ $p->sku }}</span>
-                            </div>
-                            <span class="text-xs font-mono bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded">Stok: {{ $p->stock_quantity }}</span>
-                        </button>
-                    @endforeach
+    <!-- Konten Laporan -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Kolom Kiri: Fast Moving & Stok Menipis -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Produk Terlaris (Fast Moving) -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center gap-4 bg-slate-50 dark:bg-slate-900/50">
+                    <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 dark:text-white">Produk Terlaris (30 Hari)</h3>
+                        <p class="text-xs text-slate-500">Berdasarkan kuantitas unit keluar.</p>
+                    </div>
                 </div>
-            @endif
+                <div class="divide-y divide-slate-100 dark:divide-slate-700">
+                    @forelse($reportData['laku_pesat'] as $item)
+                        <div class="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                            <div class="font-bold text-sm text-slate-700 dark:text-slate-200">{{ $item->product->name }}</div>
+                            <div class="px-3 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 rounded-full text-xs font-black">{{ $item->total_terjual }} Unit</div>
+                        </div>
+                    @empty
+                        <div class="p-8 text-center text-slate-400">Tidak ada data penjualan yang signifikan.</div>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- Stok Menipis -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center gap-4 bg-slate-50 dark:bg-slate-900/50">
+                    <div class="p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 dark:text-white">Peringatan Stok Menipis</h3>
+                        <p class="text-xs text-slate-500">Stok saat ini di bawah atau sama dengan batas minimum.</p>
+                    </div>
+                </div>
+                <div class="divide-y divide-slate-100 dark:divide-slate-700">
+                    @forelse($reportData['stok_menipis'] as $item)
+                        <div class="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                            <div class="font-bold text-sm text-slate-700 dark:text-slate-200">{{ $item->name }}</div>
+                            <div class="px-3 py-1 bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 rounded-full text-xs font-black">Sisa {{ $item->stock_quantity }} Unit</div>
+                        </div>
+                    @empty
+                        <div class="p-8 text-center text-slate-400">Seluruh stok dalam kondisi aman.</div>
+                    @endforelse
+                </div>
+            </div>
         </div>
 
-        <div class="flex gap-2 items-center">
-            <div>
-                <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Dari Tanggal</label>
-                <input type="date" wire:model.live="startDate" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm font-bold">
-            </div>
-            <div>
-                <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Sampai</label>
-                <input type="date" wire:model.live="endDate" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm font-bold">
+        <!-- Kolom Kanan: Stok Mati -->
+        <div class="lg:col-span-1">
+            <div class="bg-rose-600/10 dark:bg-rose-900/20 p-6 rounded-2xl border border-rose-200 dark:border-rose-800 h-full">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="p-2 bg-rose-100 dark:bg-rose-900 text-rose-600 dark:text-rose-400 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 dark:text-white">Stok Mati (90 Hari)</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Tidak ada penjualan dalam 3 bulan terakhir.</p>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    @forelse($reportData['stok_mati'] as $item)
+                        <div class="bg-white dark:bg-slate-800 p-3 rounded-lg flex justify-between items-center shadow-sm">
+                            <span class="text-xs font-bold text-slate-600 dark:text-slate-300">{{ $item->name }}</span>
+                            <span class="text-xs font-mono bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded">{{ $item->stock_quantity }} Unit</span>
+                        </div>
+                    @empty
+                        <div class="text-center py-10 text-sm text-slate-500 dark:text-slate-400">Tidak ditemukan stok mati.</div>
+                    @endforelse
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Data Table -->
-    @if($selectedProductId)
-        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-            <div class="p-6 border-b border-slate-100 dark:border-slate-700">
-                <h3 class="font-bold text-slate-800 dark:text-white">Riwayat Transaksi: {{ $searchProduct }}</h3>
-            </div>
-            
-            <table class="w-full text-sm text-left">
-                <thead class="bg-slate-50 dark:bg-slate-900 text-slate-500 font-bold uppercase text-xs">
-                    <tr>
-                        <th class="px-6 py-4">Tanggal</th>
-                        <th class="px-6 py-4">Tipe Mutasi</th>
-                        <th class="px-6 py-4">Ref. Dokumen</th>
-                        <th class="px-6 py-4 text-center">Jumlah</th>
-                        <th class="px-6 py-4 text-center">Saldo Akhir</th>
-                        <th class="px-6 py-4">User</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                    @forelse($transactions as $trx)
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                            <td class="px-6 py-4 font-mono text-slate-600 dark:text-slate-400">
-                                {{ $trx->created_at->format('d/m/Y H:i') }}
-                            </td>
-                            <td class="px-6 py-4">
-                                @php
-                                    $badges = [
-                                        'in' => 'bg-emerald-100 text-emerald-700',
-                                        'out' => 'bg-rose-100 text-rose-700',
-                                        'adjustment' => 'bg-amber-100 text-amber-700',
-                                        'return' => 'bg-blue-100 text-blue-700',
-                                    ];
-                                    $labels = [
-                                        'in' => 'Masuk (Beli)',
-                                        'out' => 'Keluar (Jual)',
-                                        'adjustment' => 'Penyesuaian',
-                                        'return' => 'Retur',
-                                    ];
-                                @endphp
-                                <span class="px-2 py-1 rounded text-[10px] font-bold uppercase {{ $badges[$trx->type] ?? 'bg-slate-100' }}">
-                                    {{ $labels[$trx->type] ?? $trx->type }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">
-                                {{ $trx->reference_number }}
-                                <span class="block text-[10px] text-slate-400 font-normal">{{ $trx->notes }}</span>
-                            </td>
-                            <td class="px-6 py-4 text-center font-mono font-bold {{ in_array($trx->type, ['out']) ? 'text-rose-600' : 'text-emerald-600' }}">
-                                {{ in_array($trx->type, ['out']) ? '-' : '+' }}{{ abs($trx->quantity) }}
-                            </td>
-                            <td class="px-6 py-4 text-center font-mono text-slate-500">
-                                {{ $trx->remaining_stock }}
-                            </td>
-                            <td class="px-6 py-4 text-xs">
-                                {{ $trx->user->name ?? 'System' }}
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-slate-400">Tidak ada transaksi pada periode ini.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-            
-            <div class="p-4 border-t border-slate-100 dark:border-slate-700">
-                {{ $transactions->links() }}
-            </div>
-        </div>
-    @else
-        <div class="py-20 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
-            <svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-            <h3 class="text-lg font-bold text-slate-500">Pilih Produk Terlebih Dahulu</h3>
-            <p class="text-sm text-slate-400">Gunakan kolom pencarian di atas untuk melihat kartu stok.</p>
-        </div>
-    @endif
 </div>
