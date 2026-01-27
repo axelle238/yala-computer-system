@@ -2,124 +2,150 @@
 
 namespace App\Livewire\Assembly;
 
+use App\Models\ActivityLog;
 use App\Models\PcAssembly;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
-#[Title('PC Assembly Manager')]
+#[Title('Pengelola Produksi Rakitan - Yala Computer')]
 class Manager extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    // Filter & Pencarian
+    public $cari = '';
+    public $filterStatus = '';
 
-    public $statusFilter = '';
+    // Status Tampilan (View State)
+    public $aksiAktif = null; // null, 'detail'
+    public $rakitanTerpilih = null;
 
-    // View State
-    public $activeAction = null; // null, 'detail'
+    // Input Teknisi
+    public $catatanTeknisi = '';
+    public $skorBenchmark = '';
+    public $spesifikasi = [];
 
-    public $selectedAssembly = null;
-
-    // Technician Input
-    public $technicianNotes = '';
-
-    public $benchmarkScore = '';
-
-    public $specs = [];
-
-    public function updatingSearch()
+    /**
+     * Reset pagination saat mencari.
+     */
+    public function updatingCari()
     {
         $this->resetPage();
     }
 
-    public function openDetailPanel($id)
+    /**
+     * Membuka panel detail rakitan.
+     */
+    public function bukaPanelDetail($id)
     {
-        $this->selectedAssembly = PcAssembly::with(['pesanan.pengguna', 'pesanan.item.produk'])->find($id);
+        $this->rakitanTerpilih = PcAssembly::with(['pesanan.pengguna', 'pesanan.item.produk'])->find($id);
 
-        if ($this->selectedAssembly) {
-            $this->technicianNotes = $this->selectedAssembly->technician_notes;
-            $this->benchmarkScore = $this->selectedAssembly->benchmark_score;
+        if ($this->rakitanTerpilih) {
+            $this->catatanTeknisi = $this->rakitanTerpilih->technician_notes;
+            $this->skorBenchmark = $this->rakitanTerpilih->benchmark_score;
 
-            // Parse Specs from JSON or rebuild from Order Items if empty
-            if ($this->selectedAssembly->specs_snapshot) {
-                $this->specs = json_decode($this->selectedAssembly->specs_snapshot, true);
+            // Parse spesifikasi dari snapshot JSON atau tebak dari item pesanan
+            if ($this->rakitanTerpilih->specs_snapshot) {
+                $this->spesifikasi = json_decode($this->rakitanTerpilih->specs_snapshot, true);
             } else {
-                // Fallback: Try to guess from order items (Not ideal but helpful)
-                $this->specs = $this->selectedAssembly->pesanan->item->map(function ($item) {
+                $this->spesifikasi = $this->rakitanTerpilih->pesanan->item->map(function ($item) {
                     return [
-                        'name' => $item->produk->name,
+                        'nama' => $item->produk->name,
                         'qty' => $item->quantity,
                     ];
                 })->toArray();
             }
 
-            $this->activeAction = 'detail';
+            $this->aksiAktif = 'detail';
         }
     }
 
-    public function closePanel()
+    /**
+     * Menutup panel aksi.
+     */
+    public function tutupPanel()
     {
-        $this->activeAction = null;
-        $this->selectedAssembly = null;
+        $this->aksiAktif = null;
+        $this->rakitanTerpilih = null;
     }
 
-    public function updateStatus($newStatus)
+    /**
+     * Memperbarui status pengerjaan rakitan.
+     */
+    public function perbaruiStatus($statusBaru)
     {
-        if (! $this->selectedAssembly) {
+        if (! $this->rakitanTerpilih) {
             return;
         }
 
-        $this->selectedAssembly->update([
-            'status' => $newStatus,
-            'technician_id' => auth()->id(), // Assign current user as technician
+        $statusLama = $this->rakitanTerpilih->status;
+
+        $this->rakitanTerpilih->update([
+            'status' => $statusBaru,
+            'technician_id' => Auth::id(),
         ]);
 
-        if ($newStatus === 'picking' && ! $this->selectedAssembly->started_at) {
-            $this->selectedAssembly->update(['started_at' => now()]);
+        // Catat waktu mulai/selesai secara otomatis
+        if ($statusBaru === 'picking' && ! $this->rakitanTerpilih->started_at) {
+            $this->rakitanTerpilih->update(['started_at' => now()]);
         }
 
-        if ($newStatus === 'completed') {
-            $this->selectedAssembly->update(['completed_at' => now()]);
+        if ($statusBaru === 'completed') {
+            $this->rakitanTerpilih->update(['completed_at' => now()]);
         }
 
-        $this->dispatch('notify', message: 'Status diperbarui menjadi '.ucfirst($newStatus), type: 'success');
+        // Catat ke Log Aktivitas
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'update',
+            'model_type' => PcAssembly::class,
+            'model_id' => $this->rakitanTerpilih->id,
+            'description' => "Mengubah status rakitan #{$this->rakitanTerpilih->id} dari '{$statusLama}' menjadi '{$statusBaru}'.",
+            'ip_address' => request()->ip(),
+        ]);
+
+        $this->dispatch('notify', message: 'Status rakitan berhasil diperbarui.', type: 'success');
     }
 
-    public function saveNotes()
+    /**
+     * Menyimpan catatan teknisi dan skor performa.
+     */
+    public function simpanCatatan()
     {
-        if (! $this->selectedAssembly) {
+        if (! $this->rakitanTerpilih) {
             return;
         }
 
-        $this->selectedAssembly->update([
-            'technician_notes' => $this->technicianNotes,
-            'benchmark_score' => $this->benchmarkScore,
+        $this->rakitanTerpilih->update([
+            'technician_notes' => $this->catatanTeknisi,
+            'benchmark_score' => $this->skorBenchmark,
         ]);
 
-        $this->dispatch('notify', message: 'Catatan & Benchmark disimpan.', type: 'success');
+        $this->dispatch('notify', message: 'Laporan teknis berhasil disimpan.', type: 'success');
     }
 
     public function render()
     {
-        $assemblies = PcAssembly::query()
+        $daftarRakitan = PcAssembly::query()
             ->with(['pesanan', 'teknisi'])
-            ->when($this->search, function ($q) {
+            ->when($this->cari, function ($q) {
                 $q->whereHas('pesanan', function ($sq) {
-                    $sq->where('order_number', 'like', '%'.$this->search.'%')
-                        ->orWhere('guest_name', 'like', '%'.$this->search.'%');
-                })->orWhere('build_name', 'like', '%'.$this->search.'%');
+                    $sq->where('order_number', 'like', '%'.$this->cari.'%')
+                        ->orWhere('guest_name', 'like', '%'.$this->cari.'%');
+                })->orWhere('build_name', 'like', '%'.$this->cari.'%');
             })
-            ->when($this->statusFilter, function ($q) {
-                $q->where('status', $this->statusFilter);
+            ->when($this->filterStatus, function ($q) {
+                $q->where('status', $this->filterStatus);
             })
             ->latest()
             ->paginate(10);
 
         return view('livewire.assembly.manager', [
-            'assemblies' => $assemblies,
+            'daftarRakitan' => $daftarRakitan,
         ]);
     }
 }
