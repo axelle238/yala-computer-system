@@ -127,12 +127,14 @@ class Index extends Component
         if (!empty($daftarPerubahan)) {
             ActivityLog::create([
                 'user_id' => Auth::id(),
-                'activity_type' => 'update_settings',
+                'action' => 'update',
+                'model_type' => 'Setting',
+                'model_id' => 0,
                 'description' => "Melakukan pembaruan konfigurasi sistem pada tab: " . strtoupper($this->tabAktif),
                 'properties' => [
                     'item_yang_berubah' => $daftarPerubahan,
-                    'ip_address' => request()->ip()
                 ],
+                'ip_address' => request()->ip(),
             ]);
         }
 

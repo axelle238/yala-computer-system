@@ -126,7 +126,7 @@
                     <!-- Total Akhir -->
                     <div class="flex flex-col md:flex-row justify-between items-center pt-8 mt-4 border-t-2 border-slate-200 dark:border-slate-700 gap-4">
                         <div class="text-center md:text-left">
-                            <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Take Home Pay</span>
+                            <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Penerimaan Bersih</span>
                             <span class="text-lg font-bold text-slate-800 dark:text-white">Gaji Bersih Karyawan</span>
                         </div>
                         <div class="text-4xl font-black text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 px-8 py-4 rounded-3xl border-2 border-indigo-100 dark:border-indigo-900 shadow-lg font-mono">
@@ -241,7 +241,7 @@
             <h3 class="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-xs">Arsip Payroll & Pembayaran</h3>
             <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                <span class="text-[10px] font-bold text-slate-400 uppercase">Data Real-time</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase">Data Terkini</span>
             </div>
         </div>
         <div class="overflow-x-auto">
