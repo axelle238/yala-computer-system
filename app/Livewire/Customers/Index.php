@@ -20,22 +20,26 @@ class Index extends Component
     public function render()
     {
         // Statistics
-        $totalMembers = Customer::count();
-        $newMembersThisMonth = Customer::whereMonth('join_date', Carbon::now()->month)->count();
+        $stats = [
+            'total' => Customer::count(),
+            'new_this_month' => Customer::whereMonth('created_at', Carbon::now()->month)->count(),
+            'active_members' => Customer::whereHas('orders')->count(), // Pernah belanja
+            'top_tier' => Customer::where('loyalty_points', '>', 1000)->count(), // Contoh logika tier
+        ];
 
         // Data List with Lifetime Value (Total Spent)
         $customers = Customer::withSum('orders as total_spent', 'total_amount')
             ->where(function ($q) {
                 $q->where('name', 'like', '%'.$this->cari.'%')
-                    ->orWhere('phone', 'like', '%'.$this->cari.'%');
+                    ->orWhere('phone', 'like', '%'.$this->cari.'%')
+                    ->orWhere('email', 'like', '%'.$this->cari.'%');
             })
             ->orderBy('total_spent', 'desc') // Sort by LTV (VIP Customers first)
             ->paginate(10);
 
         return view('livewire.customers.index', [
             'customers' => $customers,
-            'totalMembers' => $totalMembers,
-            'newMembersThisMonth' => $newMembersThisMonth,
+            'stats' => $stats,
         ]);
     }
 }

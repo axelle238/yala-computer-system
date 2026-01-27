@@ -7,54 +7,55 @@
             </h2>
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Manajemen loyalitas, analisis LTV, dan database pelanggan.</p>
         </div>
-        <a href="{{ route('admin.pelanggan.buat') }}" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg shadow-purple-600/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+        <a href="{{ route('admin.pelanggan.buat') }}" class="px-6 py-3 bg-white text-slate-900 border-2 border-slate-900 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-md active:scale-95 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
             Tambah Pelanggan
         </a>
     </div>
 
-    <!-- Stats Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Total Members -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl -mr-6 -mt-6 group-hover:bg-purple-500/20 transition-all"></div>
-            <div class="flex items-center gap-4">
-                <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl text-purple-600 dark:text-purple-400">
-                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                </div>
-                <div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Pelanggan</p>
-                    <h3 class="text-3xl font-black font-tech text-slate-900 dark:text-white mt-1">{{ number_format($totalMembers) }}</h3>
-                </div>
+    <!-- Stats Dashboard -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- Total Pelanggan -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-purple-300 dark:hover:border-purple-700 transition-colors">
+            <div class="relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total Pelanggan</p>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ number_format($stats['total']) }}</h3>
+                <p class="text-[10px] text-purple-600 font-bold mt-2 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span> Database CRM
+                </p>
             </div>
         </div>
 
-        <!-- New Members -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-pink-500/10 rounded-full blur-2xl -mr-6 -mt-6 group-hover:bg-pink-500/20 transition-all"></div>
-            <div class="flex items-center gap-4">
-                <div class="p-3 bg-pink-100 dark:bg-pink-900/30 rounded-xl text-pink-600 dark:text-pink-400">
-                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                </div>
-                <div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Pelanggan Baru (Bulan Ini)</p>
-                    <h3 class="text-3xl font-black font-tech text-slate-900 dark:text-white mt-1 text-emerald-500">+{{ number_format($newMembersThisMonth) }}</h3>
-                </div>
+        <!-- Pelanggan Baru -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-pink-300 dark:hover:border-pink-700 transition-colors">
+            <div class="relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Pelanggan Baru (Bln Ini)</p>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white">+{{ number_format($stats['new_this_month']) }}</h3>
+                <p class="text-[10px] text-pink-600 font-bold mt-2 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span> Pertumbuhan
+                </p>
             </div>
         </div>
 
-        <!-- Loyalty Info -->
-        <div class="bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl p-6 shadow-lg shadow-purple-600/20 text-white relative overflow-hidden flex flex-col justify-center">
-            <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-            <div class="relative z-10 flex items-center justify-between">
-                <div>
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-white/80 mb-1">Loyalty Program</p>
-                    <h3 class="text-2xl font-black">1 Poin = Rp 100rb</h3>
-                    <p class="text-xs text-white/90 mt-1">Akumulasi otomatis setiap transaksi.</p>
-                </div>
-                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                </div>
+        <!-- Member Aktif -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors">
+            <div class="relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Member Aktif</p>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ number_format($stats['active_members']) }}</h3>
+                <p class="text-[10px] text-emerald-600 font-bold mt-2 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Pernah Transaksi
+                </p>
+            </div>
+        </div>
+
+        <!-- Top Tier -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-amber-300 dark:hover:border-amber-700 transition-colors">
+            <div class="relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Pelanggan VIP</p>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ number_format($stats['top_tier']) }}</h3>
+                <p class="text-[10px] text-amber-600 font-bold mt-2 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> > 1000 Poin
+                </p>
             </div>
         </div>
     </div>
@@ -102,7 +103,7 @@
                                     </div>
                                     <div>
                                         <p class="font-bold text-slate-900 dark:text-white text-base">{{ $customer->name }}</p>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400">Bergabung: {{ $customer->join_date ? $customer->join_date->format('d M Y') : '-' }}</p>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">Bergabung: {{ $customer->created_at ? $customer->created_at->format('d M Y') : '-' }}</p>
                                     </div>
                                 </div>
                             </td>
@@ -139,8 +140,8 @@
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    <a href="#" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-all" title="Riwayat Belanja">
-                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+                                    <a href="{{ route('admin.pelanggan.tampil', $customer->id) }}" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-all" title="Detail Profil">
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                     </a>
                                     <a href="{{ route('admin.pelanggan.ubah', $customer->id) }}" class="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg transition-all" title="Edit Profil">
                                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>

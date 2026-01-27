@@ -49,8 +49,18 @@ class Index extends Component
             ->get()
             ->groupBy('status');
 
+        $stats = [
+            'queue' => ServiceTicket::whereIn('status', ['pending', 'diagnosing'])->count(),
+            'working' => ServiceTicket::whereIn('status', ['repairing', 'waiting_part'])->count(),
+            'ready' => ServiceTicket::where('status', 'ready')->count(),
+            'revenue_month' => ServiceTicket::where('status', 'picked_up')
+                ->whereMonth('updated_at', now()->month)
+                ->sum('final_cost'),
+        ];
+
         return view('livewire.services.index', [
             'tickets' => $tickets,
+            'stats' => $stats,
         ]);
     }
 }

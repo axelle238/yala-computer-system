@@ -71,7 +71,7 @@
                         </div>
 
                         <div class="space-y-3">
-                            <a href="{{ route('toko.pembayaran') }}" class="block w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 text-center text-lg">
+                            <a href="{{ route('toko.pembayaran') }}" class="block w-full py-4 bg-white text-black border-2 border-black font-black uppercase tracking-widest rounded-xl hover:bg-black hover:text-white transition-all shadow-lg hover:shadow-xl text-center text-sm group">
                                 Checkout Sekarang
                             </a>
 

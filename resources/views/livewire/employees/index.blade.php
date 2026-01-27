@@ -8,17 +8,64 @@
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Manajemen akses, data personalia, dan struktur organisasi.</p>
         </div>
         @if(!$tampilkanForm)
-            <button wire:click="buat" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+            <button wire:click="buat" class="px-6 py-3 bg-white text-slate-900 border-2 border-slate-900 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-md active:scale-95 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
                 Karyawan Baru
             </button>
         @endif
     </div>
 
+    <!-- Mini Dashboard (Statistik SDM) -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- Total Karyawan -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
+            <div class="relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total Personil</p>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ number_format($stats['total_karyawan']) }}</h3>
+                <p class="text-[10px] text-blue-600 font-bold mt-2 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Karyawan Aktif
+                </p>
+            </div>
+        </div>
+
+        <!-- Hadir Hari Ini -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors">
+            <div class="relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Hadir Hari Ini</p>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ number_format($stats['hadir_hari_ini']) }}</h3>
+                <p class="text-[10px] text-emerald-600 font-bold mt-2 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Clock-In
+                </p>
+            </div>
+        </div>
+
+        <!-- Izin / Cuti -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-purple-300 dark:hover:border-purple-700 transition-colors">
+            <div class="relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Sedang Cuti / Izin</p>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ number_format($stats['izin_hari_ini']) }}</h3>
+                <p class="text-[10px] text-purple-600 font-bold mt-2 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span> Disetujui
+                </p>
+            </div>
+        </div>
+
+        <!-- Terlambat -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-rose-300 dark:hover:border-rose-700 transition-colors">
+            <div class="relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Terlambat</p>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ number_format($stats['telat_hari_ini']) }}</h3>
+                <p class="text-[10px] text-rose-600 font-bold mt-2 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span> Perlu Perhatian
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Form Inline (Pengganti Modal) -->
     @if($tampilkanForm)
         <div class="mb-10 animate-fade-in-up">
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
                     <h3 class="font-bold text-lg text-slate-800 dark:text-white">{{ $idPengguna ? 'Ubah Data Karyawan' : 'Tambah Karyawan Baru' }}</h3>
                     <button wire:click="$set('tampilkanForm', false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
@@ -27,7 +74,7 @@
                 <form wire:submit.prevent="simpan" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                     <!-- Info Profil -->
                     <div class="md:col-span-2">
-                        <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-3 border-b border-slate-100 dark:border-slate-700 pb-1">Informasi Dasar</h4>
+                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-100 dark:border-slate-700 pb-1">Informasi Dasar</h4>
                     </div>
 
                     <div>
@@ -60,7 +107,7 @@
 
                     <!-- Detail Personal -->
                     <div class="md:col-span-2 pt-4">
-                        <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-3 border-b border-slate-100 dark:border-slate-700 pb-1">Detail Personalia</h4>
+                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-100 dark:border-slate-700 pb-1">Detail Personalia</h4>
                     </div>
 
                     <div>
@@ -84,7 +131,7 @@
 
                     <!-- Keamanan -->
                     <div class="md:col-span-2 pt-4">
-                        <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-3 border-b border-slate-100 dark:border-slate-700 pb-1">Keamanan</h4>
+                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-100 dark:border-slate-700 pb-1">Keamanan</h4>
                     </div>
 
                     <div class="md:col-span-2">
@@ -95,7 +142,7 @@
 
                     <div class="md:col-span-2 flex justify-end gap-3 mt-6">
                         <button type="button" wire:click="$set('tampilkanForm', false)" class="px-6 py-2.5 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-all">Batal</button>
-                        <button type="submit" class="px-10 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition-all transform active:scale-95">Simpan Data Karyawan</button>
+                        <button type="submit" class="px-8 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-2 border-transparent hover:border-slate-900 dark:hover:border-white font-bold rounded-xl shadow-lg transition-all transform active:scale-95">Simpan Data</button>
                     </div>
                 </form>
             </div>
@@ -142,11 +189,11 @@
                     @endif
 
                     <div class="w-full grid grid-cols-2 gap-2 border-t border-slate-100 dark:border-slate-700 pt-4 mt-auto">
-                        <button wire:click="ubah({{ $emp->id }})" class="py-2 px-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm font-bold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">
+                        <button wire:click="ubah({{ $emp->id }})" class="py-2 px-4 rounded-lg bg-white border border-slate-200 hover:border-slate-400 text-slate-700 text-sm font-bold transition-all hover:shadow-sm">
                             Ubah
                         </button>
                         @if($emp->id !== auth()->id())
-                            <button wire:click="hapus({{ $emp->id }})" wire:confirm="Yakin ingin menghapus karyawan ini?" class="py-2 px-4 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-sm font-bold hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors">
+                            <button wire:click="hapus({{ $emp->id }})" wire:confirm="Yakin ingin menghapus karyawan ini?" class="py-2 px-4 rounded-lg bg-white border border-slate-200 hover:border-rose-400 text-rose-600 text-sm font-bold transition-all hover:shadow-sm hover:bg-rose-50">
                                 Hapus
                             </button>
                         @else

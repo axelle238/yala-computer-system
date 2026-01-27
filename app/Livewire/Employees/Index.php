@@ -136,6 +136,14 @@ class Index extends Component
         // Ambil peran untuk dropdown
         $daftarOpsiPeran = Peran::all();
 
+        // Statistik SDM
+        $stats = [
+            'total_karyawan' => User::whereNotNull('id_peran')->count(),
+            'hadir_hari_ini' => \App\Models\Attendance::whereDate('date', today())->whereNotNull('clock_in')->distinct('user_id')->count(),
+            'izin_hari_ini' => \App\Models\LeaveRequest::whereDate('start_date', '<=', today())->whereDate('end_date', '>=', today())->where('status', 'approved')->count(),
+            'telat_hari_ini' => \App\Models\Attendance::whereDate('date', today())->where('status', 'late')->count(),
+        ];
+
         $karyawan = User::whereNotNull('id_peran') // Asumsi karyawan adalah yang punya peran
             ->orWhereIn('role', ['admin', 'technician', 'cashier', 'warehouse', 'hr'])
             ->where(function ($q) {
@@ -148,6 +156,7 @@ class Index extends Component
         return view('livewire.employees.index', [
             'karyawan' => $karyawan,
             'daftarOpsiPeran' => $daftarOpsiPeran,
+            'stats' => $stats,
         ]);
     }
 }
