@@ -36,7 +36,7 @@ class ActivityLog extends Model
         }
 
         $actor = $this->user ? $this->user->name : 'Sistem';
-        $modelName = class_basename($this->model_type);
+        $modelName = $this->translateModel(class_basename($this->model_type));
 
         switch ($this->action) {
             case 'create':
@@ -68,5 +68,22 @@ class ActivityLog extends Model
             default:
                 return "{$actor} melakukan aksi {$this->action} pada {$modelName}.";
         }
+    }
+
+    private function translateModel(string $model): string
+    {
+        return match ($model) {
+            'User' => 'Pengguna',
+            'Product' => 'Produk',
+            'Order' => 'Pesanan',
+            'Customer' => 'Pelanggan',
+            'Supplier' => 'Pemasok',
+            'Employee' => 'Karyawan',
+            'ServiceTicket' => 'Tiket Servis',
+            'Transaction' => 'Transaksi',
+            'Expense' => 'Pengeluaran',
+            'PurchaseOrder' => 'Pesanan Pembelian',
+            default => $model,
+        };
     }
 }

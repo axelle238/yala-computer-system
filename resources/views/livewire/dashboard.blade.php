@@ -58,7 +58,7 @@
                     <div class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Rp {{ number_format($statistik['pendapatan'], 0, ',', '.') }}</div>
                     <div class="mt-2 text-xs font-medium text-emerald-500 flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/20 w-fit px-2 py-0.5 rounded-full">
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
-                        <span>Update Real-time</span>
+                        <span>Pembaruan Langsung</span>
                     </div>
                 </div>
             </div>
@@ -123,7 +123,7 @@
                 <h3 class="font-bold text-slate-800 dark:text-white text-lg">Tren Penjualan Mingguan</h3>
                 <p class="text-sm text-slate-500">Omzet kotor 7 hari terakhir</p>
             </div>
-            <span class="text-xs font-bold bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full border border-indigo-100">Live Data</span>
+            <span class="text-xs font-bold bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full border border-indigo-100">Data Terkini</span>
         </div>
         <div id="chart-penjualan" class="w-full h-80"></div>
     </div>
