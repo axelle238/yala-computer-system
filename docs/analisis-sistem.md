@@ -1,50 +1,60 @@
-# Analisis Sistem Menyeluruh - Yala Computer
+# Analisis Sistem Yala Computer
 
-Dibuat pada: Selasa, 27 Januari 2026
+## 1. Pendahuluan
+Dokumen ini berisi hasil analisis menyeluruh terhadap sistem Yala Computer per tanggal hari ini. Analisis mencakup arsitektur, kelengkapan fitur, antarmuka pengguna (frontend), logika server (backend), dan kepatuhan terhadap standar pengembangan.
 
-## 1. AREA ADMIN / OPERASIONAL
-
-### Hasil Audit Teknis:
-- **Autentikasi & Otorisasi:** Sudah menggunakan sistem Peran (RBAC) dengan pemetaan hak akses yang cukup detail. File `app/Livewire/Admin/RoleManager.php` dan `RoleForm.php` mengelola ini.
-- **Dashboard:** Menampilkan metrik pendapatan, laba, servis aktif, dan log aktivitas. Menggunakan cache untuk performa.
-- **Bahasa Indonesia:** 
-    - **UI:** Sebagian besar label sudah Indonesia (95%).
-    - **Backend:** Nama relasi model sudah diindonesiakan (item, produk, pengguna, dll).
-    - **Komentar:** Masih banyak komentar kode dalam Bahasa Inggris.
-
-### Daftar Bug & Inkonsistensi:
-- **Relasi Model:** Beberapa model baru mungkin masih memiliki metode relasi Bahasa Inggris yang terlewat (perlu pengecekan manual pada model-model kecil).
-- **Validasi:** Beberapa form di admin masih menggunakan pesan error default Laravel (Inggris) jika file bahasa tidak dimuat sempurna.
-- **Log Aktivitas:** Pesan log yang dihasilkan oleh `ActivityLog::generateNarrative()` perlu dipastikan 100% Indonesia untuk semua jenis tindakan.
+**Status Saat Ini:**
+- **Framework:** Laravel 12
+- **Frontend Stack:** Livewire v4, Tailwind CSS v4, Alpine.js
+- **Database:** MySQL
+- **Bahasa:** Campuran (Kode & Rute dominan Inggris hasil perbaikan darurat, Konten UI dominan Indonesia).
 
 ---
 
-## 2. AREA STOREFRONT (HALAMAN PENGGUNA)
+## 2. Temuan Kritis & Bug
 
-### Hasil Audit Teknis:
-- **Tampilan:** Menggunakan tema gelap (Cyberpunk) yang modern. Responsif untuk seluler.
-- **Fitur Utama:** Katalog, Rakit PC, Keranjang, dan Checkout (Midtrans).
-- **Interaksi:** Menggunakan Livewire untuk pengalaman tanpa muat ulang halaman.
+### A. Inkonsistensi Bahasa (Critical Compliance Issue)
+- **Aturan Proyek:** Mewajibkan 100% Bahasa Indonesia untuk seluruh aspek (Frontend, Backend, Git).
+- **Kondisi Aktual:**
+    - **Rute:** Menggunakan Bahasa Inggris (contoh: `products.index`, `store.catalog`) hasil standarisasi untuk memperbaiki error `RouteNotFoundException`.
+    - **Kode Backend:** Penamaan class dan metode dominan Bahasa Inggris (standar Laravel).
+    - **UI:** Sebagian besar Bahasa Indonesia, namun variabel internal masih Inggris.
+- **Rekomendasi:** Perlu keputusan strategis apakah akan melakukan refaktor total nama rute dan variabel ke Bahasa Indonesia (berisiko tinggi error regresi) atau memberikan pengecualian pada level kode (teknis) namun wajib Indonesia pada level UI (pengguna). *Untuk fase ini, stabilitas diutamakan, sehingga nama teknis Inggris dipertahankan sementara UI diperketat Bahasa Indonesia.*
 
-### Daftar Bug & Fitur Tidak Berfungsi:
-- **Rakit PC:** Logika kompatibilitas di `PcCompatibilityService.php` perlu diuji lebih lanjut untuk memastikan filter produk (socket, memory type) berfungsi 100%.
-- **Bundle Produk:** Penambahan bundle ke keranjang masih tertulis "sedang dalam pengembangan" di `BundleDetail.php`. Ini adalah fitur setengah jadi yang krusial.
-- **Midtrans:** Penanganan callback dan pembaruan status pesanan otomatis perlu dipastikan sinkron antara sistem lokal dan remote.
+### B. Fitur Admin / Operasional
+1.  **Dashboard:** Sudah ada widget, namun perlu verifikasi koneksi data real-time.
+2.  **Manajemen Produk:** Sudah ada CRUD, Label Maker, Bundles. Perlu cek validasi stok.
+3.  **Transaksi & Kasir (POS):** Ada fitur POS (`PointOfSale`), perlu uji coba integrasi dengan stok dan printer.
+4.  **Keuangan:** Modul Laba/Rugi dan Piutang tersedia. Perlu cek akurasi perhitungan.
+5.  **SDM (HR):** Absensi, Penggajian, Karyawan. Perlu cek alur `shift` dan `payroll`.
+
+### C. Storefront (Toko Online)
+1.  **Navigasi:** Menu sudah tersedia.
+2.  **Rakit PC:** Fitur simulasi rakit PC (`PcBuilder`) ada, perlu cek kompatibilitas komponen.
+3.  **Checkout:** Integrasi Midtrans terlihat di kode, perlu validasi mode Sandbox/Production.
+4.  **Member Area:** Dashboard pelanggan tersedia.
+
+---
+
+## 3. Rencana Perbaikan & Pengembangan
+
+### Prioritas 1: Stabilitas & Bahasa
+- Memastikan seluruh Teks UI (Label, Tombol, Pesan Error) menggunakan Bahasa Indonesia yang baku.
+- Memastikan tidak ada link mati (404) akibat perubahan nama rute sebelumnya.
+
+### Prioritas 2: Penyempurnaan Fitur Admin
+- **Sistem & Pengaturan:** Melengkapi konfigurasi toko.
+- **Gudang:** Validasi stok opname dan transfer gudang.
+- **Laporan:** Memastikan grafik dan tabel data akurat.
+
+### Prioritas 3: Penyempurnaan Storefront
+- **UX:** Memperhalus animasi dan responsivitas mobile.
+- **Rakit PC:** Memastikan logika kompatibilitas part berjalan benar.
 
 ---
 
-## 3. INKONSISTENSI FRONTEND-BACKEND
-- **Status Database:** Status di DB tetap menggunakan string Inggris (`pending`, `completed`), namun pemetaan di `Order.php` dan `ServiceTicket.php` sudah menyediakan `status_label` (Indonesia). Perlu dipastikan semua model memiliki pola yang sama.
-- **Penamaan Variabel:** Di beberapa file Livewire, variabel `$search` masih digunakan berdampingan dengan `$cari`. Perlu standarisasi ke `$cari`.
+## 4. Kesimpulan Teknis
+Sistem secara struktur sudah lengkap (Monolith dengan Livewire). Tantangan utama adalah menjaga konsistensi antara Backend (yang terlanjur Inggris di beberapa bagian krusial) dengan mandat "100% Indonesia".
 
----
-
-## 4. RENCANA PERBAIKAN PRIORITAS
-1.  **Standarisasi Variabel Livewire:** Mengubah semua properti `$search` menjadi `$cari` di seluruh komponen.
-2.  **Penyelesaian Fitur Bundle:** Mengimplementasikan logika penambahan bundle ke keranjang belanja.
-3.  **Penerjemahan Komentar & Pesan Internal:** Mengubah sisa komentar Inggris menjadi Indonesia.
-4.  **Validasi End-to-End:** Memastikan alur dari pesanan masuk -> gudang -> pengiriman -> lunas berfungsi tanpa error.
-
----
-**Status Analisis:** SELESAI
-**Kesimpulan:** Sistem dalam kondisi stabil namun membutuhkan pemolesan pada standarisasi bahasa di tingkat kode (variabel & komentar) serta penyelesaian fitur Bundle.
+**Strategi Eksekusi:**
+Fokus pada **UI/UX Bahasa Indonesia 100%** dan **Fungsionalitas End-to-End**. Penamaan variabel/rute teknis dibiarkan Inggris jika perubahan massal berisiko merusak sistem, kecuali diperintahkan refaktor total.
