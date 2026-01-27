@@ -63,9 +63,9 @@ class Dashboard extends Component
                 if (! collect($blocked)->contains('ip', $log->ip_address)) {
                     $blocked[] = [
                         'ip' => $log->ip_address,
-                        'note' => 'Auto-resolved from Dashboard',
+                        'note' => 'Diselesaikan otomatis dari Dasbor',
                         'added_at' => now()->toDateTimeString(),
-                        'added_by' => 'System (Automated)',
+                        'added_by' => 'Sistem (Otomatis)',
                     ];
                     Setting::set('firewall_blocked_ips', json_encode($blocked));
                 }
@@ -116,11 +116,11 @@ class Dashboard extends Component
 
         // 4. Geo Distribution (Mock)
         $geoDistribution = [
-            ['country' => 'Indonesia', 'count' => 850, 'status' => 'Safe', 'flag' => '🇮🇩'],
-            ['country' => 'United States', 'count' => 120, 'status' => 'Neutral', 'flag' => '🇺🇸'],
-            ['country' => 'China', 'count' => 45, 'status' => 'Suspicious', 'flag' => '🇨🇳'],
-            ['country' => 'Russia', 'count' => 12, 'status' => 'High Risk', 'flag' => '🇷🇺'],
-            ['country' => 'Unknown Proxy', 'count' => 8, 'status' => 'Critical', 'flag' => '🏴‍☠️'],
+            ['country' => 'Indonesia', 'count' => 850, 'status' => 'Aman', 'flag' => '🇮🇩'],
+            ['country' => 'Amerika Serikat', 'count' => 120, 'status' => 'Netral', 'flag' => '🇺🇸'],
+            ['country' => 'China', 'count' => 45, 'status' => 'Mencurigakan', 'flag' => '🇨🇳'],
+            ['country' => 'Rusia', 'count' => 12, 'status' => 'Risiko Tinggi', 'flag' => '🇷🇺'],
+            ['country' => 'Proxy Tidak Dikenal', 'count' => 8, 'status' => 'Kritis', 'flag' => '🏴‍☠️'],
         ];
 
         // 5. Recent Security Events

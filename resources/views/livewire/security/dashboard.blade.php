@@ -21,17 +21,17 @@
                     </svg>
                     <div class="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center">
                         <span class="text-4xl font-black text-white font-mono">{{ $threatScore }}%</span>
-                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Risk Level</span>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Tingkat Risiko</span>
                     </div>
                 </div>
                 
                 <div>
                     <div class="flex items-center gap-3 mb-2">
-                        <h2 class="text-3xl font-black text-white uppercase tracking-tight">System Security</h2>
+                        <h2 class="text-3xl font-black text-white uppercase tracking-tight">Keamanan Sistem</h2>
                         @if($lockdownMode)
-                            <span class="px-3 py-1 bg-red-600 text-white text-xs font-bold uppercase rounded animate-bounce">Lockdown Active</span>
+                            <span class="px-3 py-1 bg-red-600 text-white text-xs font-bold uppercase rounded animate-bounce">Lockdown Aktif</span>
                         @else
-                            <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold uppercase rounded border border-emerald-500/30">Monitoring Active</span>
+                            <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold uppercase rounded border border-emerald-500/30">Monitoring Aktif</span>
                         @endif
                     </div>
                     <p class="text-slate-400 text-sm max-w-md leading-relaxed font-medium">
@@ -45,15 +45,15 @@
             <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
                 <button wire:click="toggleAutoBan" class="flex-1 px-6 py-4 rounded-xl border border-slate-600 hover:bg-slate-800 transition-all flex flex-col items-center justify-center gap-1 group">
                     <div class="w-2 h-2 rounded-full {{ $autoBanEnabled ? 'bg-emerald-500' : 'bg-slate-500' }} mb-1"></div>
-                    <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Auto-Ban (IPS)</span>
-                    <span class="text-[10px] text-slate-500 font-mono">{{ $autoBanEnabled ? 'ENABLED' : 'DISABLED' }}</span>
+                    <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Blokir Otomatis (IPS)</span>
+                    <span class="text-[10px] text-slate-500 font-mono">{{ $autoBanEnabled ? 'AKTIF' : 'NON-AKTIF' }}</span>
                 </button>
 
                 <button wire:click="toggleLockdown" wire:confirm="PERINGATAN: Mode Lockdown akan membatasi akses ke sistem secara drastis. Lanjutkan?"
                     class="flex-1 px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs flex flex-col items-center justify-center gap-2 transition-all shadow-lg hover:scale-105 active:scale-95
                     {{ $lockdownMode ? 'bg-red-600 text-white shadow-red-600/50 animate-pulse' : 'bg-slate-700 text-slate-300 hover:bg-red-900/50 hover:text-red-400' }}">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                    {{ $lockdownMode ? 'DISABLE LOCKDOWN' : 'ACTIVATE LOCKDOWN' }}
+                    {{ $lockdownMode ? 'NON-AKTIFKAN LOCKDOWN' : 'AKTIFKAN LOCKDOWN' }}
                 </button>
             </div>
         </div>
@@ -62,7 +62,7 @@
     <!-- LIVE ATTACK MAP (War Room Style) -->
     <div class="bg-slate-900 rounded-[2.5rem] p-8 border border-slate-700 shadow-2xl relative overflow-hidden h-[400px]">
         <div class="absolute inset-0 bg-[url('https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg')] bg-cover bg-center opacity-10 pointer-events-none"></div>
-        <div class="absolute top-4 left-8 text-xs font-mono text-emerald-500 font-bold uppercase tracking-widest animate-pulse">Live Attack Feed // Establishing Secure Uplink...</div>
+        <div class="absolute top-4 left-8 text-xs font-mono text-emerald-500 font-bold uppercase tracking-widest animate-pulse">Umpan Serangan Langsung // Membangun Uplink Aman...</div>
         
         <div class="relative w-full h-full">
             @foreach($attackMapData as $attack)
@@ -110,7 +110,7 @@
                           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                           <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                         </span>
-                        <span class="text-xs font-mono text-emerald-500">Incoming Data Stream</span>
+                        <span class="text-xs font-mono text-emerald-500">Aliran Data Masuk</span>
                     </div>
                 </div>
                 
@@ -129,8 +129,8 @@
                     @endforeach
                 </div>
                 <div class="flex justify-between mt-2 text-[10px] text-slate-400 font-mono uppercase">
-                    <span>Now - 12h</span>
-                    <span>Now</span>
+                    <span>Sekarang - 12j</span>
+                    <span>Sekarang</span>
                 </div>
             </div>
 
@@ -144,14 +144,14 @@
                                 <span class="text-2xl">{{ $geo['flag'] }}</span>
                                 <div>
                                     <div class="font-bold text-slate-800 dark:text-white text-sm">{{ $geo['country'] }}</div>
-                                    <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">{{ $geo['count'] }} Connection Attempts</div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">{{ $geo['count'] }} Percobaan Koneksi</div>
                                 </div>
                             </div>
                             
-                            @if($geo['status'] === 'Safe')
-                                <span class="px-2 py-1 rounded text-[10px] font-black uppercase bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">Trusted</span>
-                            @elseif($geo['status'] === 'Critical')
-                                <button class="px-3 py-1 rounded text-[10px] font-black uppercase bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-500/30 transition-all active:scale-95">BLOCK ALL</button>
+                            @if($geo['status'] === 'Aman')
+                                <span class="px-2 py-1 rounded text-[10px] font-black uppercase bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">Terpercaya</span>
+                            @elseif($geo['status'] === 'Kritis')
+                                <button class="px-3 py-1 rounded text-[10px] font-black uppercase bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-500/30 transition-all active:scale-95">BLOKIR SEMUA</button>
                             @else
                                 <span class="px-2 py-1 rounded text-[10px] font-black uppercase bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400">{{ $geo['status'] }}</span>
                             @endif
@@ -170,8 +170,8 @@
                     <!-- Brute Force -->
                     <div>
                         <div class="flex justify-between text-xs font-bold mb-2">
-                            <span class="text-slate-400">Brute Force / Credential Stuffing</span>
-                            <span class="{{ $failedLogins > 10 ? 'text-red-400' : 'text-emerald-400' }}">{{ $failedLogins }} Events</span>
+                            <span class="text-slate-400">Brute Force / Isian Kredensial</span>
+                            <span class="{{ $failedLogins > 10 ? 'text-red-400' : 'text-emerald-400' }}">{{ $failedLogins }} Kejadian</span>
                         </div>
                         <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
                             <div class="h-full {{ $failedLogins > 10 ? 'bg-red-500' : 'bg-emerald-500' }}" style="width: {{ min(100, $failedLogins * 2) }}%"></div>
@@ -181,8 +181,8 @@
                     <!-- Botnet -->
                     <div>
                         <div class="flex justify-between text-xs font-bold mb-2">
-                            <span class="text-slate-400">Botnet Activity (Unique IPs)</span>
-                            <span class="text-indigo-400">{{ $distinctIps }} Sources</span>
+                            <span class="text-slate-400">Aktivitas Botnet (IP Unik)</span>
+                            <span class="text-indigo-400">{{ $distinctIps }} Sumber</span>
                         </div>
                         <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
                             <div class="h-full bg-indigo-500" style="width: {{ min(100, $distinctIps * 5) }}%"></div>
@@ -192,8 +192,8 @@
                     <!-- WAF Blocks -->
                     <div>
                         <div class="flex justify-between text-xs font-bold mb-2">
-                            <span class="text-slate-400">Firewall Blocks (WAF)</span>
-                            <span class="text-amber-400">12 Events</span>
+                            <span class="text-slate-400">Blokir Firewall (WAF)</span>
+                            <span class="text-amber-400">12 Kejadian</span>
                         </div>
                         <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
                             <div class="h-full bg-amber-500" style="width: 30%"></div>
@@ -205,7 +205,7 @@
             <!-- Recent Security Logs -->
             <div class="bg-white dark:bg-slate-800 rounded-[2.5rem] p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col h-[500px]">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-slate-900 dark:text-white text-sm">Security Log Feed</h3>
+                    <h3 class="font-bold text-slate-900 dark:text-white text-sm">Umpan Log Keamanan</h3>
                     <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                 </div>
                 
@@ -227,7 +227,7 @@
                                 
                                 @if($event->action == 'login_failed' || $event->action == 'threat_detected')
                                     <button wire:click="resolveThreat({{ $event->id }})" class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold rounded hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors uppercase text-[9px]">
-                                        Resolve
+                                        Tangani
                                     </button>
                                 @endif
                             </div>

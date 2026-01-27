@@ -14,7 +14,7 @@
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
             </span>
-            <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Firewall Active</span>
+            <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Firewall Aktif</span>
         </div>
     </div>
 
@@ -79,7 +79,7 @@
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <!-- Blocked List -->
                         <div>
-                            <h4 class="text-sm font-black text-red-600 uppercase tracking-widest mb-4 border-b border-red-200 pb-2">Blocked IPs</h4>
+                            <h4 class="text-sm font-black text-red-600 uppercase tracking-widest mb-4 border-b border-red-200 pb-2">IP Diblokir</h4>
                             <div class="space-y-3">
                                 @forelse($blockedIps as $index => $item)
                                     <div class="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/30">
@@ -97,7 +97,7 @@
 
                         <!-- Whitelist -->
                         <div>
-                            <h4 class="text-sm font-black text-emerald-600 uppercase tracking-widest mb-4 border-b border-emerald-200 pb-2">Whitelist IPs</h4>
+                            <h4 class="text-sm font-black text-emerald-600 uppercase tracking-widest mb-4 border-b border-emerald-200 pb-2">IP Diizinkan (Whitelist)</h4>
                             <div class="space-y-3">
                                 @forelse($whitelistedIps as $index => $item)
                                     <div class="flex items-center justify-between p-3 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
