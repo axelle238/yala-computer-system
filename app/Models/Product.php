@@ -113,6 +113,15 @@ class Product extends Model
     }
 
     /**
+     * Relasi ke Order Items (Item Pesanan).
+     * Digunakan untuk menghitung produk terlaris.
+     */
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    /**
      * Periksa apakah stok produk di bawah ambang batas peringatan.
      */
     public function stokMenipis(): bool
