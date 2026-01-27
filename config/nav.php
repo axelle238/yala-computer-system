@@ -48,13 +48,18 @@ return [
                             'roles' => ['admin', 'owner', 'cashier'],
                         ],
                         [
-                            'label' => 'Shift & Saldo',
-                            'route' => 'admin.keuangan.kasir',
+                            'label' => 'Pesanan Online',
+                            'route' => 'admin.pesanan.indeks',
                             'roles' => ['admin', 'owner', 'cashier'],
                         ],
                         [
                             'label' => 'Riwayat Transaksi',
                             'route' => 'admin.transaksi.indeks',
+                            'roles' => ['admin', 'owner', 'cashier'],
+                        ],
+                        [
+                            'label' => 'Shift & Saldo',
+                            'route' => 'admin.keuangan.kasir',
                             'roles' => ['admin', 'owner', 'cashier'],
                         ],
                     ]
@@ -76,6 +81,11 @@ return [
                             'roles' => ['admin', 'owner', 'technician'],
                         ],
                         [
+                            'label' => 'Papan Kanban',
+                            'route' => 'admin.servis.papan',
+                            'roles' => ['admin', 'owner', 'technician'],
+                        ],
+                        [
                             'label' => 'Garansi & RMA',
                             'route' => 'admin.garansi.indeks',
                             'roles' => ['admin', 'owner', 'technician', 'warehouse'],
@@ -94,7 +104,7 @@ return [
                     'permission' => 'order.view',
                     'sub_menu' => [
                         [
-                            'label' => 'Pengiriman & Logistik',
+                            'label' => 'Pengiriman',
                             'route' => 'admin.logistik',
                             'roles' => ['admin', 'owner', 'warehouse'],
                         ],
@@ -127,6 +137,11 @@ return [
                             'roles' => ['admin', 'owner', 'warehouse'],
                         ],
                         [
+                            'label' => 'Manajemen Aset',
+                            'route' => 'admin.aset.indeks',
+                            'roles' => ['admin', 'owner'],
+                        ],
+                        [
                             'label' => 'Cetak Label',
                             'route' => 'admin.produk.label',
                             'roles' => ['admin', 'owner', 'warehouse'],
@@ -140,6 +155,11 @@ return [
                     'permission' => 'stock.adjust',
                     'sub_menu' => [
                         [
+                            'label' => 'Permintaan Stok',
+                            'route' => 'admin.permintaan-stok.indeks',
+                            'roles' => ['admin', 'owner', 'warehouse'],
+                        ],
+                        [
                             'label' => 'Pembelian (PO)',
                             'route' => 'admin.pesanan-pembelian.indeks',
                             'roles' => ['admin', 'owner', 'warehouse'],
@@ -150,21 +170,39 @@ return [
                             'roles' => ['admin', 'owner', 'warehouse'],
                         ],
                     ]
+                ],
+                [
+                    'label' => 'Data Master',
+                    'icon' => 'database',
+                    'roles' => ['admin', 'owner', 'warehouse'],
+                    'permission' => 'product.view',
+                    'sub_menu' => [
+                        [
+                            'label' => 'Kategori Produk',
+                            'route' => 'admin.master.kategori',
+                            'roles' => ['admin', 'owner', 'warehouse'],
+                        ],
+                        [
+                            'label' => 'Pemasok (Supplier)',
+                            'route' => 'admin.master.pemasok',
+                            'roles' => ['admin', 'owner', 'warehouse'],
+                        ],
+                    ]
                 ]
             ],
         ],
         [
-            'title' => 'BISNIS & KORPORAT',
+            'title' => 'KEUANGAN & BISNIS',
             'items' => [
                 [
-                    'label' => 'B2B & Keuangan',
+                    'label' => 'Keuangan',
                     'icon' => 'banknotes',
                     'roles' => ['admin', 'owner'],
                     'permission' => 'order.view',
                     'sub_menu' => [
                         [
-                            'label' => 'Penawaran Harga',
-                            'route' => 'admin.penawaran.indeks',
+                            'label' => 'Pengeluaran Biaya',
+                            'route' => 'admin.pengeluaran',
                             'roles' => ['admin', 'owner'],
                         ],
                         [
@@ -173,42 +211,32 @@ return [
                             'roles' => ['admin', 'owner'],
                         ],
                         [
+                            'label' => 'Penawaran Harga',
+                            'route' => 'admin.penawaran.indeks',
+                            'roles' => ['admin', 'owner'],
+                        ],
+                    ]
+                ],
+                [
+                    'label' => 'Laporan',
+                    'icon' => 'chart-pie',
+                    'roles' => ['admin', 'owner'],
+                    'permission' => 'report.finance',
+                    'sub_menu' => [
+                        [
                             'label' => 'Laba Rugi',
                             'route' => 'admin.keuangan.laba-rugi',
                             'roles' => ['owner'],
                         ],
-                    ]
-                ],
-            ],
-        ],
-        [
-            'title' => 'SUMBER DAYA MANUSIA',
-            'items' => [
-                [
-                    'label' => 'Kepegawaian',
-                    'icon' => 'users',
-                    'roles' => ['admin', 'owner', 'hr'],
-                    'permission' => 'employee.view',
-                    'sub_menu' => [
                         [
-                            'label' => 'Daftar Pegawai',
-                            'route' => 'admin.karyawan.indeks',
-                            'roles' => ['admin', 'owner', 'hr'],
+                            'label' => 'Laporan Keuangan',
+                            'route' => 'admin.analitik.keuangan',
+                            'roles' => ['owner'],
                         ],
                         [
-                            'label' => 'Jabatan (Role)',
-                            'route' => 'admin.karyawan.peran.indeks',
+                            'label' => 'Laporan Penjualan',
+                            'route' => 'admin.analitik.penjualan',
                             'roles' => ['admin', 'owner'],
-                        ],
-                        [
-                            'label' => 'Absensi',
-                            'route' => 'admin.karyawan.kehadiran',
-                            'roles' => ['admin', 'owner', 'hr', 'technician', 'cashier', 'warehouse'],
-                        ],
-                        [
-                            'label' => 'Penggajian',
-                            'route' => 'admin.karyawan.gaji-pengelola',
-                            'roles' => ['admin', 'owner', 'hr'],
                         ],
                     ]
                 ],
@@ -218,28 +246,33 @@ return [
             'title' => 'MARKETING & KONTEN',
             'items' => [
                 [
-                    'label' => 'Hubungan Pelanggan',
+                    'label' => 'Pelanggan (CRM)',
                     'icon' => 'chat-bubble-left-right',
                     'roles' => ['admin', 'owner', 'cashier'],
                     'permission' => 'pos.access',
                     'sub_menu' => [
                         [
-                            'label' => 'Pesan Pembeli',
+                            'label' => 'Pesan Masuk',
                             'route' => 'admin.pelanggan.kotak-masuk',
                             'roles' => ['admin', 'owner', 'cashier'],
                         ],
                         [
-                            'label' => 'Manajemen Pelanggan',
+                            'label' => 'Live Chat',
+                            'route' => 'admin.pelanggan.obrolan',
+                            'roles' => ['admin', 'owner', 'cashier'],
+                        ],
+                        [
+                            'label' => 'Data Pelanggan',
                             'route' => 'admin.pelanggan.indeks',
                             'roles' => ['admin', 'owner', 'cashier'],
                         ],
                         [
-                            'label' => 'Loyalty & Membership',
+                            'label' => 'Loyalty Member',
                             'route' => 'admin.pelanggan.loyalitas',
                             'roles' => ['admin', 'owner'],
                         ],
                         [
-                            'label' => 'Reputasi & Ulasan',
+                            'label' => 'Ulasan Produk',
                             'route' => 'admin.pemasaran.ulasan',
                             'roles' => ['admin', 'owner'],
                         ],
@@ -257,8 +290,18 @@ return [
                             'roles' => ['admin', 'owner'],
                         ],
                         [
+                            'label' => 'Obral Kilat (Flash Sale)',
+                            'route' => 'admin.pemasaran.obral-kilat.indeks',
+                            'roles' => ['admin', 'owner'],
+                        ],
+                        [
                             'label' => 'Voucher & Diskon',
                             'route' => 'admin.pemasaran.voucher.indeks',
+                            'roles' => ['admin', 'owner'],
+                        ],
+                        [
+                            'label' => 'WhatsApp Blast',
+                            'route' => 'admin.pemasaran.whatsapp',
                             'roles' => ['admin', 'owner'],
                         ],
                         [
@@ -271,26 +314,46 @@ return [
             ],
         ],
         [
-            'title' => 'SISTEM & KEUANGAN',
+            'title' => 'HR & PERSONALIA',
             'items' => [
                 [
-                    'label' => 'Laporan',
-                    'icon' => 'chart-pie',
-                    'roles' => ['admin', 'owner'],
-                    'permission' => 'report.finance',
+                    'label' => 'Kepegawaian',
+                    'icon' => 'users',
+                    'roles' => ['admin', 'owner', 'hr'],
+                    'permission' => 'employee.view',
                     'sub_menu' => [
                         [
-                            'label' => 'Laba Rugi',
-                            'route' => 'admin.analitik.keuangan',
-                            'roles' => ['owner'],
+                            'label' => 'Daftar Pegawai',
+                            'route' => 'admin.karyawan.indeks',
+                            'roles' => ['admin', 'owner', 'hr'],
                         ],
                         [
-                            'label' => 'Laporan Penjualan',
-                            'route' => 'admin.analitik.penjualan',
+                            'label' => 'Jabatan & Peran',
+                            'route' => 'admin.karyawan.peran.indeks',
                             'roles' => ['admin', 'owner'],
+                        ],
+                        [
+                            'label' => 'Absensi',
+                            'route' => 'admin.karyawan.kehadiran',
+                            'roles' => ['admin', 'owner', 'hr', 'technician', 'cashier', 'warehouse'],
+                        ],
+                        [
+                            'label' => 'Penggajian',
+                            'route' => 'admin.karyawan.gaji-pengelola',
+                            'roles' => ['admin', 'owner', 'hr'],
+                        ],
+                        [
+                            'label' => 'Reimbursement',
+                            'route' => 'admin.reimbursement',
+                            'roles' => ['admin', 'owner', 'hr'],
                         ],
                     ]
                 ],
+            ],
+        ],
+        [
+            'title' => 'SISTEM & KEAMANAN',
+            'items' => [
                 [
                     'label' => 'Pengaturan',
                     'icon' => 'cog',
@@ -312,9 +375,22 @@ return [
                             'route' => 'admin.log-aktivitas.indeks',
                             'roles' => ['admin', 'owner'],
                         ],
+                    ]
+                ],
+                [
+                    'label' => 'Pemeliharaan',
+                    'icon' => 'server',
+                    'roles' => ['admin'],
+                    'permission' => 'setting.manage',
+                    'sub_menu' => [
                         [
                             'label' => 'Kesehatan Sistem',
                             'route' => 'admin.sistem.kesehatan',
+                            'roles' => ['admin'],
+                        ],
+                        [
+                            'label' => 'Informasi Server',
+                            'route' => 'admin.sistem.info',
                             'roles' => ['admin'],
                         ],
                         [
@@ -324,6 +400,29 @@ return [
                         ],
                     ]
                 ],
+                [
+                    'label' => 'Keamanan',
+                    'icon' => 'shield-check',
+                    'roles' => ['admin'],
+                    'permission' => 'setting.manage',
+                    'sub_menu' => [
+                        [
+                            'label' => 'Dashboard Keamanan',
+                            'route' => 'admin.keamanan.dashboard',
+                            'roles' => ['admin'],
+                        ],
+                        [
+                            'label' => 'Firewall & Blokir',
+                            'route' => 'admin.keamanan.firewall',
+                            'roles' => ['admin'],
+                        ],
+                        [
+                            'label' => 'Monitor Trafik',
+                            'route' => 'admin.keamanan.traffic',
+                            'roles' => ['admin'],
+                        ],
+                    ]
+                ]
             ],
         ],
     ],
