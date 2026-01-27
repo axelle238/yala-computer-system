@@ -12,18 +12,30 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('layouts.store')]
-#[Title('Yala Computer - Toko Komputer Terlengkap')]
+#[Title('Pusat Belanja Komputer & Rakit PC - Yala Computer')]
 class Home extends Component
 {
-    public $nomorLacak = '';
+    // Input Lacak
+    public $nomorLacakTiket = '';
 
+    /**
+     * Mengarahkan pengguna ke halaman pelacakan servis.
+     */
     public function lacakServis()
     {
-        $this->validate(['nomorLacak' => 'required|string|min:5']);
+        $this->validate([
+            'nomorLacakTiket' => 'required|string|min:5'
+        ], [
+            'nomorLacakTiket.required' => 'Masukkan nomor tiket servis.',
+            'nomorLacakTiket.min' => 'Nomor tiket tidak valid.'
+        ]);
 
-        return redirect()->route('toko.track-service', ['ticket' => $this->nomorLacak]);
+        return redirect()->route('toko.lacak-servis', ['ticket' => $this->nomorLacakTiket]);
     }
 
+    /**
+     * Menambahkan item ke keranjang belanja sesi.
+     */
     public function tambahKeKeranjang($idProduk)
     {
         $keranjang = session()->get('cart', []);
@@ -32,41 +44,46 @@ class Home extends Component
         } else {
             $keranjang[$idProduk] = 1;
         }
+        
         session()->put('cart', $keranjang);
+        
         $this->dispatch('cart-updated');
-        $this->dispatch('notify', message: 'Produk ditambahkan ke keranjang!', type: 'success');
+        $this->dispatch('notify', message: 'Item berhasil masuk ke keranjang belanja.', type: 'success');
     }
 
+    /**
+     * Menambahkan produk ke daftar perbandingan.
+     */
     public function tambahKePerbandingan($idProduk)
     {
-        $perbandingan = session()->get('comparison_list', []);
-        if (! in_array($idProduk, $perbandingan)) {
-            if (count($perbandingan) >= 4) {
-                $this->dispatch('notify', message: 'Maksimal 4 produk untuk dibandingkan.', type: 'error');
-
+        $daftarBanding = session()->get('comparison_list', []);
+        
+        if (! in_array($idProduk, $daftarBanding)) {
+            if (count($daftarBanding) >= 4) {
+                $this->dispatch('notify', message: 'Batas perbandingan maksimal adalah 4 produk.', type: 'error');
                 return;
             }
-            $perbandingan[] = $idProduk;
-            session()->put('comparison_list', $perbandingan);
-            $this->dispatch('notify', message: 'Ditambahkan ke perbandingan!', type: 'success');
+            $daftarBanding[] = $idProduk;
+            session()->put('comparison_list', $daftarBanding);
+            $this->dispatch('notify', message: 'Produk ditambahkan ke daftar banding.', type: 'success');
         } else {
-            $this->dispatch('notify', message: 'Produk sudah ada di list.', type: 'info');
+            $this->dispatch('notify', message: 'Produk sudah ada dalam daftar banding Anda.', type: 'info');
         }
     }
 
     public function render()
     {
-        $banner = Banner::where('is_active', true)
+        $daftarBanner = Banner::where('is_active', true)
             ->orderBy('order')
             ->get();
 
-        $kategori = Category::withCount('produk')
+        $daftarKategori = Category::withCount('produk')
             ->where('is_active', true)
             ->get();
 
-        $flashSaleAktif = Setting::get('flash_sale_active', true); // Toggle global
+        $flashSaleStatus = Setting::get('flash_sale_active', true);
 
-        $daftarFlashSale = FlashSale::with('product')
+        $daftarObralKilat = FlashSale::with('product')
             ->where('is_active', true)
             ->where('start_time', '<=', now())
             ->where('end_time', '>=', now())
@@ -74,18 +91,18 @@ class Home extends Component
             ->take(4)
             ->get();
 
-        $produk = Product::with('category')
+        $daftarProdukBaru = Product::with('category')
             ->where('is_active', true)
             ->latest()
             ->take(8)
             ->get();
 
         return view('livewire.store.home', [
-            'banner' => $banner,
-            'kategori' => $kategori,
-            'produk' => $produk,
-            'daftarFlashSale' => $daftarFlashSale,
-            'flashSaleAktif' => $flashSaleAktif,
+            'banner' => $daftarBanner,
+            'kategori' => $daftarKategori,
+            'produk' => $daftarProdukBaru,
+            'daftarFlashSale' => $daftarObralKilat,
+            'flashSaleAktif' => $flashSaleStatus,
         ]);
     }
 }
