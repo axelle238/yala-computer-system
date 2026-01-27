@@ -17,36 +17,37 @@ class Index extends Component
     use WithFileUploads;
     use WithPagination;
 
+    // Filter & UI
     public $cari = '';
-
     public $tampilkanForm = false;
+    public $tampilkanInfoDepresiasi = false;
 
-    public $tampilkanInfoDepresiasi = false; // Ganti modal jadi area info
-
-    // Properti Form
+    // Properti Formulir
     public $idAset;
-
     public $nama;
-
     public $nomorSeri;
-
     public $tanggalBeli;
-
     public $biayaBeli;
-
     public $umurEkonomisTahun;
-
-    public $kondisi = 'good';
-
+    public $kondisi = 'Baik';
     public $lokasi;
-
     public $gambar;
 
-    // Data Kalkulasi
+    // Data Kalkulasi (Untuk Modal/Info)
     public $asetTerpilih;
-
     public $jadwalDepresiasi = [];
 
+    /**
+     * Reset pagination saat melakukan pencarian.
+     */
+    public function updatingCari()
+    {
+        $this->resetPage();
+    }
+
+    /**
+     * Membuka formulir tambah aset baru.
+     */
     public function buat()
     {
         $this->reset(['idAset', 'nama', 'nomorSeri', 'tanggalBeli', 'biayaBeli', 'umurEkonomisTahun', 'kondisi', 'lokasi', 'gambar']);
@@ -54,6 +55,9 @@ class Index extends Component
         $this->tampilkanInfoDepresiasi = false;
     }
 
+    /**
+     * Menyimpan data aset ke database.
+     */
     public function simpan()
     {
         $this->validate([
@@ -69,10 +73,12 @@ class Index extends Component
             'umurEkonomisTahun.required' => 'Umur ekonomis wajib diisi.',
         ]);
 
-        $path = null;
+        $jalurGambar = null;
         if ($this->gambar) {
-            $path = $this->gambar->store('assets', 'public');
+            $jalurGambar = $this->gambar->store('assets', 'public');
         }
+
+        $nilaiSaatIni = $this->hitungNilaiSekarang($this->biayaBeli, $this->tanggalBeli, $this->umurEkonomisTahun);
 
         $data = [
             'name' => $this->nama,
@@ -82,20 +88,22 @@ class Index extends Component
             'useful_life_years' => $this->umurEkonomisTahun,
             'condition' => $this->kondisi,
             'location' => $this->lokasi,
-            // Hitung nilai saat ini (Metode Garis Lurus)
-            'current_value' => $this->hitungNilaiSekarang($this->biayaBeli, $this->tanggalBeli, $this->umurEkonomisTahun),
+            'current_value' => $nilaiSaatIni,
         ];
 
-        if ($path) {
-            $data['image_path'] = $path;
+        if ($jalurGambar) {
+            $data['image_path'] = $jalurGambar;
         }
 
         CompanyAsset::updateOrCreate(['id' => $this->idAset], $data);
 
-        $this->dispatch('notify', message: 'Data aset berhasil disimpan.', type: 'success');
+        $this->dispatch('notify', message: 'Data aset tetap berhasil disimpan.', type: 'success');
         $this->tampilkanForm = false;
     }
 
+    /**
+     * Menghitung nilai aset saat ini menggunakan metode garis lurus.
+     */
     private function hitungNilaiSekarang($biaya, $tanggal, $tahun)
     {
         $usiaTahun = Carbon::parse($tanggal)->floatDiffInYears(now());
@@ -109,6 +117,9 @@ class Index extends Component
         return max(0, $nilai);
     }
 
+    /**
+     * Membuka formulir edit aset.
+     */
     public function ubah($id)
     {
         $aset = CompanyAsset::findOrFail($id);
@@ -120,14 +131,18 @@ class Index extends Component
         $this->umurEkonomisTahun = $aset->useful_life_years;
         $this->kondisi = $aset->condition;
         $this->lokasi = $aset->location;
+        
         $this->tampilkanForm = true;
         $this->tampilkanInfoDepresiasi = false;
     }
 
+    /**
+     * Menampilkan detail perhitungan penyusutan aset.
+     */
     public function tampilkanDepresiasi($id)
     {
         $this->asetTerpilih = CompanyAsset::findOrFail($id);
-        $this->buatJadwalDepresiasi();
+        $this->kalkulasiJadwalDepresiasi();
         $this->tampilkanInfoDepresiasi = true;
         $this->tampilkanForm = false;
     }
@@ -138,7 +153,7 @@ class Index extends Component
         $this->asetTerpilih = null;
     }
 
-    private function buatJadwalDepresiasi()
+    private function kalkulasiJadwalDepresiasi()
     {
         $biaya = $this->asetTerpilih->purchase_cost;
         $tahun = $this->asetTerpilih->useful_life_years;
@@ -146,18 +161,27 @@ class Index extends Component
         $tahunBeli = $this->asetTerpilih->purchase_date->year;
 
         $this->jadwalDepresiasi = [];
-        $nilaiSaatIni = $biaya;
+        $nilaiBuku = $biaya;
 
         for ($i = 0; $i <= $tahun; $i++) {
             $tahunJalan = $tahunBeli + $i;
+            
+            // Tahun 0 adalah saat pembelian (belum ada penyusutan akumulasi)
+            $bebanTahunIni = $i == 0 ? 0 : $depresiasiPerTahun;
+            
+            // Pastikan nilai buku tidak negatif di akhir
+            $nilaiBukuAkhir = max(0, $nilaiBuku - $bebanTahunIni);
+
             $this->jadwalDepresiasi[] = [
                 'tahun' => $tahunJalan,
-                'nilai_awal' => $nilaiSaatIni,
-                'depresiasi' => $i == 0 ? 0 : $depresiasiPerTahun, // Tahun 0 adalah pembelian
-                'nilai_akhir' => $i == 0 ? $biaya : max(0, $nilaiSaatIni - $depresiasiPerTahun),
+                'nilai_awal' => $nilaiBuku,
+                'depresiasi' => $bebanTahunIni,
+                'nilai_akhir' => $nilaiBukuAkhir,
             ];
+
+            // Update nilai buku untuk iterasi berikutnya (kecuali tahun 0)
             if ($i > 0) {
-                $nilaiSaatIni -= $depresiasiPerTahun;
+                $nilaiBuku = $nilaiBukuAkhir;
             }
         }
     }
@@ -165,16 +189,21 @@ class Index extends Component
     public function hapus($id)
     {
         CompanyAsset::destroy($id);
-        $this->dispatch('notify', message: 'Aset telah dihapus.', type: 'success');
+        $this->dispatch('notify', message: 'Aset telah dihapus dari inventaris.', type: 'success');
+        $this->tampilkanInfoDepresiasi = false;
     }
 
     public function render()
     {
-        $daftarAset = CompanyAsset::where('name', 'like', '%'.$this->cari.'%')
+        $daftarAset = CompanyAsset::query()
+            ->when($this->cari, function($q) {
+                $q->where('name', 'like', '%'.$this->cari.'%')
+                  ->orWhere('serial_number', 'like', '%'.$this->cari.'%');
+            })
             ->latest()
             ->paginate(10);
 
-        // Hitung ulang nilai saat ini secara real-time untuk tampilan
+        // Update kalkulasi on-the-fly untuk tampilan list
         foreach ($daftarAset as $aset) {
             $aset->current_value = $this->hitungNilaiSekarang($aset->purchase_cost, $aset->purchase_date, $aset->useful_life_years);
         }
