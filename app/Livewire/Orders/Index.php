@@ -48,8 +48,17 @@ class Index extends Component
             'cancelled' => $orders->where('status', 'cancelled'),
         ];
 
+        // Statistik Dashboard Pesanan
+        $stats = [
+            'today_count' => Order::whereDate('created_at', today())->count(),
+            'today_revenue' => Order::whereDate('created_at', today())->where('payment_status', 'paid')->sum('total_amount'),
+            'needs_action' => Order::whereIn('status', ['pending', 'processing'])->count(),
+            'cancelled_month' => Order::where('status', 'cancelled')->whereMonth('created_at', now()->month)->count(),
+        ];
+
         return view('livewire.orders.index', [
             'columns' => $columns,
+            'stats' => $stats,
         ]);
     }
 }

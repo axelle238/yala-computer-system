@@ -66,9 +66,18 @@ class Index extends Component
 
         $daftarKategori = Category::all();
 
+        // Statistik Dashboard Inventaris
+        $stats = [
+            'total_sku' => Product::count(),
+            'total_value' => Product::sum(\DB::raw('buy_price * stock_quantity')),
+            'low_stock' => Product::whereColumn('stock_quantity', '<=', 'min_stock_level')->count(),
+            'top_category' => Category::withCount('products')->orderBy('products_count', 'desc')->first()->name ?? '-',
+        ];
+
         return view('livewire.products.index', [
             'daftarProduk' => $daftarProduk,
             'daftarKategori' => $daftarKategori,
+            'stats' => $stats,
         ]);
     }
 }

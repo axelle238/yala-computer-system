@@ -1,4 +1,4 @@
-<div class="space-y-6 animate-fade-in-up">
+<div class="space-y-8 animate-fade-in-up">
     <!-- Header Halaman -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
@@ -8,8 +8,8 @@
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Manajemen inventaris, kontrol stok, dan pengaturan harga global.</p>
         </div>
         <div class="flex gap-3">
-             <a href="{{ route('admin.produk.buat') }}" class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all font-bold text-sm hover:-translate-y-0.5">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+             <a href="{{ route('admin.produk.buat') }}" class="flex items-center gap-2 px-6 py-3 bg-white text-slate-900 border-2 border-slate-900 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-md active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
                 Tambah Produk
@@ -17,8 +17,55 @@
         </div>
     </div>
 
+    <!-- Mini Dashboard (Statistik) -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- Total SKU -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-cyan-300 dark:hover:border-cyan-700 transition-colors">
+            <div class="relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total SKU</p>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ number_format($stats['total_sku']) }}</h3>
+                <p class="text-[10px] text-cyan-600 font-bold mt-2 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-500"></span> Produk Aktif
+                </p>
+            </div>
+        </div>
+
+        <!-- Nilai Aset -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
+            <div class="relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Nilai Aset</p>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white">Rp {{ number_format($stats['total_value'] / 1000000, 1) }}Jt</h3>
+                <p class="text-[10px] text-blue-600 font-bold mt-2 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Estimasi Modal
+                </p>
+            </div>
+        </div>
+
+        <!-- Stok Menipis -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-rose-300 dark:hover:border-rose-700 transition-colors">
+            <div class="relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Stok Menipis</p>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ number_format($stats['low_stock']) }}</h3>
+                <p class="text-[10px] text-rose-600 font-bold mt-2 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span> Perlu Restock
+                </p>
+            </div>
+        </div>
+
+        <!-- Kategori Teratas -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors">
+            <div class="relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Kategori Terbanyak</p>
+                <h3 class="text-lg font-black text-slate-900 dark:text-white truncate" title="{{ $stats['top_category'] }}">{{ Str::limit($stats['top_category'], 15) }}</h3>
+                <p class="text-[10px] text-indigo-600 font-bold mt-2 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Dominasi Katalog
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Toolbar: Cari & Filter -->
-    <div class="bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-4 rounded-2xl border border-white/20 dark:border-slate-700 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
         <div class="relative w-full md:w-96 group">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-focus-within:text-cyan-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -28,14 +75,14 @@
             <input 
                 wire:model.live.debounce.300ms="cari"
                 type="text" 
-                class="block w-full pl-12 pr-4 py-3 border-none rounded-xl leading-5 bg-white dark:bg-slate-900 shadow-inner placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500/50 dark:text-white sm:text-sm transition-all" 
+                class="block w-full pl-12 pr-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl leading-5 bg-slate-50 dark:bg-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 dark:text-white sm:text-sm transition-all font-medium" 
                 placeholder="Cari SKU, nama, atau barcode..."
             >
         </div>
 
         <div class="w-full md:w-auto flex items-center gap-3">
             <div class="relative group">
-                <select wire:model.live="filterKategori" class="appearance-none block w-full pl-4 pr-12 py-3 border-none rounded-xl bg-white dark:bg-slate-900 shadow-inner text-slate-600 dark:text-slate-300 focus:ring-2 focus:ring-cyan-500/50 sm:text-sm transition-all cursor-pointer">
+                <select wire:model.live="filterKategori" class="appearance-none block w-full pl-4 pr-12 py-3 border border-slate-200 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-300 font-bold focus:ring-2 focus:ring-cyan-500 sm:text-sm transition-all cursor-pointer">
                     <option value="">Semua Kategori</option>
                     @foreach($daftarKategori as $kat)
                         <option value="{{ $kat->id }}">{{ $kat->name }}</option>
@@ -49,7 +96,7 @@
     </div>
 
     <!-- Tabel Data -->
-    <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-white/20 dark:border-slate-700 rounded-3xl shadow-xl overflow-hidden relative tech-border">
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm overflow-hidden relative">
         <!-- Loading Overlay -->
         <div wire:loading.flex class="absolute inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm z-30 items-center justify-center">
             <div class="flex flex-col items-center gap-4">
@@ -64,35 +111,35 @@
         <div class="overflow-x-auto custom-scrollbar min-h-[400px]">
             <table class="w-full text-left text-sm">
                 <thead>
-                    <tr class="bg-slate-50/50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400">
-                        <th class="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Info Produk</th>
-                        <th class="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Kategori</th>
-                        <th class="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Harga (IDR)</th>
-                        <th class="px-6 py-5 font-bold uppercase tracking-wider text-[10px] text-center">Persediaan</th>
-                        <th class="px-6 py-5 font-bold uppercase tracking-wider text-[10px] text-center">Aksi</th>
+                    <tr class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                        <th class="px-6 py-5 font-black uppercase tracking-wider text-[10px]">Info Produk</th>
+                        <th class="px-6 py-5 font-black uppercase tracking-wider text-[10px]">Kategori</th>
+                        <th class="px-6 py-5 font-black uppercase tracking-wider text-[10px]">Harga (IDR)</th>
+                        <th class="px-6 py-5 font-black uppercase tracking-wider text-[10px] text-center">Persediaan</th>
+                        <th class="px-6 py-5 font-black uppercase tracking-wider text-[10px] text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                     @forelse($daftarProduk as $produk)
-                        <tr class="hover:bg-cyan-50/30 dark:hover:bg-cyan-900/10 transition-colors group">
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
                             <td class="px-6 py-5">
                                 <div class="flex items-center gap-4">
                                     <div class="relative w-14 h-14 flex-shrink-0 group-hover:scale-105 transition-transform duration-500">
-                                        <div class="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl opacity-10 group-hover:opacity-20 transition-opacity"></div>
+                                        <div class="absolute inset-0 bg-slate-100 dark:bg-slate-700 rounded-xl opacity-100"></div>
                                         @if($produk->image_path)
                                             <img src="{{ asset('storage/' . $produk->image_path) }}" class="w-full h-full object-contain rounded-xl p-1 relative z-10">
                                         @else
-                                            <div class="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-600">
+                                            <div class="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-600 relative z-10">
                                                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                             </div>
                                         @endif
                                     </div>
                                     <div class="overflow-hidden">
-                                        <p class="font-black text-slate-800 dark:text-white text-base leading-tight truncate group-hover:text-cyan-600 transition-colors">{{ $produk->name }}</p>
+                                        <p class="font-black text-slate-800 dark:text-white text-sm leading-tight truncate group-hover:text-cyan-600 transition-colors">{{ $produk->name }}</p>
                                         <div class="flex items-center gap-2 mt-1.5">
-                                            <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-[9px] font-bold rounded uppercase tracking-tighter border border-slate-200 dark:border-slate-600 font-mono">{{ $produk->sku }}</span>
+                                            <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-[10px] font-bold rounded uppercase tracking-tighter border border-slate-200 dark:border-slate-600 font-mono">{{ $produk->sku }}</span>
                                             @if($produk->barcode)
-                                                <span class="text-[9px] text-slate-400 font-medium flex items-center gap-1">
+                                                <span class="text-[10px] text-slate-400 font-medium flex items-center gap-1">
                                                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
                                                     {{ $produk->barcode }}
                                                 </span>
@@ -102,34 +149,34 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold uppercase tracking-wider border border-slate-200 dark:border-slate-700">
                                     {{ $produk->kategori->name ?? 'Tanpa Kategori' }}
                                 </span>
                             </td>
                             <td class="px-6 py-5">
                                 <div class="flex flex-col">
-                                    <span class="text-slate-900 dark:text-white font-black font-tech text-base">Rp {{ number_format($produk->sell_price, 0, ',', '.') }}</span>
+                                    <span class="text-slate-900 dark:text-white font-black font-mono text-sm">Rp {{ number_format($produk->sell_price, 0, ',', '.') }}</span>
                                     <span class="text-[10px] text-slate-400 font-bold uppercase">HPP: Rp {{ number_format($produk->buy_price, 0, ',', '.') }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-5 text-center">
                                 <div class="inline-flex flex-col items-center">
-                                    <div class="relative w-12 h-12 flex items-center justify-center">
+                                    <div class="relative w-10 h-10 flex items-center justify-center">
                                         <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 36 36">
                                             <circle cx="18" cy="18" r="16" fill="none" class="stroke-slate-100 dark:stroke-slate-700" stroke-width="3"></circle>
                                             @php 
-                                                $minStock = $produk->min_stock_alert ?? 5; // Fallback jika null
+                                                $minStock = $produk->min_stock_alert ?? 5;
                                                 $stockPct = $produk->stock_quantity > 0 ? min(100, ($produk->stock_quantity / max(1, $minStock * 4)) * 100) : 0;
                                                 $stockColor = $produk->stock_quantity <= $minStock ? 'stroke-rose-500' : 'stroke-emerald-500';
                                             @endphp
                                             <circle cx="18" cy="18" r="16" fill="none" class="{{ $stockColor }}" stroke-width="3" stroke-dasharray="{{ $stockPct }}, 100" stroke-linecap="round"></circle>
                                         </svg>
-                                        <span class="text-xs font-black {{ $produk->stock_quantity <= $minStock ? 'text-rose-600' : 'text-slate-700 dark:text-slate-200' }}">
+                                        <span class="text-[10px] font-black {{ $produk->stock_quantity <= $minStock ? 'text-rose-600' : 'text-slate-700 dark:text-slate-200' }}">
                                             {{ $produk->stock_quantity }}
                                         </span>
                                     </div>
                                     @if($produk->stock_quantity <= $minStock)
-                                        <span class="text-[9px] text-rose-500 font-black uppercase tracking-tighter mt-1 animate-pulse">Stok Menipis</span>
+                                        <span class="text-[9px] text-rose-500 font-black uppercase tracking-tighter mt-1 animate-pulse">Menipis</span>
                                     @endif
                                 </div>
                             </td>
