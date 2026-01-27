@@ -15,7 +15,7 @@ class Index extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public $cari = '';
 
     public function render()
     {
@@ -26,8 +26,8 @@ class Index extends Component
         // Data List with Lifetime Value (Total Spent)
         $customers = Customer::withSum('orders as total_spent', 'total_amount')
             ->where(function ($q) {
-                $q->where('name', 'like', '%'.$this->search.'%')
-                    ->orWhere('phone', 'like', '%'.$this->search.'%');
+                $q->where('name', 'like', '%'.$this->cari.'%')
+                    ->orWhere('phone', 'like', '%'.$this->cari.'%');
             })
             ->orderBy('total_spent', 'desc') // Sort by LTV (VIP Customers first)
             ->paginate(10);
