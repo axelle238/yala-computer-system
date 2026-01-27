@@ -64,7 +64,7 @@ class Create extends Component
 
         if (! $active && $this->type === 'out') {
             // Optional: Redirect immediately or show blocker
-            // return redirect()->route('finance.cash-register');
+            // return redirect()->route('admin.keuangan.kasir');
         }
     }
 
@@ -261,7 +261,7 @@ class Create extends Component
         if (! $activeRegister && $this->type === 'out') {
             $this->dispatch('notify', message: 'Shift Kasir belum dibuka!', type: 'error');
 
-            return redirect()->route('shift.open');
+            return redirect()->route('admin.shift.buka');
         }
 
         if ($this->usePoints && $this->customerPoints > 0) {

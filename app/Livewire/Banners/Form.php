@@ -84,7 +84,7 @@ class Form extends Component
             session()->flash('success', 'Banner baru ditambahkan.');
         }
 
-        return redirect()->route('banners.index');
+        return redirect()->route('admin.spanduk.indeks');
     }
 
     public function render()

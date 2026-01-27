@@ -39,7 +39,7 @@ class ProductDiscussions extends Component
         ]);
 
         if (! Auth::check()) {
-            return redirect()->route('customer.login');
+            return redirect()->route('pelanggan.masuk');
         }
 
         ProductDiscussion::create([

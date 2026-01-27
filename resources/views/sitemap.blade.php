@@ -7,13 +7,13 @@
         <priority>1.0</priority>
     </url>
     <url>
-        <loc>{{ route('store.pc-builder') }}</loc>
+        <loc>{{ route('toko.rakit-pc') }}</loc>
         <lastmod>{{ now()->toAtomString() }}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>{{ route('store.news.index') }}</loc>
+        <loc>{{ route('toko.berita.indeks') }}</loc>
         <lastmod>{{ now()->toAtomString() }}</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
@@ -21,7 +21,7 @@
 
     @foreach ($products as $product)
         <url>
-            <loc>{{ route('store.product.detail', $product->id) }}</loc>
+            <loc>{{ route('toko.produk.detail', $product->id) }}</loc>
             <lastmod>{{ $product->updated_at->toAtomString() }}</lastmod>
             <changefreq>weekly</changefreq>
             <priority>0.9</priority>
@@ -30,7 +30,7 @@
 
     @foreach ($articles as $article)
         <url>
-            <loc>{{ route('store.news.show', $article->slug) }}</loc>
+            <loc>{{ route('toko.berita.tampil', $article->slug) }}</loc>
             <lastmod>{{ $article->updated_at->toAtomString() }}</lastmod>
             <changefreq>monthly</changefreq>
             <priority>0.7</priority>

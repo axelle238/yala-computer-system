@@ -42,7 +42,7 @@ class NewChatMessage extends Notification
         return [
             'title' => 'Pesan Baru dari '.$this->senderName,
             'message' => substr($this->message, 0, 100),
-            'action' => route('customers.live-chat'),
+            'action' => route('admin.pelanggan.obrolan'),
             'type' => 'chat',
         ];
     }

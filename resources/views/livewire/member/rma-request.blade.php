@@ -2,7 +2,7 @@
     <div class="container mx-auto px-4 lg:px-8">
         
         <div class="flex items-center gap-4 mb-8 animate-fade-in-up">
-            <a href="{{ route('member.dashboard') }}" class="p-2 rounded-full bg-white dark:bg-slate-800 text-slate-500 hover:text-cyan-500 shadow-sm transition-colors">
+            <a href="{{ route('anggota.beranda') }}" class="p-2 rounded-full bg-white dark:bg-slate-800 text-slate-500 hover:text-cyan-500 shadow-sm transition-colors">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             </a>
             <div>

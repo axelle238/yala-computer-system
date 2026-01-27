@@ -61,7 +61,7 @@
 
     <div class="no-print p-4 bg-slate-800 text-white flex justify-between items-center shadow-lg sticky top-0 z-50">
         <div class="flex items-center gap-4">
-            <a href="{{ route('products.labels') }}" class="font-bold hover:underline">&larr; Kembali</a>
+            <a href="{{ route('admin.produk.label') }}" class="font-bold hover:underline">&larr; Kembali</a>
             <span>Preview Mode: <b>{{ strtoupper(session('print_labels.settings.size', 'a4')) }}</b></span>
         </div>
         <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-bold shadow-lg transition">Cetak Sekarang</button>

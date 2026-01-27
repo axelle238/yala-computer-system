@@ -31,7 +31,7 @@ class AdminNotification extends Component
                 'title' => 'Stok Menipis',
                 'message' => "Produk {$p->name} tersisa {$p->stock_quantity}.",
                 'time' => now()->subMinutes(rand(1, 60)),
-                'route' => route('products.edit', $p->id),
+                'route' => route('admin.produk.ubah', $p->id),
             ];
         }
 
@@ -44,7 +44,7 @@ class AdminNotification extends Component
                 'title' => 'Order Baru Masuk',
                 'message' => "#{$o->order_number} oleh {$o->guest_name} senilai ".number_format($o->total_amount),
                 'time' => $o->created_at,
-                'route' => route('orders.show', $o->id),
+                'route' => route('admin.pesanan.tampil', $o->id),
             ];
         }
 
@@ -57,7 +57,7 @@ class AdminNotification extends Component
                 'title' => 'Servis Sedang Dikerjakan',
                 'message' => "Tiket #{$s->ticket_number} ({$s->device_name})",
                 'time' => $s->updated_at,
-                'route' => route('services.workbench', $s->id),
+                'route' => route('admin.servis.meja-kerja', $s->id),
             ];
         }
 

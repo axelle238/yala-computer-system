@@ -14,7 +14,7 @@
             <p class="text-slate-500 mt-1">Supplier: <span class="font-bold text-slate-700 dark:text-slate-300">{{ $po->pemasok->name }}</span> | Tanggal: {{ $po->order_date->format('d M Y') }}</p>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('purchase-orders.index') }}" class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-600 font-bold text-sm hover:bg-slate-50">
+            <a href="{{ route('admin.pesanan-pembelian.indeks') }}" class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-600 font-bold text-sm hover:bg-slate-50">
                 &larr; Kembali
             </a>
             

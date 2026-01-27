@@ -132,7 +132,7 @@ class Form extends Component
             // Notifikasi CRUD
             $this->dispatch('notify', message: $pesan, type: 'success');
 
-            return redirect()->route('products.index');
+            return redirect()->route('admin.produk.indeks');
         } catch (\Exception $e) {
             $this->dispatch('notify', message: 'Gagal menyimpan produk: '.$e->getMessage(), type: 'error');
         }

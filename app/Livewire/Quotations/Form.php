@@ -165,7 +165,7 @@ class Form extends Component
 
         $this->dispatch('notify', message: 'Penawaran berhasil disimpan.', type: 'success');
 
-        return redirect()->route('quotations.index');
+        return redirect()->route('admin.penawaran.indeks');
     }
 
     public function render()

@@ -17,7 +17,7 @@ it('halaman rma request bisa diakses oleh member', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->get(route('member.rma.request'))
+        ->get(route('anggota.garansi.ajukan'))
         ->assertStatus(200)
         ->assertSee('Klaim Garansi (RMA)');
 });
@@ -56,7 +56,7 @@ it('bisa membuat permintaan rma dengan upload bukti', function () {
         ->set('description', 'Tiba-tiba tidak menyala saat dinyalakan.')
         ->set('evidencePhotos', [$file])
         ->call('submitRequest')
-        ->assertRedirect(route('member.dashboard'));
+        ->assertRedirect(route('anggota.beranda'));
 
     // Assert Database
     $this->assertDatabaseHas('rmas', [

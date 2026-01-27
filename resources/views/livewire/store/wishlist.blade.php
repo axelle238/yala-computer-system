@@ -26,7 +26,7 @@
 
                         <div class="space-y-2">
                             <h3 class="font-bold text-slate-900 dark:text-white line-clamp-2 min-h-[2.5rem]">
-                                <a href="{{ route('store.product.detail', $item->product->id) }}">{{ $item->product->name }}</a>
+                                <a href="{{ route('toko.produk.detail', $item->product->id) }}">{{ $item->product->name }}</a>
                             </h3>
                             <div class="font-mono text-cyan-600 font-black text-lg">Rp {{ number_format($item->product->sell_price, 0, ',', '.') }}</div>
                             
@@ -45,7 +45,7 @@
                 </div>
                 <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Wishlist Masih Kosong</h3>
                 <p class="text-slate-500 mb-8">Jelajahi katalog kami dan simpan produk favorit Anda di sini.</p>
-                <a href="{{ route('store.catalog') }}" class="px-8 py-3 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl shadow-lg transition-all">
+                <a href="{{ route('toko.katalog') }}" class="px-8 py-3 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl shadow-lg transition-all">
                     Mulai Belanja
                 </a>
             </div>

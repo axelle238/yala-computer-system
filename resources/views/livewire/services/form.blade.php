@@ -209,7 +209,7 @@
 
         <!-- Footer Actions -->
         <div class="p-4 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
-            <a href="{{ route('services.index') }}" class="text-slate-500 font-bold text-sm hover:underline">Kembali</a>
+            <a href="{{ route('admin.servis.indeks') }}" class="text-slate-500 font-bold text-sm hover:underline">Kembali</a>
             <div class="flex gap-3">
                 @if($ticket)
                     <button wire:click="printInvoice" class="px-6 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl shadow-sm hover:shadow-md transition-all flex items-center gap-2">

@@ -31,7 +31,7 @@ class RmaRequest extends Component
     public function mount()
     {
         if (! Auth::check()) {
-            return redirect()->route('customer.login');
+            return redirect()->route('pelanggan.masuk');
         }
     }
 
@@ -95,7 +95,7 @@ class RmaRequest extends Component
 
         session()->flash('success', 'Permintaan RMA #'.$rma->rma_number.' berhasil dikirim. Tim kami akan segera meninjau.');
 
-        return redirect()->route('member.dashboard');
+        return redirect()->route('anggota.beranda');
     }
 
     public function render()

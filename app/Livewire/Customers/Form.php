@@ -61,7 +61,7 @@ class Form extends Component
 
         $this->dispatch('notify', message: 'Data pelanggan berhasil disimpan!', type: 'success');
 
-        return redirect()->route('customers.index');
+        return redirect()->route('admin.pelanggan.indeks');
     }
 
     public function render()

@@ -4,7 +4,7 @@
             <h1 class="text-3xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tighter">
                 Riwayat <span class="text-blue-600">Pesanan</span>
             </h1>
-            <a href="{{ route('member.dashboard') }}" class="text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold text-sm">
+            <a href="{{ route('anggota.beranda') }}" class="text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold text-sm">
                 &larr; Kembali ke Dashboard
             </a>
         </div>
@@ -17,7 +17,7 @@
                     </div>
                     <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Belum ada pesanan</h3>
                     <p class="text-slate-500 mb-6">Mulai belanja produk impianmu sekarang.</p>
-                    <a href="{{ route('store.catalog') }}" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
+                    <a href="{{ route('toko.katalog') }}" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
                         Ke Katalog Produk
                     </a>
                 </div>
@@ -60,7 +60,7 @@
                                         Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                                     </td>
                                     <td class="p-6 text-center">
-                                        <a href="{{ route('member.orders.show', $order->id) }}" class="text-blue-600 hover:text-blue-800 font-bold hover:underline">
+                                        <a href="{{ route('anggota.pesanan.detail', $order->id) }}" class="text-blue-600 hover:text-blue-800 font-bold hover:underline">
                                             Detail
                                         </a>
                                     </td>

@@ -10,10 +10,10 @@
                 <p class="text-slate-500 dark:text-slate-400 mb-8 text-sm">Anda harus membuka sesi kasir (Open Register) terlebih dahulu sebelum dapat melakukan transaksi penjualan.</p>
                 
                 <div class="space-y-3">
-                    <a href="{{ route('finance.cash-register') }}" class="block w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/30">
+                    <a href="{{ route('admin.keuangan.kasir') }}" class="block w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/30">
                         Buka Shift Kasir Sekarang
                     </a>
-                    <a href="{{ route('dashboard') }}" class="block w-full py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-all">
+                    <a href="{{ route('admin.beranda') }}" class="block w-full py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-all">
                         Kembali ke Dashboard
                     </a>
                 </div>

@@ -1,7 +1,7 @@
 <div class="max-w-3xl mx-auto space-y-6 animate-fade-in-up">
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-black font-tech text-slate-900 dark:text-white">Registrasi Aset Baru</h2>
-        <a href="{{ route('assets.index') }}" class="text-sm font-bold text-slate-500 hover:text-slate-800">Kembali</a>
+        <a href="{{ route('admin.aset.indeks') }}" class="text-sm font-bold text-slate-500 hover:text-slate-800">Kembali</a>
     </div>
 
     <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-8">

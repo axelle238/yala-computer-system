@@ -3,7 +3,7 @@
         
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
-                <a href="{{ route('member.dashboard') }}" class="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm mb-2 inline-block">&larr; Kembali</a>
+                <a href="{{ route('anggota.beranda') }}" class="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm mb-2 inline-block">&larr; Kembali</a>
                 <h1 class="text-3xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tighter">
                     Penawaran <span class="text-blue-600">{{ $quotation->quotation_number }}</span>
                 </h1>

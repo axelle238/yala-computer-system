@@ -169,7 +169,7 @@
                 </h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     @foreach($relatedProducts as $related)
-                        <a href="{{ route('store.product.detail', $related->id) }}" class="group relative bg-slate-900 border border-white/5 hover:border-cyan-500/50 rounded-2xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-900/20 hover:-translate-y-1 block">
+                        <a href="{{ route('toko.produk.detail', $related->id) }}" class="group relative bg-slate-900 border border-white/5 hover:border-cyan-500/50 rounded-2xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-900/20 hover:-translate-y-1 block">
                             <div class="h-40 bg-slate-800/50 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
                                 @if($related->image_path)
                                     <img src="{{ asset('storage/' . $related->image_path) }}" class="max-h-[85%] object-contain transition-transform duration-500 group-hover:scale-110">

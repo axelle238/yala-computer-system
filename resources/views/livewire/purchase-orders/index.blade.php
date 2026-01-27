@@ -8,11 +8,11 @@
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Manajemen pembelian stok dan hubungan pemasok.</p>
         </div>
         <div class="flex gap-3">
-            <a href="{{ route('purchase-orders.receive') }}" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+            <a href="{{ route('admin.pesanan-pembelian.terima') }}" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 hover:-translate-y-0.5 transition-all flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
                 Terima Barang (GRN)
             </a>
-            <a href="{{ route('purchase-orders.create') }}" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+            <a href="{{ route('admin.pesanan-pembelian.buat') }}" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 hover:-translate-y-0.5 transition-all flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                 Buat PO Baru
             </a>
@@ -95,7 +95,7 @@
                                 {{ $po->order_date->format('d M Y') }}
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <a href="{{ route('purchase-orders.edit', $po->id) }}" class="text-blue-600 font-bold hover:underline text-xs">Detail</a>
+                                <a href="{{ route('admin.pesanan-pembelian.ubah', $po->id) }}" class="text-blue-600 font-bold hover:underline text-xs">Detail</a>
                             </td>
                         </tr>
                     @empty

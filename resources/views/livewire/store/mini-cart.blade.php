@@ -63,7 +63,7 @@
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-start mb-1">
                             <h3 class="font-bold text-slate-800 dark:text-white text-sm line-clamp-2 leading-tight">
-                                <a href="{{ route('store.product.detail', $item->id) }}" class="hover:text-cyan-500 transition-colors">{{ $item->name }}</a>
+                                <a href="{{ route('toko.produk.detail', $item->id) }}" class="hover:text-cyan-500 transition-colors">{{ $item->name }}</a>
                             </h3>
                             <button wire:click="removeItem({{ $item->id }})" class="text-slate-400 hover:text-rose-500 p-1 opacity-0 group-hover:opacity-100 transition-all">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -103,7 +103,7 @@
             
             @if($count > 0)
                 <div class="grid grid-cols-2 gap-3">
-                    <a href="{{ route('cart') }}" class="py-3 text-center bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl transition-colors">
+                    <a href="{{ route('toko.keranjang') }}" class="py-3 text-center bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl transition-colors">
                         Lihat Cart
                     </a>
                     <a href="{{ route('checkout.secure') }}" class="py-3 text-center bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 transition-all">

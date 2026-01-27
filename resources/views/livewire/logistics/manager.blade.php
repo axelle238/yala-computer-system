@@ -81,7 +81,7 @@
                                     </button>
                                 @endif
 
-                                <a href="{{ route('orders.show', $order->id) }}" target="_blank" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                <a href="{{ route('admin.pesanan.tampil', $order->id) }}" target="_blank" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold transition">
                                     Label
                                 </a>
                             </td>

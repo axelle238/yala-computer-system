@@ -39,7 +39,7 @@ class Login extends Component
             RateLimiter::clear($key);
             session()->regenerate();
 
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended(route('admin.beranda'));
         }
 
         RateLimiter::hit($key, 60);

@@ -4,7 +4,7 @@
             <h1 class="text-2xl font-bold text-gray-800">Quotation Manager (B2B)</h1>
             <p class="text-gray-500">Kelola permintaan penawaran harga dari pelanggan korporat.</p>
         </div>
-        <a href="{{ route('quotations.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+        <a href="{{ route('admin.penawaran.buat') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
             + Buat Penawaran Manual
         </a>
     </div>
@@ -80,7 +80,7 @@
                             Rp {{ number_format($quote->total_amount, 0, ',', '.') }}
                         </td>
                         <td class="px-6 py-4 text-center">
-                            <a href="{{ route('quotations.edit', $quote->id) }}" class="text-blue-600 hover:text-blue-800 font-bold hover:underline">
+                            <a href="{{ route('admin.penawaran.ubah', $quote->id) }}" class="text-blue-600 hover:text-blue-800 font-bold hover:underline">
                                 Manage
                             </a>
                         </td>

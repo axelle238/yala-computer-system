@@ -7,7 +7,7 @@
             </h2>
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Manajemen data pelanggan dan keanggotaan (membership).</p>
         </div>
-        <a href="{{ route('customers.index') }}" class="group flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-bold hover:border-purple-500 hover:text-purple-500 transition-all shadow-sm">
+        <a href="{{ route('admin.pelanggan.indeks') }}" class="group flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-bold hover:border-purple-500 hover:text-purple-500 transition-all shadow-sm">
             <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             Kembali
         </a>

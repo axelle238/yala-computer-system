@@ -165,7 +165,7 @@ class Form extends Component
             $pesan = $this->user ? 'Data karyawan diperbarui.' : 'Karyawan baru berhasil ditambahkan.';
             $this->dispatch('notify', message: $pesan, type: 'success');
 
-            return redirect()->route('employees.index');
+            return redirect()->route('admin.karyawan.indeks');
         } catch (\Exception $e) {
             $this->dispatch('notify', message: 'Terjadi kesalahan: '.$e->getMessage(), type: 'error');
         }

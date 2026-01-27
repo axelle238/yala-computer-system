@@ -9,7 +9,7 @@ it('halaman tugas bisa diakses oleh admin', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->get(route('admin.tasks'))
+        ->get(route('admin.tugas'))
         ->assertStatus(200)
         ->assertSee('Manajemen Tugas Internal');
 });

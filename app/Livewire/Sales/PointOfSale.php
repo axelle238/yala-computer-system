@@ -65,7 +65,7 @@ class PointOfSale extends Component
             ->first();
 
         if (! $this->kasirAktif) {
-            return redirect()->route('finance.cash-register')->with('error', 'Silakan buka shift kasir terlebih dahulu.');
+            return redirect()->route('admin.keuangan.kasir')->with('error', 'Silakan buka shift kasir terlebih dahulu.');
         }
     }
 

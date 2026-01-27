@@ -7,7 +7,7 @@
             </h2>
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Kelola kategori produk untuk inventaris.</p>
         </div>
-        <a href="{{ route('master.categories.create') }}" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2">
+        <a href="{{ route('admin.master.kategori.buat') }}" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
             Tambah Kategori
         </a>
@@ -42,7 +42,7 @@
                             <td class="px-6 py-4 font-mono text-slate-500 text-xs">{{ $cat->slug }}</td>
                             <td class="px-6 py-4 text-slate-500">{{ Str::limit($cat->description, 50) }}</td>
                             <td class="px-6 py-4 text-right flex justify-end gap-2">
-                                <a href="{{ route('master.categories.edit', $cat->id) }}" class="text-blue-600 hover:text-blue-800 font-bold">Edit</a>
+                                <a href="{{ route('admin.master.kategori.ubah', $cat->id) }}" class="text-blue-600 hover:text-blue-800 font-bold">Edit</a>
                                 <button wire:click="delete({{ $cat->id }})" class="text-rose-500 hover:text-rose-700 font-bold" onclick="confirm('Hapus kategori?') || event.stopImmediatePropagation()">Hapus</button>
                             </td>
                         </tr>

@@ -68,7 +68,7 @@ class Create extends Component
 
         session()->flash('success', 'Pengajuan (PR) berhasil dibuat.');
 
-        return redirect()->route('purchase-requisitions.index');
+        return redirect()->route('admin.permintaan-stok.indeks');
     }
 
     public function render()

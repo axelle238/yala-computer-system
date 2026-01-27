@@ -283,7 +283,7 @@
                 },
                 onClose: function(){
                     alert('Anda menutup popup tanpa menyelesaikan pembayaran. Pesanan tersimpan di status Menunggu Pembayaran.');
-                    window.location.href = "{{ route('member.orders') }}";
+                    window.location.href = "{{ route('anggota.pesanan') }}";
                 }
             });
         });

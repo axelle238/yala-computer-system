@@ -9,11 +9,11 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Kelola alur kerja servis dengan metode drag & drop yang efisien.</p>
         </div>
         <div class="flex flex-wrap gap-3">
-            <a href="{{ route('services.index') }}" class="px-5 py-2.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center gap-2 shadow-sm">
+            <a href="{{ route('admin.servis.indeks') }}" class="px-5 py-2.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center gap-2 shadow-sm">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
                 Mode Daftar
             </a>
-            <a href="{{ route('services.create') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/30 transition flex items-center gap-2 transform active:scale-95">
+            <a href="{{ route('admin.servis.buat') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/30 transition flex items-center gap-2 transform active:scale-95">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                 Buat Tiket Baru
             </a>
@@ -103,7 +103,7 @@
                                         @endif
                                     </div>
                                     
-                                    <a href="{{ route('services.workbench', $t->id) }}" class="p-1.5 text-slate-400 hover:text-white hover:bg-indigo-600 rounded-lg transition-colors group-hover:bg-indigo-50 dark:group-hover:bg-slate-700 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" title="Buka Workbench (Meja Kerja)">
+                                    <a href="{{ route('admin.servis.meja-kerja', $t->id) }}" class="p-1.5 text-slate-400 hover:text-white hover:bg-indigo-600 rounded-lg transition-colors group-hover:bg-indigo-50 dark:group-hover:bg-slate-700 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" title="Buka Workbench (Meja Kerja)">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                     </a>
                                 </div>

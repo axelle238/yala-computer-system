@@ -170,7 +170,7 @@ class PcBuilder extends Component
         if (! Auth::check()) {
             $this->dispatch('notify', message: 'Silakan masuk untuk menyimpan rakitan.', type: 'error');
 
-            return redirect()->route('customer.login');
+            return redirect()->route('pelanggan.masuk');
         }
 
         SavedBuild::create([
@@ -233,7 +233,7 @@ class PcBuilder extends Component
             session()->put('cart', $keranjang);
             $this->dispatch('cart-updated');
 
-            return redirect()->route('cart');
+            return redirect()->route('toko.keranjang');
         } else {
             $this->dispatch('notify', message: 'Pilih komponen minimal satu terlebih dahulu.', type: 'warning');
         }

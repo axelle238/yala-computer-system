@@ -59,7 +59,7 @@ class Form extends Component
 
         $this->dispatch('notify', message: 'Aset berhasil didaftarkan!', type: 'success');
 
-        return redirect()->route('assets.index');
+        return redirect()->route('admin.aset.indeks');
     }
 
     public function render()

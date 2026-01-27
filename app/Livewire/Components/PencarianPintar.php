@@ -75,7 +75,7 @@ class PencarianPintar extends Component
             ->map(fn ($p) => [
                 'label' => $p->name,
                 'sub' => 'Stok: '.$p->stock_quantity,
-                'route' => route('products.edit', $p->id),
+                'route' => route('admin.produk.ubah', $p->id),
                 'icon' => 'box',
             ]);
     }
@@ -89,7 +89,7 @@ class PencarianPintar extends Component
             ->map(fn ($c) => [
                 'label' => $c->name,
                 'sub' => $c->phone,
-                'route' => route('customers.edit', $c->id),
+                'route' => route('admin.pelanggan.ubah', $c->id),
                 'icon' => 'user',
             ]);
     }
@@ -102,7 +102,7 @@ class PencarianPintar extends Component
             ->map(fn ($o) => [
                 'label' => 'Pesanan #'.$o->order_number,
                 'sub' => $o->status_label.' - '.($o->guest_name ?? $o->pengguna->name ?? 'Tamu'),
-                'route' => route('orders.show', $o->id),
+                'route' => route('admin.pesanan.tampil', $o->id),
                 'icon' => 'receipt-tax',
             ]);
     }

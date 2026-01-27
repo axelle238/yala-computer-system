@@ -64,7 +64,7 @@ class Show extends Component
 
     public function printLabel()
     {
-        return redirect()->route('print.label', $this->order->id);
+        return redirect()->route('admin.cetak.label', $this->order->id);
     }
 
     public function verifyPayment()

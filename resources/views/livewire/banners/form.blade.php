@@ -71,7 +71,7 @@
             </div>
 
             <div class="pt-6 flex justify-end gap-3">
-                <a href="{{ route('banners.index') }}" class="px-6 py-3 rounded-xl text-slate-500 font-bold hover:bg-slate-50 transition-colors">Batal</a>
+                <a href="{{ route('admin.spanduk.indeks') }}" class="px-6 py-3 rounded-xl text-slate-500 font-bold hover:bg-slate-50 transition-colors">Batal</a>
                 <button wire:click="save" class="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all">
                     Simpan Banner
                 </button>

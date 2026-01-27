@@ -110,7 +110,7 @@ class Form extends Component
             ]);
         }
 
-        return redirect()->route('rma.index');
+        return redirect()->route('admin.garansi.indeks');
     }
 
     public function render()

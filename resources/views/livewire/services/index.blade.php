@@ -8,7 +8,7 @@
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Visual workflow tracking for repair center.</p>
         </div>
         <div class="flex gap-3">
-             <a href="{{ route('services.create') }}" class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all font-bold text-sm hover:-translate-y-0.5">
+             <a href="{{ route('admin.servis.buat') }}" class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all font-bold text-sm hover:-translate-y-0.5">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -69,7 +69,7 @@
                                             {{ $ticket->created_at->format('d M') }}
                                         </span>
                                         
-                                        <a href="{{ route('services.edit', $ticket->id) }}" class="p-1.5 text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 bg-slate-50 dark:bg-slate-700 rounded-lg transition-colors">
+                                        <a href="{{ route('admin.servis.ubah', $ticket->id) }}" class="p-1.5 text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 bg-slate-50 dark:bg-slate-700 rounded-lg transition-colors">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                         </a>
                                     </div>

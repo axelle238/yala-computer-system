@@ -170,7 +170,7 @@ class Create extends Component
 
         session()->flash('success', 'Barang berhasil diterima dan stok diperbarui.');
 
-        return redirect()->route('purchase-orders.show', $this->poId);
+        return redirect()->route('admin.pesanan-pembelian.tampil', $this->poId);
     }
 
     public function render()

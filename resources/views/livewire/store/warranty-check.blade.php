@@ -72,7 +72,7 @@
                         @if($result['status'] === 'valid')
                             <div class="pt-6 border-t border-slate-100 dark:border-slate-700">
                                 <p class="text-sm text-slate-500 mb-4">Produk Anda terlindungi garansi resmi Yala Computer. Jika mengalami masalah, silakan ajukan klaim.</p>
-                                <a href="{{ route('member.rma.request') }}" class="inline-block w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl text-center hover:opacity-90 transition-opacity">Ajukan Klaim Garansi</a>
+                                <a href="{{ route('anggota.garansi.ajukan') }}" class="inline-block w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl text-center hover:opacity-90 transition-opacity">Ajukan Klaim Garansi</a>
                             </div>
                         @endif
                     </div>

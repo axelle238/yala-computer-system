@@ -95,7 +95,7 @@ class RoleForm extends Component
 
         session()->flash('success', $this->isEdit ? 'Peran berhasil diperbarui.' : 'Peran baru berhasil dibuat.');
 
-        return redirect()->route('employees.roles');
+        return redirect()->route('admin.karyawan.peran.indeks');
     }
 
     public function render()

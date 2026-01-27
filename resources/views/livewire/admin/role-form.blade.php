@@ -7,7 +7,7 @@
             </h2>
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Tentukan nama jabatan dan hak akses sistem.</p>
         </div>
-        <a href="{{ route('employees.roles') }}" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-2">
+        <a href="{{ route('admin.karyawan.peran.indeks') }}" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             Kembali
         </a>

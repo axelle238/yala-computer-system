@@ -11,7 +11,7 @@ it('halaman inbox bisa diakses oleh admin', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->get(route('customers.inbox'))
+        ->get(route('admin.pelanggan.kotak-masuk'))
         ->assertStatus(200)
         ->assertSee('Inbox');
 });

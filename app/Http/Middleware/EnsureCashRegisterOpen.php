@@ -24,7 +24,7 @@ class EnsureCashRegisterOpen
         if (! $openRegister) {
             // Jika mengakses halaman POS, redirect ke halaman Buka Shift
             if ($request->routeIs('transactions.create')) {
-                return redirect()->route('shift.open');
+                return redirect()->route('admin.shift.buka');
             }
         }
 

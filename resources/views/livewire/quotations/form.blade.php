@@ -3,7 +3,7 @@
         <h1 class="text-2xl font-bold text-gray-800">
             {{ $quotation ? 'Edit Penawaran: ' . $quotation->quotation_number : 'Buat Penawaran Baru' }}
         </h1>
-        <a href="{{ route('quotations.index') }}" class="text-gray-500 hover:text-gray-900">&larr; Kembali</a>
+        <a href="{{ route('admin.penawaran.indeks') }}" class="text-gray-500 hover:text-gray-900">&larr; Kembali</a>
     </div>
 
     <form wire:submit.prevent="save" class="grid grid-cols-1 lg:grid-cols-3 gap-6">

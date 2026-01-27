@@ -7,7 +7,7 @@
             </h2>
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Dokumen penawaran harga resmi untuk klien korporat.</p>
         </div>
-        <a href="{{ route('quotations.index') }}" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-bold hover:bg-slate-200 transition">
+        <a href="{{ route('admin.penawaran.indeks') }}" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-bold hover:bg-slate-200 transition">
             Kembali
         </a>
     </div>

@@ -11,7 +11,7 @@
                 </div>
                 <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Keranjangmu Kosong</h2>
                 <p class="text-slate-500 mb-8">Sepertinya kamu belum menambahkan apapun.</p>
-                <a href="{{ route('store.catalog') }}" class="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30">
+                <a href="{{ route('toko.katalog') }}" class="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30">
                     Mulai Belanja
                 </a>
             </div>
@@ -71,7 +71,7 @@
                         </div>
 
                         <div class="space-y-3">
-                            <a href="{{ route('checkout') }}" class="block w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 text-center text-lg">
+                            <a href="{{ route('toko.pembayaran') }}" class="block w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 text-center text-lg">
                                 Checkout Sekarang
                             </a>
 

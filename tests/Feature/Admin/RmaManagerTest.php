@@ -14,7 +14,7 @@ it('halaman rma manager bisa diakses admin', function () {
     $admin = User::factory()->create();
 
     $this->actingAs($admin)
-        ->get(route('rma.index'))
+        ->get(route('admin.garansi.indeks'))
         ->assertStatus(200)
         ->assertSee('RMA');
 });

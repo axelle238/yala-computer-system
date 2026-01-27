@@ -2,7 +2,7 @@
     <!-- Navbar Khusus POS -->
     <header class="bg-indigo-700 px-6 py-3 flex justify-between items-center shadow-lg z-30 shrink-0">
         <div class="flex items-center gap-6">
-            <a href="{{ route('dashboard') }}" class="text-indigo-200 hover:text-white transition-colors p-1 rounded-lg hover:bg-indigo-600" title="Kembali ke Dashboard">
+            <a href="{{ route('admin.beranda') }}" class="text-indigo-200 hover:text-white transition-colors p-1 rounded-lg hover:bg-indigo-600" title="Kembali ke Dashboard">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             </a>
             <div>
@@ -327,7 +327,7 @@
         // Print Receipt Handler
         window.addEventListener('print-receipt', event => {
             const orderId = event.detail.orderId;
-            const url = "{{ route('print.transaction', ':id') }}".replace(':id', orderId);
+            const url = "{{ route('admin.cetak.transaksi', ':id') }}".replace(':id', orderId);
             
             // Seamless Print using Hidden Iframe
             let iframe = document.getElementById('receipt-frame');

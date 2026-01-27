@@ -23,7 +23,7 @@ class EnsureStoreConfigured
             if ($request->user() && $request->user()->isAdmin()) {
                 // Hindari redirect loop jika sudah di halaman settings
                 if (! $request->routeIs('settings.*')) {
-                    return redirect()->route('settings.index')
+                    return redirect()->route('admin.pengaturan')
                         ->with('error', 'Harap lengkapi konfigurasi toko (Nama Toko) sebelum melanjutkan operasional.');
                 }
             } else {

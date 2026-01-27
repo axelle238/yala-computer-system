@@ -7,7 +7,7 @@
             </h2>
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Kelola berita, artikel, dan tutorial untuk StoreFront.</p>
         </div>
-        <a href="{{ route('admin.news.create') }}" class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg shadow-purple-600/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+        <a href="{{ route('admin.berita.buat') }}" class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg shadow-purple-600/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
             Tulis Artikel
         </a>
@@ -60,7 +60,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center flex justify-center gap-2">
-                                <a href="{{ route('admin.news.edit', $article->id) }}" class="text-blue-500 hover:text-blue-700 p-1">
+                                <a href="{{ route('admin.berita.ubah', $article->id) }}" class="text-blue-500 hover:text-blue-700 p-1">
                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                 </a>
                                 <button wire:click="delete({{ $article->id }})" wire:confirm="Hapus artikel ini?" class="text-rose-500 hover:text-rose-700 p-1">

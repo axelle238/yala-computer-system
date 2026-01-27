@@ -127,7 +127,7 @@
 
             <!-- Footer Actions -->
             <div class="mt-6 flex justify-end gap-3">
-                <a href="{{ route('purchase-orders.index') }}" class="px-6 py-3 rounded-xl text-slate-500 font-bold hover:bg-slate-100 transition-colors">Kembali</a>
+                <a href="{{ route('admin.pesanan-pembelian.indeks') }}" class="px-6 py-3 rounded-xl text-slate-500 font-bold hover:bg-slate-100 transition-colors">Kembali</a>
                 <button wire:click="save" class="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
                     Simpan Draft
                 </button>

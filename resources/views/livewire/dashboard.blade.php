@@ -6,11 +6,11 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Ringkasan performa bisnis dan operasional terkini.</p>
         </div>
         <div class="flex flex-wrap gap-3">
-            <a href="{{ route('sales.pos') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+            <a href="{{ route('admin.kasir') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                 Buka Kasir (POS)
             </a>
-            <a href="{{ route('services.create') }}" class="px-5 py-2.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-sm font-bold rounded-xl transition-all flex items-center gap-2 shadow-sm hover:shadow-md">
+            <a href="{{ route('admin.servis.buat') }}" class="px-5 py-2.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-sm font-bold rounded-xl transition-all flex items-center gap-2 shadow-sm hover:shadow-md">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                 Tiket Servis Baru
             </a>
@@ -30,7 +30,7 @@
                     </div>
                     <div class="text-3xl font-black">{{ $statistik['tiket_milik_saya'] }}</div>
                     <div class="text-sm font-medium opacity-80 mt-1">Servis Sedang Ditangani</div>
-                    <a href="{{ route('services.kanban') }}" class="mt-4 block w-full py-2 bg-white text-indigo-600 text-center text-xs font-bold rounded-xl hover:bg-indigo-50 transition-colors">Buka Workbench</a>
+                    <a href="{{ route('admin.servis.papan') }}" class="mt-4 block w-full py-2 bg-white text-indigo-600 text-center text-xs font-bold rounded-xl hover:bg-indigo-50 transition-colors">Buka Workbench</a>
                 </div>
                 <div class="bg-emerald-500 rounded-2xl p-6 text-white shadow-lg shadow-emerald-500/30">
                     <div class="flex justify-between items-start mb-4">
@@ -93,7 +93,7 @@
                     <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Servis Aktif</div>
                     <div class="text-3xl font-black text-slate-800 dark:text-white">{{ $statistik['tiket_aktif'] }} <span class="text-base font-normal text-slate-400">Unit</span></div>
                 </div>
-                <a href="{{ route('services.index') }}" class="mt-4 inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
+                <a href="{{ route('admin.servis.indeks') }}" class="mt-4 inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
                     Lihat Antrian <svg class="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                 </a>
             </div>
@@ -109,7 +109,7 @@
                     <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Pesan Baru</div>
                     <div class="text-3xl font-black text-slate-800 dark:text-white">{{ $statistik['pesan_baru'] }} <span class="text-base font-normal text-slate-400">Pesan</span></div>
                 </div>
-                <a href="{{ route('customers.inbox') }}" class="mt-4 inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
+                <a href="{{ route('admin.pelanggan.kotak-masuk') }}" class="mt-4 inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
                     Balas Pesan <svg class="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                 </a>
             </div>
@@ -143,7 +143,7 @@
                     <p class="text-3xl font-black text-slate-800 dark:text-white mt-1">{{ $statistik['rakitan_aktif'] }} <span class="text-sm font-normal text-slate-400">Unit</span></p>
                 </div>
             </div>
-            <a href="{{ route('assembly.manager') }}" class="relative px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all shadow-sm">
+            <a href="{{ route('admin.perakitan.indeks') }}" class="relative px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all shadow-sm">
                 Kelola
             </a>
         </div>
@@ -160,7 +160,7 @@
                     <p class="text-3xl font-black text-slate-800 dark:text-white mt-1">{{ $statistik['penawaran_tertunda'] }} <span class="text-sm font-normal text-slate-400">Dokumen</span></p>
                 </div>
             </div>
-            <a href="{{ route('quotations.index') }}" class="relative px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:border-cyan-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all shadow-sm">
+            <a href="{{ route('admin.penawaran.indeks') }}" class="relative px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:border-cyan-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all shadow-sm">
                 Tinjau
             </a>
         </div>
@@ -216,7 +216,7 @@
                 </table>
             </div>
             <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 text-center">
-                <a href="{{ route('purchase-requisitions.create') }}" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors flex items-center justify-center gap-2 group">
+                <a href="{{ route('admin.permintaan-stok.buat') }}" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors flex items-center justify-center gap-2 group">
                     <span>Buat Permintaan Pembelian</span>
                     <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                 </a>
@@ -270,7 +270,7 @@
                 </table>
             </div>
             <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 text-center">
-                 <a href="{{ route('reports.sales') }}" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors flex items-center justify-center gap-2 group">
+                 <a href="{{ route('admin.analitik.penjualan') }}" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors flex items-center justify-center gap-2 group">
                     <span>Lihat Laporan Lengkap</span>
                     <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                 </a>
@@ -290,7 +290,7 @@
                     <p class="text-xs text-slate-500">Jejak audit tindakan pengguna di sistem</p>
                 </div>
             </div>
-            <a href="{{ route('activity-logs.index') }}" class="text-xs font-bold text-slate-400 hover:text-indigo-500 transition-colors">Lihat Semua</a>
+            <a href="{{ route('admin.log-aktivitas.indeks') }}" class="text-xs font-bold text-slate-400 hover:text-indigo-500 transition-colors">Lihat Semua</a>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left">

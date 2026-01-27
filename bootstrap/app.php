@@ -16,7 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return route('masuk');
             }
 
-            return route('customer.login');
+            return route('pelanggan.masuk');
         });
 
         $middleware->append(\App\Http\Middleware\CheckForMaintenanceMode::class);

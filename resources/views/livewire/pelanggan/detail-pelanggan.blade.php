@@ -82,7 +82,7 @@
                             @forelse($pelanggan->orders as $pesanan)
                                 <tr>
                                     <td class="px-4 py-3 text-sm font-medium text-indigo-600">
-                                        <a href="{{ route('orders.show', $pesanan->id) }}">{{ $pesanan->order_number }}</a>
+                                        <a href="{{ route('admin.pesanan.tampil', $pesanan->id) }}">{{ $pesanan->order_number }}</a>
                                     </td>
                                     <td class="px-4 py-3 text-sm text-slate-500">{{ $pesanan->created_at->format('d/m/Y') }}</td>
                                     <td class="px-4 py-3 text-sm text-right font-bold">Rp {{ number_format($pesanan->total_amount) }}</td>

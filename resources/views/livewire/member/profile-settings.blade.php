@@ -8,7 +8,7 @@
                 </h1>
                 <p class="text-slate-500 text-sm mt-1">Kelola informasi pribadi dan keamanan akun Anda.</p>
             </div>
-            <a href="{{ route('member.dashboard') }}" class="flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-bold text-sm transition-colors">
+            <a href="{{ route('anggota.beranda') }}" class="flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-bold text-sm transition-colors">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                 Kembali ke Dashboard
             </a>

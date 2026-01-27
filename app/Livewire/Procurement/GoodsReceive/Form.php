@@ -190,7 +190,7 @@ class Form extends Component
 
         session()->flash('success', 'Barang berhasil diterima dan stok bertambah.');
 
-        return redirect()->route('purchase-orders.index');
+        return redirect()->route('admin.pesanan-pembelian.indeks');
     }
 
     public function render()

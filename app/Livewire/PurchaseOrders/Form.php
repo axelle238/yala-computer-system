@@ -104,7 +104,7 @@ class Form extends Component
 
             session()->flash('success', 'Info PO diperbarui. Item tidak dapat diubah karena status sudah berjalan.');
 
-            return redirect()->route('purchase-orders.index');
+            return redirect()->route('admin.pesanan-pembelian.indeks');
         }
 
         $this->validate([
@@ -151,7 +151,7 @@ class Form extends Component
 
         session()->flash('success', 'Purchase Order berhasil disimpan.');
 
-        return redirect()->route('purchase-orders.index');
+        return redirect()->route('admin.pesanan-pembelian.indeks');
     }
 
     public function markAsOrdered()

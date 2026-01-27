@@ -73,7 +73,7 @@ class Show extends Component
 
         $this->dispatch('notify', message: 'Penawaran diterima! Pesanan telah dibuat.', type: 'success');
 
-        return redirect()->route('member.orders');
+        return redirect()->route('anggota.pesanan');
     }
 
     public function printPdf()

@@ -330,7 +330,7 @@ class Form extends Component
     {
         $this->save();
 
-        return redirect()->route('print.service', $this->ticket->id);
+        return redirect()->route('admin.cetak.servis', $this->ticket->id);
     }
 
     public function render()

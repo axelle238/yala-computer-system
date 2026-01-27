@@ -1,7 +1,7 @@
 <div class="space-y-6">
     <div class="flex justify-between items-center">
         <h1 class="text-3xl font-black text-slate-800 dark:text-white font-tech uppercase tracking-tight">Klaim Garansi (RMA)</h1>
-        <a href="{{ route('rma.create') }}" class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-slate-500/20 transition-all">
+        <a href="{{ route('admin.garansi.buat') }}" class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-slate-500/20 transition-all">
             + Buat RMA Baru
         </a>
     </div>
@@ -47,7 +47,7 @@
                         </td>
                         <td class="px-6 py-4 text-slate-500">{{ $rma->created_at->format('d M Y') }}</td>
                         <td class="px-6 py-4 text-center">
-                            <a href="{{ route('rma.edit', $rma->id) }}" class="text-cyan-600 font-bold hover:underline">Detail</a>
+                            <a href="{{ route('admin.garansi.ubah', $rma->id) }}" class="text-cyan-600 font-bold hover:underline">Detail</a>
                         </td>
                     </tr>
                     @empty

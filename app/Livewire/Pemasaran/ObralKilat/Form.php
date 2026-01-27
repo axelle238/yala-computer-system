@@ -73,7 +73,7 @@ class Form extends Component
 
         $this->dispatch('notify', message: 'Obral Kilat berhasil dibuat!', type: 'success');
 
-        return redirect()->route('marketing.flash-sale.index');
+        return redirect()->route('admin.pemasaran.obral-kilat.indeks');
     }
 
     public function render()

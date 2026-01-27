@@ -63,7 +63,7 @@
                     <div class="relative z-10">
                         <h3 class="text-2xl font-bold text-white mb-2">Masih butuh bantuan?</h3>
                         <p class="text-slate-400 mb-6">Tim support kami siap membantu Anda menyelesaikan masalah.</p>
-                        <a href="{{ route('store.contact') }}" class="inline-flex items-center gap-2 px-8 py-3 bg-white text-slate-900 font-bold rounded-xl hover:bg-indigo-50 transition-colors shadow-lg">
+                        <a href="{{ route('toko.kontak') }}" class="inline-flex items-center gap-2 px-8 py-3 bg-white text-slate-900 font-bold rounded-xl hover:bg-indigo-50 transition-colors shadow-lg">
                             Hubungi Kami
                         </a>
                     </div>

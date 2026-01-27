@@ -76,7 +76,7 @@ class LabelMaker extends Component
             ],
         ]);
 
-        return redirect()->route('print.labels.preview');
+        return redirect()->route('admin.cetak.label-masal');
     }
 
     public function render()

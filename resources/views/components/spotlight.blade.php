@@ -8,9 +8,9 @@
                 if (value.length < 2) { this.results = []; return; }
                 // Simulate search (Replace with actual backend call via Livewire if needed)
                 this.results = [
-                    { title: 'Cari Produk: ' + value, type: 'action', url: '{{ route('products.index') }}?search=' + value },
-                    { title: 'Transaksi Baru', type: 'link', url: '{{ route('transactions.create') }}' },
-                    { title: 'Laporan Keuangan', type: 'link', url: '{{ route('finance.profit-loss') }}' }
+                    { title: 'Cari Produk: ' + value, type: 'action', url: '{{ route('admin.produk.indeks') }}?search=' + value },
+                    { title: 'Transaksi Baru', type: 'link', url: '{{ route('admin.transaksi.buat') }}' },
+                    { title: 'Laporan Keuangan', type: 'link', url: '{{ route('admin.keuangan.laba-rugi') }}' }
                 ];
             });
         }
@@ -71,9 +71,9 @@
                 <p class="mt-2 text-slate-500">Ketik untuk mencari produk, transaksi, atau menu navigasi.</p>
                 
                 <div class="mt-6 flex flex-wrap justify-center gap-2">
-                    <a href="{{ route('products.index') }}" class="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Stok Barang</a>
-                    <a href="{{ route('transactions.index') }}" class="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Transaksi</a>
-                    <a href="{{ route('customers.index') }}" class="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Pelanggan</a>
+                    <a href="{{ route('admin.produk.indeks') }}" class="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Stok Barang</a>
+                    <a href="{{ route('admin.transaksi.indeks') }}" class="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Transaksi</a>
+                    <a href="{{ route('admin.pelanggan.indeks') }}" class="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Pelanggan</a>
                 </div>
             </div>
         </div>

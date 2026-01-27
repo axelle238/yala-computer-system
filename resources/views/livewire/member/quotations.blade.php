@@ -4,7 +4,7 @@
             <h1 class="text-3xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tighter">
                 Penawaran <span class="text-blue-600">Saya</span>
             </h1>
-            <a href="{{ route('member.dashboard') }}" class="text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold text-sm">
+            <a href="{{ route('anggota.beranda') }}" class="text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold text-sm">
                 &larr; Kembali ke Dashboard
             </a>
         </div>

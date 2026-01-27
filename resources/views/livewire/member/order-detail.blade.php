@@ -2,7 +2,7 @@
     <div class="container mx-auto px-4 lg:px-8">
         <!-- Header -->
         <div class="mb-8 animate-fade-in-up">
-            <a href="{{ route('member.orders') }}" class="text-sm font-bold text-slate-500 hover:text-blue-600 mb-2 inline-block">&larr; Kembali ke Riwayat Pesanan</a>
+            <a href="{{ route('anggota.pesanan') }}" class="text-sm font-bold text-slate-500 hover:text-blue-600 mb-2 inline-block">&larr; Kembali ke Riwayat Pesanan</a>
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 class="text-3xl font-black font-tech text-slate-900 dark:text-white uppercase tracking-tighter">
@@ -77,7 +77,7 @@
                                 <div class="text-right">
                                     <p class="font-mono font-bold text-slate-700 dark:text-slate-300">Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</p>
                                     @if($pesanan->status == 'completed')
-                                        <a href="{{ route('store.product.detail', $item->product_id) }}" class="text-[10px] text-blue-600 hover:underline mt-1 block">Beri Ulasan</a>
+                                        <a href="{{ route('toko.produk.detail', $item->product_id) }}" class="text-[10px] text-blue-600 hover:underline mt-1 block">Beri Ulasan</a>
                                     @endif
                                 </div>
                             </div>

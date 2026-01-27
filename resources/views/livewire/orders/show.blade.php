@@ -24,7 +24,7 @@
             </p>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('orders.index') }}" class="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold transition">
+            <a href="{{ route('admin.pesanan.indeks') }}" class="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold transition">
                 Kembali
             </a>
             <button wire:click="printLabel" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-white rounded-xl font-bold flex items-center gap-2 hover:bg-slate-200 transition">

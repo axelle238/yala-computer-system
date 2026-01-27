@@ -23,12 +23,12 @@ class RoleManager extends Component
 
     public function create()
     {
-        return redirect()->route('employees.roles.create');
+        return redirect()->route('admin.karyawan.peran.buat');
     }
 
     public function edit($id)
     {
-        return redirect()->route('employees.roles.edit', $id);
+        return redirect()->route('admin.karyawan.peran.ubah', $id);
     }
 
     public function delete($id)

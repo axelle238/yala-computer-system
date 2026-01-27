@@ -55,7 +55,7 @@ class Form extends Component
 
         $this->dispatch('notify', message: 'Kategori berhasil disimpan!', type: 'success');
 
-        return redirect()->route('master.categories');
+        return redirect()->route('admin.master.kategori');
     }
 
     public function render()

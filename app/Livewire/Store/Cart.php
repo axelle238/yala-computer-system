@@ -93,7 +93,7 @@ class Cart extends Component
         if (! Auth::check()) {
             $this->dispatch('notify', message: 'Silakan login untuk meminta penawaran.', type: 'warning');
 
-            return redirect()->route('customer.login');
+            return redirect()->route('pelanggan.masuk');
         }
 
         if ($this->cartProducts->isEmpty()) {
@@ -130,7 +130,7 @@ class Cart extends Component
 
         $this->dispatch('notify', message: 'Permintaan penawaran berhasil dikirim!', type: 'success');
 
-        return redirect()->route('member.orders'); // Redirect to Member Area (Needs Quotation Tab)
+        return redirect()->route('anggota.pesanan'); // Redirect to Member Area (Needs Quotation Tab)
     }
 
     public function render()

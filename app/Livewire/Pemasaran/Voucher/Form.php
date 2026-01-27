@@ -63,7 +63,7 @@ class Form extends Component
 
         $this->dispatch('notify', message: 'Voucher berhasil dibuat!', type: 'success');
 
-        return redirect()->route('marketing.vouchers.index');
+        return redirect()->route('admin.pemasaran.voucher.indeks');
     }
 
     public function render()

@@ -79,7 +79,7 @@ class Form extends Component
 
         $this->reset();
 
-        return redirect()->route('admin.news.index');
+        return redirect()->route('admin.berita.indeks');
     }
 
     public function render()
