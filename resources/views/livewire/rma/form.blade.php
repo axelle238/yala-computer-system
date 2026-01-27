@@ -24,7 +24,7 @@
             <div>
                 <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Status</label>
                 <select wire:model="status" class="w-full bg-slate-50 border-none rounded-lg px-4 py-2">
-                    <option value="pending">Pending</option>
+                    <option value="pending">Menunggu Konfirmasi</option>
                     <option value="approved">Disetujui</option>
                     <option value="received_goods">Barang Diterima</option>
                     <option value="checking">Pengecekan</option>

@@ -68,7 +68,7 @@ class Rma extends Model
             'vendor_process' => 'Klaim Distributor',
             'resolved' => 'Selesai',
             'rejected' => 'Ditolak',
-            default => 'Pending',
+            default => 'Menunggu',
         };
     }
 

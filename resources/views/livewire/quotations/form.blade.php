@@ -110,7 +110,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Status Persetujuan</label>
                         <select wire:model="approval_status" class="w-full rounded-lg border-gray-300">
-                            <option value="pending">Pending Review</option>
+                            <option value="pending">Menunggu Review</option>
                             <option value="approved">Approved (Kirim ke User)</option>
                             <option value="rejected">Rejected</option>
                         </select>

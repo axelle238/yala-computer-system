@@ -17,7 +17,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
             <div class="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl -mr-6 -mt-6 group-hover:bg-purple-500/20 transition-all"></div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Pending Approval</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Menunggu Persetujuan</p>
             <h3 class="text-3xl font-black font-tech text-slate-900 dark:text-white mt-2">{{ $pendingCount }}</h3>
         </div>
         <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">

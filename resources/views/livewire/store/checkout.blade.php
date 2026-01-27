@@ -282,7 +282,7 @@
                     alert("Pembayaran gagal! Silakan coba lagi.");
                 },
                 onClose: function(){
-                    alert('Anda menutup popup tanpa menyelesaikan pembayaran. Pesanan tersimpan di status Pending.');
+                    alert('Anda menutup popup tanpa menyelesaikan pembayaran. Pesanan tersimpan di status Menunggu Pembayaran.');
                     window.location.href = "{{ route('member.orders') }}";
                 }
             });

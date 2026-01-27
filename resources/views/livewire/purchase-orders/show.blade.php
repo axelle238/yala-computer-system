@@ -111,7 +111,7 @@
                     @foreach($po->item as $item)
                         @php
                             $remaining = $item->quantity_ordered - $item->quantity_received;
-                            $rowStatus = $item->quantity_received >= $item->quantity_ordered ? 'Selesai' : ($item->quantity_received > 0 ? 'Parsial' : 'Pending');
+                            $rowStatus = $item->quantity_received >= $item->quantity_ordered ? 'Selesai' : ($item->quantity_received > 0 ? 'Parsial' : 'Menunggu');
                         @endphp
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
                             <td class="px-6 py-4">

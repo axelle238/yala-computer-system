@@ -11,7 +11,7 @@
             <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari No RMA / Nama..." class="flex-1 bg-slate-50 dark:bg-slate-900 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-cyan-500">
             <select wire:model.live="status" class="bg-slate-50 dark:bg-slate-900 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-cyan-500">
                 <option value="">Semua Status</option>
-                <option value="pending">Pending</option>
+                <option value="pending">Menunggu Konfirmasi</option>
                 <option value="approved">Disetujui</option>
                 <option value="received_goods">Barang Diterima</option>
                 <option value="checking">Pengecekan</option>
