@@ -3,51 +3,36 @@
 ## Kondisi Sistem Saat Ini (Baseline)
 Audit dilakukan pada 27 Januari 2026.
 
-### 1. Struktur Arsitektur
-- **Backend**: Laravel 12, Eloquent ORM.
-- **Frontend**: Livewire 4, Tailwind CSS 4, Alpine.js.
-- **Modul**: Terdapat >30 modul fungsional yang mencakup seluruh aspek operasional bisnis.
+### 1. Kepatuhan Bahasa (Aturan Global)
+- **Frontend**: Sebagian besar UI sudah menggunakan Bahasa Indonesia, namun masih ditemukan istilah teknis seperti "Activity Logs", "Inventory", "Procurement" pada sidebar atau menu admin.
+- **Backend**: 
+    - Nama folder dan class masih didominasi Bahasa Inggris (misal: `app/Livewire/PurchaseOrders`).
+    - Variabel internal dan parameter fungsi masih banyak menggunakan Bahasa Inggris (misal: `$filterUserType`).
+    - Komentar kode mulai beralih ke Bahasa Indonesia namun belum konsisten 100%.
+- **Validasi & Error**: Pesan error Laravel default mungkin masih dalam Bahasa Inggris.
 
-### 2. Temuan Audit: Admin / Operasional
-- **Inkonsistensi Bahasa**:
-    - Nama rute masih menggunakan Bahasa Inggris (contoh: `products.index`, `sales.pos`).
-    - Penamaan folder dan class Livewire didominasi Bahasa Inggris (contoh: `app/Livewire/PurchaseOrders`).
-    - Variabel internal banyak yang masih menggunakan Bahasa Inggris.
-- **Redundansi Modul**:
-    - Terdapat folder `app/Livewire/Customers` dan `app/Livewire/Pelanggan`. Perlu konsolidasi.
-- **Integrasi Menu**:
-    - Menu CRM masih terpisah dari Media & Customer Service (instruksi baru meminta penggabungan).
-- **Fungsionalitas**:
-    - Fitur "Kasir & Penjualan" dan "Gudang & Logistik" terlihat kompleks di kode, namun perlu verifikasi integrasi end-to-end dengan Storefront.
+### 2. Area Admin / Operasional
+- **Dashboard**: Berfungsi, namun integrasi data antar modul (Gudang ↔ Keuangan) perlu divalidasi keakuratannya secara real-time.
+- **Kasir & Penjualan**: Modul POS sudah ada, namun integrasi dengan modul "Loyalitas Pelanggan" perlu diperdalam.
+- **Gudang & Logistik**: Struktur folder sudah lengkap, namun alur "Permintaan Stok" hingga "Penerimaan Barang" perlu pengujian end-to-end.
+- **SDM & Karyawan**: Modul `Employees` sudah ada, namun fitur "Penggajian" (Payroll) terlihat masih dasar dan belum mencakup komponen kompleks (bonus, denda, pajak).
+- **Media & Customer Service**: CRM sudah digabung ke Media sesuai instruksi sebelumnya, namun fitur "WhatsApp Blast" perlu dipastikan kestabilannya.
 
-### 3. Temuan Audit: Storefront
-- **Tampilan**: Komponen UI sudah lengkap (Home, Catalog, Detail, Cart, Checkout).
-- **Interaksi**: Fitur simulasi rakit PC dan obrolan sudah ada.
-- **Sinkronisasi**: Perlu verifikasi apakah perubahan stok di Admin langsung tercermin di Storefront secara akurat.
+### 3. Area Storefront
+- **UX/UI**: Desain sudah menggunakan tema "Cyberpunk/Tech", namun navigasi seluler perlu ditingkatkan.
+- **Integrasi**: Alur checkout Midtrans harus dipastikan sinkron dengan status pesanan di Admin secara otomatis.
+- **Validasi**: Validasi input form pendaftaran dan alamat perlu disesuaikan dengan standar Indonesia (misal: format nomor HP).
 
-### 4. Daftar Bug & Kendala
-- **Rute Mati**: Perubahan nama rute sebelumnya kemungkinan meninggalkan tautan mati di view.
-- **Validasi**: Beberapa form mungkin belum menggunakan pesan error Bahasa Indonesia yang konsisten.
-- **Modal**: Instruksi melarang penggunaan layout modal, perlu cek apakah ada komponen yang masih menggunakannya.
+### 4. Daftar Temuan Bug & Inkonsistensi
+- **Bug Rute**: Beberapa rute sebelumnya mengalami `RouteNotFoundException` karena inkonsistensi penamaan antara `web.php` dan View (telah diperbaiki di baseline).
+- **Inkonsistensi Folder**: Folder `Customers` dan `Pelanggan` sempat tumpang tindih, perlu konsolidasi total ke Bahasa Indonesia.
+- **Menu Kosong**: Ada kemungkinan beberapa sub-menu di sidebar belum memiliki view yang matang.
 
 ---
 
-## Rencana Perbaikan (Iteratif)
+## Rencana Perbaikan Iteratif
 
-### Tahap A: Standarisasi Bahasa & Struktur (Prioritas Utama)
-1. **Refaktor Rute**: Mengubah seluruh nama rute di `routes/web.php` ke Bahasa Indonesia.
-2. **Refaktor Navigasi**: Memperbarui Sidebar dan Tautan di seluruh View agar sesuai rute baru.
-3. **Penggabungan Menu**: Menyatukan CRM/Pelanggan ke dalam grup "Media & Hubungan Pelanggan".
-
-### Tahap B: Penguatan Fitur Operasional
-1. **Sistem & Pengaturan**: Melengkapi logika pengaturan sistem agar lebih kompleks dan menyeluruh.
-2. **Kasir & Stok**: Memastikan transaksi kasir memotong stok gudang secara real-time dan masuk ke laporan keuangan.
-3. **SDM**: Verifikasi perhitungan gaji otomatis berdasarkan absensi.
-
-### Tahap C: Penyempurnaan Storefront
-1. **UX**: Menghapus sisa-sisa elemen bahasa asing.
-2. **Integrasi**: Memastikan alur pesanan dari Storefront masuk dengan status yang benar ke Admin Pesanan.
-
-### Tahap D: Validasi & Finalisasi
-1. Pengujian seluruh tombol dan alur data.
-2. Pembersihan kode dari komentar bahasa asing.
+1. **Checkpoint Refaktor Bahasa (Backend)**: Mengubah nama variabel, fungsi, dan folder secara bertahap tanpa merusak fungsionalitas.
+2. **Penyempurnaan Modul SDM**: Menambah kompleksitas sistem payroll dan absensi.
+3. **Penyempurnaan Modul Gudang**: Integrasi otomatis stok opname dengan laporan kerugian.
+4. **Validasi End-to-End Storefront**: Pengujian alur belanja dari tamu hingga menjadi member loyal.
