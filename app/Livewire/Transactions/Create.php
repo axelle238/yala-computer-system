@@ -46,8 +46,6 @@ class Create extends Component
     public $usePoints = false;
 
     // UI State
-    public $showSuccessModal = false;
-
     public $registerStatus = 'closed'; // open, closed
 
     public function mount()
