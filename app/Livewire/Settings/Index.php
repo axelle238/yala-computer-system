@@ -48,6 +48,11 @@ class Index extends Component
             // Sistem & Integrasi
             'smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_encryption',
             'whatsapp_gateway_url', 'printer_ip_address',
+            // SEO & Media Sosial
+            'seo_meta_description', 'seo_meta_keywords',
+            'social_facebook', 'social_instagram', 'social_tiktok',
+            // Template Notifikasi (WhatsApp)
+            'wa_template_order_success', 'wa_template_payment_reminder',
         ];
 
         // Pastikan setting ada di database, jika tidak buat default kosong
@@ -76,6 +81,9 @@ class Index extends Component
             'formulir.store_phone' => 'required|string',
             'logoBaru' => 'nullable|image|max:1024',
             'faviconBaru' => 'nullable|image|max:512',
+            'formulir.social_facebook' => 'nullable|url',
+            'formulir.social_instagram' => 'nullable|url',
+            'formulir.social_tiktok' => 'nullable|url',
         ], [
             'formulir.store_name.required' => 'Nama toko wajib diisi.',
             'formulir.store_email.required' => 'Email toko wajib diisi.',
@@ -85,6 +93,9 @@ class Index extends Component
             'logoBaru.max' => 'Ukuran logo maksimal 1MB.',
             'faviconBaru.image' => 'File favicon harus berupa gambar.',
             'faviconBaru.max' => 'Ukuran favicon maksimal 512KB.',
+            'formulir.social_facebook.url' => 'Format URL Facebook tidak valid.',
+            'formulir.social_instagram.url' => 'Format URL Instagram tidak valid.',
+            'formulir.social_tiktok.url' => 'Format URL TikTok tidak valid.',
         ]);
 
         // Upload Logo
@@ -122,6 +133,13 @@ class Index extends Component
             'midtrans_is_production' => false,
             'tax_rate' => 11,
             'service_charge' => 0,
+            'seo_meta_description' => 'Toko komputer terlengkap dan jasa rakit PC terpercaya.',
+            'seo_meta_keywords' => 'komputer, laptop, rakit pc, servis komputer',
+            'social_facebook' => '',
+            'social_instagram' => '',
+            'social_tiktok' => '',
+            'wa_template_order_success' => 'Halo {name}, pesanan #{order_id} Anda telah berhasil dibuat. Silakan lakukan pembayaran.',
+            'wa_template_payment_reminder' => 'Halo {name}, jangan lupa selesaikan pembayaran untuk pesanan #{order_id} Anda.',
         ];
 
         $this->dispatch('notify', message: 'Formulir telah direset ke nilai default (Belum Disimpan).', type: 'info');
