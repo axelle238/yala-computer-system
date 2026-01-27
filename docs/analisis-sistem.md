@@ -1,55 +1,66 @@
-# Analisis Sistem Yala Computer
+# Analisis Sistem Yala Computer - Audit Menyeluruh
 
 ## 1. Tinjauan Umum
-Analisis ini dilakukan pada codebase Yala Computer yang berbasis Laravel 12, Livewire, dan Tailwind CSS. Sistem dibagi menjadi dua area utama: Admin (Operasional) dan Storefront (Pelanggan).
+Analisis ini dilakukan pada codebase Yala Computer yang berbasis Laravel 12, Livewire 4, dan Tailwind CSS 4. Sistem dibagi menjadi dua area utama: Admin (Operasional) dan Storefront (Pelanggan). Audit ini bertujuan memastikan kepatuhan terhadap aturan global (Bahasa Indonesia 100%, No Modals, Full Sync).
 
-## 2. Temuan Kritis (Bug & Error)
+## 2. Temuan Kritis & Bug
 
-### Backend & Routing
-- **[BUG] Redirection Error di Halaman Utama Store:**
-  - File: `App\Livewire\Store\Home.php`
-  - Kode: `return redirect()->route('track-service', ...)`
-  - Masalah: Route `track-service` tidak didefinisikan di `routes/web.php`. Nama route yang benar adalah `toko.lacak-servis`.
-  - Dampak: Fitur pelacakan servis di halaman depan akan error (500).
+### Pelanggaran Aturan Global (Modal)
+- **Status:** **DITEMUKAN PELANGGARAN**.
+- **Lokasi:**
+  - `App\Livewire\Transactions\Create.php` masih menggunakan properti `$showSuccessModal`.
+  - `resources/views/livewire/store/partials/modals.blade.php` masih menggunakan layout modal tradisional.
+  - `resources/views/livewire/store/quick-view.blade.php` masih menggunakan modal.
+  - Beberapa komponen lain sudah menggunakan "Form Inline" sebagai pengganti modal, namun belum konsisten di seluruh sistem.
 
-### Inkonsistensi Bahasa (English vs Indonesia)
-Meskipun instruksi mewajibkan 100% Bahasa Indonesia, ditemukan beberapa teks UI masih dalam Bahasa Inggris:
-- **Halaman Login Admin (`resources/views/livewire/auth/login.blade.php`):**
-  - Label: "Email Address" (Seharusnya: "Alamat Email")
-  - Label: "Password" (Seharusnya: "Kata Sandi")
-- **Halaman Login Pelanggan (`resources/views/livewire/store/auth/login.blade.php`):**
-  - Label: "Email Address"
-  - Label: "Password"
-  - Placeholder: "name@example.com" (Cukup generik, tapi bisa disesuaikan)
+### Inkonsistensi Bahasa
+- **Status:** **BELUM 100% BAHASA INDONESIA**.
+- **Backend:**
+  - Nama file model masih menggunakan Bahasa Inggris (misal: `Product.php`, `Order.php`, `ActivityLog.php`). *Catatan: Nama file/class model biasanya tetap Inggris mengikuti konvensi Laravel, namun properti/fungsi di dalamnya harus Indonesia.*
+  - Beberapa kolom database masih Bahasa Inggris (misal: `campaign_name`, `target_audience`).
+- **Frontend:**
+  - Label login admin/pelanggan masih "Email Address" dan "Password".
+  - Status kampanye WhatsApp masih "pending", "processing", "completed".
+
+### Bug Fungsional
+- **[BUG] Redirection di Store Home:** Route `track-service` salah, seharusnya `toko.lacak-servis`.
+- **[SETENGAH JADI] Whatsapp Blast:** 
+  - Logika simpan kampanye sudah ada.
+  - Logika hitung penerima sudah ada.
+  - **MASALAH:** Tidak ada mekanisme pengiriman yang sebenarnya (Job/Queue/API Integration). Fitur ini hanya mencatat di database.
 
 ## 3. Analisis Area Admin / Operasional
 
-### Kelebihan
-- **Struktur Route:** Rapi dan menggunakan penamaan Bahasa Indonesia (`/produk`, `/transaksi`, `/karyawan`).
-- **Validasi:** Logika validasi di `App\Livewire\Products\Form` sudah baik, menggunakan pesan error kustom dalam Bahasa Indonesia.
-- **Error Handling:** Penggunaan blok `try-catch` saat operasi database (Create/Update) sudah diterapkan dengan notifikasi ke UI.
-- **UI/UX:** Menggunakan layout Admin yang konsisten dengan indikator loading (`wire:loading`).
+### Fitur Berfungsi (OK)
+- CRUD Produk (dengan validasi Indonesia).
+- Manajemen Karyawan & Kehadiran.
+- Manajemen Data Master (Kategori, Pemasok).
+- Log Aktivitas (sudah mencatat CRUD).
 
-### Kekurangan / Area Perbaikan
-- **Otorisasi:** Belum terlihat pengecekan *permission* eksplisit di level komponen (misalnya `Gate::authorize`) selain middleware route dasar.
-- **Notifikasi Global:** Perlu dipastikan komponen `notify` listener ada di layout utama agar feedback CRUD muncul.
+### Fitur Setengah Jadi / Perlu Perbaikan
+- **Dashboard Admin:** Statistik masih statis atau sangat dasar. Perlu integrasi data riil yang lebih komprehensif.
+- **Manajemen Peran:** Perlu integrasi *Gate* atau *Policy* di setiap komponen Livewire.
+- **Whatsapp Blast:** Perlu ditambahkan integrasi API (simulasi atau riil) dan UI pengelola status pengiriman.
 
 ## 4. Analisis Area Storefront
 
-### Kelebihan
-- **Integrasi Livewire:** Interaksi seperti "Tambah ke Keranjang" dan "Bandingkan" terhubung langsung ke sesi backend.
-- **Tampilan:** Struktur Blade template rapi, memisahkan komponen logis (Hero, Produk, Fitur).
+### Fitur Berfungsi (OK)
+- Katalog Produk & Detail Produk.
+- Keranjang Belanja.
+- Login/Daftar Pelanggan (Logika dasar).
 
-### Kekurangan / Area Perbaikan
-- **Routing Hardcoded:** Masih ada potensi pemanggilan nama route lama/Inggris di komponen lain yang perlu disisir.
-- **Validasi Frontend:** Validasi di `App\Livewire\Store\Home` untuk pelacakan servis cukup dasar (`required|string|min:5`).
+### Fitur Kurang / Perlu Perbaikan
+- **Checkout:** Masih sangat dasar, integrasi pembayaran perlu diperjelas.
+- **Lacak Pesanan/Servis:** Masih menggunakan route yang salah (bug).
+- **Responsivitas:** Beberapa elemen UI Tailwind 4 perlu dioptimalkan untuk mobile.
 
-## 5. Rencana Perbaikan (Next Steps)
+## 5. Daftar Tugas Prioritas (Tindakan Segera)
 
-1. **Perbaikan Bug Routing:** Mengganti `route('track-service')` menjadi `route('toko.lacak-servis')` di `Home.php`.
-2. **Lokalisasi UI:** Mengubah label "Email Address" dan "Password" menjadi Bahasa Indonesia di semua view auth.
-3. **Penyisiran Menyeluruh:** Mencari string `route('` di seluruh file `app/` dan `resources/` untuk memastikan kesesuaian dengan `routes/web.php`.
-4. **Validasi Notifikasi:** Memastikan mekanisme flash message/dispatch browser event berjalan end-to-end.
+1.  **Checkpoint Perbaikan Bug:** Memperbaiki route `track-service` dan label Bahasa Inggris di login.
+2.  **Checkpoint Hapus Modal:** Mengganti seluruh modal yang tersisa dengan panel inline atau overlay non-modal sesuai layout yang ada.
+3.  **Checkpoint Whatsapp Blast:** Melengkapi fitur pengiriman dengan Queue Job dan integrasi API.
+4.  **Checkpoint Dashboard:** Memperkuat statistik dashboard dengan data riil dari transaksi.
+5.  **Checkpoint Logika CRUD:** Memastikan setiap operasi CRUD di seluruh komponen memicu `ActivityLog` dan notifikasi.
 
 ---
-*Dokumen ini dibuat otomatis oleh AI Code Gemini CLI sebagai bagian dari Checkpoint Analisis.*
+*Dokumen ini diperbarui oleh AI Code Gemini CLI - 27 Januari 2026*
