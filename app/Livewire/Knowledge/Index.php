@@ -10,103 +10,131 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.admin')]
 #[Title('Pusat Pengetahuan & SOP - Yala Computer')]
 class Index extends Component
 {
     use WithPagination;
 
+    // Filter
     public $cari = '';
+    public $filterKategori = '';
 
-    public $categoryFilter = '';
+    // Status Panel
+    public $sedangMengedit = false;
+    public $sedangMembaca = false;
 
-    // Editor State
-    public $isEditing = false;
+    // Data Formulir
+    public $idArtikel;
+    public $judul;
+    public $kategori;
+    public $konten;
 
-    public $isReading = false;
+    // Data Tampilan
+    public $artikelAktif;
 
-    public $articleId;
-
-    public $title;
-
-    public $category;
-
-    public $content;
-
-    public $activeArticle;
-
-    public function create()
+    /**
+     * Membuka panel buat artikel baru.
+     */
+    public function buat()
     {
-        $this->reset(['title', 'category', 'content', 'articleId']);
-        $this->isEditing = true;
-        $this->isReading = false;
+        $this->reset(['judul', 'kategori', 'konten', 'idArtikel']);
+        $this->sedangMengedit = true;
+        $this->sedangMembaca = false;
     }
 
-    public function edit($id)
+    /**
+     * Membuka panel edit artikel.
+     */
+    public function ubah($id)
     {
-        $article = KnowledgeArticle::findOrFail($id);
-        $this->articleId = $id;
-        $this->title = $article->title;
-        $this->category = $article->category;
-        $this->content = $article->content;
-        $this->isEditing = true;
-        $this->isReading = false;
+        $artikel = KnowledgeArticle::findOrFail($id);
+        $this->idArtikel = $id;
+        $this->judul = $artikel->title;
+        $this->kategori = $artikel->category;
+        $this->konten = $artikel->content;
+        
+        $this->sedangMengedit = true;
+        $this->sedangMembaca = false;
     }
 
-    public function read($id)
+    /**
+     * Membuka panel baca artikel.
+     */
+    public function baca($id)
     {
-        $this->activeArticle = KnowledgeArticle::with('penulis')->findOrFail($id);
-        $this->isReading = true;
-        $this->isEditing = false;
+        $this->artikelAktif = KnowledgeArticle::with('penulis')->findOrFail($id);
+        $this->sedangMembaca = true;
+        $this->sedangMengedit = false;
     }
 
-    public function save()
+    /**
+     * Menyimpan artikel ke database.
+     */
+    public function simpan()
     {
         $this->validate([
-            'title' => 'required|string|max:255',
-            'category' => 'required|string',
-            'content' => 'required|string',
+            'judul' => 'required|string|max:255',
+            'kategori' => 'required|string',
+            'konten' => 'required|string',
+        ], [
+            'judul.required' => 'Judul wajib diisi.',
+            'kategori.required' => 'Kategori wajib dipilih.',
+            'konten.required' => 'Isi konten tidak boleh kosong.',
         ]);
 
         $data = [
-            'title' => $this->title,
-            'slug' => Str::slug($this->title).'-'.rand(100, 999),
-            'category' => $this->category,
-            'content' => $this->content,
+            'title' => $this->judul,
+            'slug' => Str::slug($this->judul).'-'.rand(100, 999),
+            'category' => $this->kategori,
+            'content' => $this->konten,
             'author_id' => Auth::id(),
         ];
 
-        if ($this->articleId) {
-            KnowledgeArticle::find($this->articleId)->update($data);
-            $this->dispatch('notify', message: 'Artikel diperbarui.', type: 'success');
+        if ($this->idArtikel) {
+            KnowledgeArticle::find($this->idArtikel)->update($data);
+            $this->dispatch('notify', message: 'Artikel berhasil diperbarui.', type: 'success');
         } else {
             KnowledgeArticle::create($data);
-            $this->dispatch('notify', message: 'Artikel baru diterbitkan.', type: 'success');
+            $this->dispatch('notify', message: 'Artikel baru berhasil diterbitkan.', type: 'success');
         }
 
-        $this->isEditing = false;
+        $this->sedangMengedit = false;
     }
 
-    public function delete($id)
+    /**
+     * Menghapus artikel.
+     */
+    public function hapus($id)
     {
         KnowledgeArticle::findOrFail($id)->delete();
-        $this->dispatch('notify', message: 'Artikel dihapus.', type: 'success');
-        $this->isReading = false;
+        $this->dispatch('notify', message: 'Artikel berhasil dihapus dari sistem.', type: 'success');
+        $this->sedangMembaca = false;
+    }
+
+    /**
+     * Menutup semua panel.
+     */
+    public function tutupPanel()
+    {
+        $this->sedangMengedit = false;
+        $this->sedangMembaca = false;
+        $this->reset(['idArtikel', 'judul', 'kategori', 'konten']);
     }
 
     public function render()
     {
-        $categories = KnowledgeArticle::select('category')->distinct()->pluck('category');
+        $daftarKategori = KnowledgeArticle::select('category')->distinct()->pluck('category');
 
-        $articles = KnowledgeArticle::with('penulis')
+        $daftarArtikel = KnowledgeArticle::with('penulis')
             ->when($this->cari, fn ($q) => $q->where('title', 'like', '%'.$this->cari.'%'))
-            ->when($this->categoryFilter, fn ($q) => $q->where('category', $this->categoryFilter))
+            ->when($this->filterKategori, fn ($q) => $q->where('category', $this->filterKategori))
             ->latest()
             ->paginate(12);
 
         return view('livewire.knowledge.index', [
-            'articles' => $articles,
-            'categories' => $categories,
+            'daftarArtikel' => $daftarArtikel,
+            'daftarKategori' => $daftarKategori,
         ]);
     }
 }

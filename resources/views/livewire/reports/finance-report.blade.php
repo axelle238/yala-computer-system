@@ -81,6 +81,18 @@
         </div>
     </div>
 
+    <!-- Charts Area -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-4">Komposisi Pendapatan</h3>
+            <div id="revenueChart" class="w-full h-64"></div>
+        </div>
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-4">Komposisi Beban</h3>
+            <div id="expenseChart" class="w-full h-64"></div>
+        </div>
+    </div>
+
     <!-- P&L Statement -->
     <div class="bg-white dark:bg-slate-800 shadow-sm rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
         <div class="bg-slate-50 dark:bg-slate-900/50 px-8 py-5 border-b border-slate-200 dark:border-slate-700">
@@ -157,3 +169,60 @@
         </div>
     </div>
 </div>
+
+@assets
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+@endassets
+
+@script
+<script>
+    Livewire.hook('component.init', ({ component, cleanup }) => {
+        const renderCharts = () => {
+            const revData = @json($reportData['revenue']['breakdown']);
+            const expData = @json($reportData['expenses']['breakdown']);
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#cbd5e1' : '#475569';
+
+            // Revenue Chart
+            const revLabels = Object.keys(revData);
+            const revSeries = Object.values(revData);
+            
+            if (revSeries.length > 0) {
+                new ApexCharts(document.querySelector("#revenueChart"), {
+                    series: revSeries,
+                    chart: { type: 'donut', height: 280, background: 'transparent' },
+                    labels: revLabels,
+                    colors: ['#10b981', '#3b82f6', '#6366f1', '#8b5cf6'],
+                    legend: { position: 'bottom', labels: { colors: textColor } },
+                    stroke: { show: false },
+                    dataLabels: { enabled: false },
+                    theme: { mode: isDark ? 'dark' : 'light' }
+                }).render();
+            } else {
+                document.querySelector("#revenueChart").innerHTML = '<div class="flex items-center justify-center h-full text-xs text-slate-400 italic">Tidak ada data pendapatan</div>';
+            }
+
+            // Expense Chart
+            const expLabels = Object.keys(expData);
+            const expSeries = Object.values(expData);
+
+            if (expSeries.length > 0) {
+                new ApexCharts(document.querySelector("#expenseChart"), {
+                    series: expSeries,
+                    chart: { type: 'donut', height: 280, background: 'transparent' },
+                    labels: expLabels,
+                    colors: ['#f43f5e', '#f97316', '#eab308', '#ec4899'],
+                    legend: { position: 'bottom', labels: { colors: textColor } },
+                    stroke: { show: false },
+                    dataLabels: { enabled: false },
+                    theme: { mode: isDark ? 'dark' : 'light' }
+                }).render();
+            } else {
+                document.querySelector("#expenseChart").innerHTML = '<div class="flex items-center justify-center h-full text-xs text-slate-400 italic">Tidak ada data beban</div>';
+            }
+        };
+
+        renderCharts();
+    });
+</script>
+@endscript
