@@ -14,7 +14,7 @@ class Index extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public $cari = '';
 
     public function render()
     {
@@ -25,10 +25,10 @@ class Index extends Component
             ->sum('total_amount');
         $supplierCount = \App\Models\Supplier::count();
 
-        $orders = PurchaseOrder::with('supplier')
-            ->where('po_number', 'like', '%'.$this->search.'%')
-            ->orWhereHas('supplier', function ($q) {
-                $q->where('name', 'like', '%'.$this->search.'%');
+        $orders = PurchaseOrder::with('pemasok')
+            ->where('po_number', 'like', '%'.$this->cari.'%')
+            ->orWhereHas('pemasok', function ($q) {
+                $q->where('name', 'like', '%'.$this->cari.'%');
             })
             ->latest()
             ->paginate(10);

@@ -3,16 +3,16 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
             <h2 class="text-3xl font-black font-tech text-slate-900 dark:text-white tracking-tight uppercase">
-                Procurement <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">System</span>
+                Sistem <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Pengadaan</span>
             </h2>
-            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Manajemen pembelian stok dan hubungan supplier.</p>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Manajemen pembelian stok dan hubungan pemasok.</p>
         </div>
         <div class="flex gap-3">
-            <a href="{{ route('purchase-orders.receive') }}" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+            <a href="{{ route('purchase-orders.receive') }}" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 hover:-translate-y-0.5 transition-all flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
                 Terima Barang (GRN)
             </a>
-            <a href="{{ route('purchase-orders.create') }}" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+            <a href="{{ route('purchase-orders.create') }}" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 hover:-translate-y-0.5 transition-all flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                 Buat PO Baru
             </a>
@@ -34,7 +34,7 @@
         <div class="bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl p-6 shadow-lg shadow-blue-600/20 text-white relative overflow-hidden">
             <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
             <div class="relative z-10">
-                <p class="text-xs font-bold uppercase tracking-wider text-white/80">Supplier Aktif</p>
+                <p class="text-xs font-bold uppercase tracking-wider text-white/80">Pemasok Aktif</p>
                 <h3 class="text-3xl font-black font-tech mt-2">{{ $supplierCount }}</h3>
                 <p class="text-xs text-white/80 mt-1">Vendor terdaftar dalam sistem.</p>
             </div>
@@ -47,7 +47,7 @@
         <!-- Toolbar -->
         <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col md:flex-row gap-4 justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
             <div class="relative w-full md:w-96">
-                <input wire:model.live.debounce.300ms="search" type="text" class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-blue-500 text-sm" placeholder="Cari No. PO atau Supplier...">
+                <input wire:model.live.debounce.300ms="cari" type="text" class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-blue-500 text-sm" placeholder="Cari No. PO atau Pemasok...">
                 <div class="absolute left-3 top-2.5 text-slate-400">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                 </div>
@@ -59,7 +59,7 @@
                 <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 font-bold uppercase text-xs">
                     <tr>
                         <th class="px-6 py-4">No. PO</th>
-                        <th class="px-6 py-4">Supplier</th>
+                        <th class="px-6 py-4">Pemasok</th>
                         <th class="px-6 py-4 text-center">Status</th>
                         <th class="px-6 py-4 text-right">Total Nilai</th>
                         <th class="px-6 py-4 text-right">Tanggal</th>
