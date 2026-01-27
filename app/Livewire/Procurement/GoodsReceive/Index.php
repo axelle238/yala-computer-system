@@ -14,15 +14,15 @@ class Index extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public $cari = '';
 
     public function render()
     {
         // Hanya tampilkan PO yang statusnya 'ordered' (belum diterima penuh)
         // Atau 'partial' jika ada fitur partial receive
-        $orders = PurchaseOrder::with('supplier')
+        $orders = PurchaseOrder::with('pemasok')
             ->whereIn('status', ['ordered', 'partial'])
-            ->where('po_number', 'like', '%'.$this->search.'%')
+            ->where('po_number', 'like', '%'.$this->cari.'%')
             ->latest()
             ->paginate(10);
 
