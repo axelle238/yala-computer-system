@@ -8,10 +8,15 @@
             </h2>
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Konfigurasi global sistem, integrasi, dan profil toko.</p>
         </div>
-        <button wire:click="simpan" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 hover:-translate-y-0.5">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
-            Simpan Perubahan
-        </button>
+        <div class="flex gap-3">
+            <button wire:click="resetKeDefault" wire:confirm="Apakah Anda yakin ingin mereset formulir ini? Perubahan belum tersimpan." class="px-6 py-3 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+                Reset Formulir
+            </button>
+            <button wire:click="simpan" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 hover:-translate-y-0.5">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+                Simpan Perubahan
+            </button>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">

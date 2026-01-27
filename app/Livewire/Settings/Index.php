@@ -110,6 +110,23 @@ class Index extends Component
         $this->dispatch('notify', message: 'Pengaturan sistem berhasil diperbarui.', type: 'success');
     }
 
+    public function resetKeDefault()
+    {
+        $this->formulir = [
+            'store_name' => 'Yala Computer',
+            'store_address' => '',
+            'store_phone' => '',
+            'store_email' => '',
+            'store_announcement_active' => false,
+            'store_announcement_text' => '',
+            'midtrans_is_production' => false,
+            'tax_rate' => 11,
+            'service_charge' => 0,
+        ];
+
+        $this->dispatch('notify', message: 'Formulir telah direset ke nilai default (Belum Disimpan).', type: 'info');
+    }
+
     public function render()
     {
         return view('livewire.settings.index');
