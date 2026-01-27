@@ -88,10 +88,13 @@ class ChatWidget extends Component
             ]);
         }
 
+        // Cek Mode Admin
+        $isAdminMode = Session::get('chat_mode_admin_' . $this->sesi->id, false);
+
         // Simpan Pesan Pengguna
         PesanObrolan::create([
             'id_sesi' => $this->sesi->id,
-            'id_pengguna' => Auth::id(), // Null jika tamu
+            'id_pengguna' => Auth::id(),
             'is_balasan_admin' => false,
             'isi' => $this->pesanBaru,
             'is_dibaca' => false,
@@ -100,12 +103,48 @@ class ChatWidget extends Component
         $pesanTerkirim = $this->pesanBaru;
         $this->pesanBaru = '';
 
-        // Logika Bot AI Sederhana
-        if ($this->modeBot) {
+        // Jika user minta berhenti chat admin
+        if ($isAdminMode && (strtolower($pesanTerkirim) == 'selesai' || str_contains(strtolower($pesanTerkirim), 'kembali ke bot'))) {
+            Session::forget('chat_mode_admin_' . $this->sesi->id);
+            $isAdminMode = false;
+            
+            // Bot menyapa kembali
+            usleep(500000); // 0.5s delay
+            PesanObrolan::create([
+                'id_sesi' => $this->sesi->id,
+                'id_pengguna' => null,
+                'is_balasan_admin' => true,
+                'isi' => "Oke, YALA kembali di sini! Ada yang bisa saya bantu lagi?",
+                'is_dibaca' => true,
+            ]);
+            $this->dispatch('pesan-terkirim');
+            return;
+        }
+
+        // Logika Bot AI (Hanya jika TIDAK dalam mode admin)
+        if ($this->modeBot && ! $isAdminMode) {
+            // Simulasi berpikir (Delay 0.5 - 1.5 detik)
+            usleep(rand(500000, 1500000));
+            
             $this->prosesBot($pesanTerkirim);
         }
 
-        $this->dispatch('pesan-terkirim'); // Event untuk scroll ke bawah
+        $this->dispatch('pesan-terkirim');
+    }
+
+    public function akhiriChatAdmin()
+    {
+        if ($this->sesi) {
+            Session::forget('chat_mode_admin_' . $this->sesi->id);
+            PesanObrolan::create([
+                'id_sesi' => $this->sesi->id,
+                'id_pengguna' => null,
+                'is_balasan_admin' => true,
+                'isi' => "Sesi dengan Admin telah diakhiri. YALA siap membantu kembali!",
+                'is_dibaca' => true,
+            ]);
+            $this->dispatch('pesan-terkirim');
+        }
     }
 
     /**
@@ -116,7 +155,7 @@ class ChatWidget extends Component
         $pesanLower = strtolower($pesan);
         $jawaban = '';
 
-        // 0. Cek Pola Order ID (Angka 4 digit atau lebih)
+        // 0. Cek Pola Order ID
         if (preg_match('/^\d{4,}$/', $pesan) || preg_match('/#(\d{4,})/', $pesan, $matches)) {
             $orderId = $matches[1] ?? $pesan;
             $order = Order::where('id', $orderId)->orWhere('order_number', 'like', "%{$orderId}%")->first();
@@ -138,21 +177,24 @@ class ChatWidget extends Component
             }
         }
 
-        // 1. Sapaan
-        elseif (str_contains($pesanLower, 'halo') || str_contains($pesanLower, 'hai') || str_contains($pesanLower, 'pagi') || str_contains($pesanLower, 'siang') || str_contains($pesanLower, 'sore') || str_contains($pesanLower, 'malam')) {
+        // 1. Sapaan & Waktu
+        elseif (preg_match('/\b(halo|hai|pagi|siang|sore|malam)\b/', $pesanLower)) {
+            $jam = date('H');
+            $waktu = $jam < 12 ? 'Pagi' : ($jam < 15 ? 'Siang' : ($jam < 18 ? 'Sore' : 'Malam'));
             $user = Auth::user();
-            $sapaan = $user ? "Halo, **{$user->name}**! 👋" : "Halo! 👋";
-            $jawaban = "{$sapaan}\n\nSaya **YALA**, asisten virtual Yala Computer.\n\nKetik nomor pesanan untuk cek status, atau nama produk untuk cek stok.";
+            $nama = $user ? $user->name : 'Kak';
+            
+            $jawaban = "Halo, Selamat {$waktu} {$nama}! 👋\n\nSaya **YALA**, asisten virtual Yala Computer.\nSilakan tanya stok produk, status pesanan, atau ketik **'Admin'** untuk chat dengan staf kami.";
         }
 
-        // 2. Info Toko (Jam & Lokasi)
-        elseif (str_contains($pesanLower, 'jam') || str_contains($pesanLower, 'buka') || str_contains($pesanLower, 'tutup') || str_contains($pesanLower, 'operasional')) {
-            $jawaban = "**Jam Operasional Yala Computer:**\n\nSenin - Sabtu: 09:00 - 20:00 WIB\nMinggu: 10:00 - 18:00 WIB\n\nKami melayani pembelian online 24 jam!";
-        } elseif (str_contains($pesanLower, 'lokasi') || str_contains($pesanLower, 'alamat') || str_contains($pesanLower, 'toko')) {
-            $jawaban = "Toko kami berlokasi di **Jl. Teknologi No. 88, Jakarta Selatan**.\n\nSilakan mampir untuk melihat koleksi PC rakitan kami!";
+        // 2. Info Toko
+        elseif (str_contains($pesanLower, 'jam') || str_contains($pesanLower, 'buka') || str_contains($pesanLower, 'tutup')) {
+            $jawaban = "**Jam Operasional:**\n\nSenin - Sabtu: 09:00 - 20:00 WIB\nMinggu: 10:00 - 18:00 WIB\n\nOrder online tetap buka 24 jam!";
+        } elseif (str_contains($pesanLower, 'lokasi') || str_contains($pesanLower, 'alamat')) {
+            $jawaban = "Kami berlokasi di:\n**Jl. Teknologi No. 88, Jakarta Selatan**\n\nDatang ya, banyak promo menarik di toko! 🏢";
         }
 
-        // 3. Knowledge Base Lookup
+        // 3. Knowledge Base
         elseif (class_exists('\App\Models\KnowledgeArticle')) {
             $article = \App\Models\KnowledgeArticle::where('title', 'like', "%{$pesan}%")
                 ->orWhere('content', 'like', "%{$pesan}%")
@@ -160,25 +202,26 @@ class ChatWidget extends Component
                 ->first();
             
             if ($article) {
-                $jawaban = "Saya menemukan artikel yang mungkin membantu:\n\n**{$article->title}**\n\n" . Str::limit(strip_tags($article->content), 200) . "\n\n[Baca Selengkapnya](" . route('toko.bantuan') . ")";
+                $jawaban = "Mungkin info ini membantu:\n\n**{$article->title}**\n\n" . Str::limit(strip_tags($article->content), 150) . "\n\n[Baca Detail](" . route('toko.bantuan') . ")";
             }
         }
 
-        // 4. Eskalasi ke Admin (Handover)
-        if (!$jawaban && (str_contains($pesanLower, 'admin') || str_contains($pesanLower, 'cs') || str_contains($pesanLower, 'manusia') || str_contains($pesanLower, 'komplain') || str_contains($pesanLower, 'bantuan'))) {
-            $jawaban = 'Baik, saya akan menghubungkan Anda dengan Customer Service kami. Mohon tunggu sebentar, Admin akan segera membalas.';
-            $this->modeBot = false; // Matikan bot untuk sesi ini
+        // 4. Handover ke Admin
+        if (!$jawaban && (str_contains($pesanLower, 'admin') || str_contains($pesanLower, 'cs') || str_contains($pesanLower, 'orang'))) {
+            $jawaban = "Baik, saya hubungkan dengan Admin kami ya. Mohon tunggu sebentar...\n\n(Ketik **'Selesai'** jika ingin kembali chat dengan YALA)";
+            
+            // Set session mode admin
+            Session::put('chat_mode_admin_' . $this->sesi->id, true);
 
-            // Kirim Notifikasi ke Admin
+            // Notifikasi ke Admin
             $admins = User::where('role', 'admin')->get();
             if ($admins->count() > 0) {
                 Notification::send($admins, new NewChatMessage($pesan, Auth::user()->name ?? 'Tamu'));
             }
         }
 
-        // 5. Cek Stok Produk (Default fallback)
+        // 5. Cek Stok (Fallback)
         if (!$jawaban) {
-            // Cari produk
             $produk = Product::where('name', 'like', '%'.$pesan.'%')
                 ->orWhere('sku', 'like', '%'.$pesan.'%')
                 ->where('is_active', true)
@@ -186,23 +229,22 @@ class ChatWidget extends Component
                 ->get();
 
             if ($produk->count() > 0) {
-                $jawaban = "Saya menemukan produk yang cocok:\n";
+                $jawaban = "Produk yang mungkin Anda cari:\n";
                 foreach ($produk as $p) {
-                    $stok = $p->stock_quantity > 0 ? "Stok: {$p->stock_quantity}" : 'Stok Habis';
-                    $jawaban .= "\n- **[{$p->name}](".route('toko.produk.detail', $p->id).")**\n  Rp ".number_format($p->sell_price, 0, ',', '.')." | {$stok}";
+                    $stok = $p->stock_quantity > 0 ? "✅ Stok: {$p->stock_quantity}" : "❌ Habis";
+                    $jawaban .= "\n- **{$p->name}**\n  Rp ".number_format($p->sell_price, 0, ',', '.')." | {$stok}";
                 }
                 $jawaban .= "\n\nKlik nama produk untuk detailnya.";
             } else {
-                $jawaban = "Maaf, YALA tidak menemukan produk atau info terkait '{$pesan}'.\n\nCoba kata kunci lain, ketik nomor pesanan, atau ketik **'Admin'** untuk bantuan langsung.";
+                $jawaban = "Maaf, saya kurang paham. Coba kata kunci lain atau ketik **'Admin'** untuk bantuan manusia. 🙏";
             }
         }
 
-        // Simpan Balasan Bot
         if ($jawaban) {
             PesanObrolan::create([
                 'id_sesi' => $this->sesi->id,
-                'id_pengguna' => null, // Bot = Sistem
-                'is_balasan_admin' => true, // Dianggap admin reply
+                'id_pengguna' => null,
+                'is_balasan_admin' => true,
                 'isi' => $jawaban,
                 'is_dibaca' => true,
             ]);
@@ -223,6 +265,7 @@ class ChatWidget extends Component
     {
         return view('livewire.store.chat-widget', [
             'daftarPesan' => $this->sesi ? $this->sesi->pesan()->orderBy('created_at', 'desc')->orderBy('id', 'desc')->take(50)->get()->reverse() : collect([]),
+            'isAdminMode' => $this->sesi ? Session::get('chat_mode_admin_' . $this->sesi->id, false) : false,
         ]);
     }
 }

@@ -1,5 +1,3 @@
-<div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4" wire:poll.3s="muatSesi">
-    
     <style>
         .chat-content p { margin-bottom: 0.5rem; }
         .chat-content p:last-child { margin-bottom: 0; }
@@ -28,18 +26,27 @@
                     <div class="w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-black text-xs border-2 border-slate-100 dark:border-slate-800">
                         YA
                     </div>
-                    <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
+                    <span class="absolute bottom-0 right-0 w-3 h-3 {{ $isAdminMode ? 'bg-amber-500' : 'bg-emerald-500' }} border-2 border-white dark:border-slate-900 rounded-full"></span>
                 </div>
                 <div>
                     <h3 class="font-black text-slate-900 dark:text-white text-sm tracking-tight">YALA Assistant</h3>
                     <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online
+                        <span class="w-1.5 h-1.5 rounded-full {{ $isAdminMode ? 'bg-amber-500' : 'bg-emerald-500' }} animate-pulse"></span> 
+                        {{ $isAdminMode ? 'Chat dengan Admin' : 'Online' }}
                     </p>
                 </div>
             </div>
-            <button wire:click="togleChat" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
+            
+            <div class="flex items-center gap-2">
+                @if($isAdminMode)
+                    <button wire:click="akhiriChatAdmin" class="text-[10px] font-bold text-red-500 hover:bg-red-50 px-2 py-1 rounded transition-colors" title="Akhiri sesi admin">
+                        Akhiri
+                    </button>
+                @endif
+                <button wire:click="togleChat" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
         </div>
 
         <!-- Area Pesan -->
@@ -71,23 +78,25 @@
             @endforeach
         </div>
 
-        <!-- Quick Suggestions -->
-        <div class="px-5 pb-2 bg-[#F9FAFB] dark:bg-[#0f0f0f] flex gap-2 overflow-x-auto no-scrollbar">
-            <button wire:click="$set('pesanBaru', 'Cek status pesanan saya')" class="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 hover:border-black dark:hover:border-white transition-colors shadow-sm">
-                📦 Cek Pesanan
-            </button>
-            <button wire:click="$set('pesanBaru', 'Jam buka toko kapan?')" class="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 hover:border-black dark:hover:border-white transition-colors shadow-sm">
-                🕒 Jam Buka
-            </button>
-            <button wire:click="$set('pesanBaru', 'Hubungkan ke Admin')" class="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 hover:border-black dark:hover:border-white transition-colors shadow-sm">
-                👤 CS Admin
-            </button>
-        </div>
+        <!-- Quick Suggestions (Hanya jika TIDAK dalam mode admin) -->
+        @if(!$isAdminMode)
+            <div class="px-5 pb-2 bg-[#F9FAFB] dark:bg-[#0f0f0f] flex gap-2 overflow-x-auto no-scrollbar">
+                <button wire:click="$set('pesanBaru', 'Cek status pesanan saya')" class="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 hover:border-black dark:hover:border-white transition-colors shadow-sm">
+                    📦 Cek Pesanan
+                </button>
+                <button wire:click="$set('pesanBaru', 'Jam buka toko kapan?')" class="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 hover:border-black dark:hover:border-white transition-colors shadow-sm">
+                    🕒 Jam Buka
+                </button>
+                <button wire:click="$set('pesanBaru', 'Hubungkan ke Admin')" class="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 hover:border-black dark:hover:border-white transition-colors shadow-sm">
+                    👤 CS Admin
+                </button>
+            </div>
+        @endif
 
         <!-- Input Area -->
         <div class="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
             <form wire:submit.prevent="kirimPesan" class="relative">
-                <input wire:model.live="pesanBaru" type="text" placeholder="Tulis pesan..." 
+                <input wire:model.live="pesanBaru" type="text" placeholder="{{ $isAdminMode ? 'Ketik pesan untuk Admin...' : 'Tulis pesan...' }}" 
                     class="w-full pl-4 pr-12 py-3.5 bg-slate-50 dark:bg-slate-800 border-0 rounded-xl focus:ring-2 focus:ring-black dark:focus:ring-white text-slate-900 dark:text-white placeholder-slate-400 font-medium transition-all">
                 
                 <button type="submit" class="absolute right-2 top-2 p-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:scale-105 transition-transform disabled:opacity-50" wire:loading.attr="disabled" wire:target="kirimPesan">
@@ -95,11 +104,13 @@
                 </button>
             </form>
             @error('pesanBaru') <span class="text-xs text-red-500 block mt-1 ml-1">{{ $message }}</span> @enderror
-            <p class="text-[10px] text-center text-slate-400 mt-2 font-medium">Powered by Yala AI • Respon Instan</p>
+            <p class="text-[10px] text-center text-slate-400 mt-2 font-medium">
+                {{ $isAdminMode ? 'Terhubung dengan Staf Support' : 'Powered by Yala AI • Respon Instan' }}
+            </p>
         </div>
     </div>
 
-    <!-- Tombol Floating -->
+    <!-- Tombol Floating Modern -->
     <button wire:click="togleChat" 
         class="w-16 h-16 bg-black dark:bg-white text-white dark:text-black rounded-full shadow-2xl hover:scale-110 hover:-rotate-12 transition-all duration-300 flex items-center justify-center group relative overflow-hidden">
         
@@ -108,7 +119,10 @@
             <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-bounce"></span>
         @endif
 
-        <svg x-show="!open" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+        <!-- Icon Chat Modern (Bubble Dots) -->
+        <svg x-show="!open" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
         <svg x-show="open" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
     </button>
 
