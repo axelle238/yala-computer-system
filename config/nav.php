@@ -122,7 +122,7 @@ return [
                 ],
                 [
                     'label' => 'Cetak Label',
-                    'route' => 'products.labels',
+                    'route' => 'admin.produk.label',
                     'icon' => 'qr-code', // Need icon
                     'roles' => ['admin', 'owner', 'warehouse'],
                     'permission' => 'product.view',
