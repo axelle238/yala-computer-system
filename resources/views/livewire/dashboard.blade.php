@@ -1,9 +1,9 @@
 <div>
     <!-- Bagian Header -->
-    <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex justify-between items-end mb-8 animate-fade-in-up">
         <div>
-            <h1 class="text-3xl font-tech font-bold text-slate-800 dark:text-white tracking-tight">Dashboard Eksekutif</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Ringkasan performa bisnis dan operasional terkini.</p>
+            <h1 class="text-3xl font-tech font-bold text-slate-800 dark:text-white tracking-tight">Dasbor Eksekutif</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-2">Ringkasan performa bisnis Yala Computer hari ini.</p>
         </div>
         <div class="flex flex-wrap gap-3">
             <a href="{{ route('admin.kasir') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">

@@ -136,8 +136,7 @@
                                 <a href="{{ route('toko.lacak-pesanan') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Lacak Pesanan</a>
                                 
                                 <div class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-950/50 mt-1">Area Member</div>
-                                <a href="{{ route('anggota.beranda') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Dashboard</a>
-                                <a href="{{ route('anggota.profil') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Pengaturan Profil</a>
+                                                                    <a href="{{ route('anggota.beranda') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Dasbor</a>                                <a href="{{ route('anggota.profil') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Pengaturan Profil</a>
                                 <a href="{{ route('anggota.pesanan') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Riwayat Pesanan</a>
                                 <a href="{{ route('anggota.penawaran') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Penawaran Saya (B2B)</a>
                                 <a href="{{ route('anggota.garansi.ajukan') }}" class="block px-4 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors">Klaim Garansi (RMA)</a>

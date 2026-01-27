@@ -44,25 +44,25 @@
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Jenis Aksi</label>
-                    @php
-                        $badgeColor = match($log->action) {
-                            'create' => 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
-                            'update' => 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',
-                            'delete' => 'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800',
-                            'login' => 'bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-400 dark:border-violet-800',
-                            default => 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600'
-                        };
-                        $actionLabel = match($log->action) {
-                            'create' => 'Pembuatan Data',
-                            'update' => 'Pembaruan Data',
-                            'delete' => 'Penghapusan Data',
-                            'login' => 'Login Masuk',
-                            default => $log->action
-                        };
-                    @endphp
-                    <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-bold uppercase border {{ $badgeColor }}">
-                        {{ $actionLabel }}
-                    </span>
+                            @php
+                                $color = match($log->action) {
+                                    'create' => 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
+                                    'update' => 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',
+                                    'delete' => 'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800',
+                                    'login' => 'bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-400 dark:border-violet-800',
+                                    default => 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'
+                                };
+                                $label = match($log->action) {
+                                    'create' => 'Pembuatan Data',
+                                    'update' => 'Pembaruan Data',
+                                    'delete' => 'Penghapusan Data',
+                                    'login' => 'Login Sistem',
+                                    default => 'Aktivitas Lain'
+                                };
+                            @endphp
+                            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase border {{ $color }}">
+                                {{ $label }}
+                            </span>
                 </div>
             </div>
         </div>

@@ -25,10 +25,10 @@
 
             <select wire:model.live="filterAction" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 cursor-pointer w-1/2 md:w-auto">
                 <option value="">Semua Aksi</option>
-                <option value="create">Create</option>
-                <option value="update">Update</option>
-                <option value="delete">Delete</option>
-                <option value="login">Login</option>
+                <option value="create">Pembuatan</option>
+                <option value="update">Pembaruan</option>
+                <option value="delete">Penghapusan</option>
+                <option value="login">Masuk</option>
             </select>
         </div>
     </div>
@@ -73,9 +73,17 @@
                                         'login' => 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
                                         default => 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
                                     };
+                                    
+                                    $label = match($log->action) {
+                                        'create' => 'Pembuatan',
+                                        'update' => 'Pembaruan',
+                                        'delete' => 'Penghapusan',
+                                        'login' => 'Masuk',
+                                        default => $log->action
+                                    };
                                 @endphp
                                 <span class="px-2.5 py-1 rounded text-[10px] font-bold uppercase {{ $color }}">
-                                    {{ $log->action }}
+                                    {{ $label }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-slate-600 dark:text-slate-300 truncate max-w-xs" title="{{ $log->description }}">

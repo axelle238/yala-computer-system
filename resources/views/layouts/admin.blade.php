@@ -21,7 +21,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow">
     
-    <title>{{ $title ?? 'Sistem Manajemen Yala Computer' }}</title>
+        <title>{{ $title ?? 'Dasbor' }} - Admin Yala Computer</title>
     <link rel="icon" href="{{ \App\Models\Setting::get('store_favicon') ? asset('storage/' . \App\Models\Setting::get('store_favicon')) : asset('favicon.ico') }}">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">

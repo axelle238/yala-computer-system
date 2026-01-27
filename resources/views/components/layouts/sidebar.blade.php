@@ -44,7 +44,7 @@
         <a href="{{ route('admin.beranda') }}" 
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 group {{ request()->routeIs('admin.beranda') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400' }}">
             <svg class="w-5 h-5 {{ request()->routeIs('admin.beranda') ? 'text-white' : 'text-slate-400 group-hover:text-indigo-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-            Dashboard Utama
+                            <span class="truncate">Dasbor Utama</span>
         </a>
 
         <!-- JUDUL MENU -->
@@ -257,7 +257,7 @@
             </button>
             <div x-show="grupAktif === 'keamanan'" x-collapse class="space-y-1 pl-11 pr-2 mt-1">
                 <a href="{{ route('admin.keamanan.dashboard') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.keamanan.dashboard') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                    Dashboard Keamanan
+                        <span class="truncate">Dasbor Keamanan</span>
                 </a>
                 <a href="{{ route('admin.keamanan.firewall') }}" class="block py-2 px-3 rounded-md text-sm transition-colors {{ request()->routeIs('admin.keamanan.firewall') ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                     Firewall & Blokir IP
