@@ -10,12 +10,12 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('layouts.store')]
-#[Title('Wishlist Saya - Yala Computer')]
+#[Title('Keinginan Saya - Yala Computer')]
 class Wishlist extends Component
 {
-    protected $listeners = ['addToWishlist' => 'add'];
+    protected $listeners = ['addToWishlist' => 'tambah'];
 
-    public function add($productId)
+    public function tambah($idProduk)
     {
         if (! Auth::check()) {
             return redirect()->route('pelanggan.masuk');
@@ -23,47 +23,47 @@ class Wishlist extends Component
 
         WishlistModel::firstOrCreate([
             'user_id' => Auth::id(),
-            'product_id' => $productId,
+            'product_id' => $idProduk,
         ]);
 
-        $this->dispatch('notify', message: 'Ditambahkan ke Wishlist!', type: 'success');
+        $this->dispatch('notify', message: 'Berhasil ditambahkan ke Keinginan!', type: 'success');
     }
 
-    public function remove($id)
+    public function hapus($id)
     {
         WishlistModel::where('id', $id)->where('user_id', Auth::id())->delete();
-        $this->dispatch('notify', message: 'Dihapus dari Wishlist.', type: 'info');
+        $this->dispatch('notify', message: 'Produk dihapus dari daftar keinginan.', type: 'info');
     }
 
-    public function moveToCart($id, $productId)
+    public function pindahKeKeranjang($id, $idProduk)
     {
-        $cart = Session::get('cart', []);
+        $keranjang = Session::get('cart', []);
 
-        if (isset($cart[$productId])) {
-            $cart[$productId]++;
+        if (isset($keranjang[$idProduk])) {
+            $keranjang[$idProduk]++;
         } else {
-            $cart[$productId] = 1;
+            $keranjang[$idProduk] = 1;
         }
 
-        Session::put('cart', $cart);
+        Session::put('cart', $keranjang);
         $this->dispatch('cart-updated');
 
-        // Remove from wishlist after moving
-        $this->remove($id);
+        // Hapus dari wishlist setelah dipindahkan
+        $this->hapus($id);
 
-        $this->dispatch('notify', message: 'Produk dipindahkan ke Keranjang!', type: 'success');
+        $this->dispatch('notify', message: 'Produk berhasil dipindahkan ke Keranjang!', type: 'success');
     }
 
     public function render()
     {
-        $items = collect();
+        $item = collect();
         if (Auth::check()) {
-            $items = WishlistModel::with('product')
+            $item = WishlistModel::with('product')
                 ->where('user_id', Auth::id())
                 ->latest()
                 ->get();
         }
 
-        return view('livewire.store.wishlist', ['items' => $items]);
+        return view('livewire.store.wishlist', ['daftarKeinginan' => $item]);
     }
 }

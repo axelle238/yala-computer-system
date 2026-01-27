@@ -11,48 +11,46 @@ use Livewire\Component;
 #[Title('Cek Status Service - Yala Computer')]
 class TrackService extends Component
 {
-    public $search_ticket = '';
+    // Input Pencarian
+    public $nomorTiket = '';
+    public $verifikasiNomor = ''; // Nomor HP untuk keamanan
 
-    public $phone_verification = '';
+    // Hasil
+    public $hasil = null;
+    public $riwayatProgres = [];
 
-    public $result = null;
-
-    public $timeline = [];
-
-    public function track()
+    /**
+     * Melakukan pelacakan tiket servis.
+     */
+    public function lacak()
     {
         $this->validate([
-            'search_ticket' => 'required|string|min:5',
-            'phone_verification' => 'required|string|min:4', // Last 4 digits or full phone
+            'nomorTiket' => 'required|string|min:5',
+            'verifikasiNomor' => 'required|string|min:4', 
+        ], [
+            'nomorTiket.required' => 'Nomor tiket wajib diisi.',
+            'verifikasiNomor.required' => 'Masukkan nomor HP untuk verifikasi.',
         ]);
 
-        // Find ticket that matches Ticket Number AND Phone (fuzzy match for phone)
-        $ticket = ServiceTicket::with(['items', 'technician', 'histories.user'])
-            ->where('ticket_number', $this->search_ticket)
-            ->where('customer_phone', 'like', '%'.$this->phone_verification.'%')
+        // Cari tiket yang cocok dengan Nomor Tiket DAN Nomor HP (Match sebagian)
+        $tiket = ServiceTicket::with(['teknisi', 'logProgres' => function($q) {
+                // Hanya ambil log yang publik
+                $q->where('is_publik', true)->orderBy('created_at', 'desc');
+            }])
+            ->where('ticket_number', $this->nomorTiket)
+            ->where('customer_phone', 'like', '%'.$this->verifikasiNomor.'%')
             ->first();
 
-        if (! $ticket) {
-            $this->addError('search_ticket', 'Data tidak ditemukan. Pastikan Nomor Tiket dan Nomor HP sesuai.');
-            $this->result = null;
+        if (! $tiket) {
+            $this->addError('nomorTiket', 'Data tidak ditemukan. Periksa kembali Nomor Tiket dan Nomor HP Anda.');
+            $this->hasil = null;
+            $this->riwayatProgres = [];
 
             return;
         }
 
-        $this->result = $ticket;
-
-        // Build Timeline
-        // Default standard milestones
-        $standardSteps = [
-            'pending' => 'Menunggu Antrian',
-            'diagnosing' => 'Pengecekan (Diagnosa)',
-            'repairing' => 'Dalam Pengerjaan',
-            'ready' => 'Selesai / Siap Diambil',
-            'picked_up' => 'Diambil',
-        ];
-
-        // Merge actual history
-        $this->timeline = $ticket->histories->sortByDesc('created_at');
+        $this->hasil = $tiket;
+        $this->riwayatProgres = $tiket->logProgres;
     }
 
     public function render()
