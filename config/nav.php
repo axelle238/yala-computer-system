@@ -48,6 +48,11 @@ return [
                             'roles' => ['admin', 'owner', 'cashier'],
                         ],
                         [
+                            'label' => 'Input Transaksi Manual',
+                            'route' => 'admin.transaksi.buat',
+                            'roles' => ['admin', 'owner', 'cashier'],
+                        ],
+                        [
                             'label' => 'Pesanan Online',
                             'route' => 'admin.pesanan.indeks',
                             'roles' => ['admin', 'owner', 'cashier'],
@@ -58,14 +63,9 @@ return [
                             'roles' => ['admin', 'owner', 'cashier'],
                         ],
                         [
-                            'label' => 'Kelola Shift Kasir',
+                            'label' => 'Buka/Tutup Kasir',
                             'route' => 'admin.keuangan.kasir',
                             'roles' => ['admin', 'owner', 'cashier'],
-                        ],
-                        [
-                            'label' => 'Input Manual',
-                            'route' => 'admin.transaksi.buat',
-                            'roles' => ['admin', 'owner'],
                         ],
                     ]
                 ],
@@ -270,7 +270,7 @@ return [
                 [
                     'label' => 'Karyawan',
                     'icon' => 'users',
-                    'roles' => ['admin', 'owner', 'hr'],
+                    'roles' => ['admin', 'owner', 'hr', 'technician', 'cashier', 'warehouse'],
                     'permission' => 'employee.view',
                     'sub_menu' => [
                         [
@@ -289,9 +289,14 @@ return [
                             'roles' => ['admin', 'owner', 'hr', 'technician', 'cashier', 'warehouse'],
                         ],
                         [
-                            'label' => 'Penggajian (Payroll)',
+                            'label' => 'Kelola Penggajian',
                             'route' => 'admin.karyawan.gaji-pengelola',
                             'roles' => ['admin', 'owner', 'hr'],
+                        ],
+                        [
+                            'label' => 'Slip Gaji Saya',
+                            'route' => 'admin.gaji',
+                            'roles' => ['admin', 'owner', 'hr', 'technician', 'cashier', 'warehouse'],
                         ],
                         [
                             'label' => 'Klaim Reimbursement',
@@ -398,14 +403,14 @@ return [
                             'roles' => ['admin', 'owner', 'technician', 'hr'],
                         ],
                         [
-                            'label' => 'Log Aktivitas',
+                            'label' => 'Log Aktivitas (Umum)',
                             'route' => 'admin.log-aktivitas.indeks',
                             'roles' => ['admin', 'owner'],
                         ],
                     ]
                 ],
                 [
-                    'label' => 'Keamanan',
+                    'label' => 'Keamanan Siber',
                     'icon' => 'shield-check',
                     'roles' => ['admin'],
                     'permission' => 'setting.manage',
@@ -416,8 +421,33 @@ return [
                             'roles' => ['admin'],
                         ],
                         [
-                            'label' => 'Firewall & IPS',
+                            'label' => 'Firewall & Blokir',
                             'route' => 'admin.keamanan.firewall',
+                            'roles' => ['admin'],
+                        ],
+                        [
+                            'label' => 'Deteksi Intrusi (IDS)',
+                            'route' => 'admin.keamanan.ids',
+                            'roles' => ['admin'],
+                        ],
+                        [
+                            'label' => 'Log Audit Sistem',
+                            'route' => 'admin.keamanan.audit',
+                            'roles' => ['admin'],
+                        ],
+                        [
+                            'label' => 'Scan Kerentanan',
+                            'route' => 'admin.keamanan.scanner',
+                            'roles' => ['admin'],
+                        ],
+                        [
+                            'label' => 'Respon Otomatis',
+                            'route' => 'admin.keamanan.atm',
+                            'roles' => ['admin'],
+                        ],
+                        [
+                            'label' => 'Honeypot',
+                            'route' => 'admin.keamanan.honeypot',
                             'roles' => ['admin'],
                         ],
                         [
@@ -439,7 +469,7 @@ return [
                             'roles' => ['admin'],
                         ],
                         [
-                            'label' => 'Info Server',
+                            'label' => 'Informasi Server',
                             'route' => 'admin.sistem.info',
                             'roles' => ['admin'],
                         ],
