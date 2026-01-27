@@ -43,8 +43,13 @@ return [
                             'roles' => ['admin', 'owner'],
                         ],
                         [
-                            'label' => 'Kasir / POS',
-                            'route' => 'admin.transaksi.buat',
+                            'label' => 'Aplikasi Kasir (POS)',
+                            'route' => 'admin.kasir', // Mengarah ke UI POS Full Screen
+                            'roles' => ['admin', 'owner', 'cashier'],
+                        ],
+                        [
+                            'label' => 'Input Transaksi Manual',
+                            'route' => 'admin.transaksi.buat', // Mengarah ke Form Backend
                             'roles' => ['admin', 'owner', 'cashier'],
                         ],
                         [
@@ -228,6 +233,11 @@ return [
                     'roles' => ['admin', 'owner'],
                     'permission' => 'report.finance',
                     'sub_menu' => [
+                        [
+                            'label' => 'Pusat Analitik',
+                            'route' => 'admin.analitik.indeks',
+                            'roles' => ['admin', 'owner'],
+                        ],
                         [
                             'label' => 'Laba Rugi',
                             'route' => 'admin.keuangan.laba-rugi',
