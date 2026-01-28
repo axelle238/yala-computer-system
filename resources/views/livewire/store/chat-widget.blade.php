@@ -107,13 +107,23 @@
                 </form>
                 @error('pesanBaru') <span class="text-xs text-red-500 block mt-1 ml-1">{{ $message }}</span> @enderror
             @else
-                <div class="text-center py-2 space-y-3">
-                    <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Silakan masuk untuk memulai obrolan dengan kami.</p>
-                    <div class="flex gap-2 justify-center">
-                        <a href="{{ route('pelanggan.masuk') }}" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg text-xs font-bold transition-colors">
+                <div class="flex flex-col items-center justify-center h-full py-6 space-y-4">
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-2">
+                        <svg class="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <div class="text-center px-6">
+                        <h4 class="font-bold text-slate-900 dark:text-white mb-1">Akses Terbatas</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Mohon maaf, Anda harus masuk akun terlebih dahulu untuk dapat menghubungi Admin atau CS kami.
+                        </p>
+                    </div>
+                    <div class="flex gap-3 w-full px-6">
+                        <a href="{{ route('pelanggan.masuk') }}" class="flex-1 py-2.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-xl text-xs font-bold transition-colors text-center">
                             Masuk
                         </a>
-                        <a href="{{ route('pelanggan.daftar') }}" class="px-4 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white rounded-lg text-xs font-bold transition-colors">
+                        <a href="{{ route('pelanggan.daftar') }}" class="flex-1 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition-colors text-center shadow-lg shadow-cyan-500/20">
                             Daftar
                         </a>
                     </div>
@@ -126,23 +136,26 @@
         </div>
     </div>
 
-    <!-- Tombol Floating Modern (Colorful) -->
+    <!-- Tombol Floating Modern (Tema Toko: Cyan/Blue) -->
     <button wire:click="togleChat" 
-        class="w-16 h-16 bg-gradient-to-tr from-violet-600 via-fuchsia-500 to-orange-400 text-white rounded-full shadow-2xl hover:scale-110 hover:-rotate-6 transition-all duration-300 flex items-center justify-center group relative overflow-hidden border-2 border-white dark:border-slate-800">
+        class="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-full shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] hover:scale-110 transition-all duration-300 flex items-center justify-center group relative overflow-hidden border border-white/20 z-50">
         
+        <!-- Efek Kilau -->
+        <div class="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
         <!-- Notifikasi Badge -->
         @if($sesi && $sesi->pesan()->where('is_balasan_admin', true)->where('is_dibaca', false)->count() > 0)
-            <span class="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-bounce"></span>
+            <span class="absolute top-0 right-0 w-4 h-4 bg-rose-500 rounded-full border-2 border-slate-900 animate-bounce shadow-sm"></span>
         @endif
 
         <!-- Icon Chat Modern -->
-        <div x-show="!open" class="relative">
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+        <div x-show="!open" class="relative transition-transform duration-300 group-hover:-rotate-12">
+            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
         </div>
         
-        <svg x-show="open" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        <svg x-show="open" class="w-7 h-7 transition-transform duration-300 group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
     </button>
 
     <script>
