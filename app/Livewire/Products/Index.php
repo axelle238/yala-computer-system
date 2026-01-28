@@ -71,7 +71,7 @@ class Index extends Component
             'total_sku' => Product::count(),
             'total_value' => Product::sum(\DB::raw('buy_price * stock_quantity')),
             'low_stock' => Product::whereColumn('stock_quantity', '<=', 'min_stock_alert')->count(),
-            'top_category' => Category::withCount('products')->orderBy('products_count', 'desc')->first()->name ?? '-',
+            'top_category' => Category::withCount('produk')->orderBy('produk_count', 'desc')->first()->name ?? '-',
         ];
 
         return view('livewire.products.index', [
