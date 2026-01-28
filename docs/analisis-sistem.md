@@ -1,44 +1,45 @@
 # Analisis Sistem Menyeluruh - Yala Computer
-Tanggal Audit: 28 Januari 2026
-Status: Tahap Pengembangan Aktif & Lokalisasi Total
+Tanggal Audit: 28 Januari 2026 (Revisi Pasca-Perbaikan Sidebar)
+Status: Pengembangan Tahap 3 (Dashboard & Integrasi Menu)
 
-## 1. Analisis Kepatuhan Bahasa (100% Bahasa Indonesia)
-Ditemukan beberapa inkonsistensi bahasa yang harus diperbaiki:
-- **Label Status**: Beberapa modul masih menggunakan 'cancelled', 'create', 'delete' pada tampilan antarmuka (View).
-- **Navigasi**: Istilah 'Dashboard' masih digunakan secara luas. Akan dibakukan menjadi 'Dasbor' atau 'Beranda'.
-- **Tombol Aksi**: Beberapa tombol konfirmasi masih menggunakan format bawaan browser atau teks Inggris.
-- **Log Aktivitas**: Value opsi filter masih 'Create'/'Delete'.
+## 1. Status Terkini Sistem (Pasca-Perbaikan)
+Telah dilakukan perbaikan besar pada struktur navigasi dan dashboard utama:
+- **Sidebar Menu**: Telah disinkronisasi 100% dengan `routes/web.php`. Menu-menu kritis seperti Keamanan (IDS, Firewall), Data Master, dan HR (Slip Gaji) kini dapat diakses.
+- **Dashboard Utama**: Telah diubah menjadi "Dasbor Eksekutif" yang menampilkan ringkasan lintas departemen (Penjualan, Stok, Servis, Aktivitas).
+- **Bug Layout**: Tabrakan antara sidebar menu bawah dengan profil user footer telah diperbaiki (padding `pb-32`).
+- **Obral Kilat**: Formulir pembuatan flash sale telah dirapikan agar tidak *overlapping*.
 
-## 2. Analisis Fungsionalitas Admin / Operasional
-Sistem memiliki fitur yang sangat kompleks dengan modul-modul baru:
-- **Keamanan (Baru)**: Firewall, IDS, Honeypot, dan Audit Log telah ditambahkan di backend. Perlu verifikasi UI.
-- **HR & Penggajian**: Modul penggajian dan absensi sudah ada, perlu integrasi dengan laporan keuangan.
-- **Manajemen Aset**: Fitur penyusutan aset otomatis perlu dipastikan berjalan via Scheduler.
-- **CRM Lanjutan**: Tabel interaksi pelanggan sudah ada, namun UI "Customer 360" belum sepenuhnya terintegrasi.
+## 2. Analisis Kesenjangan (Gap Analysis)
+Meskipun navigasi sudah lengkap, beberapa fitur masih memerlukan pengembangan mendalam pada Tahap 3:
 
-## 3. Analisis Fungsionalitas Storefront
-- **Pelacakan Pesanan**: Sudah diperbarui ke real-time, namun perlu penyesuaian istilah status ('completed' vs 'delivered').
-- **Faktur**: Fitur cetak faktur sudah aktif.
-- **Navigasi Pelanggan**: Area anggota perlu disinkronkan dengan istilah Bahasa Indonesia (misal: "Orders" -> "Pesanan").
+### A. Admin / Operasional
+1.  **Dashboard Spesifik per Menu**:
+    - Sidebar menu kini memiliki dashboard spesifik (misal: "Dashboard Penjualan", "Dashboard Keamanan").
+    - **TINDAKAN:** Perlu memastikan setiap rute `admin.*.dashboard` atau `admin.analitik.*` memiliki komponen Livewire yang menampilkan data spesifik, bukan sekadar tabel kosong.
+2.  **Slip Gaji Karyawan (`admin.gaji`)**:
+    - Rute baru ditambahkan untuk akses mandiri karyawan.
+    - **TINDAKAN:** Verifikasi komponen `App\Livewire\Employees\Payroll` apakah sudah mendukung tampilan "My Payslip" untuk user non-HR.
+3.  **Modul Keamanan**:
+    - Menu IDS, Honeypot, dan Scanner sudah ada di sidebar.
+    - **TINDAKAN:** Pastikan komponen backend `App\Livewire\Security\*` benar-benar terhubung dengan logika deteksi, bukan hanya *mockup*.
 
-## 4. Rencana Perbaikan & Pengembangan (Iteratif)
+### B. Storefront (Halaman Toko)
+1.  **Widget Chat**: Sudah diperbarui menjadi *colorful* dan modern.
+2.  **Integrasi Stok**: Perlu dipastikan stok pada menu "Obral Kilat" di admin benar-benar mengurangi kuota saat transaksi terjadi di Storefront.
 
-### Iterasi 1: Lokalisasi & Konsistensi UI Admin
-- Mengubah seluruh teks 'Dashboard' menjadi 'Dasbor'.
-- Menerjemahkan status log aktivitas dan filter.
-- Memastikan notifikasi (flash messages) menggunakan Bahasa Indonesia baku.
+## 3. Rencana Pengembangan Tahap 3 (Prioritas)
 
-### Iterasi 2: Modul Keamanan & Sistem
-- Memastikan Dashboard Keamanan menampilkan data real-time.
-- Mengaktifkan fitur Firewall dan IDS dengan antarmuka yang jelas.
+### Prioritas 1: Pengembangan Dashboard Spesifik
+Mengubah halaman "Index" biasa menjadi Dashboard Analitik yang kaya data untuk:
+- **Penjualan & Kasir**: Grafik tren jam sibuk, metode pembayaran terpopuler.
+- **Servis & Perbaikan**: Statistik durasi servis rata-rata, teknisi terproduktif.
+- **Stok & Gudang**: Analisis perputaran stok (turnover rate), valuasi aset real-time.
 
-### Iterasi 3: Penyempurnaan Storefront
-- Sinkronisasi status pesanan antara Admin dan Pelanggan.
-- Memperbaiki tampilan detail pesanan dan riwayat.
+### Prioritas 2: Penyempurnaan Modul HR
+- Implementasi fitur "Self-Service" karyawan (Lihat Slip Gaji, Ajukan Cuti) yang terpisah dari hak akses HR Manager.
 
-### Iterasi 4: Integrasi Final CRM & Laporan
-- Menyelesaikan modul Customer 360.
-- Menghubungkan data penjualan dengan laporan laba rugi otomatis.
+### Prioritas 3: Validasi Modul Keamanan
+- Melakukan simulasi serangan sederhana (misal: login brute force) untuk memastikan notifikasi IDS muncul di Dashboard Keamanan baru.
 
-## 5. Kesimpulan Teknis
-Sistem berada dalam kondisi stabil secara arsitektur. Fokus utama saat ini adalah **lokalisasi bahasa** dan **penyempurnaan antarmuka** untuk modul-modul baru agar sesuai dengan standar "100% Bahasa Indonesia".
+## 4. Kesimpulan
+Sistem navigasi dan kerangka kerja (framework) UI sudah solid. Fokus selanjutnya adalah **mengisi "konten"** dari setiap dashboard spesifik agar informatif, sesuai instruksi "lebih spesifik dan lengkap".
