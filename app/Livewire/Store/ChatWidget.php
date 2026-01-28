@@ -26,12 +26,35 @@ class ChatWidget extends Component
 
     public $modeBot = true;
 
+    // Kamus Normalisasi (Singkatan -> Baku)
+    private $kamusSlang = [
+        'yg' => 'yang', 'gk' => 'tidak', 'gak' => 'tidak', 'nggak' => 'tidak',
+        'brp' => 'berapa', 'harganya' => 'harga', 'hrg' => 'harga',
+        'bgs' => 'bagus', 'mrh' => 'murah', 'mhl' => 'mahal',
+        'ad' => 'ada', 'ready' => 'ada', 'redy' => 'ada',
+        'min' => 'admin', 'gan' => 'kak', 'sis' => 'kak', 'bro' => 'kak',
+        'bisa' => 'bisa', 'bs' => 'bisa',
+        'kirim' => 'kirim', 'krm' => 'kirim',
+        'ongkir' => 'ongkos kirim', 'ongkos' => 'ongkos kirim',
+        'tp' => 'tapi', 'trus' => 'lalu',
+        'blm' => 'belum', 'udh' => 'sudah', 'sdh' => 'sudah',
+        'dmn' => 'dimana', 'dmn' => 'dimana',
+        'sy' => 'saya', 'aq' => 'saya', 'aku' => 'saya',
+        'mw' => 'mau', 'pengen' => 'mau',
+        'byr' => 'bayar', 'trf' => 'transfer',
+        'spek' => 'spesifikasi', 'spec' => 'spesifikasi',
+        'mobo' => 'motherboard', 'proc' => 'processor', 'procie' => 'processor',
+        'lepi' => 'laptop', 'leptop' => 'laptop',
+        'garansi' => 'garansi', 'gransi' => 'garansi', 'warr' => 'garansi',
+    ];
+
     // Kamus data untuk koreksi typo & deteksi kategori
     private $kamusProduk = [
         'laptop', 'komputer', 'pc', 'mouse', 'keyboard', 'monitor', 'printer',
         'headset', 'ssd', 'ram', 'vga', 'gpu', 'cpu', 'processor', 'casing',
         'gaming', 'office', 'desain', 'sekolah', 'murah', 'mahal', 'promo',
-        'asus', 'lenovo', 'hp', 'dell', 'acer', 'samsung', 'lg', 'logitech', // Brand
+        'asus', 'lenovo', 'hp', 'dell', 'acer', 'samsung', 'lg', 'logitech',
+        'motherboard', 'intel', 'amd', 'ryzen', 'nvidia', 'radeon',
     ];
 
     // Data Ongkir Sederhana
@@ -100,7 +123,6 @@ class ChatWidget extends Component
         $pesanTerkirim = $this->pesanBaru;
         $this->pesanBaru = '';
 
-        // Deteksi perintah keluar dari mode admin
         if ($isAdminMode && (strtolower($pesanTerkirim) == 'selesai' || str_contains(strtolower($pesanTerkirim), 'kembali ke bot'))) {
             Session::forget('chat_mode_admin_'.$this->sesi->id);
             $isAdminMode = false;
@@ -130,81 +152,108 @@ class ChatWidget extends Component
     }
 
     /**
-     * Logika AI Chat "YALA" Generasi 4 (Price & Spec Aware).
+     * Logika AI Chat "YALA" Generasi 5 (NLP & Slang Support).
      */
     private function prosesBot($pesan)
     {
         $pesanOriginal = $pesan;
-        $pesanLower = strtolower($pesan);
+
+        // 1. Normalisasi Bahasa (Slang -> Baku)
+        $pesanNormal = $this->normalisasiPesan(strtolower($pesan));
+
+        // Deteksi Gaya Bahasa User (Formal vs Santai)
+        $isSantai = str_contains(strtolower($pesan), 'gan') || str_contains(strtolower($pesan), 'bro') || str_contains(strtolower($pesan), 'min');
+        $sapaanUser = $isSantai ? 'Gan' : 'Kak';
+
         $jawaban = '';
 
-        // 1. Analisis Sentimen (Empati)
-        if ($this->analisisSentimen($pesanLower)) {
-            $jawaban = "Saya mendeteksi Anda mungkin sedang mengalami kendala serius. 😟 Mohon maaf atas ketidaknyamanannya. Ketik **'Admin'** untuk prioritas bantuan dari staf manusia kami.";
+        // 2. Analisis Sentimen (Empati)
+        if ($this->analisisSentimen($pesanNormal)) {
+            $jawaban = "Waduh, maaf banget ya {$sapaanUser} kalau ada yang bikin gak nyaman. 😟 Boleh ketik **'Admin'** biar langsung dibantu sama tim support kami?";
             $this->kirimBotResponse($jawaban);
 
             return;
         }
 
-        // 2. Cek Ongkos Kirim (Smart Feature)
-        if (preg_match('/ongkir.*ke\s+([a-z\s]+)/i', $pesanLower, $matches) || preg_match('/biaya.*kirim.*ke\s+([a-z\s]+)/i', $pesanLower, $matches)) {
+        // 3. Cek Ongkos Kirim
+        if (preg_match('/ongkir.*ke\s+([a-z\s]+)/i', $pesanNormal, $matches) || preg_match('/biaya.*kirim.*ke\s+([a-z\s]+)/i', $pesanNormal, $matches)) {
             $kota = trim($matches[1]);
-            $this->cekOngkir($kota);
+            $this->cekOngkir($kota, $sapaanUser);
 
             return;
         }
 
-        // 3. Info Pembayaran (New Feature)
-        if (str_contains($pesanLower, 'bayar') || str_contains($pesanLower, 'rekening') || str_contains($pesanLower, 'transfer')) {
-            $jawaban = "💳 **Metode Pembayaran**\nKami menerima berbagai metode pembayaran:\n\n- Transfer Bank (BCA, Mandiri, BRI)\n- E-Wallet (GoPay, OVO, Dana)\n- Kartu Kredit/Debit\n\nSilakan pilih metode saat Checkout ya Kak!";
+        // 4. Info Pembayaran
+        if (str_contains($pesanNormal, 'bayar') || str_contains($pesanNormal, 'rekening') || str_contains($pesanNormal, 'transfer')) {
+            $jawaban = "💳 **Cara Bayar**\nBisa transfer (BCA, Mandiri), E-Wallet (GoPay, OVO), atau Kartu Kredit {$sapaanUser}. Pilih aja pas Checkout nanti ya!";
             $this->kirimBotResponse($jawaban);
 
             return;
         }
 
-        // 4. Cek Status Toko
-        if (str_contains($pesanLower, 'buka') || str_contains($pesanLower, 'tutup') || str_contains($pesanLower, 'jam')) {
-            $this->cekStatusToko();
+        // 5. Cek Status Toko
+        if (str_contains($pesanNormal, 'buka') || str_contains($pesanNormal, 'tutup') || str_contains($pesanNormal, 'jam')) {
+            $this->cekStatusToko($sapaanUser);
 
             return;
         }
 
-        // 5. Deteksi Topik Khusus
-        if (str_contains($pesanLower, 'lacak') || str_contains($pesanLower, 'resi')) {
-            $jawaban = "🔍 **Lacak Pesanan**\nSilakan masukkan Nomor Pesanan (cth: #ORD-123) atau Nomor Resi Anda untuk pengecekan otomatis.";
-        } elseif (str_contains($pesanLower, 'rakit') || str_contains($pesanLower, 'pc')) {
-            $url = route('toko.rakit-pc');
-            $jawaban = "🖥️ **Rakit PC Impian**\nCek kompatibilitas dan harga rakit PC secara instan di sini:\n👉 [Simulasi Rakit PC]($url)";
-        } elseif (str_contains($pesanLower, 'admin') || str_contains($pesanLower, 'cs') || str_contains($pesanLower, 'orang')) {
-            $jawaban = "Baik, saya sambungkan ke **Customer Service** kami. Mohon tunggu sebentar... ⏳\n(Ketik 'Selesai' untuk kembali ke mode Bot)";
+        // 6. Deteksi Topik Khusus
+        if (str_contains($pesanNormal, 'lacak') || str_contains($pesanNormal, 'resi')) {
+            $jawaban = "🔍 **Lacak Paket**\nKetik Nomor Pesanan (misal: #ORD-123) atau Resi-nya disini ya {$sapaanUser}.";
+        } elseif (str_contains($pesanNormal, 'rakit') || str_contains($pesanNormal, 'pc')) {
+            $jawaban = "🖥️ **Rakit PC**\nCek simulasi rakit PC disini {$sapaanUser}, lengkap sama harganya:\n👉 [Simulasi Rakit PC](".route('toko.rakit-pc').')';
+        } elseif (str_contains($pesanNormal, 'admin') || str_contains($pesanNormal, 'cs') || str_contains($pesanNormal, 'orang')) {
+            $jawaban = "Oke siap, saya panggilkan Admin CS sebentar ya {$sapaanUser}... ⏳\n(Ketik 'Selesai' kalau mau balik ke Bot)";
             Session::put('chat_mode_admin_'.$this->sesi->id, true);
             $this->notifikasiAdmin($pesanOriginal);
-        } elseif (preg_match('/\d{4,}/', $pesan, $matches)) {
+        } elseif (preg_match('/\d{4,}/', $pesanNormal, $matches)) {
             $this->cekStatusOrder($matches[0]);
 
             return;
-        } elseif (preg_match('/\b(halo|hai|pagi|siang|sore|malam)\b/', $pesanLower)) {
+        } elseif (preg_match('/\b(halo|hai|pagi|siang|sore|malam)\b/', $pesanNormal)) {
             $jam = date('H');
-            $sapaan = $jam < 12 ? 'Pagi' : ($jam < 15 ? 'Siang' : ($jam < 18 ? 'Sore' : 'Malam'));
-            $user = Auth::user();
-            $nama = $user ? explode(' ', $user->name)[0] : 'Kak';
-            $jawaban = "Halo, Selamat {$sapaan} {$nama}! 👋\nSaya **YALA AI**. Saya makin pintar lho! Coba tanya:\n- \"Laptop Gaming dibawah 10 juta\"\n- \"Mouse Logitech murah\"\n- \"RAM 8GB\"";
+            $waktu = $jam < 12 ? 'Pagi' : ($jam < 15 ? 'Siang' : ($jam < 18 ? 'Sore' : 'Malam'));
+            $jawaban = "Halo, Selamat {$waktu} {$sapaanUser}! 👋\nYALA siap bantu. Mau cari **Laptop Gaming**, **Cek Ongkir**, atau **Rakit PC**?";
         }
 
-        // 6. Pencarian Produk Cerdas V2 (Deep Search dengan Filter Harga & Spek)
+        // 7. Pencarian Produk Cerdas (Advanced Search)
         if (empty($jawaban)) {
-            $jawaban = $this->cariProdukAdvanced($pesanLower);
+            $jawaban = $this->cariProdukAdvanced($pesanNormal, $sapaanUser);
         }
 
-        // 7. Fallback
+        // 8. Fallback
         if (empty($jawaban)) {
-            $jawaban = $this->jawabanVariatif('bingung');
+            $jawaban = $this->jawabanVariatif($sapaanUser);
         }
 
         $this->kirimBotResponse($jawaban);
     }
 
-    private function cekOngkir($kotaInput)
+    /**
+     * Menormalkan kalimat gaul/singkatan menjadi bahasa baku yang dimengerti mesin.
+     */
+    private function normalisasiPesan($text)
+    {
+        $words = explode(' ', $text);
+        $cleanWords = [];
+
+        foreach ($words as $word) {
+            // Hapus tanda baca
+            $cleanWord = preg_replace('/[^a-z0-9]/', '', $word);
+
+            // Cek di kamus slang
+            if (isset($this->kamusSlang[$cleanWord])) {
+                $cleanWords[] = $this->kamusSlang[$cleanWord];
+            } else {
+                $cleanWords[] = $cleanWord;
+            }
+        }
+
+        return implode(' ', $cleanWords);
+    }
+
+    private function cekOngkir($kotaInput, $sapaan)
     {
         $kotaDitemukan = null;
         foreach ($this->dataOngkir as $kotaDb => $harga) {
@@ -216,39 +265,36 @@ class ChatWidget extends Component
 
         if ($kotaDitemukan) {
             $harga = $this->dataOngkir[$kotaDitemukan];
-            $msg = '🚚 **Estimasi Ongkir ke '.ucwords($kotaDitemukan)."**\n\nRp ".number_format($harga, 0, ',', '.')." / kg (JNE Reguler)\n_Harga dapat berubah tergantung berat total pesanan._";
+            $msg = '🚚 **Ongkir ke '.ucwords($kotaDitemukan)."**\nSekitar Rp ".number_format($harga, 0, ',', '.')." /kg (JNE Reg) {$sapaan}.";
         } else {
-            $msg = "Maaf, data ongkir untuk **{$kotaInput}** belum tersedia di database bot saya. Silakan cek detail pastinya saat Checkout ya Kak.";
+            $msg = "Wah, data ongkir ke **{$kotaInput}** belum ada di saya {$sapaan}. Tapi tenang, nanti pas Checkout bakal muncul kok ongkir pastinya.";
         }
 
         $this->kirimBotResponse($msg);
     }
 
-    private function cekStatusToko()
+    private function cekStatusToko($sapaan)
     {
         $jamSekarang = (int) date('H');
-        $hariSekarang = date('N'); // 1 (Senin) - 7 (Minggu)
-        $buka = false;
+        $hariSekarang = date('N');
         $pesanStatus = '';
 
-        if ($hariSekarang <= 6) { // Senin-Sabtu
+        if ($hariSekarang <= 6) {
             if ($jamSekarang >= 9 && $jamSekarang < 20) {
-                $buka = true;
                 $sisaJam = 20 - $jamSekarang;
-                $pesanStatus = "✅ **Toko Sedang BUKA**\nKami tutup {$sisaJam} jam lagi (Pukul 20:00 WIB).";
+                $pesanStatus = "✅ **Toko BUKA** {$sapaan}\nMasih ada waktu {$sisaJam} jam lagi sebelum tutup jam 8 malam.";
             } else {
-                $pesanStatus = "⛔ **Toko Sedang TUTUP**\nKami buka kembali besok pukul 09:00 WIB.";
+                $pesanStatus = "⛔ **Toko TUTUP** {$sapaan}\nKita buka lagi besok jam 9 pagi ya.";
             }
-        } else { // Minggu
+        } else {
             if ($jamSekarang >= 10 && $jamSekarang < 18) {
-                $buka = true;
-                $pesanStatus = "✅ **Toko Sedang BUKA** (Minggu)\nKami tutup pukul 18:00 WIB.";
+                $pesanStatus = "✅ **Toko BUKA** (Minggu)\nTutup jam 6 sore ya {$sapaan}.";
             } else {
-                $pesanStatus = "⛔ **Toko Sedang TUTUP**\nKami buka kembali Senin pukul 09:00 WIB.";
+                $pesanStatus = "⛔ **Toko TUTUP**\nSenin kita buka lagi jam 9 pagi.";
             }
         }
 
-        $this->kirimBotResponse("{$pesanStatus}\n\n📍 **Alamat:** Jl. Teknologi No. 88, Jakarta Selatan.\n💡 Order via website tetap buka 24 Jam!");
+        $this->kirimBotResponse($pesanStatus);
     }
 
     private function cekStatusOrder($orderId)
@@ -257,64 +303,47 @@ class ChatWidget extends Component
         $order = Order::where('id', $cleanId)->orWhere('order_number', 'like', "%{$cleanId}%")->first();
 
         if ($order) {
-            $msg = "📦 **Info Pesanan #{$order->order_number}**\nStatus: **".strtoupper($order->status)."**\nTotal: Rp ".number_format($order->total_amount, 0, ',', '.');
+            $msg = "📦 **Pesanan #{$order->order_number}**\nStatus: **".strtoupper($order->status)."**\nTotal: Rp ".number_format($order->total_amount, 0, ',', '.');
             if ($order->status == 'shipped') {
                 $msg .= "\n\n🚚 Resi: `{$order->shipping_tracking_number}`";
             }
             $this->kirimBotResponse($msg);
         } else {
-            $this->kirimBotResponse("Saya mencari pesanan **#{$cleanId}** tapi tidak ditemukan. Mohon pastikan nomornya benar ya Kak.");
+            $this->kirimBotResponse("Pesanan **#{$cleanId}** gak ketemu nih. Coba cek lagi nomornya ya.");
         }
     }
 
-    /**
-     * Pencarian Produk Cerdas V2: Mendukung filter harga, spek, dan sorting.
-     */
-    private function cariProdukAdvanced($input)
+    private function cariProdukAdvanced($input, $sapaan)
     {
-        // 1. Ekstraksi Filter Harga
+        // Ekstraksi Filter Harga (juta/rb)
         $maxPrice = null;
         $minPrice = null;
 
-        // Regex: "dibawah 5 juta", "kurang dari 5jt", "max 500rb"
-        if (preg_match('/(dibawah|bawah|kurang dari|max|maksimal)\s*(\d+(\.\d+)?)\s*(jt|juta|ribu|rb)/i', $input, $matches)) {
+        if (preg_match('/(bawah|kurang|max|maksimal)\s*(\d+(\.\d+)?)\s*(jt|juta|ribu|rb)/i', $input, $matches)) {
             $angka = (float) $matches[2];
             $satuan = strtolower($matches[4]);
-            if (in_array($satuan, ['jt', 'juta'])) {
-                $maxPrice = $angka * 1000000;
-            } elseif (in_array($satuan, ['ribu', 'rb'])) {
-                $maxPrice = $angka * 1000;
-            }
+            $maxPrice = in_array($satuan, ['jt', 'juta']) ? $angka * 1000000 : $angka * 1000;
         }
 
-        // Regex: "diatas 5 juta", "lebih dari 5jt", "min 500rb"
-        if (preg_match('/(diatas|atas|lebih dari|min|minimal)\s*(\d+(\.\d+)?)\s*(jt|juta|ribu|rb)/i', $input, $matches)) {
+        if (preg_match('/(atas|lebih|min|minimal)\s*(\d+(\.\d+)?)\s*(jt|juta|ribu|rb)/i', $input, $matches)) {
             $angka = (float) $matches[2];
             $satuan = strtolower($matches[4]);
-            if (in_array($satuan, ['jt', 'juta'])) {
-                $minPrice = $angka * 1000000;
-            } elseif (in_array($satuan, ['ribu', 'rb'])) {
-                $minPrice = $angka * 1000;
-            }
+            $minPrice = in_array($satuan, ['jt', 'juta']) ? $angka * 1000000 : $angka * 1000;
         }
 
-        // 2. Normalisasi Kata Kunci & Deteksi Spek
         $rawWords = explode(' ', $input);
         $cleanWords = [];
-        $specs = []; // Menyimpan spek teknis (GB, SSD, RTX)
+        $specs = [];
 
-        $stopWords = ['apakah', 'ada', 'jual', 'stok', 'harga', 'berapa', 'yang', 'mau', 'beli', 'cari', 'tolong', 'rekomendasi', 'buat', 'untuk', 'dengan', 'spek', 'spesifikasi', 'dibawah', 'diatas', 'juta', 'ribu', 'jt', 'rb', 'murah', 'mahal'];
+        $stopWords = ['apakah', 'ada', 'jual', 'stok', 'harga', 'berapa', 'yang', 'mau', 'beli', 'cari', 'tolong', 'rekomendasi', 'buat', 'untuk', 'dengan', 'spek', 'spesifikasi', 'dibawah', 'diatas', 'juta', 'ribu', 'jt', 'rb', 'murah', 'mahal', 'dong', 'donk', 'gan', 'sis', 'min'];
 
         foreach ($rawWords as $word) {
             $wordLower = strtolower($word);
-
-            // Lewati angka murni (biasanya harga) kecuali ada unit spek
             if (is_numeric($word)) {
                 continue;
             }
 
-            // Deteksi Spek (GB, TB, Hz, Core, Ryzen)
-            if (preg_match('/[0-9]+(gb|tb|hz)/i', $word) || in_array($wordLower, ['ssd', 'hdd', 'ips', 'oled', 'rtx', 'gtx', 'intel', 'amd', 'ryzen', 'core'])) {
+            if (preg_match('/[0-9]+(gb|tb|hz)/i', $word) || in_array($wordLower, ['ssd', 'hdd', 'ips', 'oled', 'rtx', 'gtx', 'intel', 'amd', 'ryzen', 'core', 'i3', 'i5', 'i7', 'i9'])) {
                 $specs[] = $word;
 
                 continue;
@@ -339,10 +368,8 @@ class ChatWidget extends Component
             return null;
         }
 
-        // 3. Query Database
         $query = Product::query()->where('is_active', true);
 
-        // Filter Kata Kunci Nama/Kategori
         if (! empty($cleanWords)) {
             $query->where(function ($q) use ($cleanWords) {
                 foreach ($cleanWords as $word) {
@@ -352,7 +379,6 @@ class ChatWidget extends Component
             });
         }
 
-        // Filter Spesifikasi (Cari di deskripsi atau nama)
         if (! empty($specs)) {
             foreach ($specs as $spec) {
                 $query->where(function ($q) use ($spec) {
@@ -362,7 +388,6 @@ class ChatWidget extends Component
             }
         }
 
-        // Filter Harga
         if ($maxPrice) {
             $query->where('sell_price', '<=', $maxPrice);
         }
@@ -382,24 +407,21 @@ class ChatWidget extends Component
         $hasil = $query->take(3)->get();
 
         if ($hasil->count() > 0) {
-            $response = "Saya menemukan produk yang cocok:\n";
-
+            $response = "Nih {$sapaan}, produk yang cocok:\n";
             foreach ($hasil as $p) {
-                $stokInfo = $p->stock_quantity > 0 ? '✅ Ready' : '❌ Habis';
+                $stokInfo = $p->stock_quantity > 0 ? '✅ Ada' : '❌ Habis';
                 $response .= "\n🔹 **[{$p->name}](".route('toko.produk.detail', $p->id).")**\n   Rp ".number_format($p->sell_price, 0, ',', '.')." | {$stokInfo}";
             }
-
             if ($maxPrice) {
-                $response .= "\n\n_Difilter: Budget maksimal Rp ".number_format($maxPrice, 0, ',', '.').'_';
+                $response .= "\n\n_Budget max: Rp ".number_format($maxPrice, 0, ',', '.').'_';
             }
 
             return $response;
         }
 
-        // Jika tidak ada hasil dengan filter harga, coba cari tanpa filter harga (Saran Alternatif)
+        // Saran Alternatif
         if ($maxPrice || $minPrice) {
-            $query->withoutGlobalScopes()->where('is_active', true); // Reset scope simplistik
-            // Re-apply basic keywords only
+            $query->withoutGlobalScopes()->where('is_active', true);
             if (! empty($cleanWords)) {
                 $query->where(function ($q) use ($cleanWords) {
                     foreach ($cleanWords as $word) {
@@ -408,7 +430,7 @@ class ChatWidget extends Component
                 });
                 $altHasil = $query->take(2)->get();
                 if ($altHasil->count() > 0) {
-                    $response = "Waduh, produk dengan budget segitu belum ada Kak. 😅\n\nTapi saya punya rekomendasi serupa (harga beda dikit):\n";
+                    $response = "Waduh, budget segitu belum dapet nih {$sapaan}. 😅\n\nTapi ada yang mirip (beda harga dikit):\n";
                     foreach ($altHasil as $p) {
                         $response .= "\n🔸 **{$p->name}**\n   Rp ".number_format($p->sell_price, 0, ',', '.');
                     }
@@ -423,7 +445,7 @@ class ChatWidget extends Component
 
     private function analisisSentimen($text)
     {
-        $kataNegatif = ['kecewa', 'lama', 'lambat', 'penipu', 'rusak', 'batal', 'jelek', 'bodoh', 'anjing', 'babi', 'parah', 'gimana sih'];
+        $kataNegatif = ['kecewa', 'lama', 'lambat', 'penipu', 'rusak', 'batal', 'jelek', 'bodoh', 'anjing', 'babi', 'parah', 'gimana sih', 'tai', 'kampret'];
         foreach ($kataNegatif as $bad) {
             if (str_contains($text, $bad)) {
                 return true;
@@ -433,13 +455,12 @@ class ChatWidget extends Component
         return false;
     }
 
-    private function jawabanVariatif($tipe)
+    private function jawabanVariatif($sapaan)
     {
         $opsi = [
-            "Maaf, saya masih belajar memahami itu. 🤔 Coba gunakan kata kunci produk langsung (misal: 'Monitor LG' atau 'Laptop 5 juta').",
-            'Saya kurang yakin maksudnya. Apakah Anda ingin mencari produk, cek resi, atau tanya ongkir?',
-            'Waduh, Yala belum diajari tentang hal itu. Tapi Yala bisa bantu carikan barang impianmu! Coba ketik nama barangnya.',
-            "Hmm.. Pertanyaan sulit! 😅 Coba ketik **'Admin'** agar dibantu staf ahli kami.",
+            "Maaf {$sapaan}, aku masih belajar bahasa gaul nih. 🤔 Coba ketik nama barangnya langsung ya (misal: 'Laptop Asus').",
+            "Kurang paham maksudnya {$sapaan}. Mau cari barang, cek resi, atau tanya ongkir?",
+            "Waduh, Yala bingung. Coba ketik **'Admin'** aja biar dibantu manusia beneran ya.",
         ];
 
         return $opsi[array_rand($opsi)];
