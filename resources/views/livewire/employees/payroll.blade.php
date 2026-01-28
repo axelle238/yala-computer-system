@@ -1,3 +1,5 @@
+@inject('ai', 'App\Services\YalaIntelligence')
+
 <div class="space-y-8 animate-fade-in-up">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -61,12 +63,17 @@
                             <th class="px-6 py-4 text-right">Komisi</th>
                             <th class="px-6 py-4 text-right text-rose-500">Potongan</th>
                             <th class="px-6 py-4 text-right">Take Home Pay</th>
+                            <th class="px-6 py-4 text-center">Audit AI</th>
                             <th class="px-6 py-4 text-center">Status</th>
                             <th class="px-6 py-4 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                         @foreach($payrolls as $payroll)
+                            @php
+                                // Analisis AI Real-time
+                                $audit = $ai->auditGaji($payroll->net_salary, 0, $payroll->user->role); // Lembur diset 0 dulu krn blm ada kolomnya
+                            @endphp
                             <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                                 <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">
                                     {{ $payroll->user->name }}
@@ -83,6 +90,22 @@
                                 </td>
                                 <td class="px-6 py-4 text-right font-black font-mono text-slate-900 dark:text-white text-lg">
                                     Rp {{ number_format($payroll->net_salary, 0, ',', '.') }}
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    @if($audit['aman'])
+                                        <span class="text-emerald-500" title="Data Wajar">
+                                            <svg class="w-5 h-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        </span>
+                                    @else
+                                        <div class="relative group cursor-help">
+                                            <svg class="w-5 h-5 mx-auto text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-slate-900 text-white text-[10px] p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                                @foreach($audit['isu'] as $isu)
+                                                    • {{ $isu }}<br>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider {{ $payroll->status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">

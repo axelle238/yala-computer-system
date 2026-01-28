@@ -121,16 +121,117 @@ class YalaIntelligence
     }
 
     /**
-     * Membuat deskripsi produk otomatis (Content Generation).
+     * Membuat deskripsi produk otomatis (Content Generation) yang kaya keyword.
      */
-    public function generateDeskripsiProduk($namaProduk, $kategori)
+    public function generateDeskripsiProduk($namaProduk, $kategori, $fiturUtama = [])
     {
-        $template = [
-            "Hadirkan performa maksimal dengan **{$namaProduk}**. Produk unggulan di kategori {$kategori} ini dirancang untuk produktivitas tinggi dan ketahanan luar biasa. Pilihan tepat untuk profesional maupun gamer.",
-            "Tingkatkan pengalaman komputasi Anda dengan **{$namaProduk}**. Kualitas premium dari {$kategori} yang menjamin kepuasan penggunaan jangka panjang. Stok terbatas!",
-            "Solusi terbaik untuk kebutuhan IT Anda: **{$namaProduk}**. Dapatkan efisiensi dan kecepatan terbaik di kelas {$kategori}. Garansi resmi dan dukungan teknis penuh dari Yala Computer."
-        ];
+        $adjectives = ['Canggih', 'Terbaru', 'Premium', 'Eksklusif', 'Handal', 'Efisien'];
+        $adj = $adjectives[array_rand($adjectives)];
+        
+        $desc = "Hadirkan produktivitas maksimal dengan **{$namaProduk}**. Produk {$kategori} {$adj} ini dirancang khusus untuk memenuhi kebutuhan komputasi modern Anda.\n\n";
+        
+        $desc .= "**Fitur Unggulan:**\n";
+        if (!empty($fiturUtama)) {
+            foreach($fiturUtama as $fitur) {
+                $desc .= "✅ {$fitur}\n";
+            }
+        } else {
+            $desc .= "✅ Performa tinggi untuk multitasking lancar.\n";
+            $desc .= "✅ Desain ergonomis dan material tahan lama.\n";
+            $desc .= "✅ Efisiensi daya terbaik di kelasnya.\n";
+        }
 
-        return $template[array_rand($template)];
+        $desc .= "\n**Kenapa Memilih {$namaProduk}?**\n";
+        $desc .= "Dukungan garansi resmi Yala Computer dan layanan purna jual prioritas memastikan investasi teknologi Anda aman dan menguntungkan.";
+
+        return $desc;
+    }
+
+    /**
+     * Rekomendasi harga jual cerdas berdasarkan margin dan kompetitor (Simulasi).
+     */
+    public function rekomendasiHarga($hargaBeli, $kategori)
+    {
+        // Logika margin dinamis berdasarkan kategori
+        $margin = match(strtolower($kategori)) {
+            'aksesoris' => 0.40, // 40% margin
+            'jasa' => 0.80,      // 80% margin
+            'laptop', 'pc' => 0.15, // 15% margin (kompetitif)
+            default => 0.25
+        };
+
+        $hargaIdeal = $hargaBeli + ($hargaBeli * $margin);
+        
+        // Psikologi harga (akhiran 900 atau 000)
+        $hargaPsikologis = ceil($hargaIdeal / 1000) * 1000; 
+        if ($hargaPsikologis % 10000 == 0) $hargaPsikologis -= 100; // Contoh: 50.000 -> 49.900
+
+        return [
+            'rekomendasi' => $hargaPsikologis,
+            'margin_persen' => $margin * 100,
+            'profit' => $hargaPsikologis - $hargaBeli,
+            'analisis' => "Berdasarkan kategori '{$kategori}', kami menyarankan margin {$margin * 100}% untuk tetap kompetitif namun profitabel."
+        ];
+    }
+
+    /**
+     * Analisis Sentimen & Saran Balasan untuk CS.
+     */
+    public function analisisPesanCS($pesan)
+    {
+        $pesanLower = strtolower($pesan);
+        $kataNegatif = ['rusak', 'kecewa', 'lama', 'lambat', 'penipu', 'batal', 'jelek', 'marah'];
+        $kataTanya = ['kapan', 'dimana', 'berapa', 'cara', 'apakah'];
+        
+        $sentimen = 'netral';
+        $skor = 50;
+
+        foreach ($kataNegatif as $bad) {
+            if (str_contains($pesanLower, $bad)) {
+                $sentimen = 'negatif';
+                $skor = 10;
+                break;
+            }
+        }
+
+        // Generate Saran Balasan
+        $saran = "Halo Kak, terima kasih sudah menghubungi Yala Computer. Ada yang bisa kami bantu?";
+        
+        if ($sentimen == 'negatif') {
+            $saran = "Halo Kak, mohon maaf sekali atas ketidaknyamanan yang dialami. 🙏 Bisa tolong ceritakan detail kendalanya? Kami akan prioritaskan penyelesaian masalah Kakak segera.";
+        } elseif (str_contains($pesanLower, 'kapan') && str_contains($pesanLower, 'kirim')) {
+            $saran = "Halo Kak, untuk pengiriman biasanya diproses H+1 setelah pembayaran ya. Boleh informasikan Nomor Pesanannya agar kami bantu cek status terkini?";
+        } elseif (str_contains($pesanLower, 'stok') || str_contains($pesanLower, 'ready')) {
+            $saran = "Halo Kak, produk tersebut saat ini statusnya READY SIAP KIRIM ya! Silakan bisa langsung di-checkout sebelum kehabisan. 😊";
+        }
+
+        return [
+            'sentimen' => $sentimen,
+            'skor_kepuasan' => $skor,
+            'saran_balasan' => $saran
+        ];
+    }
+
+    /**
+     * Deteksi Anomali Penggajian (Audit AI).
+     */
+    public function auditGaji($totalGaji, $lembur, $jabatan)
+    {
+        $anomali = [];
+        
+        // Cek Lembur Berlebihan
+        if ($lembur > 4000000) { // Misal threshold lembur
+            $anomali[] = "Nominal lembur (Rp " . number_format($lembur) . ") terdeteksi sangat tinggi di luar kewajaran.";
+        }
+
+        // Cek Gaji Pokok vs Jabatan (Mock logic)
+        if ($jabatan == 'Teknisi' && $totalGaji > 15000000) {
+            $anomali[] = "Total gaji melebihi standar rentang gaji untuk posisi Teknisi.";
+        }
+
+        return [
+            'aman' => empty($anomali),
+            'isu' => $anomali
+        ];
     }
 }

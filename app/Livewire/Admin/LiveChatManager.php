@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\PesanObrolan;
 use App\Models\SesiObrolan;
+use App\Services\YalaIntelligence;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -22,6 +23,9 @@ class LiveChatManager extends Component
     public $isiPesan = '';
 
     public $cariPelanggan = '';
+    
+    // AI Property
+    public $aiAnalisis = null;
 
     // Respon Cepat (Canned Responses)
     public $daftarResponCepat = [
@@ -58,13 +62,34 @@ class LiveChatManager extends Component
         }
     }
 
+    public function gunakanSaranAi()
+    {
+        if ($this->aiAnalisis && isset($this->aiAnalisis['saran_balasan'])) {
+            $this->isiPesan = $this->aiAnalisis['saran_balasan'];
+        }
+    }
+
     /**
      * Memilih sesi obrolan aktif.
      */
-    public function pilihSesi($id)
+    public function pilihSesi($id, YalaIntelligence $ai = null)
     {
         $this->sesiTerpilihId = $id;
         $this->tandaiTelahDibaca($id);
+        
+        // AI Analisis Sentimen pada pesan terakhir pelanggan
+        if ($ai) {
+            $pesanTerakhir = PesanObrolan::where('id_sesi', $id)
+                ->where('is_balasan_admin', false)
+                ->latest()
+                ->first();
+                
+            if ($pesanTerakhir) {
+                $this->aiAnalisis = $ai->analisisPesanCS($pesanTerakhir->isi);
+            } else {
+                $this->aiAnalisis = null;
+            }
+        }
     }
 
     /**

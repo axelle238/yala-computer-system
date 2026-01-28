@@ -102,6 +102,32 @@
                 @endforeach
             </div>
 
+            <!-- AI Assistant Panel (NEW) -->
+            @if($aiAnalisis)
+                <div class="px-6 py-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-t border-indigo-100 dark:border-indigo-800/30 flex items-start gap-4">
+                    <div class="flex-shrink-0 mt-1">
+                        <div class="w-8 h-8 rounded-lg bg-white/50 dark:bg-white/10 flex items-center justify-center animate-pulse">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h4 class="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Yala AI Insight</h4>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold border 
+                                {{ $aiAnalisis['sentimen'] == 'negatif' ? 'bg-rose-100 text-rose-700 border-rose-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200' }}">
+                                Sentimen: {{ ucfirst($aiAnalisis['sentimen']) }} ({{ $aiAnalisis['skor_kepuasan'] }}%)
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 italic mb-2">
+                            "{{ $aiAnalisis['saran_balasan'] }}"
+                        </p>
+                        <button wire:click="gunakanSaranAi" class="text-[10px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition-colors shadow-sm">
+                            Gunakan Saran Ini
+                        </button>
+                    </div>
+                </div>
+            @endif
+
             <!-- Input Balasan -->
             <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                 <form wire:submit.prevent="kirimBalasan" class="flex gap-3 items-end">

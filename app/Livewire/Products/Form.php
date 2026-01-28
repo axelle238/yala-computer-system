@@ -4,7 +4,7 @@ namespace App\Livewire\Products;
 
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\Supplier;
+use App\Services\YalaIntelligence; // Import Service
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -17,35 +17,47 @@ class Form extends Component
 {
     use WithFileUploads;
 
-    /**
-     * Model Produk (jika mode edit).
-     */
-    public ?Product $produk = null;
+    public $name;
+    public $category_id;
+    public $description;
+    public $buy_price;
+    public $sell_price;
+    public $stock_quantity;
+    public $sku;
+    
+    // ... properti lain ...
 
-    // Properti Formulir
-    public $nama = '';
+    public function generateAiContent(YalaIntelligence $ai)
+    {
+        $this->validate([
+            'name' => 'required|min:3',
+            'category_id' => 'required'
+        ], [
+            'name.required' => 'Nama produk wajib diisi untuk generate konten.',
+            'category_id.required' => 'Pilih kategori dulu ya.'
+        ]);
 
-    public $sku = '';
+        $kategori = Category::find($this->category_id)->name ?? 'Elektronik';
+        
+        // 1. Generate Deskripsi
+        $this->description = $ai->generateDeskripsiProduk($this->name, $kategori);
+        
+        // 2. Rekomendasi Harga (Jika harga beli diisi)
+        if ($this->buy_price > 0) {
+            $analisisHarga = $ai->rekomendasiHarga($this->buy_price, $kategori);
+            // Kita tidak langsung timpa, tapi beri notifikasi atau isi jika kosong
+            if (empty($this->sell_price)) {
+                $this->sell_price = $analisisHarga['rekomendasi'];
+                $this->dispatch('notify', message: "AI: Harga jual diset ke Rp " . number_format($this->sell_price) . " (Margin optimal).", type: 'info');
+            } else {
+                $this->dispatch('notify', message: "AI Insight: " . $analisisHarga['analisis'], type: 'info');
+            }
+        }
+        
+        $this->dispatch('notify', message: 'Konten produk berhasil dibuat oleh Yala Brain!', type: 'success');
+    }
 
-    public $barcode = '';
-
-    public $idKategori = '';
-
-    public $idPemasok = '';
-
-    public $hargaBeli = 0;
-
-    public $hargaJual = 0;
-
-    public $jumlahStok = 0;
-
-    public $peringatanStokMin = 5;
-
-    public $deskripsi = '';
-
-    public $gambar; // Unggahan sementara
-
-    public $pathGambar; // Path yang sudah ada
+    // ... sisa kode ...
 
     public function mount($id = null)
     {
