@@ -70,7 +70,7 @@ class Index extends Component
         $stats = [
             'total_sku' => Product::count(),
             'total_value' => Product::sum(\DB::raw('buy_price * stock_quantity')),
-            'low_stock' => Product::whereColumn('stock_quantity', '<=', 'min_stock_level')->count(),
+            'low_stock' => Product::whereColumn('stock_quantity', '<=', 'min_stock_alert')->count(),
             'top_category' => Category::withCount('products')->orderBy('products_count', 'desc')->first()->name ?? '-',
         ];
 
