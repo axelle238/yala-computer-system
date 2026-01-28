@@ -122,10 +122,6 @@ class Show extends Component
         }
     }
 
-use App\Services\YalaIntelligence;
-
-// ... (kode lainnya)
-
     public function render(YalaIntelligence $ai)
     {
         // Fraud Detection

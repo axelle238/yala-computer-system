@@ -105,10 +105,6 @@ class DetailPelanggan extends Component
         }
     }
 
-use App\Services\YalaIntelligence; // Import Service
-
-// ... (kode lainnya)
-
     public function render(YalaIntelligence $ai)
     {
         // Analisis Churn
