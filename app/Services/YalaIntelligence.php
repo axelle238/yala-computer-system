@@ -166,11 +166,13 @@ class YalaIntelligence
         $hargaPsikologis = ceil($hargaIdeal / 1000) * 1000; 
         if ($hargaPsikologis % 10000 == 0) $hargaPsikologis -= 100; // Contoh: 50.000 -> 49.900
 
+        $marginPersen = $margin * 100;
+
         return [
             'rekomendasi' => $hargaPsikologis,
-            'margin_persen' => $margin * 100,
+            'margin_persen' => $marginPersen,
             'profit' => $hargaPsikologis - $hargaBeli,
-            'analisis' => "Berdasarkan kategori '{$kategori}', kami menyarankan margin {$margin * 100}% untuk tetap kompetitif namun profitabel."
+            'analisis' => "Berdasarkan kategori '{$kategori}', kami menyarankan margin {$marginPersen}% untuk tetap kompetitif namun profitabel."
         ];
     }
 
