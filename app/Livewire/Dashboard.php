@@ -10,6 +10,7 @@ use App\Models\Quotation;
 use App\Models\ServiceTicket;
 use App\Models\Product;
 use App\Services\BusinessIntelligence;
+use App\Services\YalaIntelligence;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -24,9 +25,13 @@ class Dashboard extends Component
     /**
      * Render komponen Dashboard Admin.
      */
-    public function render()
+    public function render(YalaIntelligence $ai)
     {
         $pengguna = Auth::user();
+        
+        // --- 0. AI INSIGHTS (Yala Brain) ---
+        $aiInsight = $ai->analisisBisnisHarian();
+        $prediksiStok = $ai->prediksiStokKritis();
         
         // --- 1. RINGKASAN EKSEKUTIF (Semua Departemen) ---
         
@@ -75,6 +80,8 @@ class Dashboard extends Component
             ->get();
 
         return view('livewire.dashboard', [
+            'aiInsight' => $aiInsight,
+            'prediksiStok' => $prediksiStok,
             'ringkasan' => [
                 'omset_hari_ini' => $penjualanHariIni,
                 'pesanan_pending' => $pesananPending,

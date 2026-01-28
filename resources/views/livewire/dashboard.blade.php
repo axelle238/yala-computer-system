@@ -16,6 +16,66 @@
         </div>
     </div>
 
+    <!-- AI INTELLIGENCE CARD -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Wawasan Bisnis -->
+        <div class="lg:col-span-2 relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 p-6 text-white shadow-xl">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 h-32 w-32 rounded-full bg-white/10 blur-2xl"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 h-32 w-32 rounded-full bg-black/10 blur-2xl"></div>
+            
+            <div class="relative flex items-start gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">Wawasan Cerdas AI</h3>
+                    <p class="mt-1 text-indigo-100 text-sm leading-relaxed">
+                        {{ $aiInsight['pesan'] }}
+                    </p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <span class="inline-flex items-center rounded-lg bg-white/20 px-3 py-1 text-xs font-bold backdrop-blur-md">
+                            Status: {{ $aiInsight['status'] }}
+                        </span>
+                        <span class="inline-flex items-center rounded-lg bg-emerald-400/20 px-3 py-1 text-xs font-bold text-emerald-100 backdrop-blur-md border border-emerald-400/30">
+                            Rekomendasi: {{ $aiInsight['saran'] }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prediksi Stok -->
+        <div class="rounded-2xl bg-white dark:bg-slate-800 p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    Prediksi Habis Stok
+                </h3>
+                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">AI Forecast</span>
+            </div>
+            
+            <div class="flex-1 space-y-3">
+                @forelse($prediksiStok as $p)
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-700/50">
+                        <div>
+                            <p class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate w-32">{{ $p['nama'] }}</p>
+                            <p class="text-[10px] text-slate-500">Sisa: {{ $p['sisa'] }} unit</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="block text-xs font-bold text-rose-500">{{ $p['habis_dalam'] }}</span>
+                            <span class="text-[9px] text-slate-400">Estimasi Habis</span>
+                        </div>
+                    </div>
+                @empty
+                    <div class="flex-1 flex flex-col items-center justify-center text-center p-4 opacity-50">
+                        <svg class="w-8 h-8 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        <p class="text-xs font-medium">Stok aman terkendali.</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
     <!-- Aksi Cepat (Quick Actions) -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <a href="{{ route('admin.kasir') }}" class="flex items-center gap-3 p-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-500/20 transition-all group">
