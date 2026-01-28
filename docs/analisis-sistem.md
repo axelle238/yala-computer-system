@@ -1,45 +1,45 @@
 # Analisis Sistem Menyeluruh - Yala Computer
-Tanggal Audit: 28 Januari 2026 (Revisi Pasca-Perbaikan Sidebar)
-Status: Pengembangan Tahap 3 (Dashboard & Integrasi Menu)
+Tanggal Audit: 28 Januari 2026
+Status: Pengembangan Tahap 3 (Validasi & Optimalisasi Fitur)
 
-## 1. Status Terkini Sistem (Pasca-Perbaikan)
-Telah dilakukan perbaikan besar pada struktur navigasi dan dashboard utama:
-- **Sidebar Menu**: Telah disinkronisasi 100% dengan `routes/web.php`. Menu-menu kritis seperti Keamanan (IDS, Firewall), Data Master, dan HR (Slip Gaji) kini dapat diakses.
-- **Dashboard Utama**: Telah diubah menjadi "Dasbor Eksekutif" yang menampilkan ringkasan lintas departemen (Penjualan, Stok, Servis, Aktivitas).
-- **Bug Layout**: Tabrakan antara sidebar menu bawah dengan profil user footer telah diperbaiki (padding `pb-32`).
-- **Obral Kilat**: Formulir pembuatan flash sale telah dirapikan agar tidak *overlapping*.
+## 1. Status Terkini Sistem
+Berdasarkan audit file `routes/web.php` dan `bootstrap/app.php`:
 
-## 2. Analisis Kesenjangan (Gap Analysis)
-Meskipun navigasi sudah lengkap, beberapa fitur masih memerlukan pengembangan mendalam pada Tahap 3:
+### A. Routing & Middleware
+- **Struktur Rute**: Terdefinisi dengan sangat baik. Pemisahan `admin.*`, `anggota.*`, dan `toko.*` (Storefront) jelas.
+- **Bahasa**: Penamaan rute (`name()`) konsisten 100% Bahasa Indonesia.
+- **Keamanan**: Middleware `CyberShield` terpasang global. Middleware `store.configured` melindungi checkout.
+- **Redirect**: Logika redirect tamu (`redirectGuestsTo`) sudah membedakan antara login admin dan pelanggan.
 
-### A. Admin / Operasional
-1.  **Dashboard Spesifik per Menu**:
-    - Sidebar menu kini memiliki dashboard spesifik (misal: "Dashboard Penjualan", "Dashboard Keamanan").
-    - **TINDAKAN:** Perlu memastikan setiap rute `admin.*.dashboard` atau `admin.analitik.*` memiliki komponen Livewire yang menampilkan data spesifik, bukan sekadar tabel kosong.
-2.  **Slip Gaji Karyawan (`admin.gaji`)**:
-    - Rute baru ditambahkan untuk akses mandiri karyawan.
-    - **TINDAKAN:** Verifikasi komponen `App\Livewire\Employees\Payroll` apakah sudah mendukung tampilan "My Payslip" untuk user non-HR.
-3.  **Modul Keamanan**:
-    - Menu IDS, Honeypot, dan Scanner sudah ada di sidebar.
-    - **TINDAKAN:** Pastikan komponen backend `App\Livewire\Security\*` benar-benar terhubung dengan logika deteksi, bukan hanya *mockup*.
+### B. Cakupan Fitur (Admin)
+- **Operasional Lengkap**: Mencakup Kasir (POS), Gudang, Servis, Perakitan PC, hingga SDM (Gaji, Kehadiran).
+- **Keamanan Siber**: Modul IDS, Firewall, dan Honeypot memiliki rute dedikasi.
+- **Logistik**: Manajemen pengiriman dan manifest tersedia.
 
-### B. Storefront (Halaman Toko)
-1.  **Widget Chat**: Sudah diperbarui menjadi *colorful* dan modern.
-2.  **Integrasi Stok**: Perlu dipastikan stok pada menu "Obral Kilat" di admin benar-benar mengurangi kuota saat transaksi terjadi di Storefront.
+### C. Cakupan Fitur (Storefront)
+- **E-Commerce Penuh**: Katalog, Keranjang, Checkout, Lacak Pesanan.
+- **Fitur Khusus**: Rakit PC, Cek Garansi, Lacak Servis.
 
-## 3. Rencana Pengembangan Tahap 3 (Prioritas)
+## 2. Analisis Kesenjangan (Gap Analysis) & Fokus Perbaikan
 
-### Prioritas 1: Pengembangan Dashboard Spesifik
-Mengubah halaman "Index" biasa menjadi Dashboard Analitik yang kaya data untuk:
-- **Penjualan & Kasir**: Grafik tren jam sibuk, metode pembayaran terpopuler.
-- **Servis & Perbaikan**: Statistik durasi servis rata-rata, teknisi terproduktif.
-- **Stok & Gudang**: Analisis perputaran stok (turnover rate), valuasi aset real-time.
+### Prioritas 1: Validasi Fungsional Dashboard
+Meskipun rute ada, konten dashboard seringkali hanya kerangka.
+- **Target**: Memastikan `App\Livewire\Dashboard` (Admin Utama) menampilkan metrik ringkasan yang nyata (bukan *dummy* statis jika memungkinkan).
+- **Tindakan**: Audit file `app/Livewire/Dashboard.php` dan view terkait.
 
-### Prioritas 2: Penyempurnaan Modul HR
-- Implementasi fitur "Self-Service" karyawan (Lihat Slip Gaji, Ajukan Cuti) yang terpisah dari hak akses HR Manager.
+### Prioritas 2: Modul Keamanan (CyberShield)
+Fitur `admin.keamanan.*` sangat krusial untuk proyek ini.
+- **Target**: Memastikan halaman Firewall dan IDS menampilkan data log yang relevan atau status aktif.
+- **Tindakan**: Cek `App\Livewire\Security\Dashboard`.
 
-### Prioritas 3: Validasi Modul Keamanan
-- Melakukan simulasi serangan sederhana (misal: login brute force) untuk memastikan notifikasi IDS muncul di Dashboard Keamanan baru.
+### Prioritas 3: Pengalaman Pengguna (Storefront)
+- **Target**: Memastikan alur "Beli -> Checkout" berjalan mulus tanpa error 500.
+- **Tindakan**: Simulasi (mental walkthrough) kode pada `App\Livewire\Store\Checkout`.
 
-## 4. Kesimpulan
-Sistem navigasi dan kerangka kerja (framework) UI sudah solid. Fokus selanjutnya adalah **mengisi "konten"** dari setiap dashboard spesifik agar informatif, sesuai instruksi "lebih spesifik dan lengkap".
+## 3. Rencana Eksekusi Sesi Ini
+1.  **Audit Dashboard Admin**: Perbaiki tampilan jika kosong/rusak.
+2.  **Audit Modul Keamanan**: Pastikan visualisasi data keamanan muncul.
+3.  **Verifikasi Storefront**: Cek komponen Checkout.
+
+## 4. Log Perubahan
+- **28 Jan 2026**: Audit routing selesai. Struktur dinilai matang. Fokus beralih ke validasi isi komponen (Logic & View).
