@@ -323,7 +323,7 @@ class ChatWidget extends Component
     private function cekStatusOrder($orderId)
     {
         $cleanId = str_replace('#', '', $orderId);
-        $order = Order::where('id', $cleanId)->orWhere('order_number', 'like', "%{$cleanId}%")->first();
+        $order = Order::where('id', $cleanId)->orWhere('order_number', 'like', '%{$cleanId}%')->first();
 
         if ($order) {
             $msg = "📦 **Pesanan #{$order->order_number}**\nStatus: **".strtoupper($order->status)."**\nTotal: Rp ".number_format($order->total_amount, 0, ',', '.');
@@ -409,23 +409,23 @@ class ChatWidget extends Component
         if (! empty($cleanWords)) {
             $query->where(function ($q) use ($cleanWords) {
                 foreach ($cleanWords as $word) {
-                    $q->orWhere('name', 'like', "%{$word}%")
-                        ->orWhereHas('kategori', fn ($k) => $k->where('name', 'like', "%{$word}%"));
+                    $q->orWhere('name', 'like', '%'.$word.'%')
+                        ->orWhereHas('kategori', fn ($k) => $k->where('name', 'like', '%'.$word.'%'));
                 }
             });
         }
 
         if (! empty($negations)) {
             foreach ($negations as $neg) {
-                $query->where('name', 'not like', "%{$neg}%");
+                $query->where('name', 'not like', '%'.$neg.'%');
             }
         }
 
         if (! empty($specs)) {
             foreach ($specs as $spec) {
                 $query->where(function ($q) use ($spec) {
-                    $q->where('name', 'like', "%{$spec}%")
-                        ->orWhere('description', 'like', "%{$spec}%");
+                    $q->where('name', 'like', '%'.$spec.'%')
+                        ->orWhere('description', 'like', '%'.$spec.'%');
                 });
             }
         }
