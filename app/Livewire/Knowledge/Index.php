@@ -65,10 +65,6 @@ class Index extends Component
         $this->sedangMembaca = false;
     }
 
-use App\Services\YalaIntelligence;
-
-// ...
-
     /**
      * Membuka panel baca artikel.
      */
