@@ -67,12 +67,12 @@
                 <div class="space-y-6">
                     <div class="space-y-2">
                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Susunan Pesan (Template)</label>
-                        <textarea wire:model.live="templatePesan" rows="6" class="w-full rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-emerald-500 font-mono text-sm p-5 leading-relaxed dark:text-white" placeholder="Halo {{nama}}, dapatkan promo {{produk_terakhir}} spesial hari ini..."></textarea>
+                        <textarea wire:model.live="templatePesan" rows="6" class="w-full rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-emerald-500 font-mono text-sm p-5 leading-relaxed dark:text-white" placeholder="Halo @{{nama}}, dapatkan promo @{{produk_terakhir}} spesial hari ini..."></textarea>
                         @error('templatePesan') <span class="text-rose-500 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
                         <div class="flex flex-wrap gap-2 mt-2">
-                            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-[9px] font-bold text-slate-500 border border-slate-200 dark:border-slate-600 uppercase">{{ '{{nama}}' }}</span>
-                            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-[9px] font-bold text-slate-500 border border-slate-200 dark:border-slate-600 uppercase">{{ '{{produk_terakhir}}' }}</span>
-                            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-[9px] font-bold text-slate-500 border border-slate-200 dark:border-slate-600 uppercase">{{ '{{poin}}' }}</span>
+                            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-[9px] font-bold text-slate-500 border border-slate-200 dark:border-slate-600 uppercase">@{{nama}}</span>
+                            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-[9px] font-bold text-slate-500 border border-slate-200 dark:border-slate-600 uppercase">@{{produk_terakhir}}</span>
+                            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-[9px] font-bold text-slate-500 border border-slate-200 dark:border-slate-600 uppercase">@{{poin}}</span>
                         </div>
                     </div>
 
