@@ -9,6 +9,7 @@ use App\Models\SesiObrolan;
 use App\Models\User;
 use App\Notifications\NewChatMessage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -28,7 +29,7 @@ class ChatWidget extends Component
 
     // Kamus Normalisasi (Singkatan -> Baku)
     private $kamusSlang = [
-        'yg' => 'yang', 'gk' => 'tidak', 'gak' => 'tidak', 'nggak' => 'tidak',
+        'yg' => 'yang', 'gk' => 'tidak', 'gak' => 'tidak', 'nggak' => 'tidak', 'bukan' => 'bukan', 'jangan' => 'jangan',
         'brp' => 'berapa', 'harganya' => 'harga', 'hrg' => 'harga',
         'bgs' => 'bagus', 'mrh' => 'murah', 'mhl' => 'mahal',
         'ad' => 'ada', 'ready' => 'ada', 'redy' => 'ada',
@@ -152,22 +153,23 @@ class ChatWidget extends Component
     }
 
     /**
-     * Logika AI Chat "YALA" Generasi 5 (NLP & Slang Support).
+     * Logika AI Chat "YALA" Generasi 6 (Context & Memory).
      */
     private function prosesBot($pesan)
     {
         $pesanOriginal = $pesan;
-
-        // 1. Normalisasi Bahasa (Slang -> Baku)
         $pesanNormal = $this->normalisasiPesan(strtolower($pesan));
 
-        // Deteksi Gaya Bahasa User (Formal vs Santai)
         $isSantai = str_contains(strtolower($pesan), 'gan') || str_contains(strtolower($pesan), 'bro') || str_contains(strtolower($pesan), 'min');
         $sapaanUser = $isSantai ? 'Gan' : 'Kak';
 
+        // Context Memory
+        $contextKey = 'chat_context_'.$this->sesi->id;
+        $lastContext = Cache::get($contextKey, []);
+
         $jawaban = '';
 
-        // 2. Analisis Sentimen (Empati)
+        // 1. Analisis Sentimen
         if ($this->analisisSentimen($pesanNormal)) {
             $jawaban = "Waduh, maaf banget ya {$sapaanUser} kalau ada yang bikin gak nyaman. 😟 Boleh ketik **'Admin'** biar langsung dibantu sama tim support kami?";
             $this->kirimBotResponse($jawaban);
@@ -175,7 +177,7 @@ class ChatWidget extends Component
             return;
         }
 
-        // 3. Cek Ongkos Kirim
+        // 2. Cek Ongkos Kirim
         if (preg_match('/ongkir.*ke\s+([a-z\s]+)/i', $pesanNormal, $matches) || preg_match('/biaya.*kirim.*ke\s+([a-z\s]+)/i', $pesanNormal, $matches)) {
             $kota = trim($matches[1]);
             $this->cekOngkir($kota, $sapaanUser);
@@ -183,7 +185,7 @@ class ChatWidget extends Component
             return;
         }
 
-        // 4. Info Pembayaran
+        // 3. Info Pembayaran
         if (str_contains($pesanNormal, 'bayar') || str_contains($pesanNormal, 'rekening') || str_contains($pesanNormal, 'transfer')) {
             $jawaban = "💳 **Cara Bayar**\nBisa transfer (BCA, Mandiri), E-Wallet (GoPay, OVO), atau Kartu Kredit {$sapaanUser}. Pilih aja pas Checkout nanti ya!";
             $this->kirimBotResponse($jawaban);
@@ -191,14 +193,14 @@ class ChatWidget extends Component
             return;
         }
 
-        // 5. Cek Status Toko
+        // 4. Cek Status Toko
         if (str_contains($pesanNormal, 'buka') || str_contains($pesanNormal, 'tutup') || str_contains($pesanNormal, 'jam')) {
             $this->cekStatusToko($sapaanUser);
 
             return;
         }
 
-        // 6. Deteksi Topik Khusus
+        // 5. Deteksi Topik Khusus
         if (str_contains($pesanNormal, 'lacak') || str_contains($pesanNormal, 'resi')) {
             $jawaban = "🔍 **Lacak Paket**\nKetik Nomor Pesanan (misal: #ORD-123) atau Resi-nya disini ya {$sapaanUser}.";
         } elseif (str_contains($pesanNormal, 'rakit') || str_contains($pesanNormal, 'pc')) {
@@ -217,32 +219,32 @@ class ChatWidget extends Component
             $jawaban = "Halo, Selamat {$waktu} {$sapaanUser}! 👋\nYALA siap bantu. Mau cari **Laptop Gaming**, **Cek Ongkir**, atau **Rakit PC**?";
         }
 
-        // 7. Pencarian Produk Cerdas (Advanced Search)
+        // 6. Pencarian Produk Cerdas (Advanced + Context)
         if (empty($jawaban)) {
-            $jawaban = $this->cariProdukAdvanced($pesanNormal, $sapaanUser);
+            $jawaban = $this->cariProdukAdvanced($pesanNormal, $sapaanUser, $lastContext);
         }
 
-        // 8. Fallback
+        // 7. Fallback
         if (empty($jawaban)) {
-            $jawaban = $this->jawabanVariatif($sapaanUser);
+            // Jika ada konteks terakhir tapi bot bingung, tawarkan bantuan terkait konteks itu
+            if (! empty($lastContext['keywords'])) {
+                $lastTopic = implode(' ', $lastContext['keywords']);
+                $jawaban = "Maaf {$sapaanUser}, saya kurang paham pertanyaan barusan. Masih mau lanjut bahas soal **{$lastTopic}** atau cari yang lain?";
+            } else {
+                $jawaban = $this->jawabanVariatif($sapaanUser);
+            }
         }
 
         $this->kirimBotResponse($jawaban);
     }
 
-    /**
-     * Menormalkan kalimat gaul/singkatan menjadi bahasa baku yang dimengerti mesin.
-     */
     private function normalisasiPesan($text)
     {
         $words = explode(' ', $text);
         $cleanWords = [];
 
         foreach ($words as $word) {
-            // Hapus tanda baca
             $cleanWord = preg_replace('/[^a-z0-9]/', '', $word);
-
-            // Cek di kamus slang
             if (isset($this->kamusSlang[$cleanWord])) {
                 $cleanWords[] = $this->kamusSlang[$cleanWord];
             } else {
@@ -313,9 +315,9 @@ class ChatWidget extends Component
         }
     }
 
-    private function cariProdukAdvanced($input, $sapaan)
+    private function cariProdukAdvanced($input, $sapaan, $lastContext)
     {
-        // Ekstraksi Filter Harga (juta/rb)
+        // Ekstraksi Filter Harga
         $maxPrice = null;
         $minPrice = null;
 
@@ -334,12 +336,22 @@ class ChatWidget extends Component
         $rawWords = explode(' ', $input);
         $cleanWords = [];
         $specs = [];
+        $negations = [];
 
         $stopWords = ['apakah', 'ada', 'jual', 'stok', 'harga', 'berapa', 'yang', 'mau', 'beli', 'cari', 'tolong', 'rekomendasi', 'buat', 'untuk', 'dengan', 'spek', 'spesifikasi', 'dibawah', 'diatas', 'juta', 'ribu', 'jt', 'rb', 'murah', 'mahal', 'dong', 'donk', 'gan', 'sis', 'min'];
 
-        foreach ($rawWords as $word) {
+        foreach ($rawWords as $index => $word) {
             $wordLower = strtolower($word);
             if (is_numeric($word)) {
+                continue;
+            }
+
+            // Cek Negasi (bukan, jangan)
+            if (in_array($wordLower, ['bukan', 'jangan', 'tidak', 'tanpa'])) {
+                if (isset($rawWords[$index + 1])) {
+                    $negations[] = strtolower($rawWords[$index + 1]);
+                }
+
                 continue;
             }
 
@@ -353,7 +365,6 @@ class ChatWidget extends Component
                 continue;
             }
 
-            // Koreksi Typo
             $found = $wordLower;
             foreach ($this->kamusProduk as $term) {
                 if (levenshtein($wordLower, $term) <= 1) {
@@ -364,9 +375,17 @@ class ChatWidget extends Component
             $cleanWords[] = $found;
         }
 
+        // Logic Konteks: Jika user hanya tanya harga/spek tanpa sebut produk, pakai konteks lama
+        if (empty($cleanWords) && ! empty($lastContext['keywords']) && (str_contains($input, 'harga') || str_contains($input, 'spek') || ! empty($specs))) {
+            $cleanWords = $lastContext['keywords'];
+        }
+
         if (empty($cleanWords) && empty($specs) && is_null($maxPrice) && is_null($minPrice)) {
             return null;
         }
+
+        // Simpan Konteks Baru
+        Cache::put('chat_context_'.$this->sesi->id, ['keywords' => $cleanWords, 'specs' => $specs], now()->addMinutes(10));
 
         $query = Product::query()->where('is_active', true);
 
@@ -377,6 +396,13 @@ class ChatWidget extends Component
                         ->orWhereHas('kategori', fn ($k) => $k->where('name', 'like', "%{$word}%"));
                 }
             });
+        }
+
+        // Terapkan Negasi
+        if (! empty($negations)) {
+            foreach ($negations as $neg) {
+                $query->where('name', 'not like', "%{$neg}%");
+            }
         }
 
         if (! empty($specs)) {
@@ -416,28 +442,12 @@ class ChatWidget extends Component
                 $response .= "\n\n_Budget max: Rp ".number_format($maxPrice, 0, ',', '.').'_';
             }
 
-            return $response;
-        }
-
-        // Saran Alternatif
-        if ($maxPrice || $minPrice) {
-            $query->withoutGlobalScopes()->where('is_active', true);
-            if (! empty($cleanWords)) {
-                $query->where(function ($q) use ($cleanWords) {
-                    foreach ($cleanWords as $word) {
-                        $q->orWhere('name', 'like', "%{$word}%");
-                    }
-                });
-                $altHasil = $query->take(2)->get();
-                if ($altHasil->count() > 0) {
-                    $response = "Waduh, budget segitu belum dapet nih {$sapaan}. 😅\n\nTapi ada yang mirip (beda harga dikit):\n";
-                    foreach ($altHasil as $p) {
-                        $response .= "\n🔸 **{$p->name}**\n   Rp ".number_format($p->sell_price, 0, ',', '.');
-                    }
-
-                    return $response;
-                }
+            // Smart Recommendation (Cross-Selling)
+            if (count($cleanWords) == 1 && in_array($cleanWords[0], ['cpu', 'processor'])) {
+                $response .= "\n\n💡 *Tip: Jangan lupa cek Motherboard-nya juga ya {$sapaan}!*";
             }
+
+            return $response;
         }
 
         return null;
