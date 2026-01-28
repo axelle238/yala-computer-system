@@ -226,7 +226,7 @@ class ChatWidget extends Component
         if (str_contains($pesanNormal, 'lacak') || str_contains($pesanNormal, 'resi')) {
             $jawaban = "🔍 **Lacak Paket**\nKetik Nomor Pesanan (misal: #ORD-123) atau Resi-nya disini ya {$sapaanUser}.";
         } elseif (str_contains($pesanNormal, 'rakit') || str_contains($pesanNormal, 'pc')) {
-            $jawaban = "🖥️ **Rakit PC**\nCek simulasi rakit PC disini {$sapaanUser}, lengkap sama harganya:\n👉 [Simulasi Rakit PC](".route('toko.rakit-pc').')';
+            $jawaban = "🖥️ **Rakit PC**\nCek simulasi rakit PC disini {$sapaanUser}, lengkap sama harganya:\n👉 [Simulasi Rakit PC]('".route('toko.rakit-pc').'")';
         } elseif (str_contains($pesanNormal, 'admin') || str_contains($pesanNormal, 'cs') || str_contains($pesanNormal, 'orang')) {
             $jawaban = "Oke siap, saya panggilkan Admin CS sebentar ya {$sapaanUser}... ⏳\n(Ketik 'Selesai' kalau mau balik ke Bot)";
             Session::put('chat_mode_admin_'.$this->sesi->id, true);
