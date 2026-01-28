@@ -23,6 +23,16 @@ class LiveChatManager extends Component
 
     public $cariPelanggan = '';
 
+    // Respon Cepat (Canned Responses)
+    public $daftarResponCepat = [
+        'Sapaan Awal' => 'Halo! Selamat datang di Yala Computer. Ada yang bisa kami bantu?',
+        'Cek Stok' => 'Mohon tunggu sebentar, kami akan memeriksa ketersediaan stok produk tersebut di gudang.',
+        'Jam Operasional' => 'Toko fisik kami buka setiap hari Senin - Sabtu pukul 09:00 - 20:00 WIB.',
+        'Prosedur Garansi' => 'Untuk klaim garansi, silakan bawa produk beserta nota pembelian ke toko kami atau kirim via ekspedisi.',
+        'Penutup' => 'Terima kasih telah menghubungi kami. Senang bisa membantu Anda!',
+        'Minta Kontak' => 'Boleh kami minta nomor WhatsApp Anda agar kami bisa menghubungi jika stok tersedia?',
+    ];
+
     // Event Listener
     protected $listeners = ['refreshChat' => '$refresh'];
 
@@ -35,6 +45,16 @@ class LiveChatManager extends Component
         $sesiTerakhir = SesiObrolan::latest()->first();
         if ($sesiTerakhir) {
             $this->pilihSesi($sesiTerakhir->id);
+        }
+    }
+
+    /**
+     * Menggunakan template respon cepat.
+     */
+    public function gunakanResponCepat($kunci)
+    {
+        if (isset($this->daftarResponCepat[$kunci])) {
+            $this->isiPesan = $this->daftarResponCepat[$kunci];
         }
     }
 

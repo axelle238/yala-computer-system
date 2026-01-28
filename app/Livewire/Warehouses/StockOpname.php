@@ -28,6 +28,15 @@ class StockOpname extends Component
     // Status Sesi
     public ?ModelStokOpname $opnameBerjalan = null;
 
+    // Konfirmasi Finalisasi
+    public $modeKonfirmasi = false;
+    public $ringkasanFinal = [
+        'total_item_selisih' => 0,
+        'total_surplus' => 0,
+        'total_kerugian' => 0,
+        'net_finansial' => 0,
+    ];
+
     /**
      * Inisialisasi komponen.
      */
@@ -37,6 +46,54 @@ class StockOpname extends Component
             ->where('status', 'menghitung')
             ->latest()
             ->first();
+    }
+
+    /**
+     * Menyiapkan ringkasan sebelum finalisasi.
+     */
+    public function siapkanFinalisasi()
+    {
+        if (!$this->opnameBerjalan) return;
+
+        $itemBermasalah = $this->opnameBerjalan->item()
+            ->whereNotNull('physical_stock')
+            ->whereRaw('physical_stock != system_stock')
+            ->with('produk')
+            ->get();
+
+        $surplus = 0;
+        $kerugian = 0;
+        $count = 0;
+
+        foreach ($itemBermasalah as $item) {
+            $selisih = $item->physical_stock - $item->system_stock;
+            $nilai = abs($selisih) * ($item->produk->buy_price ?? 0);
+
+            if ($selisih > 0) {
+                $surplus += $nilai;
+            } else {
+                $kerugian += $nilai;
+            }
+            $count++;
+        }
+
+        $this->ringkasanFinal = [
+            'total_item_selisih' => $count,
+            'total_surplus' => $surplus,
+            'total_kerugian' => $kerugian,
+            'net_finansial' => $surplus - $kerugian,
+        ];
+
+        $this->modeKonfirmasi = true;
+    }
+
+    /**
+     * Membatalkan mode konfirmasi.
+     */
+    public function batalKonfirmasi()
+    {
+        $this->modeKonfirmasi = false;
+        $this->ringkasanFinal = [];
     }
 
     /**

@@ -10,10 +10,41 @@
         </div>
         
         @if($opnameBerjalan)
-            <div class="flex flex-wrap gap-3">
-                <button wire:click="hapusSesiIni" class="px-5 py-3 text-sm font-black bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-900/30 text-rose-600 dark:text-rose-400 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all shadow-sm" onclick="return confirm('Yakin batalkan sesi ini? Semua input fisik akan hilang.')">BATALKAN SESI</button>
-                <button wire:click="selesaikanDanFinalisasi" class="px-8 py-3 text-sm font-black bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-500/30 transition-all transform active:scale-95" onclick="return confirm('Finalisasi akan menyesuaikan stok sistem dan mencatat kerugian keuangan (jika ada). Lanjutkan?')">FINALISASI & UPDATE STOK</button>
-            </div>
+            @if($modeKonfirmasi)
+                <!-- Panel Konfirmasi Final -->
+                <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-2xl animate-fade-in w-full md:w-auto">
+                    <div class="flex flex-col md:flex-row gap-8 items-center">
+                        <div class="flex gap-6 text-center md:text-left">
+                            <div>
+                                <div class="text-[10px] uppercase text-slate-400 tracking-widest font-bold">Item Selisih</div>
+                                <div class="text-2xl font-black">{{ $ringkasanFinal['total_item_selisih'] }}</div>
+                            </div>
+                            <div class="w-px bg-slate-700 h-10"></div>
+                            <div>
+                                <div class="text-[10px] uppercase text-emerald-400 tracking-widest font-bold">Potensi Surplus</div>
+                                <div class="text-2xl font-black text-emerald-400">+{{ number_format($ringkasanFinal['total_surplus']) }}</div>
+                            </div>
+                            <div class="w-px bg-slate-700 h-10"></div>
+                            <div>
+                                <div class="text-[10px] uppercase text-rose-400 tracking-widest font-bold">Potensi Rugi</div>
+                                <div class="text-2xl font-black text-rose-400">-{{ number_format($ringkasanFinal['total_kerugian']) }}</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button wire:click="batalKonfirmasi" class="px-4 py-2 text-sm font-bold text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors">Periksa Lagi</button>
+                            <button wire:click="selesaikanDanFinalisasi" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-xl shadow-lg shadow-emerald-500/20 transition-transform active:scale-95 flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                SETUJUI & FINALISASI
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="flex flex-wrap gap-3">
+                    <button wire:click="hapusSesiIni" class="px-5 py-3 text-sm font-black bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-900/30 text-rose-600 dark:text-rose-400 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all shadow-sm" onclick="return confirm('Yakin batalkan sesi ini? Semua input fisik akan hilang.')">BATALKAN SESI</button>
+                    <button wire:click="siapkanFinalisasi" class="px-8 py-3 text-sm font-black bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-500/30 transition-all transform active:scale-95">HITUNG SELISIH & FINALISASI</button>
+                </div>
+            @endif
         @else
             <button wire:click="bukaSesiOpname" class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/30 flex items-center gap-3 transition-all transform hover:-translate-y-1">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
