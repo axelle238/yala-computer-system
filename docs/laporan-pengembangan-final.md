@@ -14,7 +14,9 @@ Sistem Manajemen Toko & E-Commerce "Yala Computer" telah mencapai tingkat kemata
 | **Dashboard Utama** | ✅ **OPTIMAL** | Dilengkapi *Quick Actions* untuk akses cepat Kasir/Servis. Visualisasi data real-time berfungsi. |
 | **Keamanan (SOC)** | ✅ **SOLID** | Fitur *Lockdown*, *Auto-Ban*, dan *Live Attack Map* terintegrasi penuh. Tampilan "War Room" sangat informatif. |
 | **Manajemen Produk** | ✅ **STABIL** | CRUD Produk, Manajemen Stok, dan Notifikasi Batas Minimum berfungsi. |
+| **Gudang & Logistik** | ✅ **KOMPLEKS** | **[BARU]** Stok Opname kini memiliki kalkulasi finansial otomatis (Surplus/Rugi) dengan validasi ganda sebelum finalisasi. |
 | **Kasir & Penjualan** | ✅ **STABIL** | Terintegrasi dengan stok. Mendukung cetak struk (via rute `admin.cetak.transaksi`). |
+| **Media & CS** | ✅ **EFISIEN** | **[BARU]** Live Chat dilengkapi fitur *Canned Responses* (Balasan Cepat) untuk efisiensi respon agen. |
 
 ### B. Storefront (Toko Daring)
 | Modul | Status | Catatan Validasi |
