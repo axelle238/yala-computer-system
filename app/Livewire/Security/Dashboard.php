@@ -107,11 +107,35 @@ class Dashboard extends Component
             $systemIntegrity -= 5;
         }
 
-        // 3. Traffic Analysis (Mock Data with Randomness for "Real-time" feel)
+        // 3. Traffic Analysis (Real Data from ActivityLog)
+        $labels = [];
+        $values = [];
+        $anomalies = [];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $time = now()->subHours($i);
+            $labels[] = $time->format('H:i');
+
+            $count = ActivityLog::whereBetween('created_at', [
+                $time->copy()->startOfHour(),
+                $time->copy()->endOfHour(),
+            ])->count();
+
+            $values[] = $count;
+
+            // Anomalies based on failed logins and threats
+            $anomalyCount = ActivityLog::whereIn('action', ['login_failed', 'firewall_block', 'threat_detected'])
+                ->whereBetween('created_at', [
+                    $time->copy()->startOfHour(),
+                    $time->copy()->endOfHour(),
+                ])->count();
+            $anomalies[] = $anomalyCount;
+        }
+
         $trafficData = [
-            'labels' => collect(range(0, 11))->map(fn ($i) => now()->subHours(11 - $i)->format('H:i'))->toArray(),
-            'values' => collect(range(0, 11))->map(fn () => rand(50, 200) + ($this->lockdownMode ? 500 : 0))->toArray(),
-            'anomalies' => collect(range(0, 11))->map(fn () => rand(0, 10) > 8 ? rand(20, 50) : 0)->toArray(),
+            'labels' => $labels,
+            'values' => $values,
+            'anomalies' => $anomalies,
         ];
 
         // 4. Geo Distribution (Mock)
