@@ -2,12 +2,12 @@
 
 namespace App\Livewire\Reports;
 
-use App\Models\Order;
 use App\Models\CashTransaction;
 use App\Models\InventoryTransaction;
-use Livewire\Component;
+use App\Models\Order;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Laporan Harian - Yala Computer')]
@@ -41,7 +41,7 @@ class LaporanHarian extends Component
                 'kas_masuk' => $transaksiKas['in'] ?? 0,
                 'kas_keluar' => $transaksiKas['out'] ?? 0,
                 'stok_keluar' => $stokKeluar,
-            ]
+            ],
         ]);
     }
 }
