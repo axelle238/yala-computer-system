@@ -51,6 +51,36 @@
                 MULAI PERHITUNGAN BARU
             </button>
         @endif
+        <!-- AI Analysis Card -->
+    <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-6 text-white shadow-xl mb-8 border border-white/10 relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-4 opacity-10">
+            <svg class="w-32 h-32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+        </div>
+        <div class="relative z-10">
+            <h3 class="font-black text-lg mb-4 flex items-center gap-2">
+                <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+                Deteksi Stok Mati (Dead Stock)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @forelse($deadStocks as $ds)
+                    <div class="bg-white/5 rounded-xl p-4 border border-white/10 hover:bg-white/10 transition-colors">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-sm truncate w-32">{{ $ds['produk']->name }}</h4>
+                            <span class="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded uppercase font-black">{{ $ds['lama_inap'] }}</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-3">{{ $ds['pesan'] }}</p>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-emerald-400">Rekomendasi Diskon: <b>{{ $ds['saran_diskon'] }}</b></span>
+                            <span class="text-slate-500">Loss: Rp {{ number_format($ds['potensi_kerugian']/1000) }}k</span>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-3 text-center py-4 text-slate-400 text-sm">
+                        ✨ Hebat! Tidak ditemukan indikasi stok mati yang kritis.
+                    </div>
+                @endforelse
+            </div>
+        </div>
     </div>
 
     @if($opnameBerjalan)

@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\StockOpname as ModelStokOpname;
 use App\Models\StockOpnameItem as ItemStokOpname;
 use App\Models\Warehouse;
+use App\Services\YalaIntelligence;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
@@ -234,7 +235,7 @@ class StockOpname extends Component
         }
     }
 
-    public function render()
+    public function render(YalaIntelligence $ai)
     {
         $daftarItem = null;
         if ($this->opnameBerjalan) {
@@ -247,8 +248,11 @@ class StockOpname extends Component
                 ->paginate(50);
         }
 
+        $analisisDeadStock = $ai->analisisDeadStock();
+
         return view('livewire.warehouses.stock-opname', [
             'daftarItem' => $daftarItem,
+            'deadStocks' => $analisisDeadStock,
         ]);
     }
 }

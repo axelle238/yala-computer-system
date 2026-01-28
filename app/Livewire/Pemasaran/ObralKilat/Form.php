@@ -4,6 +4,7 @@ namespace App\Livewire\Pemasaran\ObralKilat;
 
 use App\Models\FlashSale;
 use App\Models\Product;
+use App\Services\YalaIntelligence;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -21,6 +22,9 @@ class Form extends Component
     public $waktuSelesai;
 
     public $kuota = 10;
+    
+    // Marketing Content
+    public $captionIklan = '';
 
     // Search
     public $cariProduk = '';
@@ -30,6 +34,19 @@ class Form extends Component
     public $namaProdukTerpilih = '';
 
     public $hargaAsli = 0;
+
+    public function generateCaption(YalaIntelligence $ai)
+    {
+        if(!$this->namaProdukTerpilih) {
+            $this->dispatch('notify', message: 'Pilih produk terlebih dahulu.', type: 'error');
+            return;
+        }
+        
+        $this->captionIklan = $ai->generateCaptionIklan($this->namaProdukTerpilih, 'flash_sale');
+        $this->dispatch('notify', message: 'Caption iklan berhasil dibuat!', type: 'success');
+    }
+    
+    // ... method lain ...
 
     public function updatedCariProduk()
     {

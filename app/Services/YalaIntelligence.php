@@ -236,4 +236,65 @@ class YalaIntelligence
             'isu' => $anomali
         ];
     }
+
+    /**
+     * Analisis Stok Mati (Dead Stock) dan Rekomendasi Clearance.
+     */
+    public function analisisDeadStock($daysThreshold = 90)
+    {
+        // Logika: Produk yang stoknya > 0 tapi tidak ada transaksi keluar selama X hari
+        $deadStocks = Product::where('stock_quantity', '>', 0)
+            ->whereDoesntHave('orderItems', function ($q) use ($daysThreshold) {
+                $q->where('created_at', '>=', now()->subDays($daysThreshold));
+            })
+            ->take(5) // Ambil sampel 5 teratas
+            ->get();
+
+        $analisis = [];
+
+        foreach ($deadStocks as $product) {
+            $diskonSaran = 0;
+            $pesan = '';
+
+            // Hitung depresiasi nilai (Mock)
+            $lamaInap = $daysThreshold + rand(1, 60); // Simulasi hari
+            
+            if ($lamaInap > 180) {
+                $diskonSaran = 50;
+                $pesan = "⚠️ Kritis! Produk mengendap > 6 bulan. Segera cuci gudang.";
+            } elseif ($lamaInap > 120) {
+                $diskonSaran = 30;
+                $pesan = "⚠️ Waspada. Perputaran lambat. Sarankan bundling atau diskon.";
+            } else {
+                $diskonSaran = 15;
+                $pesan = "ℹ️ Perhatian. Belum terjual dalam 3 bulan terakhir.";
+            }
+
+            $analisis[] = [
+                'produk' => $product,
+                'lama_inap' => $lamaInap . ' hari',
+                'saran_diskon' => $diskonSaran . '%',
+                'potensi_kerugian' => $product->buy_price * $product->stock_quantity,
+                'pesan' => $pesan
+            ];
+        }
+
+        return $analisis;
+    }
+
+    /**
+     * Generator Caption Iklan (Marketing AI).
+     */
+    public function generateCaptionIklan($namaProduk, $tipePromo)
+    {
+        $emoji = ['🔥', '⚡', '🚀', '💻', '✨', '🎉'];
+        $e = $emoji[array_rand($emoji)];
+
+        return match($tipePromo) {
+            'flash_sale' => "{$e} FLASH SALE ALERT! {$namaProduk} turun harga gila-gilaan! Cuma hari ini, stok terbatas banget. Jangan sampai nyesel gak kebagian! ⏰ #YalaPromo #FlashSale",
+            'new_arrival' => "{$e} NEW ARRIVAL! Akhirnya yang ditunggu datang juga. {$namaProduk} siap nemenin produktivitas kamu. Cek sekarang sebelum kehabisan! #YalaComputer #GadgetBaru",
+            'clearance' => "{$e} CUCI GUDANG! Diskon sadis buat {$namaProduk}. Kapan lagi dapet barang bagus harga miring? Gaspol ke toko sekarang! 🏃‍♂️💨 #ClearanceSale #Diskon",
+            default => "{$e} Upgrade setup kamu pake {$namaProduk}! Performa mantap, harga bersahabat. Cuma di Yala Computer. 😎"
+        };
+    }
 }

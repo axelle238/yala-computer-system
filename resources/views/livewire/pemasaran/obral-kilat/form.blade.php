@@ -75,6 +75,19 @@
                         @error('waktuSelesai') <span class="text-rose-500 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>
+
+                <!-- AI Marketing Content -->
+                <div class="pt-6 border-t border-slate-100 dark:border-slate-700">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">Caption Iklan (Sosmed/WA)</label>
+                        <button type="button" wire:click="generateCaption" wire:loading.attr="disabled" class="text-[10px] font-bold text-white bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1 transition-all hover:scale-105 disabled:opacity-50">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                            Buat Caption Otomatis
+                        </button>
+                    </div>
+                    <textarea wire:model="captionIklan" rows="3" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-pink-500 focus:border-pink-500 text-sm" placeholder="Klik tombol di atas untuk generate caption menarik..."></textarea>
+                    <p class="text-[10px] text-slate-400 mt-1">*Caption ini bisa Anda copy untuk broadcast WhatsApp atau posting Instagram.</p>
+                </div>
             </div>
         </div>
 
