@@ -4,6 +4,7 @@ namespace App\Livewire\Employees;
 
 use App\Models\Peran;
 use App\Models\User;
+use App\Services\YalaIntelligence;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -196,10 +197,32 @@ class Form extends Component
         }
     }
 
-    public function render()
+use App\Services\YalaIntelligence;
+
+// ... (kode lainnya)
+
+    public function render(YalaIntelligence $ai)
     {
+        $kinerja = null;
+        
+        if ($this->karyawan) {
+            // Data Mock untuk Absensi & Target (Harusnya dari DB)
+            $absensi = [
+                'hadir' => 22,
+                'terlambat' => rand(0, 5),
+                'alpha' => rand(0, 1)
+            ];
+            
+            // Mock Pencapaian (Misal dari total penjualan yang ditangani)
+            $pencapaian = rand(5000000, 50000000); 
+            $target = 30000000;
+
+            $kinerja = $ai->analisisKinerjaKaryawan($target, $pencapaian, $absensi);
+        }
+
         return view('livewire.employees.form', [
             'daftarPeran' => Peran::all(),
+            'analisisKinerja' => $kinerja
         ]);
     }
 }

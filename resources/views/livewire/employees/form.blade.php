@@ -13,6 +13,36 @@
         </a>
     </div>
 
+    <!-- AI Performance Card -->
+    @if(isset($analisisKinerja) && $analisisKinerja)
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-20">
+                <svg class="w-32 h-32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+            </div>
+            <div class="relative z-10 flex flex-col md:flex-row gap-6 items-center">
+                <div class="text-center md:text-left">
+                    <h3 class="font-black text-lg uppercase tracking-widest mb-1 flex items-center gap-2 justify-center md:justify-start">
+                        <span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span> Analisis Performa AI
+                    </h3>
+                    <p class="text-blue-100 text-xs">Evaluasi otomatis berdasarkan data penjualan & absensi.</p>
+                </div>
+                <div class="flex-1 bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 flex items-center gap-4">
+                    <div class="relative w-16 h-16 shrink-0">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-blue-900" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" />
+                            <path class="text-yellow-400 drop-shadow-md" stroke-dasharray="{{ $analisisKinerja['persentase'] }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center font-bold text-xs">{{ $analisisKinerja['persentase'] }}%</div>
+                    </div>
+                    <div>
+                        <div class="font-black text-lg">{{ $analisisKinerja['status'] }}</div>
+                        <p class="text-xs text-blue-100 leading-tight mt-1">{{ $analisisKinerja['saran'] }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <form wire:submit="simpan" class="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-slate-100 dark:border-slate-700 shadow-xl shadow-orange-900/5 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-orange-500/10 to-amber-500/10 rounded-bl-full pointer-events-none"></div>
         

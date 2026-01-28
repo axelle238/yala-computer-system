@@ -297,4 +297,114 @@ class YalaIntelligence
             default => "{$e} Upgrade setup kamu pake {$namaProduk}! Performa mantap, harga bersahabat. Cuma di Yala Computer. 😎"
         };
     }
+
+    /**
+     * Analisis Risiko Churn Pelanggan (CRM AI).
+     * Menganalisis pola belanja untuk memprediksi pelanggan yang mungkin akan pergi.
+     */
+    public function analisisChurnPelanggan($frekuensiBelanja, $hariSejakTerakhirBelanja, $totalBelanja)
+    {
+        $risiko = 'Rendah';
+        $saran = 'Pertahankan hubungan baik.';
+        $skor = 0;
+
+        // Logika Fuzzy Sederhana
+        if ($hariSejakTerakhirBelanja > 90) {
+            $risiko = 'Tinggi';
+            $saran = 'Pelanggan dorman. Segera kirim voucher "We Miss You" untuk menarik kembali.';
+            $skor += 60;
+        } elseif ($hariSejakTerakhirBelanja > 45) {
+            $risiko = 'Sedang';
+            $saran = 'Mulai jarang aktif. Coba sapa melalui WhatsApp.';
+            $skor += 30;
+        }
+
+        if ($frekuensiBelanja < 2 && $hariSejakTerakhirBelanja > 30) {
+            $skor += 20; // Pelanggan baru yang tidak kembali
+        }
+
+        if ($totalBelanja > 10000000 && $risiko != 'Rendah') {
+            $saran .= ' (VIP Treatment Diperlukan)';
+        }
+
+        return [
+            'risiko' => $risiko,
+            'skor_churn' => min(100, $skor),
+            'saran' => $saran
+        ];
+    }
+
+    /**
+     * Deteksi Potensi Fraud/Penipuan pada Pesanan (Security AI).
+     */
+    public function deteksiFraudPesanan($totalOrder, $alamat, $metodeBayar, $isGuest)
+    {
+        $poinFraud = 0;
+        $indikator = [];
+
+        // 1. Nilai Transaksi Tinggi pada Guest
+        if ($isGuest && $totalOrder > 5000000) {
+            $poinFraud += 30;
+            $indikator[] = 'Transaksi Guest bernilai tinggi';
+        }
+
+        // 2. COD Bernilai Tinggi (Risiko Gagal Bayar)
+        if ($metodeBayar == 'cod' && $totalOrder > 3000000) {
+            $poinFraud += 40;
+            $indikator[] = 'COD nominal besar (Risiko Retur)';
+        }
+
+        // 3. Alamat Mencurigakan (Keyword simplifikasi)
+        $alamatLower = strtolower($alamat);
+        if (str_contains($alamatLower, 'pt.') || str_contains($alamatLower, 'kantor')) {
+            // Biasanya aman, kurangi skor
+            $poinFraud -= 10;
+        } elseif (strlen($alamat) < 15) {
+            $poinFraud += 20;
+            $indikator[] = 'Alamat pengiriman terlalu pendek/tidak detail';
+        }
+
+        $status = $poinFraud > 50 ? 'Risiko Tinggi' : ($poinFraud > 20 ? 'Perlu Verifikasi' : 'Aman');
+
+        return [
+            'status' => $status,
+            'skor' => max(0, $poinFraud),
+            'indikator' => $indikator
+        ];
+    }
+
+    /**
+     * Analisis Kinerja Karyawan (HR AI).
+     */
+    public function analisisKinerjaKaryawan($target, $pencapaian, $absensi)
+    {
+        $persenCapaian = ($target > 0) ? ($pencapaian / $target) * 100 : 0;
+        $status = '';
+        $saran = '';
+
+        if ($persenCapaian >= 100) {
+            $status = 'Bintang (Star Performer)';
+            $saran = 'Pertimbangkan bonus performa atau kenaikan jenjang karir.';
+        } elseif ($persenCapaian >= 80) {
+            $status = 'Solid';
+            $saran = 'Performa stabil. Berikan apresiasi verbal.';
+        } elseif ($persenCapaian >= 50) {
+            $status = 'Perlu Bimbingan';
+            $saran = 'Jadwalkan sesi coaching/mentoring one-on-one.';
+        } else {
+            $status = 'Underperformer';
+            $saran = 'Evaluasi mendalam diperlukan. Cek kendala teknis atau motivasi.';
+        }
+
+        // Faktor Absensi
+        if ($absensi['terlambat'] > 3) {
+            $saran .= " Perhatikan kedisiplinan (Terlambat {$absensi['terlambat']}x).";
+        }
+
+        return [
+            'status' => $status,
+            'persentase' => round($persenCapaian, 1),
+            'saran' => $saran
+        ];
+    }
 }

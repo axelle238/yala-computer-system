@@ -5,6 +5,7 @@ namespace App\Livewire\Orders;
 use App\Models\InventoryTransaction;
 use App\Models\Order;
 use App\Models\Product;
+use App\Services\YalaIntelligence;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -121,8 +122,22 @@ class Show extends Component
         }
     }
 
-    public function render()
+use App\Services\YalaIntelligence;
+
+// ... (kode lainnya)
+
+    public function render(YalaIntelligence $ai)
     {
-        return view('livewire.orders.show');
+        // Fraud Detection
+        $fraudCheck = $ai->deteksiFraudPesanan(
+            $this->order->total_amount,
+            $this->order->shipping_address,
+            $this->order->payment_method,
+            is_null($this->order->user_id)
+        );
+
+        return view('livewire.orders.show', [
+            'fraudCheck' => $fraudCheck
+        ]);
     }
 }

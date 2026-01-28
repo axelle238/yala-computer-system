@@ -4,6 +4,7 @@ namespace App\Livewire\Pelanggan;
 
 use App\Models\PointHistory;
 use App\Models\User;
+use App\Services\YalaIntelligence;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -104,8 +105,22 @@ class DetailPelanggan extends Component
         }
     }
 
-    public function render()
+use App\Services\YalaIntelligence; // Import Service
+
+// ... (kode lainnya)
+
+    public function render(YalaIntelligence $ai)
     {
-        return view('livewire.pelanggan.detail-pelanggan');
+        // Analisis Churn
+        $lastOrder = $this->pelanggan->orders()->latest()->first();
+        $hariSejak = $lastOrder ? $lastOrder->created_at->diffInDays(now()) : 999;
+        $totalBelanja = $this->pelanggan->orders()->sum('total_amount');
+        $frekuensi = $this->pelanggan->orders()->count();
+
+        $churnAnalysis = $ai->analisisChurnPelanggan($frekuensi, $hariSejak, $totalBelanja);
+
+        return view('livewire.pelanggan.detail-pelanggan', [
+            'churnAnalysis' => $churnAnalysis
+        ]);
     }
 }

@@ -130,6 +130,46 @@
 
         <!-- Sidebar Info -->
         <div class="space-y-8">
+            <!-- Fraud Detection AI -->
+            <div class="bg-slate-900 rounded-2xl shadow-lg p-6 text-white border border-slate-700 relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 w-24 h-24 bg-indigo-500 rounded-full blur-3xl opacity-20"></div>
+                
+                <h3 class="font-black text-sm mb-4 uppercase tracking-widest flex items-center gap-2">
+                    <svg class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                    Analisis Keamanan AI
+                </h3>
+
+                <div class="space-y-4 relative z-10">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-slate-400 font-bold uppercase">Tingkat Risiko</span>
+                        <span class="px-2 py-1 rounded text-[10px] font-black uppercase 
+                            {{ $fraudCheck['status'] == 'Aman' ? 'bg-emerald-500 text-white' : ($fraudCheck['status'] == 'Risiko Tinggi' ? 'bg-rose-500 text-white' : 'bg-amber-500 text-black') }}">
+                            {{ $fraudCheck['status'] }}
+                        </span>
+                    </div>
+                    
+                    <div class="w-full bg-slate-800 rounded-full h-2">
+                        <div class="h-2 rounded-full {{ $fraudCheck['skor'] > 50 ? 'bg-rose-500' : ($fraudCheck['skor'] > 20 ? 'bg-amber-500' : 'bg-emerald-500') }}" style="width: {{ $fraudCheck['skor'] }}%"></div>
+                    </div>
+
+                    @if(!empty($fraudCheck['indikator']))
+                        <div class="bg-white/5 rounded-lg p-3 border border-white/10">
+                            <p class="text-[10px] text-slate-400 mb-2 font-bold uppercase">Indikator Terdeteksi:</p>
+                            <ul class="list-disc list-inside text-xs text-slate-300 space-y-1">
+                                @foreach($fraudCheck['indikator'] as $i)
+                                    <li>{{ $i }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @else
+                        <p class="text-xs text-emerald-400 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                            Tidak ada indikasi mencurigakan.
+                        </p>
+                    @endif
+                </div>
+            </div>
+
             <!-- Customer Info -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
                 <h3 class="font-black text-sm text-slate-900 dark:text-white mb-6 uppercase tracking-widest border-b border-slate-100 dark:border-slate-700 pb-4">
