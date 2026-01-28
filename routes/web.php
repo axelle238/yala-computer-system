@@ -189,6 +189,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/analitik/keuangan', \App\Livewire\Reports\FinanceReport::class)->name('admin.analitik.keuangan');
     Route::get('/analitik/stok', \App\Livewire\Reports\StockReport::class)->name('admin.analitik.stok');
     Route::get('/analitik/penjualan', \App\Livewire\Reports\SalesReport::class)->name('admin.analitik.penjualan');
+    Route::get('/laporan/harian', \App\Livewire\Reports\LaporanHarian::class)->name('admin.laporan.harian');
 
     Route::get('/shift', \App\Livewire\Shift\Manager::class)->name('admin.shift');
     Route::get('/reimbursement', \App\Livewire\Employees\Reimbursement::class)->name('admin.reimbursement');
