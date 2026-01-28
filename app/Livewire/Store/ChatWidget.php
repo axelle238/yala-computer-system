@@ -23,9 +23,9 @@ class ChatWidget extends Component
 
     public $pesanBaru = '';
 
-    public $modeBot = true;
+    public $tokenTamu;
 
-    public $isLoggedIn = false;
+    public $modeBot = true;
 
     // Kamus Normalisasi (Singkatan -> Baku)
     private $kamusSlang = [
@@ -80,11 +80,14 @@ class ChatWidget extends Component
 
     public function mount()
     {
-        $this->isLoggedIn = Auth::check();
-        
-        if ($this->isLoggedIn) {
-            $this->muatSesi();
+        $this->tokenTamu = Session::get('token_tamu_chat');
+
+        if (! $this->tokenTamu && ! Auth::check()) {
+            $this->tokenTamu = Str::random(32);
+            Session::put('token_tamu_chat', $this->tokenTamu);
         }
+
+        $this->muatSesi();
     }
 
     public function muatSesi()
@@ -92,7 +95,7 @@ class ChatWidget extends Component
         if (Auth::check()) {
             $this->sesi = SesiObrolan::where('id_pelanggan', Auth::id())->latest()->first();
         } else {
-            $this->sesi = null;
+            $this->sesi = SesiObrolan::where('token_tamu', $this->tokenTamu)->latest()->first();
         }
     }
 
@@ -106,16 +109,16 @@ class ChatWidget extends Component
 
     public function kirimPesan()
     {
-        if (! Auth::check()) {
-            return;
-        }
-
         $this->validate(['pesanBaru' => 'required|string|min:1']);
+
+        if (! $this->tokenTamu && ! Auth::check()) {
+            $this->tokenTamu = Session::get('token_tamu_chat');
+        }
 
         if (! $this->sesi) {
             $this->sesi = SesiObrolan::create([
                 'id_pelanggan' => Auth::id(),
-                'token_tamu' => null,
+                'token_tamu' => Auth::check() ? null : $this->tokenTamu,
                 'topik' => 'Obrolan Baru',
             ]);
         }
@@ -225,9 +228,13 @@ class ChatWidget extends Component
         } elseif (str_contains($pesanNormal, 'rakit') || str_contains($pesanNormal, 'pc')) {
             $jawaban = "🖥️ **Rakit PC**\nCek simulasi rakit PC disini {$sapaanUser}, lengkap sama harganya:\n👉 [Simulasi Rakit PC]('".route('toko.rakit-pc').'")';
         } elseif (str_contains($pesanNormal, 'admin') || str_contains($pesanNormal, 'cs') || str_contains($pesanNormal, 'orang')) {
-            $jawaban = "Oke siap, saya panggilkan Admin CS sebentar ya {$sapaanUser}... ⏳\n(Ketik 'Selesai' kalau mau balik ke Bot)";
-            Session::put('chat_mode_admin_'.$this->sesi->id, true);
-            $this->notifikasiAdmin($pesanOriginal);
+            if (Auth::check()) {
+                $jawaban = "Oke siap, saya panggilkan Admin CS sebentar ya {$sapaanUser}... ⏳\n(Ketik 'Selesai' kalau mau balik ke Bot)";
+                Session::put('chat_mode_admin_'.$this->sesi->id, true);
+                $this->notifikasiAdmin($pesanOriginal);
+            } else {
+                $jawaban = "🔒 **Fitur Terbatas**\nMaaf banget {$sapaanUser}, untuk ngobrol langsung sama **Admin CS**, Kakak harus login dulu ya biar riwayat chatnya aman.\n\nSilakan login di menu Akun atau klik tombol masuk di atas! 😊";
+            }
         } elseif (preg_match('/\d{4,}/', $pesanNormal, $matches)) {
             $this->cekStatusOrder($matches[0]);
 

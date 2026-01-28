@@ -79,8 +79,8 @@
             @endforeach
         </div>
 
-        <!-- Quick Suggestions (Hanya jika TIDAK dalam mode admin DAN sudah login) -->
-        @if(!$isAdminMode && Auth::check())
+        <!-- Quick Suggestions (Hanya jika TIDAK dalam mode admin) -->
+        @if(!$isAdminMode)
             <div class="px-5 pb-2 bg-[#F9FAFB] dark:bg-[#0f0f0f] flex gap-2 overflow-x-auto no-scrollbar">
                 <button wire:click="$set('pesanBaru', 'Cek status pesanan saya')" class="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 hover:border-black dark:hover:border-white transition-colors shadow-sm">
                     📦 Cek Pesanan
@@ -96,42 +96,22 @@
 
         <!-- Input Area -->
         <div class="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
-            @auth
-                <form wire:submit.prevent="kirimPesan" class="relative">
-                    <input wire:model.live="pesanBaru" type="text" placeholder="{{ $isAdminMode ? 'Ketik pesan untuk Admin...' : 'Tulis pesan...' }}" 
-                        class="w-full pl-4 pr-12 py-3.5 bg-slate-50 dark:bg-slate-800 border-0 rounded-xl focus:ring-2 focus:ring-black dark:focus:ring-white text-slate-900 dark:text-white placeholder-slate-400 font-medium transition-all">
-                    
-                    <button type="submit" class="absolute right-2 top-2 p-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:scale-105 transition-transform disabled:opacity-50" wire:loading.attr="disabled" wire:target="kirimPesan">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-                    </button>
-                </form>
-                @error('pesanBaru') <span class="text-xs text-red-500 block mt-1 ml-1">{{ $message }}</span> @enderror
-            @else
-                <div class="flex flex-col items-center justify-center h-full py-6 space-y-4">
-                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-2">
-                        <svg class="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                    </div>
-                    <div class="text-center px-6">
-                        <h4 class="font-bold text-slate-900 dark:text-white mb-1">Akses Terbatas</h4>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Mohon maaf, Anda harus masuk akun terlebih dahulu untuk dapat menghubungi Admin atau CS kami.
-                        </p>
-                    </div>
-                    <div class="flex gap-3 w-full px-6">
-                        <a href="{{ route('pelanggan.masuk') }}" class="flex-1 py-2.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-xl text-xs font-bold transition-colors text-center">
-                            Masuk
-                        </a>
-                        <a href="{{ route('pelanggan.daftar') }}" class="flex-1 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition-colors text-center shadow-lg shadow-cyan-500/20">
-                            Daftar
-                        </a>
-                    </div>
-                </div>
-            @endauth
+            <form wire:submit.prevent="kirimPesan" class="relative">
+                <input wire:model.live="pesanBaru" type="text" placeholder="{{ $isAdminMode ? 'Ketik pesan untuk Admin...' : (Auth::check() ? 'Tulis pesan...' : 'Tanya Bot Yala...') }}" 
+                    class="w-full pl-4 pr-12 py-3.5 bg-slate-50 dark:bg-slate-800 border-0 rounded-xl focus:ring-2 focus:ring-cyan-500 text-slate-900 dark:text-white placeholder-slate-400 font-medium transition-all">
+                
+                <button type="submit" class="absolute right-2 top-2 p-1.5 bg-cyan-600 dark:bg-cyan-500 text-white rounded-lg hover:scale-105 transition-transform disabled:opacity-50" wire:loading.attr="disabled" wire:target="kirimPesan">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                </button>
+            </form>
+            @error('pesanBaru') <span class="text-xs text-red-500 block mt-1 ml-1">{{ $message }}</span> @enderror
             
             <p class="text-[10px] text-center text-slate-400 mt-2 font-medium">
-                {{ $isAdminMode ? 'Terhubung dengan Staf Support' : 'Powered by Yala AI • Respon Instan' }}
+                @guest
+                    <a href="{{ route('pelanggan.masuk') }}" class="text-cyan-500 hover:underline">Login</a> untuk chat dengan Admin CS
+                @else
+                    {{ $isAdminMode ? 'Terhubung dengan Staf Support' : 'Powered by Yala AI • Respon Instan' }}
+                @endguest
             </p>
         </div>
     </div>
