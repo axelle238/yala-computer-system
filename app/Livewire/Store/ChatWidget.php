@@ -47,6 +47,7 @@ class ChatWidget extends Component
         'mobo' => 'motherboard', 'proc' => 'processor', 'procie' => 'processor',
         'lepi' => 'laptop', 'leptop' => 'laptop',
         'garansi' => 'garansi', 'gransi' => 'garansi', 'warr' => 'garansi',
+        'price' => 'harga', 'stock' => 'stok',
     ];
 
     // Kamus data untuk koreksi typo & deteksi kategori
@@ -55,7 +56,7 @@ class ChatWidget extends Component
         'headset', 'ssd', 'ram', 'vga', 'gpu', 'cpu', 'processor', 'casing',
         'gaming', 'office', 'desain', 'sekolah', 'murah', 'mahal', 'promo',
         'asus', 'lenovo', 'hp', 'dell', 'acer', 'samsung', 'lg', 'logitech',
-        'motherboard', 'intel', 'amd', 'ryzen', 'nvidia', 'radeon',
+        'motherboard', 'intel', 'amd', 'ryzen', 'nvidia', 'radeon', 'msi', 'gigabyte',
     ];
 
     // Data Ongkir Sederhana
@@ -153,7 +154,7 @@ class ChatWidget extends Component
     }
 
     /**
-     * Logika AI Chat "YALA" Generasi 6 (Context & Memory).
+     * Logika AI Chat "YALA" Generasi 7 (Predictive & Insightful).
      */
     private function prosesBot($pesan)
     {
@@ -226,7 +227,6 @@ class ChatWidget extends Component
 
         // 7. Fallback
         if (empty($jawaban)) {
-            // Jika ada konteks terakhir tapi bot bingung, tawarkan bantuan terkait konteks itu
             if (! empty($lastContext['keywords'])) {
                 $lastTopic = implode(' ', $lastContext['keywords']);
                 $jawaban = "Maaf {$sapaanUser}, saya kurang paham pertanyaan barusan. Masih mau lanjut bahas soal **{$lastTopic}** atau cari yang lain?";
@@ -317,7 +317,6 @@ class ChatWidget extends Component
 
     private function cariProdukAdvanced($input, $sapaan, $lastContext)
     {
-        // Ekstraksi Filter Harga
         $maxPrice = null;
         $minPrice = null;
 
@@ -346,7 +345,6 @@ class ChatWidget extends Component
                 continue;
             }
 
-            // Cek Negasi (bukan, jangan)
             if (in_array($wordLower, ['bukan', 'jangan', 'tidak', 'tanpa'])) {
                 if (isset($rawWords[$index + 1])) {
                     $negations[] = strtolower($rawWords[$index + 1]);
@@ -375,7 +373,6 @@ class ChatWidget extends Component
             $cleanWords[] = $found;
         }
 
-        // Logic Konteks: Jika user hanya tanya harga/spek tanpa sebut produk, pakai konteks lama
         if (empty($cleanWords) && ! empty($lastContext['keywords']) && (str_contains($input, 'harga') || str_contains($input, 'spek') || ! empty($specs))) {
             $cleanWords = $lastContext['keywords'];
         }
@@ -384,7 +381,6 @@ class ChatWidget extends Component
             return null;
         }
 
-        // Simpan Konteks Baru
         Cache::put('chat_context_'.$this->sesi->id, ['keywords' => $cleanWords, 'specs' => $specs], now()->addMinutes(10));
 
         $query = Product::query()->where('is_active', true);
@@ -398,7 +394,6 @@ class ChatWidget extends Component
             });
         }
 
-        // Terapkan Negasi
         if (! empty($negations)) {
             foreach ($negations as $neg) {
                 $query->where('name', 'not like', "%{$neg}%");
@@ -421,7 +416,6 @@ class ChatWidget extends Component
             $query->where('sell_price', '>=', $minPrice);
         }
 
-        // Sorting
         if (str_contains($input, 'termurah') || str_contains($input, 'paling murah')) {
             $query->orderBy('sell_price', 'asc');
         } elseif (str_contains($input, 'termahal') || str_contains($input, 'paling mahal') || str_contains($input, 'sultan')) {
@@ -435,14 +429,24 @@ class ChatWidget extends Component
         if ($hasil->count() > 0) {
             $response = "Nih {$sapaan}, produk yang cocok:\n";
             foreach ($hasil as $p) {
+                // Predictive Stock Urgency
                 $stokInfo = $p->stock_quantity > 0 ? '✅ Ada' : '❌ Habis';
-                $response .= "\n🔹 **[{$p->name}](".route('toko.produk.detail', $p->id).")**\n   Rp ".number_format($p->sell_price, 0, ',', '.')." | {$stokInfo}";
+                if ($p->stock_quantity > 0 && $p->stock_quantity < 5) {
+                    $stokInfo = "⚠️ Sisa {$p->stock_quantity} (Cepat Habis!)";
+                }
+
+                // Price Insight
+                $priceLabel = '';
+                if ($p->sell_price < 5000000 && str_contains(strtolower($p->name), 'laptop')) {
+                    $priceLabel = '🔥 [Best Value]';
+                }
+
+                $response .= "\n🔹 **[{$p->name}](".route('toko.produk.detail', $p->id).")**\n   Rp ".number_format($p->sell_price, 0, ',', '.')." | {$stokInfo} {$priceLabel}";
             }
             if ($maxPrice) {
                 $response .= "\n\n_Budget max: Rp ".number_format($maxPrice, 0, ',', '.').'_';
             }
 
-            // Smart Recommendation (Cross-Selling)
             if (count($cleanWords) == 1 && in_array($cleanWords[0], ['cpu', 'processor'])) {
                 $response .= "\n\n💡 *Tip: Jangan lupa cek Motherboard-nya juga ya {$sapaan}!*";
             }
