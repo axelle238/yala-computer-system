@@ -25,8 +25,8 @@ Route::get('/lacak-pesanan', \App\Livewire\Front\TrackOrder::class)->name('toko.
 Route::get('/hubungi-kami', \App\Livewire\Store\ContactUs::class)->name('toko.kontak');
 Route::get('/tentang-kami', \App\Livewire\Store\AboutUs::class)->name('toko.tentang');
 Route::get('/keranjang', \App\Livewire\Store\Cart::class)->name('toko.keranjang');
-Route::get('/pembayaran-aman', \App\Livewire\Store\Checkout::class)->name('toko.pembayaran.aman')->middleware('store.configured');
-Route::get('/pembayaran', \App\Livewire\Store\Checkout::class)->name('toko.pembayaran')->middleware('store.configured');
+Route::get('/pembayaran-aman', \App\Livewire\Store\Checkout::class)->name('toko.pembayaran.aman')->middleware(['store.configured', 'auth']);
+Route::get('/pembayaran', \App\Livewire\Store\Checkout::class)->name('toko.pembayaran')->middleware(['store.configured', 'auth']);
 Route::get('/keinginan', \App\Livewire\Store\Wishlist::class)->name('toko.keinginan');
 Route::get('/pesanan-berhasil/{id}', \App\Livewire\Store\OrderSuccess::class)->name('toko.pesanan.berhasil');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('peta-situs');

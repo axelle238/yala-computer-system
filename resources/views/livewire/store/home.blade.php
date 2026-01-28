@@ -58,6 +58,7 @@
     @endif
 
     <!-- Fitur: Rakit PC -->
+    @auth
     <section class="relative py-20 bg-slate-950 border-y border-white/5 overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-cyan-900/10 to-transparent pointer-events-none"></div>
         <div class="container mx-auto px-4 relative z-10 flex flex-col md:flex-row items-center gap-12">
@@ -88,6 +89,7 @@
             </div>
         </div>
     </section>
+    @endauth
 
     <!-- Pratinjau Katalog Utama -->
     <section class="py-16 container mx-auto px-4">
