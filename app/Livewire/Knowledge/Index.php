@@ -3,6 +3,7 @@
 namespace App\Livewire\Knowledge;
 
 use App\Models\KnowledgeArticle;
+use App\Services\YalaIntelligence;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
@@ -37,6 +38,7 @@ class Index extends Component
 
     // Data Tampilan
     public $artikelAktif;
+    public $ringkasanAi = '';
 
     /**
      * Membuka panel buat artikel baru.
@@ -63,12 +65,17 @@ class Index extends Component
         $this->sedangMembaca = false;
     }
 
+use App\Services\YalaIntelligence;
+
+// ...
+
     /**
      * Membuka panel baca artikel.
      */
-    public function baca($id)
+    public function baca($id, YalaIntelligence $ai)
     {
         $this->artikelAktif = KnowledgeArticle::with('penulis')->findOrFail($id);
+        $this->ringkasanAi = $ai->ringkasArtikel($this->artikelAktif->content);
         $this->sedangMembaca = true;
         $this->sedangMengedit = false;
     }

@@ -72,6 +72,21 @@
                         </div>
                     </div>
 
+                    <!-- AI Summary -->
+                    @if($ringkasanAi)
+                        <div class="bg-gradient-to-r from-indigo-50 to-cyan-50 dark:from-indigo-900/20 dark:to-cyan-900/20 p-6 rounded-2xl mb-8 border border-indigo-100 dark:border-slate-700 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-4 opacity-10">
+                                <svg class="w-16 h-16 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                            </div>
+                            <h4 class="text-sm font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span> Ringkasan AI
+                            </h4>
+                            <div class="prose prose-sm text-slate-600 dark:text-slate-300">
+                                {!! Str::markdown($ringkasanAi) !!}
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="prose dark:prose-invert max-w-none text-slate-600 dark:text-slate-300">
                         {!! nl2br(e($artikelAktif->content)) !!}
                     </div>

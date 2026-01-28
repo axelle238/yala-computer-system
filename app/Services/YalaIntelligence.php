@@ -405,6 +405,29 @@ class YalaIntelligence
             'status' => $status,
             'persentase' => round($persenCapaian, 1),
             'saran' => $saran
-        ];
+    /**
+     * Meringkas Artikel Pengetahuan (Summarization AI).
+     */
+    public function ringkasArtikel($konten)
+    {
+        // Simulasi ekstraksi poin penting
+        $kalimat = preg_split('/(?<=[.?!])\s+(?=[a-z])/i', strip_tags($konten));
+        
+        $ringkasan = "📌 **Poin Penting (AI Generated):**\n\n";
+        
+        // Ambil 3 kalimat pertama yang mengandung keyword penting
+        $count = 0;
+        foreach($kalimat as $k) {
+            if ($count >= 3) break;
+            
+            // Filter kalimat pendek
+            if (strlen($k) < 20) continue;
+
+            $ringkasan .= "• " . trim($k) . "\n";
+            $count++;
+        }
+
+        $ringkasan .= "\n_Baca selengkapnya untuk detail teknis._";
+        return $ringkasan;
     }
 }
