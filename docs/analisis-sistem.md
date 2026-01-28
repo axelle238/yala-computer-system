@@ -1,45 +1,37 @@
 # Analisis Sistem Menyeluruh - Yala Computer
 Tanggal Audit: 28 Januari 2026
-Status: Pengembangan Tahap 3 (Validasi & Optimalisasi Fitur)
+Oleh: Gemini AI Code CLI
 
-## 1. Status Terkini Sistem
-Berdasarkan audit file `routes/web.php` dan `bootstrap/app.php`:
+## 1. Daftar Bug & Isu Teknis
+| No | Isu | Lokasi | Dampak |
+|---|---|---|---|
+| 1 | Rute `admin.laporan.harian` tidak ditemukan | `resources/views/livewire/dashboard.blade.php` | Error 404 saat klik tombol "Laporan Harian" di Dashboard. |
+| 2 | Inkonsistensi Layout Admin | 22 file di `app/Livewire/` | Tampilan tidak seragam antara modul (beberapa menggunakan `layouts.app`, lainnya `layouts.admin`). |
+| 3 | Middleware `store.configured` | `routes/web.php` | Perlu dipastikan pengaturan toko sudah ada di database agar tidak terjebak di redirect loop. |
+| 4 | Data Mock di Dashboard Keamanan | `app/Livewire/Security/Dashboard.php` | Visualisasi serangan masih menggunakan data statis/random, belum sepenuhnya dari log nyata. |
 
-### A. Routing & Middleware
-- **Struktur Rute**: Terdefinisi dengan sangat baik. Pemisahan `admin.*`, `anggota.*`, dan `toko.*` (Storefront) jelas.
-- **Bahasa**: Penamaan rute (`name()`) konsisten 100% Bahasa Indonesia.
-- **Keamanan**: Middleware `CyberShield` terpasang global. Middleware `store.configured` melindungi checkout.
-- **Redirect**: Logika redirect tamu (`redirectGuestsTo`) sudah membedakan antara login admin dan pelanggan.
+## 2. Daftar Fitur Setengah Jadi
+| No | Fitur | Status | Kebutuhan |
+|---|---|---|---|
+| 1 | Laporan Laba Rugi | Logika dasar ada | Perlu perhitungan HPP (COGS) yang lebih akurat (FIFO/Average). |
+| 2 | Manajemen Logistik | Fungsional minimal | Perlu integrasi cetak manifest dan pelacakan kurir pihak ketiga (API). |
+| 3 | Manajemen Aset | CRUD dasar | Perlu fitur otomatisasi depresiasi aset bulanan. |
+| 4 | Laporan Harian | Belum ada | Pembuatan komponen Livewire khusus untuk rekapitulasi harian (omset, kas, stok). |
 
-### B. Cakupan Fitur (Admin)
-- **Operasional Lengkap**: Mencakup Kasir (POS), Gudang, Servis, Perakitan PC, hingga SDM (Gaji, Kehadiran).
-- **Keamanan Siber**: Modul IDS, Firewall, dan Honeypot memiliki rute dedikasi.
-- **Logistik**: Manajemen pengiriman dan manifest tersedia.
+## 3. Daftar Inkonsistensi Frontend-Backend
+- **Model vs UI**: Nama model menggunakan Bahasa Inggris (standard Laravel), namun seluruh properti yang ditampilkan di UI sudah menggunakan Bahasa Indonesia.
+- **Notifikasi**: Sebagian besar menggunakan `dispatch('notify')`. Perlu standarisasi format notifikasi agar seragam di seluruh sistem.
 
-### C. Cakupan Fitur (Storefront)
-- **E-Commerce Penuh**: Katalog, Keranjang, Checkout, Lacak Pesanan.
-- **Fitur Khusus**: Rakit PC, Cek Garansi, Lacak Servis.
+## 4. Evaluasi Bahasa Indonesia (100%)
+- **Frontend**: 98% (Sangat Baik). Beberapa istilah teknis seperti "SOC", "IDS", "DDoS" di modul keamanan tetap digunakan karena merupakan standar industri.
+- **Backend**: Variabel dan fungsi sudah mulai menggunakan Bahasa Indonesia (misal: `$totalAkhir`, `$hitungTotal`).
+- **Pesan Error**: Perlu audit pada Form Request untuk memastikan seluruh pesan validasi menggunakan Bahasa Indonesia.
 
-## 2. Analisis Kesenjangan (Gap Analysis) & Fokus Perbaikan
+## 5. Rekomendasi Tindakan (Tahap 3)
+1.  **Perbaikan Cepat**: Definisikan rute `admin.laporan.harian` dan buat komponen dasarnya.
+2.  **Unifikasi Layout**: Migrasi seluruh komponen admin dari `layouts.app` ke `layouts.admin`.
+3.  **Pengembangan Dashboard**: Tambahkan grafik riil pada modul keamanan.
+4.  **Optimalisasi Keuangan**: Pertajam logika Laba Rugi.
 
-### Prioritas 1: Validasi Fungsional Dashboard
-Meskipun rute ada, konten dashboard seringkali hanya kerangka.
-- **Target**: Memastikan `App\Livewire\Dashboard` (Admin Utama) menampilkan metrik ringkasan yang nyata (bukan *dummy* statis jika memungkinkan).
-- **Tindakan**: Audit file `app/Livewire/Dashboard.php` dan view terkait.
-
-### Prioritas 2: Modul Keamanan (CyberShield)
-Fitur `admin.keamanan.*` sangat krusial untuk proyek ini.
-- **Target**: Memastikan halaman Firewall dan IDS menampilkan data log yang relevan atau status aktif.
-- **Tindakan**: Cek `App\Livewire\Security\Dashboard`.
-
-### Prioritas 3: Pengalaman Pengguna (Storefront)
-- **Target**: Memastikan alur "Beli -> Checkout" berjalan mulus tanpa error 500.
-- **Tindakan**: Simulasi (mental walkthrough) kode pada `App\Livewire\Store\Checkout`.
-
-## 3. Rencana Eksekusi Sesi Ini
-1.  **Audit Dashboard Admin**: Perbaiki tampilan jika kosong/rusak.
-2.  **Audit Modul Keamanan**: Pastikan visualisasi data keamanan muncul.
-3.  **Verifikasi Storefront**: Cek komponen Checkout.
-
-## 4. Log Perubahan
-- **28 Jan 2026**: Audit routing selesai. Struktur dinilai matang. Fokus beralih ke validasi isi komponen (Logic & View).
+---
+*Dokumen ini dibuat sebagai checkpoint-analisis untuk memandu pengembangan selanjutnya.*
