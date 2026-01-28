@@ -48,6 +48,7 @@ class ChatWidget extends Component
         'lepi' => 'laptop', 'leptop' => 'laptop',
         'garansi' => 'garansi', 'gransi' => 'garansi', 'warr' => 'garansi',
         'price' => 'harga', 'stock' => 'stok',
+        'ori' => 'original', 'oriq' => 'original', 'kw' => 'palsu',
     ];
 
     // Kamus data untuk koreksi typo & deteksi kategori
@@ -57,6 +58,7 @@ class ChatWidget extends Component
         'gaming', 'office', 'desain', 'sekolah', 'murah', 'mahal', 'promo',
         'asus', 'lenovo', 'hp', 'dell', 'acer', 'samsung', 'lg', 'logitech',
         'motherboard', 'intel', 'amd', 'ryzen', 'nvidia', 'radeon', 'msi', 'gigabyte',
+        'corsair', 'razer', 'steelseries', 'kingston', 'hyperx',
     ];
 
     // Data Ongkir Sederhana
@@ -65,6 +67,7 @@ class ChatWidget extends Component
         'tangerang' => 15000, 'bekasi' => 15000, 'bandung' => 20000,
         'surabaya' => 25000, 'semarang' => 30000, 'yogyakarta' => 30000,
         'medan' => 35000, 'denpasar' => 45000, 'makassar' => 45000,
+        'malang' => 27000, 'solo' => 28000, 'palembang' => 32000,
     ];
 
     public function mount()
@@ -154,7 +157,7 @@ class ChatWidget extends Component
     }
 
     /**
-     * Logika AI Chat "YALA" Generasi 7 (Predictive & Insightful).
+     * Logika AI Chat "YALA" Generasi 8 (Adaptive Intelligence).
      */
     private function prosesBot($pesan)
     {
@@ -205,7 +208,7 @@ class ChatWidget extends Component
         if (str_contains($pesanNormal, 'lacak') || str_contains($pesanNormal, 'resi')) {
             $jawaban = "🔍 **Lacak Paket**\nKetik Nomor Pesanan (misal: #ORD-123) atau Resi-nya disini ya {$sapaanUser}.";
         } elseif (str_contains($pesanNormal, 'rakit') || str_contains($pesanNormal, 'pc')) {
-            $jawaban = "🖥️ **Rakit PC**\nCek simulasi rakit PC disini {$sapaanUser}, lengkap sama harganya:\n👉 [Simulasi Rakit PC](".route('toko.rakit-pc').')';
+            $jawaban = "🖥️ **Rakit PC**\nCek simulasi rakit PC disini {$sapaanUser}, lengkap sama harganya:\n👉 [Simulasi Rakit PC](".route('toko.rakit-pc').'))';
         } elseif (str_contains($pesanNormal, 'admin') || str_contains($pesanNormal, 'cs') || str_contains($pesanNormal, 'orang')) {
             $jawaban = "Oke siap, saya panggilkan Admin CS sebentar ya {$sapaanUser}... ⏳\n(Ketik 'Selesai' kalau mau balik ke Bot)";
             Session::put('chat_mode_admin_'.$this->sesi->id, true);
@@ -225,7 +228,7 @@ class ChatWidget extends Component
             $jawaban = $this->cariProdukAdvanced($pesanNormal, $sapaanUser, $lastContext);
         }
 
-        // 7. Fallback
+        // 7. Fallback dengan Respon Cerdas
         if (empty($jawaban)) {
             if (! empty($lastContext['keywords'])) {
                 $lastTopic = implode(' ', $lastContext['keywords']);
