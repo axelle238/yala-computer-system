@@ -148,107 +148,164 @@ class ChatWidget extends Component
     }
 
     /**
-     * Logika AI Chat "YALA" untuk merespons pelanggan.
+     * Logika AI Chat "YALA" Generasi 2 (Lebih Manusiawi).
      */
     private function prosesBot($pesan)
     {
         $pesanLower = strtolower($pesan);
         $jawaban = '';
 
-        // 0. Cek Pola Order ID
-        if (preg_match('/^\d{4,}$/', $pesan) || preg_match('/#(\d{4,})/', $pesan, $matches)) {
-            $orderId = $matches[1] ?? $pesan;
-            $order = Order::where('id', $orderId)->orWhere('order_number', 'like', "%{$orderId}%")->first();
-            
-            if ($order) {
-                $statusLabel = match ($order->status) {
-                    'pending' => 'Menunggu Pembayaran',
-                    'processing' => 'Sedang Diproses',
-                    'shipped' => 'Dalam Pengiriman',
-                    'completed' => 'Selesai',
-                    'cancelled' => 'Dibatalkan',
-                    default => $order->status
-                };
-                $jawaban = "Pesanan **#{$order->order_number}** ditemukan!\n\nStatus: **{$statusLabel}**\nTotal: Rp ".number_format($order->total_amount, 0, ',', '.')."\nTanggal: {$order->created_at->format('d M Y')}";
-                
-                if ($order->status == 'shipped' && $order->shipping_tracking_number) {
-                    $jawaban .= "\n\nResi: `{$order->shipping_tracking_number}` ({$order->shipping_courier})";
-                }
-            }
+        // 1. Analisis Sentimen Sederhana
+        $isMarah = $this->analisisSentimen($pesanLower);
+        if ($isMarah) {
+            $jawaban = "Waduh, saya merasakan ketidaknyamanan Anda. 😟 Mohon maaf ya Kak. Bisa ceritakan detail masalahnya? Atau ketik **'Admin'** agar saya hubungkan langsung dengan Supervisor kami.";
+            $this->kirimBotResponse($jawaban);
+            return;
         }
 
-        // 1. Sapaan & Waktu
-        elseif (preg_match('/\b(halo|hai|pagi|siang|sore|malam)\b/', $pesanLower)) {
+        // 2. Deteksi Topik Spesifik
+        if (str_contains($pesanLower, 'lacak') || str_contains($pesanLower, 'resi') || str_contains($pesanLower, 'sampai mana')) {
+            $jawaban = "Siap bantu lacak! 🚚\nSilakan ketik **Nomor Pesanan** (contoh: #1234) atau Nomor Resi Anda di sini.";
+        }
+        elseif (str_contains($pesanLower, 'rakit') || str_contains($pesanLower, 'pc')) {
+            $jawaban = "Wah, mau rakit PC ya? Pilihan tepat! 🖥️\nKami punya fitur simulasi rakit PC. Klik di sini: [Mulai Rakit PC](" . route('toko.rakit-pc') . ")\n\nAtau butuh rekomendasi spesifikasi untuk gaming/editing?";
+        }
+        elseif (str_contains($pesanLower, 'garansi') || str_contains($pesanLower, 'rusak') || str_contains($pesanLower, 'klaim')) {
+            $jawaban = "Untuk klaim garansi atau servis, Kakak bisa bawa unitnya ke toko kami.\nPastikan bawa nota pembelian ya. 🛠️\n\nInfo lengkap cek di: [Cek Garansi](" . route('toko.cek-garansi') . ")";
+        }
+        // Cek Order ID (Regex)
+        elseif (preg_match('/\d{4,}/', $pesan, $matches)) {
+            $this->cekStatusOrder($matches[0]);
+            return;
+        }
+
+        // 3. Sapaan & Obrolan Ringan (Chit-Chat)
+        elseif (preg_match('/\b(halo|hai|pagi|siang|sore|malam|test|tes)\b/', $pesanLower)) {
             $jam = date('H');
-            $waktu = $jam < 12 ? 'Pagi' : ($jam < 15 ? 'Siang' : ($jam < 18 ? 'Sore' : 'Malam'));
+            $sapaan = $jam < 12 ? 'Pagi' : ($jam < 15 ? 'Siang' : ($jam < 18 ? 'Sore' : 'Malam'));
             $user = Auth::user();
-            $nama = $user ? $user->name : 'Kak';
-            
-            $jawaban = "Halo, Selamat {$waktu} {$nama}! 👋\n\nSaya **YALA**, asisten virtual Yala Computer.\nSilakan tanya stok produk, status pesanan, atau ketik **'Admin'** untuk chat dengan staf kami.";
+            $nama = $user ? explode(' ', $user->name)[0] : 'Kak';
+            $jawaban = "Halo, Selamat {$sapaan} {$nama}! 👋\nSenang bertemu Anda. Ada yang bisa Yala bantu cari hari ini? (Laptop, VGA, atau status paket?)";
         }
 
-        // 2. Info Toko
-        elseif (str_contains($pesanLower, 'jam') || str_contains($pesanLower, 'buka') || str_contains($pesanLower, 'tutup')) {
-            $jawaban = "**Jam Operasional:**\n\nSenin - Sabtu: 09:00 - 20:00 WIB\nMinggu: 10:00 - 18:00 WIB\n\nOrder online tetap buka 24 jam!";
-        } elseif (str_contains($pesanLower, 'lokasi') || str_contains($pesanLower, 'alamat')) {
-            $jawaban = "Kami berlokasi di:\n**Jl. Teknologi No. 88, Jakarta Selatan**\n\nDatang ya, banyak promo menarik di toko! 🏢";
+        // 4. Pencarian Produk Cerdas (Inti Fitur)
+        if (empty($jawaban)) {
+            $jawaban = $this->cariProdukCerdas($pesan);
         }
 
-        // 3. Knowledge Base
-        elseif (class_exists('\App\Models\KnowledgeArticle')) {
-            $article = \App\Models\KnowledgeArticle::where('title', 'like', "%{$pesan}%")
-                ->orWhere('content', 'like', "%{$pesan}%")
-                ->where('is_published', true)
-                ->first();
-            
-            if ($article) {
-                $jawaban = "Mungkin info ini membantu:\n\n**{$article->title}**\n\n" . Str::limit(strip_tags($article->content), 150) . "\n\n[Baca Detail](" . route('toko.bantuan') . ")";
-            }
-        }
-
-        // 4. Handover ke Admin
-        if (!$jawaban && (str_contains($pesanLower, 'admin') || str_contains($pesanLower, 'cs') || str_contains($pesanLower, 'orang'))) {
-            $jawaban = "Baik, saya hubungkan dengan Admin kami ya. Mohon tunggu sebentar...\n\n(Ketik **'Selesai'** jika ingin kembali chat dengan YALA)";
-            
-            // Set session mode admin
+        // 5. Handover ke Admin (Jika user minta eksplisit)
+        if (str_contains($pesanLower, 'admin') || str_contains($pesanLower, 'cs') || str_contains($pesanLower, 'orang')) {
+            $jawaban = "Oke, saya panggilkan Admin CS kami ya. Mohon tunggu sebentar... ⏳\n(Nanti chat ini akan dibalas manusia asli)";
             Session::put('chat_mode_admin_' . $this->sesi->id, true);
+            
+            // Notif Admin (Opsional)
+            // ...
+        }
 
-            // Notifikasi ke Admin
-            $admins = User::where('role', 'admin')->get();
-            if ($admins->count() > 0) {
-                Notification::send($admins, new NewChatMessage($pesan, Auth::user()->name ?? 'Tamu'));
+        // 6. Fallback Terakhir (Jangan Menolak!)
+        if (empty($jawaban)) {
+            $jawaban = $this->jawabanVariatif('bingung');
+        }
+
+        $this->kirimBotResponse($jawaban);
+    }
+
+    private function cekStatusOrder($orderId)
+    {
+        // Bersihkan ID (hapus # jika ada)
+        $cleanId = str_replace('#', '', $orderId);
+        $order = Order::where('id', $cleanId)->orWhere('order_number', 'like', "%{$cleanId}%")->first();
+
+        if ($order) {
+            $msg = "Ketemu! Pesanan **#{$order->order_number}**\nStatus: **" . strtoupper($order->status) . "**\n";
+            if ($order->status == 'shipped') {
+                $msg .= "Resi: `{$order->shipping_tracking_number}`\nEkspedisi: {$order->shipping_courier}";
+            } elseif ($order->status == 'pending') {
+                $msg .= "Mohon segera lakukan pembayaran ya Kak.";
             }
+            $this->kirimBotResponse($msg);
+        } else {
+            $this->kirimBotResponse("Hmm, saya cari pesanan #{$cleanId} kok belum ketemu ya? 🤔 Pastikan angkanya benar ya Kak.");
         }
+    }
 
-        // 5. Cek Stok (Fallback)
-        if (!$jawaban) {
-            $produk = Product::where('name', 'like', '%'.$pesan.'%')
-                ->orWhere('sku', 'like', '%'.$pesan.'%')
-                ->where('is_active', true)
-                ->take(3)
-                ->get();
+    private function cariProdukCerdas($input)
+    {
+        // Hapus kata-kata umum (stop words)
+        $stopWords = ['apakah', 'ada', 'jual', 'stok', 'harga', 'berapa', 'yang', 'mau', 'beli', 'cari', 'tolong'];
+        $keywords = collect(explode(' ', strtolower($input)))
+            ->reject(fn($w) => in_array($w, $stopWords) || strlen($w) < 3)
+            ->values();
 
-            if ($produk->count() > 0) {
-                $jawaban = "Produk yang mungkin Anda cari:\n";
-                foreach ($produk as $p) {
-                    $stok = $p->stock_quantity > 0 ? "✅ Stok: {$p->stock_quantity}" : "❌ Habis";
-                    $jawaban .= "\n- **{$p->name}**\n  Rp ".number_format($p->sell_price, 0, ',', '.')." | {$stok}";
-                }
-                $jawaban .= "\n\nKlik nama produk untuk detailnya.";
-            } else {
-                $jawaban = "Maaf, saya kurang paham. Coba kata kunci lain atau ketik **'Admin'** untuk bantuan manusia. 🙏";
+        if ($keywords->isEmpty()) return null;
+
+        // Cari Produk (Query fleksibel)
+        $query = Product::query()->where('is_active', true);
+        
+        $query->where(function($q) use ($keywords) {
+            foreach ($keywords as $word) {
+                $q->orWhere('name', 'like', "%{$word}%")
+                  ->orWhere('description', 'like', "%{$word}%")
+                  ->orWhereHas('kategori', fn($k) => $k->where('name', 'like', "%{$word}%"));
             }
+        });
+
+        $hasil = $query->take(3)->get();
+
+        if ($hasil->count() > 0) {
+            $response = "Saya menemukan beberapa produk yang mungkin cocok:\n";
+            foreach ($hasil as $p) {
+                $stokInfo = $p->stock_quantity > 0 ? "✅ Ready" : "❌ Habis";
+                $response .= "\n🔹 **[{$p->name}](" . route('toko.produk.detail', $p->id) . ")**\n   Rp " . number_format($p->sell_price, 0, ',', '.') . " | {$stokInfo}";
+            }
+            $response .= "\n\nKlik nama produk untuk detail spesifikasinya ya Kak.";
+            return $response;
         }
 
-        if ($jawaban) {
-            PesanObrolan::create([
-                'id_sesi' => $this->sesi->id,
-                'id_pengguna' => null,
-                'is_balasan_admin' => true,
-                'isi' => $jawaban,
-                'is_dibaca' => true,
-            ]);
+        return null;
+    }
+
+    private function analisisSentimen($text)
+    {
+        $kataNegatif = ['kecewa', 'lama', 'lambat', 'penipu', 'rusak', 'batal', 'jelek', 'bodoh', 'anjing', 'babi'];
+        foreach ($kataNegatif as $bad) {
+            if (str_contains($text, $bad)) return true;
         }
+        return false;
+    }
+
+    private function jawabanVariatif($tipe)
+    {
+        $opsi = [];
+        if ($tipe == 'bingung') {
+            $opsi = [
+                "Hmm, saya sedang belajar memahami itu. 🤔 Bisa gunakan kata kunci yang lebih sederhana? (misal: 'Laptop Asus', 'Cek Resi')",
+                "Saya kurang yakin maksudnya, tapi saya siap bantu carikan produk. Coba sebutkan nama barangnya?",
+                "Waduh, Yala belum diajari tentang itu. Tapi kalau mau tanya stok atau rakit PC, Yala jagonya! 😎",
+                "Maaf Kak, bisa diulangi? Saya ingin memastikan saya memberikan info yang tepat."
+            ];
+        }
+
+        return $opsi[array_rand($opsi)];
+    }
+
+    private function kirimBotResponse($isi)
+    {
+        PesanObrolan::create([
+            'id_sesi' => $this->sesi->id,
+            'id_pengguna' => null,
+            'is_balasan_admin' => true,
+            'isi' => $isi,
+            'is_dibaca' => true,
+        ]);
+    }
+
+    /**
+     * Logika AI Chat "YALA" untuk merespons pelanggan. (DEPRECATED - Diganti prosesBot Baru)
+     */
+    private function prosesBot_OLD($pesan)
+    {
+        // ... (Kode Lama) ...
     }
 
     public function tandaiDibaca()
