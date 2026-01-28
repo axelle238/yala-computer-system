@@ -70,6 +70,14 @@ class ChatWidget extends Component
         'malang' => 27000, 'solo' => 28000, 'palembang' => 32000,
     ];
 
+    // Pengetahuan Teknis Dasar (Knowledge Base)
+    private $knowledgeBase = [
+        'ssd' => 'SSD (Solid State Drive) jauh lebih cepat dari HDD biasa, Gan. Booting Windows bisa cuma hitungan detik!',
+        'ram' => 'Semakin besar RAM, semakin lancar multitaskingnya. Untuk standar sekarang minimal 8GB ya.',
+        'vga' => 'VGA atau Kartu Grafis penting banget buat yang suka main game berat atau editing video.',
+        'processor' => 'Processor itu otak komputer. Intel Core atau AMD Ryzen sama-sama bagus, tergantung kebutuhan dan budget.',
+    ];
+
     public function mount()
     {
         $this->tokenTamu = Session::get('token_tamu_chat');
@@ -173,7 +181,7 @@ class ChatWidget extends Component
 
         $jawaban = '';
 
-        // 1. Analisis Sentimen
+        // 1. Analisis Sentimen (Empati)
         if ($this->analisisSentimen($pesanNormal)) {
             $jawaban = "Waduh, maaf banget ya {$sapaanUser} kalau ada yang bikin gak nyaman. 😟 Boleh ketik **'Admin'** biar langsung dibantu sama tim support kami?";
             $this->kirimBotResponse($jawaban);
@@ -181,7 +189,17 @@ class ChatWidget extends Component
             return;
         }
 
-        // 2. Cek Ongkos Kirim
+        // 2. Edukasi / Knowledge Base (New Feature Gen-8)
+        foreach ($this->knowledgeBase as $key => $info) {
+            if (str_contains($pesanNormal, 'apa itu '.$key) || str_contains($pesanNormal, 'bedanya '.$key) || str_contains($pesanNormal, 'fungsi '.$key)) {
+                $jawaban = "💡 **Info Teknis:**\n{$info}";
+                $this->kirimBotResponse($jawaban);
+
+                return;
+            }
+        }
+
+        // 3. Cek Ongkos Kirim
         if (preg_match('/ongkir.*ke\s+([a-z\s]+)/i', $pesanNormal, $matches) || preg_match('/biaya.*kirim.*ke\s+([a-z\s]+)/i', $pesanNormal, $matches)) {
             $kota = trim($matches[1]);
             $this->cekOngkir($kota, $sapaanUser);
@@ -189,7 +207,7 @@ class ChatWidget extends Component
             return;
         }
 
-        // 3. Info Pembayaran
+        // 4. Info Pembayaran
         if (str_contains($pesanNormal, 'bayar') || str_contains($pesanNormal, 'rekening') || str_contains($pesanNormal, 'transfer')) {
             $jawaban = "💳 **Cara Bayar**\nBisa transfer (BCA, Mandiri), E-Wallet (GoPay, OVO), atau Kartu Kredit {$sapaanUser}. Pilih aja pas Checkout nanti ya!";
             $this->kirimBotResponse($jawaban);
@@ -197,18 +215,18 @@ class ChatWidget extends Component
             return;
         }
 
-        // 4. Cek Status Toko
+        // 5. Cek Status Toko
         if (str_contains($pesanNormal, 'buka') || str_contains($pesanNormal, 'tutup') || str_contains($pesanNormal, 'jam')) {
             $this->cekStatusToko($sapaanUser);
 
             return;
         }
 
-        // 5. Deteksi Topik Khusus
+        // 6. Deteksi Topik Khusus
         if (str_contains($pesanNormal, 'lacak') || str_contains($pesanNormal, 'resi')) {
             $jawaban = "🔍 **Lacak Paket**\nKetik Nomor Pesanan (misal: #ORD-123) atau Resi-nya disini ya {$sapaanUser}.";
         } elseif (str_contains($pesanNormal, 'rakit') || str_contains($pesanNormal, 'pc')) {
-            $jawaban = "🖥️ **Rakit PC**\nCek simulasi rakit PC disini {$sapaanUser}, lengkap sama harganya:\n👉 [Simulasi Rakit PC](".route('toko.rakit-pc').'))';
+            $jawaban = "🖥️ **Rakit PC**\nCek simulasi rakit PC disini {$sapaanUser}, lengkap sama harganya:\n👉 [Simulasi Rakit PC](".route('toko.rakit-pc').')';
         } elseif (str_contains($pesanNormal, 'admin') || str_contains($pesanNormal, 'cs') || str_contains($pesanNormal, 'orang')) {
             $jawaban = "Oke siap, saya panggilkan Admin CS sebentar ya {$sapaanUser}... ⏳\n(Ketik 'Selesai' kalau mau balik ke Bot)";
             Session::put('chat_mode_admin_'.$this->sesi->id, true);
@@ -223,12 +241,12 @@ class ChatWidget extends Component
             $jawaban = "Halo, Selamat {$waktu} {$sapaanUser}! 👋\nYALA siap bantu. Mau cari **Laptop Gaming**, **Cek Ongkir**, atau **Rakit PC**?";
         }
 
-        // 6. Pencarian Produk Cerdas (Advanced + Context)
+        // 7. Pencarian Produk Cerdas (Advanced + Context)
         if (empty($jawaban)) {
             $jawaban = $this->cariProdukAdvanced($pesanNormal, $sapaanUser, $lastContext);
         }
 
-        // 7. Fallback dengan Respon Cerdas
+        // 8. Fallback
         if (empty($jawaban)) {
             if (! empty($lastContext['keywords'])) {
                 $lastTopic = implode(' ', $lastContext['keywords']);
