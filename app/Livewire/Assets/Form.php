@@ -7,8 +7,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Form Aset - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Formulir Aset - Yala Computer')]
 class Form extends Component
 {
     public $name;

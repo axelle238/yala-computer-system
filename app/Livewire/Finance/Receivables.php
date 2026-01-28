@@ -11,8 +11,8 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('layouts.app')]
-#[Title('Piutang Penjualan (Receivables) - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Manajemen Piutang - Yala Computer')]
 class Receivables extends Component
 {
     use WithPagination;

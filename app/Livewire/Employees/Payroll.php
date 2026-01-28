@@ -12,8 +12,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Payroll System - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Slip Gaji Karyawan - Yala Computer')]
 class Payroll extends Component
 {
     public $month;

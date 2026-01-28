@@ -10,8 +10,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Order Details')]
+#[Layout('layouts.admin')]
+#[Title('Detail Pesanan - Yala Computer')]
 class Show extends Component
 {
     public Order $order;

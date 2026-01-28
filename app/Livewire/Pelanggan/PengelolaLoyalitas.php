@@ -7,8 +7,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Loyalitas & Keanggotaan - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Pengelola Loyalitas - Yala Computer')]
 class PengelolaLoyalitas extends Component
 {
     public $daftarGrup;

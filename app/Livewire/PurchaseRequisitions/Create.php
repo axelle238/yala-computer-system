@@ -10,8 +10,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Buat Pengajuan (PR) - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Buat Permintaan Stok - Yala Computer')]
 class Create extends Component
 {
     public $pr_number;

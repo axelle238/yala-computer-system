@@ -7,8 +7,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Manajemen Pesanan (Kanban) - Admin')]
+#[Layout('layouts.admin')]
+#[Title('Daftar Pesanan - Yala Computer')]
 class Index extends Component
 {
     public $cari = '';

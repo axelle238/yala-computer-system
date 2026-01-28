@@ -8,8 +8,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Service Kanban - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Pusat Servis - Yala Computer')]
 class Index extends Component
 {
     public $statuses = [

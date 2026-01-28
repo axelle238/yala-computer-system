@@ -9,8 +9,8 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-#[Layout('layouts.app')]
-#[Title('Form Banner - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Formulir Banner - Yala Computer')]
 class Form extends Component
 {
     use WithFileUploads;

@@ -8,8 +8,8 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('layouts.app')]
-#[Title('Purchase Requisitions - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Daftar Permintaan Stok - Yala Computer')]
 class Index extends Component
 {
     use WithPagination;

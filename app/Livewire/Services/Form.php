@@ -16,8 +16,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Service Workbench - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Formulir Penerimaan Servis - Yala Computer')]
 class Form extends Component
 {
     public ?ServiceTicket $ticket = null;

@@ -11,8 +11,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Form RMA - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Formulir RMA - Yala Computer')]
 class Form extends Component
 {
     public ?Rma $rma = null;

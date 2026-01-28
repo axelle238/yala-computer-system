@@ -12,8 +12,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Buat Penawaran Harga - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Buat Penawaran - Yala Computer')]
 class Create extends Component
 {
     // Header Data

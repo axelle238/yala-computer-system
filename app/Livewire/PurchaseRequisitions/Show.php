@@ -7,8 +7,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
-#[Title('Detail Pengajuan (PR) - Yala Computer')]
+#[Layout('layouts.admin')]
+#[Title('Detail Permintaan Stok - Yala Computer')]
 class Show extends Component
 {
     public PurchaseRequisition $pr;
