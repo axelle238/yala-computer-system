@@ -7,6 +7,7 @@ use App\Models\InventoryTransaction;
 use App\Models\Order;
 use App\Models\Payroll;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -40,18 +41,18 @@ class ProfitLoss extends Component
         $totalRevenue = $orders->sum('total_amount');
 
         // 2. COGS (Harga Pokok Penjualan)
-        // Hitung total harga beli dari item yang terjual
-        // Idealnya pakai FIFO/Average dari InventoryTransaction, tapi untuk MVP kita pakai harga beli saat ini atau history
-        // Kita gunakan InventoryTransaction type 'out' (Sales) di periode ini untuk akurasi HPP historis jika ada data COGS di sana
-        // Jika tidak, kita hitung manual dari Order Items * Buy Price Product saat ini (Simplifikasi)
+        // Mengambil total HPP dari transaksi inventaris keluar di periode ini
+        $cogs = InventoryTransaction::where('type', 'out')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->sum(DB::raw('quantity * cogs'));
 
-        $cogs = 0;
-        foreach ($orders as $order) {
-            foreach ($order->item as $item) {
-                // Best effort: Get transaction linked or use current buy price
-                // Since we don't link specific transaction to order item yet, use current product buy price
-                $buyPrice = $item->produk->buy_price ?? 0;
-                $cogs += ($buyPrice * $item->quantity);
+        // Jika data cogs di InventoryTransaction kosong (transaksi lama), gunakan fallback ke perhitungan manual
+        if ($cogs <= 0) {
+            foreach ($orders as $order) {
+                foreach ($order->item as $item) {
+                    $buyPrice = $item->produk->buy_price ?? 0;
+                    $cogs += ($buyPrice * $item->quantity);
+                }
             }
         }
 
