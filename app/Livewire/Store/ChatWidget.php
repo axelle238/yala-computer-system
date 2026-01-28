@@ -23,9 +23,9 @@ class ChatWidget extends Component
 
     public $pesanBaru = '';
 
-    public $tokenTamu;
-
     public $modeBot = true;
+
+    public $isLoggedIn = false;
 
     // Kamus Normalisasi (Singkatan -> Baku)
     private $kamusSlang = [
@@ -80,14 +80,11 @@ class ChatWidget extends Component
 
     public function mount()
     {
-        $this->tokenTamu = Session::get('token_tamu_chat');
-
-        if (! $this->tokenTamu && ! Auth::check()) {
-            $this->tokenTamu = Str::random(32);
-            Session::put('token_tamu_chat', $this->tokenTamu);
+        $this->isLoggedIn = Auth::check();
+        
+        if ($this->isLoggedIn) {
+            $this->muatSesi();
         }
-
-        $this->muatSesi();
     }
 
     public function muatSesi()
@@ -95,7 +92,7 @@ class ChatWidget extends Component
         if (Auth::check()) {
             $this->sesi = SesiObrolan::where('id_pelanggan', Auth::id())->latest()->first();
         } else {
-            $this->sesi = SesiObrolan::where('token_tamu', $this->tokenTamu)->latest()->first();
+            $this->sesi = null;
         }
     }
 
@@ -109,16 +106,16 @@ class ChatWidget extends Component
 
     public function kirimPesan()
     {
-        $this->validate(['pesanBaru' => 'required|string|min:1']);
-
-        if (! $this->tokenTamu && ! Auth::check()) {
-            $this->tokenTamu = Session::get('token_tamu_chat');
+        if (! Auth::check()) {
+            return;
         }
+
+        $this->validate(['pesanBaru' => 'required|string|min:1']);
 
         if (! $this->sesi) {
             $this->sesi = SesiObrolan::create([
                 'id_pelanggan' => Auth::id(),
-                'token_tamu' => Auth::check() ? null : $this->tokenTamu,
+                'token_tamu' => null,
                 'topik' => 'Obrolan Baru',
             ]);
         }

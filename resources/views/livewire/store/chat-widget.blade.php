@@ -79,8 +79,8 @@
             @endforeach
         </div>
 
-        <!-- Quick Suggestions (Hanya jika TIDAK dalam mode admin) -->
-        @if(!$isAdminMode)
+        <!-- Quick Suggestions (Hanya jika TIDAK dalam mode admin DAN sudah login) -->
+        @if(!$isAdminMode && Auth::check())
             <div class="px-5 pb-2 bg-[#F9FAFB] dark:bg-[#0f0f0f] flex gap-2 overflow-x-auto no-scrollbar">
                 <button wire:click="$set('pesanBaru', 'Cek status pesanan saya')" class="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 hover:border-black dark:hover:border-white transition-colors shadow-sm">
                     📦 Cek Pesanan
@@ -96,15 +96,30 @@
 
         <!-- Input Area -->
         <div class="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
-            <form wire:submit.prevent="kirimPesan" class="relative">
-                <input wire:model.live="pesanBaru" type="text" placeholder="{{ $isAdminMode ? 'Ketik pesan untuk Admin...' : 'Tulis pesan...' }}" 
-                    class="w-full pl-4 pr-12 py-3.5 bg-slate-50 dark:bg-slate-800 border-0 rounded-xl focus:ring-2 focus:ring-black dark:focus:ring-white text-slate-900 dark:text-white placeholder-slate-400 font-medium transition-all">
-                
-                <button type="submit" class="absolute right-2 top-2 p-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:scale-105 transition-transform disabled:opacity-50" wire:loading.attr="disabled" wire:target="kirimPesan">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-                </button>
-            </form>
-            @error('pesanBaru') <span class="text-xs text-red-500 block mt-1 ml-1">{{ $message }}</span> @enderror
+            @auth
+                <form wire:submit.prevent="kirimPesan" class="relative">
+                    <input wire:model.live="pesanBaru" type="text" placeholder="{{ $isAdminMode ? 'Ketik pesan untuk Admin...' : 'Tulis pesan...' }}" 
+                        class="w-full pl-4 pr-12 py-3.5 bg-slate-50 dark:bg-slate-800 border-0 rounded-xl focus:ring-2 focus:ring-black dark:focus:ring-white text-slate-900 dark:text-white placeholder-slate-400 font-medium transition-all">
+                    
+                    <button type="submit" class="absolute right-2 top-2 p-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:scale-105 transition-transform disabled:opacity-50" wire:loading.attr="disabled" wire:target="kirimPesan">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                    </button>
+                </form>
+                @error('pesanBaru') <span class="text-xs text-red-500 block mt-1 ml-1">{{ $message }}</span> @enderror
+            @else
+                <div class="text-center py-2 space-y-3">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Silakan masuk untuk memulai obrolan dengan kami.</p>
+                    <div class="flex gap-2 justify-center">
+                        <a href="{{ route('pelanggan.masuk') }}" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg text-xs font-bold transition-colors">
+                            Masuk
+                        </a>
+                        <a href="{{ route('pelanggan.daftar') }}" class="px-4 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white rounded-lg text-xs font-bold transition-colors">
+                            Daftar
+                        </a>
+                    </div>
+                </div>
+            @endauth
+            
             <p class="text-[10px] text-center text-slate-400 mt-2 font-medium">
                 {{ $isAdminMode ? 'Terhubung dengan Staf Support' : 'Powered by Yala AI • Respon Instan' }}
             </p>
