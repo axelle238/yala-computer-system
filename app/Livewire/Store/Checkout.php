@@ -263,6 +263,17 @@ class Checkout extends Component
             return;
         }
 
+        // VALIDASI STOK SEBELUM TRANSAKSI
+        foreach ($this->itemKeranjang as $item) {
+            if ($item['produk']->stock_quantity < $item['qty']) {
+                $this->dispatch('notify', 
+                    message: "Stok produk '{$item['produk']->name}' tidak mencukupi (Sisa: {$item['produk']->stock_quantity}). Mohon kurangi jumlah.", 
+                    type: 'error'
+                );
+                return;
+            }
+        }
+
         $pesanan = DB::transaction(function () {
             $pesanan = Order::create([
                 'order_number' => 'ORD-'.date('Ymd').'-'.strtoupper(Str::random(4)),
